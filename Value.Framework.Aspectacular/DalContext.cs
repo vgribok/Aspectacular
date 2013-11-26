@@ -2,26 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-
 using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
 {
-    public abstract class Aspect
+    public class InterceptedMethodMetadata
     {
-        public DalContextBase Context { get; set; }
+        protected MethodCallExpression interceptedMethodExpression;
+        public MethodInfo MethodReflectionInfo { get; private set; }
+        public IEnumerable<Attribute> MethodAttributes { get { return this.MethodReflectionInfo.GetCustomAttributes(); } }
 
-        public Aspect() { }
+        public InterceptedMethodMetadata(LambdaExpression callLambdaExp)
+        {
+            try
+            {
+                this.interceptedMethodExpression = (MethodCallExpression)callLambdaExp.Body;
+            }
+            catch (Exception ex)
+            {
+                string errorText = "Intercepted method expression must be a function call. \"{0}\" is invalid in this context."
+                                        .SmartFormat(callLambdaExp.Body);
+                throw new ArgumentException(errorText, ex);
+            }
 
-        public virtual void Step_1_BeforeResolvingInstance() { }
-
-        public virtual void Step_2_BeforeTryingMethodExec() { }
-        public virtual void Step_3_Optional_AfterCatchingMethodExecException() { }
-        public virtual void Step_4_FinallyAfterMethodExecution() { }
-
-        public virtual void Step_5_Optional_AfterInstanceCleanup() { }
+            this.MethodReflectionInfo = this.interceptedMethodExpression.Method;
+        }
     }
 
     public abstract class DalContextBase
@@ -29,8 +37,7 @@ namespace Value.Framework.Aspectacular
         public object AugmentedClassInstance { get; protected set; }
         //protected IDisposable AugmentedDisposableInstance { get { return this.AugmentedClassInstance as IDisposable; } }
 
-        protected LambdaExpression methodExp { get; set; }
-        protected Delegate blMethod;
+        protected Delegate interceptedMethod;
 
         //private bool responsibleForDeallocation;
         private Func<object> instanceResolverFunc;
@@ -38,6 +45,7 @@ namespace Value.Framework.Aspectacular
 
         public object MethodExecutionResult { get; protected set; }
         public Exception MethodExecutionException { get; protected set; }
+        public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
 
         public bool MedthodHasFailed { get { return this.MethodExecutionException != null; } }
 
@@ -66,7 +74,7 @@ namespace Value.Framework.Aspectacular
             this.AugmentedClassInstance = this.instanceResolverFunc();
         }
 
-        protected virtual void ExecuteMainSequence(Action blMethodCaller)
+        protected virtual void ExecuteMainSequence(Action interceptedMethodCaller)
         {
             if (this.AugmentedClassInstance == null)
                 throw new Exception("Instance for AOP augmentation needs to be specified before intercepted method can be called.");
@@ -78,7 +86,7 @@ namespace Value.Framework.Aspectacular
 
             try
             {
-                blMethodCaller.Invoke();
+                interceptedMethodCaller.Invoke();
             }
             catch (Exception ex)
             {
@@ -121,10 +129,10 @@ namespace Value.Framework.Aspectacular
                 cutPointHandler(aspect);
         }
 
-        protected void InitMethodMetadata(MethodCallExpression methodExp)
+        protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethod)
         {
-            // TBD
-            methodExp.Method.ToString();
+            this.interceptedMethod = interceptedMethod;
+            this.InterceptedCallMetaData = new InterceptedMethodMetadata(callLambdaWrapper);
         }
     }
 
@@ -157,13 +165,11 @@ namespace Value.Framework.Aspectacular
         {
             this.ResolveClassInstance();
 
+            // Call proxy to return method call (lambda) expression
             Expression<Func<TOut>> blClosureExp = proxy(this.AugmentedClassInstance as TInstance);
-            this.InitMethodMetadata((MethodCallExpression)blClosureExp.Body);
-
-            this.methodExp = blClosureExp;
 
             Func<TOut> blDelegate = blClosureExp.Compile();
-            this.blMethod = blDelegate;
+            this.InitMethodMetadata(blClosureExp, blDelegate);
 
             TOut retVal = default(TOut);
 

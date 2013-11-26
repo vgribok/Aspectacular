@@ -24,6 +24,11 @@ namespace Value.Framework.UnitTests
         {
             return string.Format("{0} {1}", (prefix ?? "[No Prefix]"), this.dt);
         }
+
+        public bool ThrowFailure()
+        {
+            throw new Exception("Expected exception in a test method.");
+        }
     }
 
     public class SomeTestDisposable : IDisposable

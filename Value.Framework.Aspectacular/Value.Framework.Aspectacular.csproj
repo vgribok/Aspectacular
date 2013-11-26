@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Aspect.cs" />
     <Compile Include="DalContext.cs" />
     <Compile Include="DispDalContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
