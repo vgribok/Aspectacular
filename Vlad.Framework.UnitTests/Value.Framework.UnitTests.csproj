@@ -50,10 +50,11 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="AspectacularTest\AspectacularText.cs" />
+    <Compile Include="AspectacularTest\AspectacularTest.cs" />
     <Compile Include="CoreTests\StringExtTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunCounter.cs" />
+    <Compile Include="SomeClass.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Value.Framework.Aspectacular\Value.Framework.Aspectacular.csproj">
