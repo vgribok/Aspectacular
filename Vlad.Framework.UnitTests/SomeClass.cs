@@ -29,6 +29,11 @@ namespace Value.Framework.UnitTests
         {
             throw new Exception("Expected exception in a test method.");
         }
+
+        public int DoNothing(int arg = 0)
+        {
+            return arg;
+        }
     }
 
     public class SomeTestDisposable : IDisposable

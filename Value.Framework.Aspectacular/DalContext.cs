@@ -184,7 +184,7 @@ namespace Value.Framework.Aspectacular
 
     public static partial class AOP
     {
-        public static TOut RunAugmented<TInstance, TOut>(this TInstance instance, Func<TInstance, Expression<Func<TOut>>> proxy, params Aspect[] aspects)
+        public static TOut RunAugmented<TInstance, TOut>(this TInstance instance, Aspect[] aspects, Func<TInstance, Expression<Func<TOut>>> proxy)
             where TInstance : class
         {
             var context = new DalContext<TInstance>(() => instance, aspects);

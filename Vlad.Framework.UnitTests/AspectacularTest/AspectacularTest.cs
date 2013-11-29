@@ -24,10 +24,10 @@ namespace Value.Framework.UnitTests.AspectacularTest
         public void TestOne()
         {
             var dal = new SomeTestClass(new DateTime(2010, 2, 5));
-            string actual = dal.RunAugmented<SomeTestClass, string>(ctx => () => ctx.GetDateString("whatevs"), TestAspects);
+            string actual = dal.RunAugmented<SomeTestClass, string>(TestAspects, ctx => () => ctx.GetDateString("whatevs"));
             Assert.AreEqual("whatevs 2/5/2010 12:00:00 AM", actual);
 
-            actual = AOP.AllocRunDispose<SomeTestDisposable, string>(disp => () => disp.Echo("some text"), TestAspects);
+            actual = AOP.AllocRunDispose<SomeTestDisposable, string>(TestAspects, disp => () => disp.Echo("some text"));
             Assert.AreEqual("some text", actual);
         }
 
@@ -35,7 +35,8 @@ namespace Value.Framework.UnitTests.AspectacularTest
         [ExpectedException(typeof(ArgumentException))]
         public void TestNonMethodExpressionInterceptionFailure()
         {
-            string actual = AOP.RunAugmented<SomeTestClass, string>(new SomeTestClass(), ctx => () => ctx.GetDateString("whatevs") + "123", TestAspects);
+            var instance = new SomeTestClass();
+            string actual = instance.RunAugmented<SomeTestClass, string>(TestAspects, ctx => () => ctx.GetDateString("whatevs") + "123");
             actual.ToString();
         }
 
@@ -44,18 +45,20 @@ namespace Value.Framework.UnitTests.AspectacularTest
         public void TestInterceptedException()
         {
             var dal = new SomeTestClass(new DateTime(2010, 2, 5));
-            dal.RunAugmented<SomeTestClass, bool>(ctx => () => ctx.ThrowFailure(), TestAspects);
+            dal.RunAugmented<SomeTestClass, bool>(TestAspects, ctx => () => ctx.ThrowFailure());
         }
 
         [TestMethod]
         public void CallCounter()
         {
-            //var dal = new DalContextBase();
-            //int id = 123;
-            
-            //long count = RunCounter.Spin(10000, () => dal.Execute<string>(ctx => () => ctx.FakeBlMethod(id)));
-            //count.ToString();
-            //Trace.WriteLine();
+            var dal = new SomeTestClass();
+            int id = 123;
+            Aspect[] aspects = { new DoNothingPerfTestAspect() };
+            const int millisecToRun = 1000;
+            const int baseLineRunsPerSec = 4000;
+            long count = RunCounter.Spin(millisecToRun, () => dal.RunAugmented<SomeTestClass, int>(aspects, ctx => () => ctx.DoNothing(id)));
+            long runsPerSec = count / (millisecToRun / 1000);
+            Assert.IsTrue(runsPerSec >= baseLineRunsPerSec);
         }
     }
 }

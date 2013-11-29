@@ -30,7 +30,7 @@ namespace Value.Framework.Aspectacular
 
     public static partial class AOP
     {
-        public static TOut AllocRunDispose<TInstance, TOut>(Func<TInstance, Expression<Func<TOut>>> proxy, params Aspect[] aspects)
+        public static TOut AllocRunDispose<TInstance, TOut>(Aspect[] aspects, Func<TInstance, Expression<Func<TOut>>> proxy)
             where TInstance : class, IDisposable, new()
         {
             var context = new AllocateRunDisposeContext<TInstance>(aspects);

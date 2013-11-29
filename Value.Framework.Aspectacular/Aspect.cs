@@ -24,6 +24,11 @@ namespace Value.Framework.Aspectacular
         public virtual void Step_5_Optional_AfterInstanceCleanup() { }
     }
 
+    internal class DoNothingPerfTestAspect : Aspect
+    {
+
+    }
+
     public class DebugOutputAspect : Aspect
     {
         public override void Step_4_FinallyAfterMethodExecution()
