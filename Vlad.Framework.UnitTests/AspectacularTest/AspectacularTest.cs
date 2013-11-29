@@ -48,16 +48,71 @@ namespace Value.Framework.UnitTests.AspectacularTest
             dal.RunAugmented<SomeTestClass, bool>(TestAspects, ctx => () => ctx.ThrowFailure());
         }
 
+        const int millisecToRun = 2 * 1000;
+        static readonly Aspect[] aspects = { new DoNothingPerfTestAspect() };
+
         [TestMethod]
-        public void CallCounter()
+        public void CallConstPerfCounter()
         {
+            const int baseLineConstParmRunsPerSec = 4000;
+            long count, runsPerSec;
+
             var dal = new SomeTestClass();
-            int id = 123;
-            Aspect[] aspects = { new DoNothingPerfTestAspect() };
-            const int millisecToRun = 1000;
-            const int baseLineRunsPerSec = 4000;
-            long count = RunCounter.Spin(millisecToRun, () => dal.RunAugmented<SomeTestClass, int>(aspects, ctx => () => ctx.DoNothing(id)));
-            long runsPerSec = count / (millisecToRun / 1000);
+
+            count = RunCounter.Spin(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(123, "bogus", false, 1m, null)));
+            runsPerSec = count / (millisecToRun / 1000);
+            Assert.IsTrue(runsPerSec >= baseLineConstParmRunsPerSec);
+        }
+
+        [TestMethod]
+        public void CallConstStaticPerfCounter()
+        {
+            const int baseLineConstStaticParmRunsPerSec = 9000;
+
+            long count, runsPerSec;
+
+            count = RunCounter.Spin(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
+            runsPerSec = count / (millisecToRun / 1000);
+            Assert.IsTrue(runsPerSec >= baseLineConstStaticParmRunsPerSec);
+        }
+
+        [TestMethod]
+        public void CallPerfCounter()
+        {
+            const int baseLineRunsPerSec = 3000;
+
+            long count, runsPerSec;
+
+            var dal = new SomeTestClass();
+
+            int parmInt = 123;
+            string parmStr = "bogus";
+            bool parmBool = false;
+            decimal parmDec = 1.0m;
+            int[] arr = { 1, 2, 3, 4, 5 };
+
+            count = RunCounter.Spin(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(parmInt, parmStr, parmBool, parmDec, arr)));
+            runsPerSec = count / (millisecToRun / 1000);
+            Assert.IsTrue(runsPerSec >= baseLineRunsPerSec);
+        }
+
+        [TestMethod]
+        public void CallPerfStaticCounter()
+        {
+            const int baseLineRunsPerSec = 3000;
+
+            long count, runsPerSec;
+
+            var dal = new SomeTestClass();
+
+            int parmInt = 123;
+            string parmStr = "bogus";
+            bool parmBool = false;
+            decimal parmDec = 1.0m;
+            int[] arr = { 1, 2, 3, 4, 5 };
+
+            count = RunCounter.Spin(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
+            runsPerSec = count / (millisecToRun / 1000);
             Assert.IsTrue(runsPerSec >= baseLineRunsPerSec);
         }
     }

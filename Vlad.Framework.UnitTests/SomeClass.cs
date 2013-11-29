@@ -30,9 +30,19 @@ namespace Value.Framework.UnitTests
             throw new Exception("Expected exception in a test method.");
         }
 
-        public int DoNothing(int arg = 0)
+        public int DoNothing(int arg = 0, string hkwStr = null, bool bogusBool = true, decimal bogusDec = 0m, IEnumerable<int> sequence = null)
         {
             return arg;
+        }
+
+        public static int DoNothingStatic(int arg = 0, string hkwStr = null, bool bogusBool = true, decimal bogusDec = 0m, IEnumerable<int> sequence = null)
+        {
+            return arg;
+        }
+
+        public void DoNothing(string bogus)
+        {
+            bogus.ToString();
         }
     }
 
