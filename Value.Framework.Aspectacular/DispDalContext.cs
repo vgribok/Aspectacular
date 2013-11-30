@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Value.Framework.Aspectacular
 {
-    public class AllocateRunDisposeContext<TDispClass> : DalContext<TDispClass> 
+    public class AllocateRunDisposeInterceptor<TDispClass> : InstanceInterceptor<TDispClass> 
         where TDispClass : class, IDisposable, new()
     {
         private static TDispClass Instantiate()
@@ -22,7 +22,7 @@ namespace Value.Framework.Aspectacular
                 instance.Dispose();
         }
 
-        public AllocateRunDisposeContext(params Aspect[] aspects)
+        public AllocateRunDisposeInterceptor(params Aspect[] aspects)
             : base(Instantiate, Cleanup, aspects)
         {
         }
@@ -30,12 +30,33 @@ namespace Value.Framework.Aspectacular
 
     public static partial class AOP
     {
+        /// <summary>
+        /// Instantiates object, runs its instance method *returning TOut* result, and disposes of the instance.
+        /// </summary>
+        /// <typeparam name="TInstance"></typeparam>
+        /// <typeparam name="TOut"></typeparam>
+        /// <param name="aspects"></param>
+        /// <param name="proxy"></param>
+        /// <returns></returns>
         public static TOut AllocRunDispose<TInstance, TOut>(Aspect[] aspects, Func<TInstance, Expression<Func<TOut>>> proxy)
             where TInstance : class, IDisposable, new()
         {
-            var context = new AllocateRunDisposeContext<TInstance>(aspects);
-            TOut retVal = context.Execute<TOut>(proxy);
+            var interceptor = new AllocateRunDisposeInterceptor<TInstance>(aspects);
+            TOut retVal = interceptor.Execute<TOut>(proxy);
             return retVal;
+        }
+
+        /// <summary>
+        /// Instantiates object, runs its instance method *returning nothing", and disposes of the instance.
+        /// </summary>
+        /// <typeparam name="TInstance"></typeparam>
+        /// <param name="aspects"></param>
+        /// <param name="proxy"></param>
+        public static void AllocRunDispose<TInstance>(Aspect[] aspects, Func<TInstance, Expression<Action>> proxy)
+            where TInstance : class, IDisposable, new()
+        {
+            var interceptor = new AllocateRunDisposeInterceptor<TInstance>(aspects);
+            interceptor.Execute(proxy);
         }
     }
 }

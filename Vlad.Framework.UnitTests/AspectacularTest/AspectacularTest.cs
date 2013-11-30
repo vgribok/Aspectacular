@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+using Value.Framework.Core;
 using Value.Framework.Aspectacular;
-using System.Diagnostics;
 
 namespace Value.Framework.UnitTests.AspectacularTest
 {
@@ -31,6 +32,40 @@ namespace Value.Framework.UnitTests.AspectacularTest
             Assert.AreEqual("some text", actual);
         }
 
+        public int IntProp { get; set; }
+
+        [TestMethod]
+        public void TestMethodMetadata()
+        {
+            int intParm = 456;
+            this.IntProp = intParm;
+            string refString = DateTime.Now.ToString();
+            bool outBool = false;
+
+            AOP.RunAugmented(TestAspects, () => () => SomeTestClass.MiscParms(this.IntProp, ref refString, out outBool));
+            Assert.IsTrue(outBool);
+        }
+
+        [TestMethod]
+        public void PrintTypeNames()
+        {
+            bool boolV = true;
+            byte byteV = 1;
+            short shortV = 2;
+            ushort ushortV = 3;
+            float floatV = 0;
+            decimal decimalV = 1m;
+            double doubleV = 0.0;
+            sbyte sbyteV = 0;
+
+            object[] vals = 
+            { 
+                boolV, byteV, sbyteV, shortV, ushortV, decimalV, floatV, doubleV
+            };
+
+            vals.ForEach(val => Debug.WriteLine("{0}", val.GetType()));
+        }
+
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void TestNonMethodExpressionInterceptionFailure()
@@ -49,7 +84,16 @@ namespace Value.Framework.UnitTests.AspectacularTest
         }
 
         const int millisecToRun = 2 * 1000;
-        static readonly Aspect[] aspects = { new DoNothingPerfTestAspect() };
+        Aspect[] doNothingAspects
+        {
+            get
+            {
+                return new Aspect[] 
+                { 
+                    new DoNothingPerfTestAspect() 
+                };
+            }
+        }
 
         [TestMethod]
         public void CallConstPerfCounter()
@@ -58,22 +102,22 @@ namespace Value.Framework.UnitTests.AspectacularTest
 
             var dal = new SomeTestClass();
 
-            long runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(123, "bogus", false, 1m, null)));
+            long runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => dal.RunAugmented(doNothingAspects, ctx => () => ctx.DoNothing(123, "bogus", false, 1m, null)));
             Assert.IsTrue(runsPerSec >= baseLineConstParmRunsPerSec);
         }
 
         [TestMethod]
         public void CallConstStaticPerfCounter()
         {
-            const int baseLineSingleThreadConstStaticParmRunsPerSec = 9000;
-            const int baseLineMultiThreadConstStaticParmRunsPerSec = 33500;
-
+            const int baseLineMultiThreadConstStaticParmRunsPerSec = 31500; // 33500;
+            const int baseLineSingleThreadConstStaticParmRunsPerSec = 8500; // 9000
+            
             long runsPerSec;
 
-            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
+            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.RunAugmented(doNothingAspects, () => () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
             Assert.IsTrue(runsPerSec >= baseLineMultiThreadConstStaticParmRunsPerSec);
 
-            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.RunAugmented(doNothingAspects, () => () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
             Assert.IsTrue(runsPerSec >= baseLineSingleThreadConstStaticParmRunsPerSec);
         }
 
@@ -92,10 +136,10 @@ namespace Value.Framework.UnitTests.AspectacularTest
             decimal parmDec = 1.0m;
             int[] arr = { 1, 2, 3, 4, 5 };
 
-            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(parmInt, parmStr, parmBool, parmDec, arr)));
+            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => dal.RunAugmented(doNothingAspects, ctx => () => ctx.DoNothing(parmInt, parmStr, parmBool, parmDec, arr)));
             Assert.IsTrue(runsPerSec >= baseLineMultiThreadRunsPerSec);
 
-            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(parmInt, parmStr, parmBool, parmDec, arr)));
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => dal.RunAugmented(doNothingAspects, ctx => () => ctx.DoNothing(parmInt, parmStr, parmBool, parmDec, arr)));
             Assert.IsTrue(runsPerSec >= baseLineSingleThreadRunsPerSec);
         }
 
@@ -110,7 +154,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
             decimal parmDec = 1.0m;
             int[] arr = { 1, 2, 3, 4, 5 };
 
-            long runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
+            long runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.RunAugmented(doNothingAspects, () => () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
             Assert.IsTrue(runsPerSec >= baseLineRunsPerSec);
         }
     }

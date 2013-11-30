@@ -9,30 +9,7 @@ using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
 {
-    public class InterceptedMethodMetadata
-    {
-        protected MethodCallExpression interceptedMethodExpression;
-        public MethodInfo MethodReflectionInfo { get; private set; }
-        public IEnumerable<Attribute> MethodAttributes { get { return this.MethodReflectionInfo.GetCustomAttributes(); } }
-
-        public InterceptedMethodMetadata(LambdaExpression callLambdaExp)
-        {
-            try
-            {
-                this.interceptedMethodExpression = (MethodCallExpression)callLambdaExp.Body;
-            }
-            catch (Exception ex)
-            {
-                string errorText = "Intercepted method expression must be a function call. \"{0}\" is invalid in this context."
-                                        .SmartFormat(callLambdaExp.Body);
-                throw new ArgumentException(errorText, ex);
-            }
-
-            this.MethodReflectionInfo = this.interceptedMethodExpression.Method;
-        }
-    }
-
-    public class DalContextBase
+    public class Interceptor
     {
         public object AugmentedClassInstance { get; protected set; }
         //protected IDisposable AugmentedDisposableInstance { get { return this.AugmentedClassInstance as IDisposable; } }
@@ -50,7 +27,7 @@ namespace Value.Framework.Aspectacular
 
         protected readonly List<Aspect> aspects = new List<Aspect>();
 
-        public DalContextBase(Func<object> instanceFactory, Action<object> instanceCleaner, params Aspect[] aspects)
+        public Interceptor(Func<object> instanceFactory, Action<object> instanceCleaner, params Aspect[] aspects)
         {
             this.instanceResolverFunc = instanceFactory;
             this.instanceCleanerFunc = instanceCleaner;
@@ -62,7 +39,7 @@ namespace Value.Framework.Aspectacular
             }
         }
 
-        public DalContextBase(Func<object> instanceFactory, params Aspect[] aspects)
+        public Interceptor(Func<object> instanceFactory, params Aspect[] aspects)
             : this(instanceFactory, instanceCleaner: null, aspects: aspects)
         {
         }
@@ -174,7 +151,7 @@ namespace Value.Framework.Aspectacular
         }
     }
 
-    public class DalContext<TInstance> : DalContextBase
+    public class InstanceInterceptor<TInstance> : Interceptor
         where TInstance : class
     {
         public new TInstance AugmentedClassInstance
@@ -182,7 +159,7 @@ namespace Value.Framework.Aspectacular
             get { return (TInstance)base.AugmentedClassInstance; }
         }
 
-        public DalContext(Func<TInstance> instanceFactory, Action<TInstance> instanceCleaner, params Aspect[] aspects)
+        public InstanceInterceptor(Func<TInstance> instanceFactory, Action<TInstance> instanceCleaner, params Aspect[] aspects)
             : base(instanceFactory, 
                    inst => 
                     { 
@@ -193,7 +170,7 @@ namespace Value.Framework.Aspectacular
         {
         }
 
-        public DalContext(Func<TInstance> instanceFactory, params Aspect[] aspects)
+        public InstanceInterceptor(Func<TInstance> instanceFactory, params Aspect[] aspects)
             : this(instanceFactory, instanceCleaner: null, aspects: aspects)
         {
         }
@@ -256,7 +233,7 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public static TOut RunAugmented<TOut>(Aspect[] aspects, Func<Expression<Func<TOut>>> proxy)
         {
-            var context = new DalContextBase(null, aspects);
+            var context = new Interceptor(null, aspects);
             TOut retVal = context.Execute<TOut>(proxy);
             return retVal;
         }
@@ -268,7 +245,7 @@ namespace Value.Framework.Aspectacular
         /// <param name="proxy"></param>
         public static void RunAugmented(Aspect[] aspects, Func<Expression<Action>> proxy)
         {
-            var context = new DalContextBase(null, aspects);
+            var context = new Interceptor(null, aspects);
             context.Execute(proxy);
         }
 
@@ -284,7 +261,7 @@ namespace Value.Framework.Aspectacular
         public static TOut RunAugmented<TInstance, TOut>(this TInstance instance, Aspect[] aspects, Func<TInstance, Expression<Func<TOut>>> proxy)
             where TInstance : class
         {
-            var context = new DalContext<TInstance>(() => instance, aspects);
+            var context = new InstanceInterceptor<TInstance>(() => instance, aspects);
             TOut retVal = context.Execute<TOut>(proxy);
             return retVal;
         }
@@ -299,7 +276,7 @@ namespace Value.Framework.Aspectacular
         public static void RunAugmented<TInstance>(this TInstance instance, Aspect[] aspects, Func<TInstance, Expression<Action>> proxy)
             where TInstance : class
         {
-            var context = new DalContext<TInstance>(() => instance, aspects);
+            var context = new InstanceInterceptor<TInstance>(() => instance, aspects);
             context.Execute(proxy);
         }
     }

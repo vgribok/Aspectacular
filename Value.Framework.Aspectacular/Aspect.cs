@@ -11,7 +11,7 @@ namespace Value.Framework.Aspectacular
 {
     public abstract class Aspect
     {
-        public DalContextBase Context { get; set; }
+        public Interceptor Context { get; set; }
 
         public Aspect() { }
 
@@ -26,17 +26,27 @@ namespace Value.Framework.Aspectacular
 
     internal class DoNothingPerfTestAspect : Aspect
     {
-
+        public override void Step_2_BeforeTryingMethodExec()
+        {
+            //string sign = this.Context.InterceptedCallMetaData.GetMethodSignature();
+            //sign.ToString();
+        }
     }
 
     public class DebugOutputAspect : Aspect
     {
-        public override void Step_4_FinallyAfterMethodExecution()
+        public override void Step_2_BeforeTryingMethodExec()
         {
-            Debug.WriteLine("Method \"{0}\" {1}.".SmartFormat(
-                    this.Context.InterceptedCallMetaData.MethodReflectionInfo,
-                    this.Context.MedthodHasFailed ? "failed" : "succeeded")
-            );
+            string methodSign = this.Context.InterceptedCallMetaData.GetMethodSignature();
+            Debug.WriteLine("About to call method \"{0}\".".SmartFormat(methodSign));
         }
+
+        //public override void Step_4_FinallyAfterMethodExecution()
+        //{
+        //    Debug.WriteLine("Method \"{0}\" {1}.".SmartFormat(
+        //            this.Context.InterceptedCallMetaData.GetMethodSignature(),
+        //            this.Context.MedthodHasFailed ? "failed" : "succeeded")
+        //    );
+        //}
     }
 }

@@ -44,6 +44,12 @@ namespace Value.Framework.UnitTests
         {
             bogus.ToString();
         }
+
+        public static void MiscParms(int intParm, ref string refString, out bool outBool)
+        {
+            refString = string.Format("{0} {1}", intParm, refString);
+            outBool = true;
+        }
     }
 
     public class SomeTestDisposable : IDisposable
