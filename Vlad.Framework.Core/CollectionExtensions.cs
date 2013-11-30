@@ -43,5 +43,17 @@ namespace Value.Framework.Core
 
             return backwards;
         }
+
+        /// <summary>
+        /// foreach loop done with a delegate.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="func"></param>
+        public static void ForEach<T>(this IEnumerable<T> collection, Action<T> func)
+        {
+            foreach (T elem in collection)
+                func(elem);
+        }
     }
 }

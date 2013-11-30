@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Value.Framework.Core;
+
 namespace Value.Framework.UnitTests
 {
     public static class RunCounter
@@ -31,6 +33,62 @@ namespace Value.Framework.UnitTests
             Debug.WriteLine("Ran \"{0}\" {1:#,#} times in {2:#,#} milliseconds.", funcToTest, count, millisecondsToRun);
 
             return count;
+        }
+
+        /// <summary>
+        /// Runs a function for given time span, and return average runs per second.
+        /// </summary>
+        /// <param name="millisecondsToRun"></param>
+        /// <param name="funcToTest"></param>
+        /// <returns></returns>
+        public static long SpinPerSec(long millisecondsToRun, Action funcToTest)
+        {
+            long count = Spin(millisecondsToRun, funcToTest);
+            long runsPerSec = count / (millisecondsToRun / 1000);
+            return runsPerSec;
+        }
+
+        /// <summary>
+        /// Runs given function in parallel on multiple tasks.
+        /// Number of tasks spawned matches number of logical processors.
+        /// </summary>
+        /// <param name="millisecondsToRun"></param>
+        /// <param name="funcToTest"></param>
+        /// <returns></returns>
+        public static long SpinParallel(long millisecondsToRun, Action funcToTest)
+        {
+            Task<long>[] tasks = new Task<long>[Environment.ProcessorCount];
+
+            for (int i = 0; i < Environment.ProcessorCount; i++)
+            {
+                tasks[i] = new Task<long>(() => Spin(millisecondsToRun, funcToTest));
+            }
+
+            var start = DateTime.UtcNow;
+
+            tasks.ForEach(task => task.Start());
+            Task.WaitAll(tasks);
+
+            long ranMillisec = (long)(DateTime.UtcNow - start).TotalMilliseconds;
+            Debug.WriteLine("Parallel call counting run time mismatch is {0:#,#} milliseconds.", ranMillisec - millisecondsToRun);
+
+            long[] runCounts = tasks.Select(thread => thread.Result).ToArray();
+            long total = runCounts.Sum();
+            return total;
+        }
+
+        /// <summary>
+        /// Runs a function for given time span, and return average runs per second.
+        /// Number of tasks spawned matches number of logical processors.
+        /// </summary>
+        /// <param name="millisecondsToRun"></param>
+        /// <param name="funcToTest"></param>
+        /// <returns></returns>
+        public static long SpinParallelPerSec(long millisecondsToRun, Action funcToTest)
+        {
+            long count = SpinParallel(millisecondsToRun, funcToTest);
+            long runsPerSec = count / (millisecondsToRun / 1000);
+            return runsPerSec;
         }
     }
 }

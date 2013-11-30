@@ -55,35 +55,36 @@ namespace Value.Framework.UnitTests.AspectacularTest
         public void CallConstPerfCounter()
         {
             const int baseLineConstParmRunsPerSec = 4000;
-            long count, runsPerSec;
 
             var dal = new SomeTestClass();
 
-            count = RunCounter.Spin(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(123, "bogus", false, 1m, null)));
-            runsPerSec = count / (millisecToRun / 1000);
+            long runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(123, "bogus", false, 1m, null)));
             Assert.IsTrue(runsPerSec >= baseLineConstParmRunsPerSec);
         }
 
         [TestMethod]
         public void CallConstStaticPerfCounter()
         {
-            const int baseLineConstStaticParmRunsPerSec = 9000;
+            const int baseLineSingleThreadConstStaticParmRunsPerSec = 9000;
+            const int baseLineMultiThreadConstStaticParmRunsPerSec = 33500;
 
-            long count, runsPerSec;
+            long runsPerSec;
 
-            count = RunCounter.Spin(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
-            runsPerSec = count / (millisecToRun / 1000);
-            Assert.IsTrue(runsPerSec >= baseLineConstStaticParmRunsPerSec);
+            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
+            Assert.IsTrue(runsPerSec >= baseLineMultiThreadConstStaticParmRunsPerSec);
+
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
+            Assert.IsTrue(runsPerSec >= baseLineSingleThreadConstStaticParmRunsPerSec);
         }
 
         [TestMethod]
         public void CallPerfCounter()
         {
-            const int baseLineRunsPerSec = 3000;
-
-            long count, runsPerSec;
+            const int baseLineSingleThreadRunsPerSec = 2700;
+            const int baseLineMultiThreadRunsPerSec = 10000;
 
             var dal = new SomeTestClass();
+            long runsPerSec;
 
             int parmInt = 123;
             string parmStr = "bogus";
@@ -91,19 +92,17 @@ namespace Value.Framework.UnitTests.AspectacularTest
             decimal parmDec = 1.0m;
             int[] arr = { 1, 2, 3, 4, 5 };
 
-            count = RunCounter.Spin(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(parmInt, parmStr, parmBool, parmDec, arr)));
-            runsPerSec = count / (millisecToRun / 1000);
-            Assert.IsTrue(runsPerSec >= baseLineRunsPerSec);
+            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(parmInt, parmStr, parmBool, parmDec, arr)));
+            Assert.IsTrue(runsPerSec >= baseLineMultiThreadRunsPerSec);
+
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => dal.RunAugmented(aspects, ctx => () => ctx.DoNothing(parmInt, parmStr, parmBool, parmDec, arr)));
+            Assert.IsTrue(runsPerSec >= baseLineSingleThreadRunsPerSec);
         }
 
         [TestMethod]
         public void CallPerfStaticCounter()
         {
-            const int baseLineRunsPerSec = 3000;
-
-            long count, runsPerSec;
-
-            var dal = new SomeTestClass();
+            const int baseLineRunsPerSec = 3500;
 
             int parmInt = 123;
             string parmStr = "bogus";
@@ -111,8 +110,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
             decimal parmDec = 1.0m;
             int[] arr = { 1, 2, 3, 4, 5 };
 
-            count = RunCounter.Spin(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
-            runsPerSec = count / (millisecToRun / 1000);
+            long runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.RunAugmented(aspects, () => () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
             Assert.IsTrue(runsPerSec >= baseLineRunsPerSec);
         }
     }
