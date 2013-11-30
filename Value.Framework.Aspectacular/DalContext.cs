@@ -117,7 +117,7 @@ namespace Value.Framework.Aspectacular
         /// <typeparam name="TOut"></typeparam>
         /// <param name="proxy"></param>
         /// <returns></returns>
-        public TOut Execute<TOut>(Func<Expression<Func<TOut>>> proxy)
+        public TOut Invoke<TOut>(Func<Expression<Func<TOut>>> proxy)
         {
             // Call proxy to return method call (lambda) expression
             Expression<Func<TOut>> blClosureExp = proxy.Invoke();
@@ -139,7 +139,7 @@ namespace Value.Framework.Aspectacular
         /// Executes/intercepts *static* function with no return value.
         /// </summary>
         /// <param name="proxy"></param>
-        public void Execute(Func<Expression<Action>> proxy)
+        public void Invoke(Func<Expression<Action>> proxy)
         {
             // Call proxy to return method call (lambda) expression
             Expression<Action> blClosureExp = proxy.Invoke();
@@ -159,7 +159,7 @@ namespace Value.Framework.Aspectacular
             get { return (TInstance)base.AugmentedClassInstance; }
         }
 
-        public InstanceInterceptor(Func<TInstance> instanceFactory, Action<TInstance> instanceCleaner, params Aspect[] aspects)
+        public InstanceInterceptor(Func<TInstance> instanceFactory, Action<TInstance> instanceCleaner, Aspect[] aspects)
             : base(instanceFactory, 
                    inst => 
                     { 
@@ -175,13 +175,18 @@ namespace Value.Framework.Aspectacular
         {
         }
 
+        public InstanceInterceptor(TInstance instance, params Aspect[] aspects)
+            : this(() => instance, instanceCleaner: null, aspects: aspects)
+        {
+        }
+
         /// <summary>
         /// Executes/intercepts *instance* function with TOut return value.
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="proxy"></param>
         /// <returns></returns>
-        public TOut Execute<TOut>(Func<TInstance, Expression<Func<TOut>>> proxy)
+        public TOut Invoke<TOut>(Func<TInstance, Expression<Func<TOut>>> proxy)
         {
             this.ResolveClassInstance();
 
@@ -205,7 +210,7 @@ namespace Value.Framework.Aspectacular
         /// Executes/intercepts *instance* function with no return value.
         /// </summary>
         /// <param name="proxy"></param>
-        public void Execute(Func<TInstance, Expression<Action>> proxy)
+        public void Invoke(Func<TInstance, Expression<Action>> proxy)
         {
             this.ResolveClassInstance();
 
@@ -234,7 +239,7 @@ namespace Value.Framework.Aspectacular
         public static TOut RunAugmented<TOut>(Aspect[] aspects, Func<Expression<Func<TOut>>> proxy)
         {
             var context = new Interceptor(null, aspects);
-            TOut retVal = context.Execute<TOut>(proxy);
+            TOut retVal = context.Invoke<TOut>(proxy);
             return retVal;
         }
 
@@ -246,38 +251,45 @@ namespace Value.Framework.Aspectacular
         public static void RunAugmented(Aspect[] aspects, Func<Expression<Action>> proxy)
         {
             var context = new Interceptor(null, aspects);
-            context.Execute(proxy);
+            context.Invoke(proxy);
         }
 
-        /// <summary>
-        /// Executes/intercepts *instance* function with TOut return value.
-        /// </summary>
-        /// <typeparam name="TInstance"></typeparam>
-        /// <typeparam name="TOut"></typeparam>
-        /// <param name="instance"></param>
-        /// <param name="aspects"></param>
-        /// <param name="proxy"></param>
-        /// <returns></returns>
-        public static TOut RunAugmented<TInstance, TOut>(this TInstance instance, Aspect[] aspects, Func<TInstance, Expression<Func<TOut>>> proxy)
-            where TInstance : class
-        {
-            var context = new InstanceInterceptor<TInstance>(() => instance, aspects);
-            TOut retVal = context.Execute<TOut>(proxy);
-            return retVal;
-        }
+        ///// <summary>
+        ///// Executes/intercepts *instance* function with TOut return value.
+        ///// </summary>
+        ///// <typeparam name="TInstance"></typeparam>
+        ///// <typeparam name="TOut"></typeparam>
+        ///// <param name="instance"></param>
+        ///// <param name="aspects"></param>
+        ///// <param name="proxy"></param>
+        ///// <returns></returns>
+        //public static TOut RunAugmented<TInstance, TOut>(this TInstance instance, Aspect[] aspects, Func<TInstance, Expression<Func<TOut>>> proxy)
+        //    where TInstance : class
+        //{
+        //    var context = new InstanceInterceptor<TInstance>(() => instance, aspects);
+        //    TOut retVal = context.Invoke<TOut>(proxy);
+        //    return retVal;
+        //}
 
-        /// <summary>
-        /// Executes/intercepts *instance* function with no return value.
-        /// </summary>
-        /// <typeparam name="TInstance"></typeparam>
-        /// <param name="instance"></param>
-        /// <param name="aspects"></param>
-        /// <param name="proxy"></param>
-        public static void RunAugmented<TInstance>(this TInstance instance, Aspect[] aspects, Func<TInstance, Expression<Action>> proxy)
+        ///// <summary>
+        ///// Executes/intercepts *instance* function with no return value.
+        ///// </summary>
+        ///// <typeparam name="TInstance"></typeparam>
+        ///// <param name="instance"></param>
+        ///// <param name="aspects"></param>
+        ///// <param name="proxy"></param>
+        //public static void RunAugmented<TInstance>(this TInstance instance, Aspect[] aspects, Func<TInstance, Expression<Action>> proxy)
+        //    where TInstance : class
+        //{
+        //    var context = new InstanceInterceptor<TInstance>(() => instance, aspects);
+        //    context.Invoke(proxy);
+        //}
+
+        public static InstanceInterceptor<TInstance> GetInterceptor<TInstance>(this TInstance instance, params Aspect[] aspects)
             where TInstance : class
         {
-            var context = new InstanceInterceptor<TInstance>(() => instance, aspects);
-            context.Execute(proxy);
+            var interceptor = new InstanceInterceptor<TInstance>(instance, aspects);
+            return interceptor;
         }
     }
 }

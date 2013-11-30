@@ -42,7 +42,7 @@ namespace Value.Framework.Aspectacular
             where TInstance : class, IDisposable, new()
         {
             var interceptor = new AllocateRunDisposeInterceptor<TInstance>(aspects);
-            TOut retVal = interceptor.Execute<TOut>(proxy);
+            TOut retVal = interceptor.Invoke<TOut>(proxy);
             return retVal;
         }
 
@@ -56,7 +56,7 @@ namespace Value.Framework.Aspectacular
             where TInstance : class, IDisposable, new()
         {
             var interceptor = new AllocateRunDisposeInterceptor<TInstance>(aspects);
-            interceptor.Execute(proxy);
+            interceptor.Invoke(proxy);
         }
     }
 }
