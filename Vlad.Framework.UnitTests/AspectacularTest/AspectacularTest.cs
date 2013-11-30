@@ -21,6 +21,19 @@ namespace Value.Framework.UnitTests.AspectacularTest
             }
         }
 
+        const int millisecToRun = 2 * 1000;
+
+        private Aspect[] doNothingAspects
+        {
+            get
+            {
+                return new Aspect[] 
+                { 
+                    new DoNothingPerfTestAspect() 
+                };
+            }
+        }
+
         [TestMethod]
         public void TestOne()
         {
@@ -47,26 +60,6 @@ namespace Value.Framework.UnitTests.AspectacularTest
         }
 
         [TestMethod]
-        public void PrintTypeNames()
-        {
-            bool boolV = true;
-            byte byteV = 1;
-            short shortV = 2;
-            ushort ushortV = 3;
-            float floatV = 0;
-            decimal decimalV = 1m;
-            double doubleV = 0.0;
-            sbyte sbyteV = 0;
-
-            object[] vals = 
-            { 
-                boolV, byteV, sbyteV, shortV, ushortV, decimalV, floatV, doubleV
-            };
-
-            vals.ForEach(val => Debug.WriteLine("{0}", val.GetType()));
-        }
-
-        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void TestNonMethodExpressionInterceptionFailure()
         {
@@ -81,18 +74,6 @@ namespace Value.Framework.UnitTests.AspectacularTest
         {
             var dal = new SomeTestClass(new DateTime(2010, 2, 5));
             dal.RunAugmented<SomeTestClass, bool>(TestAspects, ctx => () => ctx.ThrowFailure());
-        }
-
-        const int millisecToRun = 2 * 1000;
-        Aspect[] doNothingAspects
-        {
-            get
-            {
-                return new Aspect[] 
-                { 
-                    new DoNothingPerfTestAspect() 
-                };
-            }
         }
 
         [TestMethod]
