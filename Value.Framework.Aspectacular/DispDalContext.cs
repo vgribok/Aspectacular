@@ -31,32 +31,18 @@ namespace Value.Framework.Aspectacular
     public static partial class AOP
     {
         /// <summary>
-        /// Instantiates object, runs its instance method *returning TOut* result, and disposes of the instance.
+        /// Returns AOP proxy for TDispClass class derived from IDisposable.
+        /// The proxy will instantiate the TDispClass object before the intercepted method call,
+        /// and dispose of it after the intercepted method call.
         /// </summary>
-        /// <typeparam name="TInstance"></typeparam>
-        /// <typeparam name="TOut"></typeparam>
+        /// <typeparam name="TDispClass"></typeparam>
         /// <param name="aspects"></param>
-        /// <param name="proxy"></param>
         /// <returns></returns>
-        public static TOut AllocInvokeDispose<TInstance, TOut>(Aspect[] aspects, Expression<Func<TInstance, TOut>> proxy)
-            where TInstance : class, IDisposable, new()
+        public static AllocateRunDisposeInterceptor<TDispClass> GetAllocDisposeProxy<TDispClass>(params Aspect[] aspects)
+            where TDispClass : class, IDisposable, new()
         {
-            var interceptor = new AllocateRunDisposeInterceptor<TInstance>(aspects);
-            TOut retVal = interceptor.Invoke<TOut>(proxy);
-            return retVal;
-        }
-
-        /// <summary>
-        /// Instantiates object, runs its instance method *returning nothing", and disposes of the instance.
-        /// </summary>
-        /// <typeparam name="TInstance"></typeparam>
-        /// <param name="aspects"></param>
-        /// <param name="proxy"></param>
-        public static void AllocInvokeDispose<TInstance>(Aspect[] aspects, Expression<Action<TInstance>> proxy)
-            where TInstance : class, IDisposable, new()
-        {
-            var interceptor = new AllocateRunDisposeInterceptor<TInstance>(aspects);
-            interceptor.Invoke(proxy);
+            var proxy = new AllocateRunDisposeInterceptor<TDispClass>(aspects);
+            return proxy;
         }
     }
 }

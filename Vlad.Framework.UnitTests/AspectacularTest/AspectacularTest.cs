@@ -25,10 +25,15 @@ namespace Value.Framework.UnitTests.AspectacularTest
         public void TestOne()
         {
             var dal = new SomeTestClass(new DateTime(2010, 2, 5));
+
+            // Example of the most common use case: calling instance GetDateString() method returning string.
             string actual = dal.GetProxy(TestAspects).Invoke(instance => instance.GetDateString("whatevs"));
+            
             Assert.AreEqual("whatevs 2/5/2010 12:00:00 AM", actual);
 
-            actual = AOP.AllocInvokeDispose<SomeTestDisposable, string>(TestAspects, disp => disp.Echo("some text"));
+            // Example of instantiating an IDisposable class, calling its instance method returning string, and disposing of class instance.
+            actual = AOP.GetAllocDisposeProxy<SomeTestDisposable>(TestAspects).Invoke(dispInstance => dispInstance.Echo("some text"));
+            
             Assert.AreEqual("some text", actual);
         }
 
@@ -42,7 +47,9 @@ namespace Value.Framework.UnitTests.AspectacularTest
             string refString = DateTime.Now.ToString();
             bool outBool = false;
 
-            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParms(this.IntProp, ref refString, out outBool));
+            // Example of calling static void method.
+            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, ref refString, out outBool));
+            
             Assert.IsTrue(outBool);
         }
 
@@ -51,7 +58,10 @@ namespace Value.Framework.UnitTests.AspectacularTest
         public void TestNonMethodExpressionInterceptionFailure()
         {
             var someCls = new SomeTestClass();
+            
+            // Example of improper calling instance method returning string, by using a non-method-call operator.
             string actual = someCls.GetProxy(TestAspects).Invoke(instance => instance.GetDateString("whatevs") + "123");
+            
             actual.ToString();
         }
 
@@ -60,7 +70,8 @@ namespace Value.Framework.UnitTests.AspectacularTest
         public void TestInterceptedException()
         {
             var someCls = new SomeTestClass(new DateTime(2010, 2, 5));
-            someCls.GetProxy(TestAspects).Invoke(instance => instance.ThrowFailure());
+            
+            bool neverGetHere = someCls.GetProxy(TestAspects).Invoke(instance => instance.ThrowFailure());
         }
     }
 }
