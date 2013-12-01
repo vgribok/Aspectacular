@@ -38,7 +38,7 @@ namespace Value.Framework.Aspectacular
         /// <param name="aspects"></param>
         /// <param name="proxy"></param>
         /// <returns></returns>
-        public static TOut AllocRunDispose<TInstance, TOut>(Aspect[] aspects, Func<TInstance, Expression<Func<TOut>>> proxy)
+        public static TOut AllocInvokeDispose<TInstance, TOut>(Aspect[] aspects, Expression<Func<TInstance, TOut>> proxy)
             where TInstance : class, IDisposable, new()
         {
             var interceptor = new AllocateRunDisposeInterceptor<TInstance>(aspects);
@@ -52,7 +52,7 @@ namespace Value.Framework.Aspectacular
         /// <typeparam name="TInstance"></typeparam>
         /// <param name="aspects"></param>
         /// <param name="proxy"></param>
-        public static void AllocRunDispose<TInstance>(Aspect[] aspects, Func<TInstance, Expression<Action>> proxy)
+        public static void AllocInvokeDispose<TInstance>(Aspect[] aspects, Expression<Action<TInstance>> proxy)
             where TInstance : class, IDisposable, new()
         {
             var interceptor = new AllocateRunDisposeInterceptor<TInstance>(aspects);

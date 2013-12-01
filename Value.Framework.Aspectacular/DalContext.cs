@@ -115,15 +115,12 @@ namespace Value.Framework.Aspectacular
         /// Executes/intercepts *static* function with TOut return result.
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
-        /// <param name="proxy"></param>
+        /// <param name="callExpression"></param>
         /// <returns></returns>
-        public TOut Invoke<TOut>(Func<Expression<Func<TOut>>> proxy)
+        public TOut Invoke<TOut>(Expression<Func<TOut>> callExpression)
         {
-            // Call proxy to return method call (lambda) expression
-            Expression<Func<TOut>> blClosureExp = proxy.Invoke();
-
-            Func<TOut> blDelegate = blClosureExp.Compile();
-            this.InitMethodMetadata(blClosureExp, blDelegate);
+            Func<TOut> blDelegate = callExpression.Compile();
+            this.InitMethodMetadata(callExpression, blDelegate);
 
             TOut retVal = default(TOut);
 
@@ -138,14 +135,11 @@ namespace Value.Framework.Aspectacular
         /// <summary>
         /// Executes/intercepts *static* function with no return value.
         /// </summary>
-        /// <param name="proxy"></param>
-        public void Invoke(Func<Expression<Action>> proxy)
+        /// <param name="callExpression"></param>
+        public void Invoke(Expression<Action> callExpression)
         {
-            // Call proxy to return method call (lambda) expression
-            Expression<Action> blClosureExp = proxy.Invoke();
-
-            Action blDelegate = blClosureExp.Compile();
-            this.InitMethodMetadata(blClosureExp, blDelegate);
+            Action blDelegate = callExpression.Compile();
+            this.InitMethodMetadata(callExpression, blDelegate);
 
             this.ExecuteMainSequence(() => blDelegate.Invoke());
         }
@@ -184,43 +178,39 @@ namespace Value.Framework.Aspectacular
         /// Executes/intercepts *instance* function with TOut return value.
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
-        /// <param name="proxy"></param>
+        /// <param name="callExpression"></param>
         /// <returns></returns>
-        public TOut Invoke<TOut>(Func<TInstance, Expression<Func<TOut>>> proxy)
+        public TOut Invoke<TOut>(Expression<Func<TInstance, TOut>> callExpression)
         {
             this.ResolveClassInstance();
 
-            // Call proxy to return method call (lambda) expression
-            Expression<Func<TOut>> blClosureExp = proxy(this.AugmentedClassInstance as TInstance);
-
-            Func<TOut> blDelegate = blClosureExp.Compile();
-            this.InitMethodMetadata(blClosureExp, blDelegate);
+            Func<TInstance, TOut> blDelegate = callExpression.Compile();
+            this.InitMethodMetadata(callExpression, blDelegate);
 
             TOut retVal = default(TOut);
 
             this.ExecuteMainSequence(() =>
             {
-                retVal = blDelegate.Invoke();
+                retVal = blDelegate.Invoke(this.AugmentedClassInstance);
                 this.MethodExecutionResult = retVal;
             });
+            
             return retVal;
         }
+
 
         /// <summary>
         /// Executes/intercepts *instance* function with no return value.
         /// </summary>
-        /// <param name="proxy"></param>
-        public void Invoke(Func<TInstance, Expression<Action>> proxy)
+        /// <param name="callExpression"></param>
+        public void Invoke(Expression<Action<TInstance>> callExpression)
         {
             this.ResolveClassInstance();
 
-            // Call proxy to return method call (lambda) expression
-            Expression<Action> blClosureExp = proxy(this.AugmentedClassInstance as TInstance);
+            Action<TInstance> blDelegate = callExpression.Compile();
+            this.InitMethodMetadata(callExpression, blDelegate);
 
-            Action blDelegate = blClosureExp.Compile();
-            this.InitMethodMetadata(blClosureExp, blDelegate);
-
-            this.ExecuteMainSequence(() => blDelegate.Invoke());
+            this.ExecuteMainSequence(() => blDelegate.Invoke(this.AugmentedClassInstance));
         }
     }
 
@@ -234,12 +224,12 @@ namespace Value.Framework.Aspectacular
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="aspects"></param>
-        /// <param name="proxy"></param>
+        /// <param name="callExpression"></param>
         /// <returns></returns>
-        public static TOut RunAugmented<TOut>(Aspect[] aspects, Func<Expression<Func<TOut>>> proxy)
+        public static TOut Invoke<TOut>(Aspect[] aspects, Expression<Func<TOut>> callExpression)
         {
             var context = new Interceptor(null, aspects);
-            TOut retVal = context.Invoke<TOut>(proxy);
+            TOut retVal = context.Invoke<TOut>(callExpression);
             return retVal;
         }
 
@@ -247,45 +237,14 @@ namespace Value.Framework.Aspectacular
         /// Executes/intercepts *static* function with no return result.
         /// </summary>
         /// <param name="aspects"></param>
-        /// <param name="proxy"></param>
-        public static void RunAugmented(Aspect[] aspects, Func<Expression<Action>> proxy)
+        /// <param name="callExpression"></param>
+        public static void Invoke(Aspect[] aspects, Expression<Action> callExpression)
         {
             var context = new Interceptor(null, aspects);
-            context.Invoke(proxy);
+            context.Invoke(callExpression);
         }
 
-        ///// <summary>
-        ///// Executes/intercepts *instance* function with TOut return value.
-        ///// </summary>
-        ///// <typeparam name="TInstance"></typeparam>
-        ///// <typeparam name="TOut"></typeparam>
-        ///// <param name="instance"></param>
-        ///// <param name="aspects"></param>
-        ///// <param name="proxy"></param>
-        ///// <returns></returns>
-        //public static TOut RunAugmented<TInstance, TOut>(this TInstance instance, Aspect[] aspects, Func<TInstance, Expression<Func<TOut>>> proxy)
-        //    where TInstance : class
-        //{
-        //    var context = new InstanceInterceptor<TInstance>(() => instance, aspects);
-        //    TOut retVal = context.Invoke<TOut>(proxy);
-        //    return retVal;
-        //}
-
-        ///// <summary>
-        ///// Executes/intercepts *instance* function with no return value.
-        ///// </summary>
-        ///// <typeparam name="TInstance"></typeparam>
-        ///// <param name="instance"></param>
-        ///// <param name="aspects"></param>
-        ///// <param name="proxy"></param>
-        //public static void RunAugmented<TInstance>(this TInstance instance, Aspect[] aspects, Func<TInstance, Expression<Action>> proxy)
-        //    where TInstance : class
-        //{
-        //    var context = new InstanceInterceptor<TInstance>(() => instance, aspects);
-        //    context.Invoke(proxy);
-        //}
-
-        public static InstanceInterceptor<TInstance> GetInterceptor<TInstance>(this TInstance instance, params Aspect[] aspects)
+        public static InstanceInterceptor<TInstance> GetProxy<TInstance>(this TInstance instance, params Aspect[] aspects)
             where TInstance : class
         {
             var interceptor = new InstanceInterceptor<TInstance>(instance, aspects);
