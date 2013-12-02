@@ -157,7 +157,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
             using (var db = new AdventureWorksLT2008R2Entities())
             {
                 runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => 
-                                db.GetProxy(doNothingAspects).Invoke(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList())
+                                db.GetProxy(doNothingAspects).List(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses))
                             );
             }
             this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) augmented sequential base line test result: {0} calls/second.", runsPerSec);
@@ -187,7 +187,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
 
             runsPerSec = RunCounter.SpinPerSec(millisecToRun, () =>
                             AOP.GetAllocDisposeProxy<AdventureWorksLT2008R2Entities>(TestAspects)
-                                .Invoke(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList())
+                                .List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses))
                             );
 
             this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) augmented parallel alloc/invoke/disp base line test result: {0} calls/second.", runsPerSec);
