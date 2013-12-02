@@ -2,19 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Data.Entity;
+using System.Diagnostics;
+using System.Collections;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Value.Framework.Core;
 using Value.Framework.Aspectacular;
 
 using Example.AdventureWorks2008ObjectContext_Dal;
-using System.Diagnostics;
 
 namespace Value.Framework.UnitTests.AspectacularTest
 {
     [TestClass]
     public class LinqTests
     {
+        public TestContext TestContext { get; set; }
+
         const int customerIdWithManyAddresses = 29503;
 
         public static Aspect[] TestAspects
@@ -58,6 +62,15 @@ namespace Value.Framework.UnitTests.AspectacularTest
             }
 
             Assert.IsTrue(2 == addresses.Count);
+        }
+
+        [TestMethod]
+        public void TestAnonymousQuery()
+        {
+            List<object> countryStateBityRecords = AwDal.List(db => db.QueryUserCoutryStateCity(customerIdWithManyAddresses));
+
+            foreach (var record in countryStateBityRecords)
+                this.TestContext.WriteLine("{0}", record);
         }
     }
 }

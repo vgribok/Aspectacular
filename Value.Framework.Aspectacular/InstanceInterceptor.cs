@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+
+using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
 {
@@ -108,10 +111,47 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
-            this.Invoke(sequenceExpression, query => (query == null || query is IList<TEntity>) ? query as IList<TEntity> : query.ToList());
+            this.Invoke(sequenceExpression, sequence => (sequence == null || sequence is IList<TEntity>) ? sequence as IList<TEntity> : sequence.ToList());
             IList<TEntity> entityList = (IList<TEntity>)this.MethodExecutionResult;
             return entityList;
         }
+
+        /// <summary>
+        /// Executes IQuerable that returns anonymous type.
+        /// </summary>
+        /// <param name="linqQueryExpression"></param>
+        /// <returns></returns>
+        public List<object> List(Expression<Func<TInstance, IQueryable>> linqQueryExpression)
+        {
+            List<object> records = new List<object>();
+
+            this.Invoke(linqQueryExpression, query => 
+                {
+                    query.ToEnumerable().ForEach(record => records.Add(record));
+                    return records;
+                });
+
+            return records;
+        }
+
+        /// <summary>
+        /// Executes IEnumerable that returns anonymous type.
+        /// </summary>
+        /// <param name="sequenceExpression"></param>
+        /// <returns></returns>
+        public List<object> List(Expression<Func<TInstance, IEnumerable>> sequenceExpression)
+        {
+            List<object> records = new List<object>();
+
+            this.Invoke(sequenceExpression, sequence =>
+            {
+                sequence.ForEach(record => records.Add(record));
+                return records;
+            });
+
+            return records;
+        }
+
 
         /// <summary>
         /// Adds FirstOrDefault() to IQueryable
@@ -134,8 +174,52 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public TEntity Single<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
-            this.Invoke(sequenceExpression, query => query.FirstOrDefault());
+            this.Invoke(sequenceExpression, sequence => sequence.FirstOrDefault());
             TEntity entity = (TEntity)this.MethodExecutionResult;
+            return entity;
+        }
+
+        /// <summary>
+        /// Executes anonymous IQueryable and return first object or null.
+        /// </summary>
+        /// <param name="linqQueryExpression"></param>
+        /// <returns></returns>
+        public object Single(Expression<Func<TInstance, IQueryable>> linqQueryExpression)
+        {
+            object entity = null;
+
+            this.Invoke(linqQueryExpression, query =>
+            {
+                foreach (object record in query)
+                {
+                    entity = record;
+                    return record;
+                }
+                return null;
+            });
+
+            return entity;
+        }
+
+        /// <summary>
+        /// Returns first anonymous object from IEnumerable, or null.
+        /// </summary>
+        /// <param name="sequenceExpression"></param>
+        /// <returns></returns>
+        public object Single(Expression<Func<TInstance, IEnumerable>> sequenceExpression)
+        {
+            object entity = null;
+
+            this.Invoke(sequenceExpression, sequence =>
+            {
+                foreach (object record in sequence)
+                {
+                    entity = record;
+                    return record;
+                }
+                return null;
+            });
+
             return entity;
         }
 

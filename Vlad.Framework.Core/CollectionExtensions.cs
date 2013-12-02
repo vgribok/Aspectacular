@@ -55,5 +55,23 @@ namespace Value.Framework.Core
             foreach (T elem in collection)
                 func(elem);
         }
+
+        /// <summary>
+        /// foreach loop done with a delegate.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="func"></param>
+        public static void ForEach(this IEnumerable collection, Action<object> func)
+        {
+            foreach (object elem in collection)
+                func(elem);
+        }
+
+        public static IEnumerable ToEnumerable(this IQueryable query)
+        {
+            foreach (object elem in query)
+                yield return elem;
+        }
     }
 }

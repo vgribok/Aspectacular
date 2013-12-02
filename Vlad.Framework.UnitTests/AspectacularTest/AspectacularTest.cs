@@ -10,6 +10,8 @@ namespace Value.Framework.UnitTests.AspectacularTest
     [TestClass]
     public class AspectacularTest
     {
+        public TestContext TestContext { get; set; }
+
         public static Aspect[] TestAspects
         {
             get

@@ -40,5 +40,18 @@ namespace Example.AdventureWorks2008ObjectContext_Dal
 
             return q;
         }
+
+        public IQueryable QueryUserCoutryStateCity(int customerID)
+        {
+            var q = from custAddr in this.QueryCustomerAddressesByCustomerID(customerID)
+                    select new
+                    {
+                        custAddr.City,
+                        custAddr.StateProvince,
+                        custAddr.CountryRegion
+                    };
+
+            return q.Distinct();
+        }
     }
 }
