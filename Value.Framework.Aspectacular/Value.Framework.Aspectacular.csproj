@@ -42,6 +42,7 @@
     <Compile Include="Aspect.cs" />
     <Compile Include="AspectInjector.cs" />
     <Compile Include="DispAspectInjector.cs" />
+    <Compile Include="InstanceInterceptor.cs" />
     <Compile Include="InterceptedMethodMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

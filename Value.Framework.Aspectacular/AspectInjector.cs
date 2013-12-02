@@ -9,6 +9,9 @@ using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
 {
+    /// <summary>
+    /// Main base class encapsulating call interception and aspect injection logic.
+    /// </summary>
     public class Interceptor
     {
         public object AugmentedClassInstance { get; protected set; }
@@ -22,6 +25,11 @@ namespace Value.Framework.Aspectacular
         public object MethodExecutionResult { get; protected set; }
         public Exception MethodExecutionException { get; protected set; }
         public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
+
+        /// <summary>
+        /// Aspects may set this to true to break break aspect call sequence
+        /// </summary>
+        public bool StopAspectCallChain { get; set; }
 
         public bool MedthodHasFailed { get { return this.MethodExecutionException != null; } }
 
@@ -92,8 +100,15 @@ namespace Value.Framework.Aspectacular
             if (cutPointHandler == null)
                 return;
 
+            this.StopAspectCallChain = false;
+
             foreach (Aspect aspect in this.aspects)
+            {
                 cutPointHandler.Invoke(aspect);
+
+                if (this.StopAspectCallChain)
+                    break;
+            }
         }
 
         private void CallAspectsBackwards(Action<Aspect> cutPointHandler)
@@ -101,8 +116,15 @@ namespace Value.Framework.Aspectacular
             if (cutPointHandler == null)
                 return;
 
+            this.StopAspectCallChain = false;
+
             foreach (Aspect aspect in this.aspects.ReverseOrder())
+            {
                 cutPointHandler(aspect);
+
+                if (this.StopAspectCallChain)
+                    break;
+            }
         }
 
         protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethod)
@@ -117,7 +139,7 @@ namespace Value.Framework.Aspectacular
         /// <typeparam name="TOut"></typeparam>
         /// <param name="callExpression"></param>
         /// <returns></returns>
-        public TOut Invoke<TOut>(Expression<Func<TOut>> callExpression)
+        public TOut Invoke<TOut>(Expression<Func<TOut>> callExpression, Func<TOut, object> retValPostProcessor = null)
         {
             Func<TOut> blDelegate = callExpression.Compile();
             this.InitMethodMetadata(callExpression, blDelegate);
@@ -127,7 +149,11 @@ namespace Value.Framework.Aspectacular
             this.ExecuteMainSequence(() =>
             {
                 retVal = blDelegate.Invoke();
-                this.MethodExecutionResult = retVal;
+
+                if (retValPostProcessor != null)
+                    this.MethodExecutionResult = retValPostProcessor(retVal);
+                else
+                    this.MethodExecutionResult = retVal;
             });
             return retVal;
         }
@@ -142,113 +168,6 @@ namespace Value.Framework.Aspectacular
             this.InitMethodMetadata(callExpression, blDelegate);
 
             this.ExecuteMainSequence(() => blDelegate.Invoke());
-        }
-    }
-
-    public class InstanceInterceptor<TInstance> : Interceptor
-        where TInstance : class
-    {
-        public new TInstance AugmentedClassInstance
-        {
-            get { return (TInstance)base.AugmentedClassInstance; }
-        }
-
-        public InstanceInterceptor(Func<TInstance> instanceFactory, Action<TInstance> instanceCleaner, Aspect[] aspects)
-            : base(instanceFactory, 
-                   inst => 
-                    { 
-                        if (instanceCleaner != null ) 
-                            instanceCleaner((TInstance)inst); 
-                    }, 
-                   aspects)
-        {
-        }
-
-        public InstanceInterceptor(Func<TInstance> instanceFactory, params Aspect[] aspects)
-            : this(instanceFactory, instanceCleaner: null, aspects: aspects)
-        {
-        }
-
-        public InstanceInterceptor(TInstance instance, params Aspect[] aspects)
-            : this(() => instance, instanceCleaner: null, aspects: aspects)
-        {
-        }
-
-        /// <summary>
-        /// Executes/intercepts *instance* function with TOut return value.
-        /// </summary>
-        /// <typeparam name="TOut"></typeparam>
-        /// <param name="callExpression"></param>
-        /// <returns></returns>
-        public TOut Invoke<TOut>(Expression<Func<TInstance, TOut>> callExpression)
-        {
-            this.ResolveClassInstance();
-
-            Func<TInstance, TOut> blDelegate = callExpression.Compile();
-            this.InitMethodMetadata(callExpression, blDelegate);
-
-            TOut retVal = default(TOut);
-
-            this.ExecuteMainSequence(() =>
-            {
-                retVal = blDelegate.Invoke(this.AugmentedClassInstance);
-                this.MethodExecutionResult = retVal;
-            });
-            
-            return retVal;
-        }
-
-
-        /// <summary>
-        /// Executes/intercepts *instance* function with no return value.
-        /// </summary>
-        /// <param name="callExpression"></param>
-        public void Invoke(Expression<Action<TInstance>> callExpression)
-        {
-            this.ResolveClassInstance();
-
-            Action<TInstance> blDelegate = callExpression.Compile();
-            this.InitMethodMetadata(callExpression, blDelegate);
-
-            this.ExecuteMainSequence(() => blDelegate.Invoke(this.AugmentedClassInstance));
-        }
-    }
-
-    /// <summary>
-    /// Extensions and static convenience methods for intercepted method calls.
-    /// </summary>
-    public static partial class AOP
-    {
-        /// <summary>
-        /// Executes/intercepts *static* function with TOut return result.
-        /// </summary>
-        /// <typeparam name="TOut"></typeparam>
-        /// <param name="aspects"></param>
-        /// <param name="callExpression"></param>
-        /// <returns></returns>
-        public static TOut Invoke<TOut>(Aspect[] aspects, Expression<Func<TOut>> callExpression)
-        {
-            var context = new Interceptor(null, aspects);
-            TOut retVal = context.Invoke<TOut>(callExpression);
-            return retVal;
-        }
-
-        /// <summary>
-        /// Executes/intercepts *static* function with no return result.
-        /// </summary>
-        /// <param name="aspects"></param>
-        /// <param name="callExpression"></param>
-        public static void Invoke(Aspect[] aspects, Expression<Action> callExpression)
-        {
-            var context = new Interceptor(null, aspects);
-            context.Invoke(callExpression);
-        }
-
-        public static InstanceInterceptor<TInstance> GetProxy<TInstance>(this TInstance instance, params Aspect[] aspects)
-            where TInstance : class
-        {
-            var interceptor = new InstanceInterceptor<TInstance>(instance, aspects);
-            return interceptor;
         }
     }
 }
