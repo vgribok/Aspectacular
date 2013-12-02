@@ -186,7 +186,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
             long runsPerSec;
 
             runsPerSec = RunCounter.SpinPerSec(millisecToRun, () =>
-                            AOP.GetAllocDisposeProxy<AdventureWorksLT2008R2Entities>(TestAspects)
+                            AOP.GetAllocDisposeProxy<AdventureWorksLT2008R2Entities>(doNothingAspects)
                                 .List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses))
                             );
 
