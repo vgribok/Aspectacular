@@ -16,6 +16,11 @@ namespace Value.Framework.UnitTests.AspectacularTest
     {
         const int customerIdWithManyAddresses = 29503;
 
+        public static Aspect[] TestAspects
+        {
+            get { return AspectacularTest.TestAspects; }
+        }
+
         [TestMethod]
         public void EfTestOne()
         {
@@ -30,8 +35,18 @@ namespace Value.Framework.UnitTests.AspectacularTest
             Assert.IsTrue(2 == addresses.Count);
 
             // With regular AOP (w/o EF-specific AOP support)
-            addresses = AOP.GetAllocDisposeProxy<AdventureWorksLT2008R2Entities>(AspectacularTest.TestAspects)
+            
+            // Example 1: where AOP creates instance of AdventureWorksLT2008R2Entities, runs the DAL method, and disposes AdventureWorksLT2008R2Entities instance - all in one shot.
+            addresses = AOP.GetAllocDisposeProxy<AdventureWorksLT2008R2Entities>(TestAspects)
                                 .Invoke(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList());
+
+            Assert.IsTrue(2 == addresses.Count);
+
+            // Example 2: with simple AOP proxied call for existing instance of DbContext.
+            using (var db = new AdventureWorksLT2008R2Entities())
+            {
+                addresses = db.GetProxy(TestAspects).Invoke(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList());
+            }
 
             Assert.IsTrue(2 == addresses.Count);
         }

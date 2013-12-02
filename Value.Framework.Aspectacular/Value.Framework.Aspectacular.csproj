@@ -40,8 +40,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Aspect.cs" />
-    <Compile Include="DalContext.cs" />
-    <Compile Include="DispDalContext.cs" />
+    <Compile Include="AspectInjector.cs" />
+    <Compile Include="DispAspectInjector.cs" />
     <Compile Include="InterceptedMethodMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

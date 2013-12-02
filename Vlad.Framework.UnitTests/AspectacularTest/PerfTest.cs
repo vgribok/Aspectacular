@@ -1,13 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 using Value.Framework.Aspectacular;
+using Value.Framework.Core;
+
+using Example.AdventureWorks2008ObjectContext_Dal;
 
 namespace Value.Framework.UnitTests.AspectacularTest
 {
     [TestClass]
     public class PerfTest
     {
+        public TestContext TestContext { get; set; }
+
         const int millisecToRun = 2 * 1000;
+        const int customerIdWithManyAddresses = 29503;
 
         private Aspect[] doNothingAspects
         {
@@ -20,6 +29,10 @@ namespace Value.Framework.UnitTests.AspectacularTest
             }
         }
 
+        public static Aspect[] TestAspects
+        {
+            get { return AspectacularTest.TestAspects; }
+        }
 
         [TestMethod]
         public void CallConstPerfCounter()
@@ -72,7 +85,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
         [TestMethod]
         public void CallPerfStaticCounter()
         {
-            const int baseLineParallelRunsPerSec = 10000;
+            const int baseLineParallelRunsPerSec = 9500; // 10000;
             const int baseLineRunsPerSec = 3300; // 3500;
 
             int parmInt = 123;
@@ -88,6 +101,96 @@ namespace Value.Framework.UnitTests.AspectacularTest
 
             runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.Invoke(doNothingAspects, () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
             Assert.IsTrue(runsPerSec >= baseLineRunsPerSec);
+        }
+
+        [TestMethod]
+        public void CallPerfStaticCounterProfile()
+        {
+            int parmInt = 123;
+            string parmStr = "bogus";
+            bool parmBool = false;
+            decimal parmDec = 1.0m;
+            int[] arr = { 1, 2, 3, 4, 5 };
+
+            long runsPerSec;
+
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.Invoke(doNothingAspects, () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
+            this.TestContext.WriteLine("SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr) non-parallel perf test result: {0} calls/second.", runsPerSec);
+        }
+
+        [TestMethod]
+        public void CallPerfParallelStaticCounterProfile()
+        {
+            int parmInt = 123;
+            string parmStr = "bogus";
+            bool parmBool = false;
+            decimal parmDec = 1.0m;
+            int[] arr = { 1, 2, 3, 4, 5 };
+
+            long runsPerSec;
+
+            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.Invoke(doNothingAspects, () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
+            
+            this.TestContext.WriteLine("SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr) parallel perf test result: {0} calls/second.", runsPerSec);
+        }
+
+
+        [TestMethod]
+        public void CallPerfDbContextDirect()
+        {
+            long runsPerSec;
+
+            using (var db = new AdventureWorksLT2008R2Entities())
+            {
+                runsPerSec = RunCounter.SpinPerSec(millisecToRun, () =>
+                                db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList()
+                            );
+            }
+            this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) direct sequential base line test result: {0} calls/second.", runsPerSec);
+        }
+
+        [TestMethod]
+        public void CallPerfDbContextAugmented()
+        {
+            long runsPerSec;
+
+            using (var db = new AdventureWorksLT2008R2Entities())
+            {
+                runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => 
+                                db.GetProxy(doNothingAspects).Invoke(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList())
+                            );
+            }
+            this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) augmented sequential base line test result: {0} calls/second.", runsPerSec);
+        }
+
+
+        [TestMethod]
+        public void CallPerfDbContextDirectParallel()
+        {
+            long runsPerSec;
+
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () =>
+                {
+                    using (var db = new AdventureWorksLT2008R2Entities())
+                    {
+                        db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList();
+                    }
+                });
+
+            this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) direct parallel alloc/call/disp base line test result: {0} calls/second.", runsPerSec);
+        }
+
+        [TestMethod]
+        public void CallPerfDbContextAugmentedParallel()
+        {
+            long runsPerSec;
+
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () =>
+                            AOP.GetAllocDisposeProxy<AdventureWorksLT2008R2Entities>(TestAspects)
+                                .Invoke(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList())
+                            );
+
+            this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) augmented parallel alloc/invoke/disp base line test result: {0} calls/second.", runsPerSec);
         }
     }
 }
