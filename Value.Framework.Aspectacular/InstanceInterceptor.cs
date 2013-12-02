@@ -91,7 +91,7 @@ namespace Value.Framework.Aspectacular
         #region LINQ convenience shortcut methods
 
         /// <summary>
-        /// Appends ToList() to IQueryable
+        /// Triggers query execution by appending ToList() to IQueryable, if returned result is not IList already.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
@@ -104,7 +104,7 @@ namespace Value.Framework.Aspectacular
         }
 
         /// <summary>
-        /// Appends ToList() to IEnumerable
+        /// Appends ToList() to IEnumerable, if returned result is not IList already.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
@@ -113,6 +113,32 @@ namespace Value.Framework.Aspectacular
         {
             this.Invoke(sequenceExpression, sequence => (sequence == null || sequence is IList<TEntity>) ? sequence as IList<TEntity> : sequence.ToList());
             IList<TEntity> entityList = (IList<TEntity>)this.MethodExecutionResult;
+            return entityList;
+        }
+
+        /// <summary>
+        /// Triggers query execution by appending ToList() to IQueryable, and returns List.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="linqQueryExpression"></param>
+        /// <returns></returns>
+        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
+        {
+            this.Invoke(linqQueryExpression, query => query.ToList());
+            List<TEntity> entityList = (List<TEntity>)this.MethodExecutionResult;
+            return entityList;
+        }
+
+        /// <summary>
+        /// Appends ToList() to IEnumerable.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="sequenceExpression"></param>
+        /// <returns></returns>
+        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
+        {
+            this.Invoke(sequenceExpression, sequence => sequence.ToList());
+            List<TEntity> entityList = (List<TEntity>)this.MethodExecutionResult;
             return entityList;
         }
 
