@@ -279,6 +279,13 @@ namespace Value.Framework.Aspectacular
             context.Invoke(callExpression);
         }
 
+        /// <summary>
+        /// Retrieves AOP-augmented proxy, with specified set of aspects attached, for any given object referenced by isntance parameter.
+        /// </summary>
+        /// <typeparam name="TInstance"></typeparam>
+        /// <param name="instance"></param>
+        /// <param name="aspects"></param>
+        /// <returns></returns>
         public static InstanceInterceptor<TInstance> GetProxy<TInstance>(this TInstance instance, params Aspect[] aspects)
             where TInstance : class
         {
