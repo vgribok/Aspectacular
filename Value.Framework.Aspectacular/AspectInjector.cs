@@ -19,12 +19,18 @@ namespace Value.Framework.Aspectacular
 
         protected Delegate interceptedMethod;
 
+        protected readonly List<Aspect> aspects = new List<Aspect>();
+
         private Func<object> instanceResolverFunc;
         private Action<object> instanceCleanerFunc;
+        private volatile bool isUsed = false;
 
-        public object MethodExecutionResult { get; protected set; }
+        public object MethodExecutionResult { get; internal set; }
         public Exception MethodExecutionException { get; protected set; }
         public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
+        public bool CancelInterceptedMethodCall { get; internal set; }
+
+        internal bool methodCalled = false;
 
         /// <summary>
         /// Aspects may set this to true to break break aspect call sequence
@@ -32,8 +38,6 @@ namespace Value.Framework.Aspectacular
         public bool StopAspectCallChain { get; set; }
 
         public bool MedthodHasFailed { get { return this.MethodExecutionException != null; } }
-
-        protected readonly List<Aspect> aspects = new List<Aspect>();
 
         public Interceptor(Func<object> instanceFactory, Action<object> instanceCleaner, params Aspect[] aspects)
         {
@@ -61,25 +65,39 @@ namespace Value.Framework.Aspectacular
                 throw new Exception("Instance for AOP augmentation needs to be specified before intercepted method can be called.");
         }
 
+        /// <summary>
+        /// Method call wrapper that calls aspects and the intercepted method.
+        /// </summary>
+        /// <param name="interceptedMethodCaller"></param>
         protected virtual void ExecuteMainSequence(Action interceptedMethodCaller)
         {
-            this.CallAspects(aspect => aspect.Step_2_BeforeTryingMethodExec());
+            if (this.isUsed)
+                throw new Exception("Same instance of the call interceptor cannot be used more than once.");
+
+            this.isUsed = true;
 
             this.MethodExecutionResult = null;
             this.MethodExecutionException = null;
+            this.methodCalled = false;
+
+            this.CallAspects(aspect => aspect.Step_2_BeforeTryingMethodExec());
 
             try
             {
-                interceptedMethodCaller.Invoke();
+                if (!this.CancelInterceptedMethodCall)
+                {
+                    this.methodCalled = true;
+                    interceptedMethodCaller.Invoke(); // Non-void return calls have another Aspect sequence call between after getting return and massaging it.
+                }
             }
             catch (Exception ex)
             {
                 this.MethodExecutionException = ex;
-                this.CallAspects(aspect => aspect.Step_3_Optional_AfterCatchingMethodExecException());
+                this.CallAspects(aspect => aspect.Step_4_Optional_AfterCatchingMethodExecException());
             }
             finally
             {
-                this.CallAspectsBackwards(aspect => aspect.Step_4_FinallyAfterMethodExecution());
+                this.CallAspectsBackwards(aspect => aspect.Step_5_FinallyAfterMethodExecution());
             }
 
             if (this.instanceCleanerFunc != null)
@@ -90,7 +108,7 @@ namespace Value.Framework.Aspectacular
                 }
                 finally
                 {
-                    this.CallAspectsBackwards(aspect => aspect.Step_5_Optional_AfterInstanceCleanup());
+                    this.CallAspectsBackwards(aspect => aspect.Step_6_Optional_AfterInstanceCleanup());
                 }
             }
         }
@@ -150,12 +168,20 @@ namespace Value.Framework.Aspectacular
             {
                 retVal = blDelegate.Invoke();
 
-                if (retValPostProcessor != null)
-                    this.MethodExecutionResult = retValPostProcessor(retVal);
-                else
-                    this.MethodExecutionResult = retVal;
+                this.CallReturnValuePostProcessor<TOut>(retValPostProcessor, retVal);
             });
+
             return retVal;
+        }
+
+        protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
+        {
+            this.MethodExecutionResult = retVal;
+
+            this.CallAspects(aspect => aspect.Step_3_BeforeMassagingReturnedResult());
+
+            if (retValPostProcessor != null && this.MethodExecutionResult != null)
+                this.MethodExecutionResult = retValPostProcessor(retVal);
         }
 
         /// <summary>

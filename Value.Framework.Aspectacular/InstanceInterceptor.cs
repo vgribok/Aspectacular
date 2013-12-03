@@ -64,10 +64,7 @@ namespace Value.Framework.Aspectacular
             {
                 retVal = blDelegate.Invoke(this.AugmentedClassInstance);
 
-                if (retValPostProcessor != null)
-                    this.MethodExecutionResult = retValPostProcessor(retVal);
-                else
-                    this.MethodExecutionResult = retVal;
+                this.CallReturnValuePostProcessor<TOut>(retValPostProcessor, retVal);
             });
 
             return retVal;
