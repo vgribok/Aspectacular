@@ -14,30 +14,38 @@ namespace Value.Framework.Aspectacular
     /// </summary>
     public class Interceptor
     {
-        public object AugmentedClassInstance { get; protected set; }
-        //protected IDisposable AugmentedDisposableInstance { get { return this.AugmentedClassInstance as IDisposable; } }
-
+        /// <summary>
+        /// Instance of an object whose methods are intercepted.
+        /// Null when static methods are intercepted.
+        /// Can be an derived from IAspect of object wants to be its own 
+        /// </summary>
+        protected object AugmentedClassInstance { get; set; }
         protected Delegate interceptedMethod;
-
-        protected readonly List<Aspect> aspects = new List<Aspect>();
+        protected readonly List<IAspect> aspects = new List<IAspect>();
 
         private Func<object> instanceResolverFunc;
         private Action<object> instanceCleanerFunc;
         private volatile bool isUsed = false;
+        private Action interceptedMethodCaller;
+
+        internal bool methodCalled = false;
 
         public object MethodExecutionResult { get; internal set; }
         public Exception MethodExecutionException { get; protected set; }
         public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
         public bool CancelInterceptedMethodCall { get; internal set; }
 
-        internal bool methodCalled = false;
-
         /// <summary>
         /// Aspects may set this to true to break break aspect call sequence
         /// </summary>
         public bool StopAspectCallChain { get; set; }
 
-        public bool MedthodHasFailed { get { return this.MethodExecutionException != null; } }
+        /// <summary>
+        /// Returns true if an attempt of executing intercepted method was made 
+        /// and it ended with an exception thrown by method, by return result post-processor, 
+        /// or aspects running right after intercepted method call.
+        /// </summary>
+        public bool InterceptedMedthodCallFailed { get { return this.MethodExecutionException != null; } }
 
         public Interceptor(Func<object> instanceFactory, Action<object> instanceCleaner, params Aspect[] aspects)
         {
@@ -63,13 +71,21 @@ namespace Value.Framework.Aspectacular
 
             if (this.AugmentedClassInstance == null)
                 throw new Exception("Instance for AOP augmentation needs to be specified before intercepted method can be called.");
+
+            // Augmented object can be interception context aware.
+            if (this.AugmentedClassInstance is IInterceptionContext)
+                ((IInterceptionContext)this.AugmentedClassInstance).Context = this;
+
+            // Augmented object can be aspect for its own method interceptions.
+            if (this.AugmentedClassInstance is IAspect)
+                this.aspects.Add(this.AugmentedClassInstance as IAspect);
         }
 
         /// <summary>
         /// Method call wrapper that calls aspects and the intercepted method.
         /// </summary>
-        /// <param name="interceptedMethodCaller"></param>
-        protected virtual void ExecuteMainSequence(Action interceptedMethodCaller)
+        /// <param name="interceptedMethodCallerClosure">Intercepted method call wrapped in an interceptor's closure.</param>
+        protected virtual void ExecuteMainSequence(Action interceptedMethodCallerClosure)
         {
             if (this.isUsed)
                 throw new Exception("Same instance of the call interceptor cannot be used more than once.");
@@ -80,37 +96,57 @@ namespace Value.Framework.Aspectacular
             this.MethodExecutionException = null;
             this.methodCalled = false;
 
-            this.CallAspects(aspect => aspect.Step_2_BeforeTryingMethodExec());
+            this.interceptedMethodCaller = interceptedMethodCallerClosure;
 
             try
             {
-                if (!this.CancelInterceptedMethodCall)
-                {
-                    this.methodCalled = true;
-                    interceptedMethodCaller.Invoke(); // Non-void return calls have another Aspect sequence call between after getting return and massaging it.
-                }
-            }
-            catch (Exception ex)
-            {
-                this.MethodExecutionException = ex;
-                this.CallAspects(aspect => aspect.Step_4_Optional_AfterCatchingMethodExecException());
-            }
-            finally
-            {
-                this.CallAspectsBackwards(aspect => aspect.Step_5_FinallyAfterMethodExecution());
-            }
+                this.CallAspects(aspect => aspect.Step_2_BeforeTryingMethodExec());
 
-            if (this.instanceCleanerFunc != null)
-            {
                 try
                 {
-                    this.instanceCleanerFunc.Invoke(this.AugmentedClassInstance);
+                    if (!this.CancelInterceptedMethodCall)
+                    {
+                        this.methodCalled = true;
+                        this.InvokeInterceptedMethod();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.MethodExecutionException = ex;
+                    this.CallAspects(aspect => aspect.Step_4_Optional_AfterCatchingMethodExecException());
+                    throw;
                 }
                 finally
                 {
-                    this.CallAspectsBackwards(aspect => aspect.Step_6_Optional_AfterInstanceCleanup());
+                    this.CallAspectsBackwards(aspect => aspect.Step_5_FinallyAfterMethodExecution(!this.InterceptedMedthodCallFailed));
                 }
             }
+            finally
+            {
+                if (this.instanceCleanerFunc != null)
+                {
+                    try
+                    {
+                        this.instanceCleanerFunc.Invoke(this.AugmentedClassInstance);
+
+                        this.CallAspectsBackwards(aspect => aspect.Step_6_Optional_AfterInstanceCleanup());
+                    }
+                    finally
+                    {
+                        if (this.AugmentedClassInstance is IInterceptionContext)
+                            (this.AugmentedClassInstance as IInterceptionContext).Context = null;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Last stop before calling (possibly wrapped) intercepted method.
+        /// </summary>
+        protected virtual void InvokeInterceptedMethod()
+        {
+            // Non-void return calls have another Aspect sequence call between after getting return and massaging it.
+            this.interceptedMethodCaller.Invoke(); 
         }
 
         private void CallAspects(Action<Aspect> cutPointHandler)

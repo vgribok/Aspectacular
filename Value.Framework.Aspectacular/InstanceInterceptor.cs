@@ -10,7 +10,6 @@ using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
 {
-
     public class InstanceInterceptor<TInstance> : Interceptor
         where TInstance : class
     {

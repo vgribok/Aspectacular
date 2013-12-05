@@ -10,11 +10,33 @@ using Value.Framework.Core;
 namespace Value.Framework.Aspectacular
 {
     /// <summary>
+    /// Interface to be inherited by augmented objects that want to be interception-context-aware,
+    /// but not necessarily aspects.
+    /// </summary>
+    public interface IInterceptionContext
+    {
+        Interceptor Context { get; set;  }
+    }
+
+    /// <summary>
+    /// Interface to be inherited by augmented objects that want to be their own aspects.
+    /// </summary>
+    public interface IAspect
+    {
+        void Step_1_BeforeResolvingInstance();
+        void Step_2_BeforeTryingMethodExec();
+        void Step_3_BeforeMassagingReturnedResult();
+        void Step_4_Optional_AfterCatchingMethodExecException();
+        void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded);
+        void Step_6_Optional_AfterInstanceCleanup();
+    }
+
+    /// <summary>
     /// Base class for all method interceptors
     /// </summary>
-    public abstract class Aspect
+    public abstract class Aspect : IAspect
     {
-        public Interceptor Context { get; internal set; }
+        public virtual Interceptor Context { get; set; }
 
         public Aspect() { }
 
@@ -51,7 +73,7 @@ namespace Value.Framework.Aspectacular
         /// <summary>
         /// Called after method execution success or failure.
         /// </summary>
-        public virtual void Step_5_FinallyAfterMethodExecution() { }
+        public virtual void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded) { }
 
         /// <summary>
         /// Called only for instance method that have instance cleanup 
