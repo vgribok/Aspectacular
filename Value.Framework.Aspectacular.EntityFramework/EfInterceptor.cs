@@ -6,31 +6,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Value.Framework.Aspectacular.Data;
 
 namespace Value.Framework.Aspectacular.EntityFramework
 {
-    public interface IEfCallInterceptor
-    {
-        /// <summary>
-        /// Result of ObjectContex or DbContext .SaveChanges() call.
-        /// </summary>
-        int SaveChangeReturnValue { get; set; }
-
-        /// <summary>
-        /// Proxy for calling DbContext and ObjectContext SaveChanges() method.
-        /// </summary>
-        /// <returns></returns>
-        int SaveChanges();
-    }
-
-    public static class IEfCallInterceptorExt
-    {
-        public static void DoSaveChanges(this IEfCallInterceptor efInterceptor)
-        {
-            efInterceptor.SaveChangeReturnValue = efInterceptor.SaveChanges();
-        }
-    }
-
     public class DbContextSingleCallInterceptor<TDbContext> : AllocateRunDisposeInterceptor<TDbContext>, IEfCallInterceptor, IStorageCommandRunner<TDbContext>
         where TDbContext : DbContext, new()
     {
@@ -154,7 +133,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static DbContextSingleCallInterceptor<TDbContext> GetProxy<TDbContext>(params Aspect[] aspects)
+        public static DbContextSingleCallInterceptor<TDbContext> GetDbProxy<TDbContext>(params Aspect[] aspects)
             where TDbContext : DbContext, new()
         {
             var proxy = new DbContextSingleCallInterceptor<TDbContext>(aspects);

@@ -33,7 +33,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
         /// </summary>
         public static DbContextSingleCallInterceptor<AdventureWorksLT2008R2Entities> AwDal
         {
-            get { return EfAOP.GetProxy<AdventureWorksLT2008R2Entities>(TestAspects); }
+            get { return EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>(TestAspects); }
         }
 
         [TestMethod]
