@@ -61,14 +61,12 @@ namespace Value.Framework.Aspectacular
 
             this.ExecuteMainSequence(() =>
             {
-                retVal = blDelegate.Invoke(this.AugmentedClassInstance);
-
+                this.InvokeActualInterceptedMethod(() => retVal = blDelegate.Invoke(this.AugmentedClassInstance));
                 this.CallReturnValuePostProcessor<TOut>(retValPostProcessor, retVal);
             });
 
             return retVal;
         }
-
 
         /// <summary>
         /// Executes/intercepts *instance* function with no return value.
@@ -81,7 +79,7 @@ namespace Value.Framework.Aspectacular
             Action<TInstance> blDelegate = callExpression.Compile();
             this.InitMethodMetadata(callExpression, blDelegate);
 
-            this.ExecuteMainSequence(() => blDelegate.Invoke(this.AugmentedClassInstance));
+            this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(() => blDelegate.Invoke(this.AugmentedClassInstance)));
         }
 
         #region LINQ convenience shortcut methods

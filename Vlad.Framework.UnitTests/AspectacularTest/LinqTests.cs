@@ -11,6 +11,7 @@ using Value.Framework.Core;
 using Value.Framework.Aspectacular;
 
 using Example.AdventureWorks2008ObjectContext_Dal;
+using Value.Framework.Aspectacular.EntityFramework;
 
 namespace Value.Framework.UnitTests.AspectacularTest
 {
@@ -30,9 +31,9 @@ namespace Value.Framework.UnitTests.AspectacularTest
         /// A factory for getting AOP-augmented proxy to access AdventureWorksLT2008R2Entities instance members
         /// in allocate/invoke/dispose pattern.
         /// </summary>
-        public static AllocateRunDisposeInterceptor<AdventureWorksLT2008R2Entities> AwDal
+        public static DbContextSingleCallInterceptor<AdventureWorksLT2008R2Entities> AwDal
         {
-            get { return AOP.GetAllocDisposeProxy<AdventureWorksLT2008R2Entities>(TestAspects); }
+            get { return EfAOP.GetProxy<AdventureWorksLT2008R2Entities>(TestAspects); }
         }
 
         [TestMethod]

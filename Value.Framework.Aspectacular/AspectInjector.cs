@@ -14,6 +14,8 @@ namespace Value.Framework.Aspectacular
     /// </summary>
     public class Interceptor
     {
+        #region Limited fields and properties
+
         /// <summary>
         /// Instance of an object whose methods are intercepted.
         /// Null when static methods are intercepted.
@@ -26,9 +28,12 @@ namespace Value.Framework.Aspectacular
         private Func<object> instanceResolverFunc;
         private Action<object> instanceCleanerFunc;
         private volatile bool isUsed = false;
-        private Action interceptedMethodCaller;
 
         internal bool methodCalled = false;
+
+        #endregion Limited fields and properties
+
+        #region Public fields and properties
 
         public object MethodExecutionResult { get; internal set; }
         public Exception MethodExecutionException { get; protected set; }
@@ -47,6 +52,10 @@ namespace Value.Framework.Aspectacular
         /// </summary>
         public bool InterceptedMedthodCallFailed { get { return this.MethodExecutionException != null; } }
 
+        #endregion Public fields and properties
+
+        #region Constructors
+
         public Interceptor(Func<object> instanceFactory, Action<object> instanceCleaner, params Aspect[] aspects)
         {
             this.instanceResolverFunc = instanceFactory;
@@ -64,9 +73,13 @@ namespace Value.Framework.Aspectacular
         {
         }
 
+        #endregion Constructors
+
+        #region Steps in sequence
+
         protected virtual void ResolveClassInstance()
         {
-            this.CallAspects(aspect => aspect.Step_1_BeforeResolvingInstance());
+            this.Step_1_BeforeResolvingInstance();
             this.AugmentedClassInstance = this.instanceResolverFunc();
 
             if (this.AugmentedClassInstance == null)
@@ -81,11 +94,48 @@ namespace Value.Framework.Aspectacular
                 this.aspects.Add(this.AugmentedClassInstance as IAspect);
         }
 
+        protected virtual void Step_1_BeforeResolvingInstance()
+        {
+            this.CallAspects(aspect => aspect.Step_1_BeforeResolvingInstance());
+        }
+
+        protected virtual void Step_2_BeforeTryingMethodExec()
+        {
+            this.CallAspects(aspect => aspect.Step_2_BeforeTryingMethodExec());
+        }
+
+        protected virtual void InvokeActualInterceptedMethod(Action interceptedMethodClosure)
+        {
+            interceptedMethodClosure.Invoke();
+        }
+
+        protected virtual void Step_3_BeforeMassagingReturnedResult()
+        {
+            this.CallAspects(aspect => aspect.Step_3_BeforeMassagingReturnedResult());
+        }
+
+        protected virtual void Step_4_Optional_AfterCatchingMethodExecException()
+        {
+            this.CallAspects(aspect => aspect.Step_4_Optional_AfterCatchingMethodExecException());
+        }
+
+        protected virtual void Step_5_FinallyAfterMethodExecution()
+        {
+            this.CallAspectsBackwards(aspect => aspect.Step_5_FinallyAfterMethodExecution(!this.InterceptedMedthodCallFailed));
+        }
+
+        protected virtual void Step_6_Optional_AfterInstanceCleanup()
+        {
+            this.CallAspectsBackwards(aspect => aspect.Step_6_Optional_AfterInstanceCleanup());
+        }
+
+        #endregion Steps in sequence
+
         /// <summary>
         /// Method call wrapper that calls aspects and the intercepted method.
         /// </summary>
         /// <param name="interceptedMethodCallerClosure">Intercepted method call wrapped in an interceptor's closure.</param>
-        protected virtual void ExecuteMainSequence(Action interceptedMethodCallerClosure)
+        protected void ExecuteMainSequence(Action interceptedMethodCallerClosure)
         {
             if (this.isUsed)
                 throw new Exception("Same instance of the call interceptor cannot be used more than once.");
@@ -96,29 +146,27 @@ namespace Value.Framework.Aspectacular
             this.MethodExecutionException = null;
             this.methodCalled = false;
 
-            this.interceptedMethodCaller = interceptedMethodCallerClosure;
-
             try
             {
-                this.CallAspects(aspect => aspect.Step_2_BeforeTryingMethodExec());
+                this.Step_2_BeforeTryingMethodExec();
 
                 try
                 {
                     if (!this.CancelInterceptedMethodCall)
                     {
                         this.methodCalled = true;
-                        this.InvokeInterceptedMethod();
+                        interceptedMethodCallerClosure.Invoke();
                     }
                 }
                 catch (Exception ex)
                 {
                     this.MethodExecutionException = ex;
-                    this.CallAspects(aspect => aspect.Step_4_Optional_AfterCatchingMethodExecException());
+                    this.Step_4_Optional_AfterCatchingMethodExecException();
                     throw;
                 }
                 finally
                 {
-                    this.CallAspectsBackwards(aspect => aspect.Step_5_FinallyAfterMethodExecution(!this.InterceptedMedthodCallFailed));
+                    this.Step_5_FinallyAfterMethodExecution();
                 }
             }
             finally
@@ -128,8 +176,7 @@ namespace Value.Framework.Aspectacular
                     try
                     {
                         this.instanceCleanerFunc.Invoke(this.AugmentedClassInstance);
-
-                        this.CallAspectsBackwards(aspect => aspect.Step_6_Optional_AfterInstanceCleanup());
+                        this.Step_6_Optional_AfterInstanceCleanup();
                     }
                     finally
                     {
@@ -140,14 +187,7 @@ namespace Value.Framework.Aspectacular
             }
         }
 
-        /// <summary>
-        /// Last stop before calling (possibly wrapped) intercepted method.
-        /// </summary>
-        protected virtual void InvokeInterceptedMethod()
-        {
-            // Non-void return calls have another Aspect sequence call between after getting return and massaging it.
-            this.interceptedMethodCaller.Invoke(); 
-        }
+        #region Utility methods
 
         private void CallAspects(Action<Aspect> cutPointHandler)
         {
@@ -187,6 +227,18 @@ namespace Value.Framework.Aspectacular
             this.InterceptedCallMetaData = new InterceptedMethodMetadata(callLambdaWrapper);
         }
 
+        protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
+        {
+            this.MethodExecutionResult = retVal;
+
+            this.Step_3_BeforeMassagingReturnedResult();
+
+            if (retValPostProcessor != null && this.MethodExecutionResult != null)
+                this.MethodExecutionResult = retValPostProcessor(retVal);
+        }
+
+        #endregion Utility methods
+
         /// <summary>
         /// Executes/intercepts *static* function with TOut return result.
         /// </summary>
@@ -202,22 +254,11 @@ namespace Value.Framework.Aspectacular
 
             this.ExecuteMainSequence(() =>
             {
-                retVal = blDelegate.Invoke();
-
+                this.InvokeActualInterceptedMethod(() => retVal = blDelegate.Invoke());
                 this.CallReturnValuePostProcessor<TOut>(retValPostProcessor, retVal);
             });
 
             return retVal;
-        }
-
-        protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
-        {
-            this.MethodExecutionResult = retVal;
-
-            this.CallAspects(aspect => aspect.Step_3_BeforeMassagingReturnedResult());
-
-            if (retValPostProcessor != null && this.MethodExecutionResult != null)
-                this.MethodExecutionResult = retValPostProcessor(retVal);
         }
 
         /// <summary>
@@ -229,7 +270,7 @@ namespace Value.Framework.Aspectacular
             Action blDelegate = callExpression.Compile();
             this.InitMethodMetadata(callExpression, blDelegate);
 
-            this.ExecuteMainSequence(() => blDelegate.Invoke());
+            this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(() => blDelegate.Invoke()));
         }
     }
 }

@@ -72,6 +72,10 @@
       <Project>{e728fbe5-b2ad-47fb-91c1-9e42c3b93a10}</Project>
       <Name>Example.AdventureWorks2008ObjectContext_Dal</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Value.Framework.Aspectacular.EntityFramework.csproj">
+      <Project>{ecc659dc-b903-40e9-9382-07bf719cf5b0}</Project>
+      <Name>Value.Framework.Aspectacular.EntityFramework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Value.Framework.Aspectacular\Value.Framework.Aspectacular.csproj">
       <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
       <Name>Value.Framework.Aspectacular</Name>
