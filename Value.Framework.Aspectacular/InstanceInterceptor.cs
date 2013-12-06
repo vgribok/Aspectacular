@@ -43,19 +43,19 @@ namespace Value.Framework.Aspectacular
         /// Executes/intercepts *instance* function with TOut return value.
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
-        /// <param name="callExpression"></param>
+        /// <param name="interceptedCallExpression"></param>
         /// <param name="retValPostProcessor">
         /// Delegate called immediately after callExpression function was executed. 
         /// Allows additional massaging of the returned value. Useful when LINQ suffix functions, like ToList(), Single(), etc. 
         /// need to be called in alloc/invoke/dispose pattern.
         /// </param>
         /// <returns></returns>
-        public TOut Invoke<TOut>(Expression<Func<TInstance, TOut>> callExpression, Func<TOut, object> retValPostProcessor = null)
+        public TOut Invoke<TOut>(Expression<Func<TInstance, TOut>> interceptedCallExpression, Func<TOut, object> retValPostProcessor = null)
         {
             this.ResolveClassInstance();
 
-            Func<TInstance, TOut> blDelegate = callExpression.Compile();
-            this.InitMethodMetadata(callExpression, blDelegate);
+            Func<TInstance, TOut> blDelegate = interceptedCallExpression.Compile();
+            this.InitMethodMetadata(interceptedCallExpression, blDelegate);
 
             TOut retVal = default(TOut);
 
@@ -71,13 +71,13 @@ namespace Value.Framework.Aspectacular
         /// <summary>
         /// Executes/intercepts *instance* function with no return value.
         /// </summary>
-        /// <param name="callExpression"></param>
-        public void Invoke(Expression<Action<TInstance>> callExpression)
+        /// <param name="interceptedCallExpression"></param>
+        public void Invoke(Expression<Action<TInstance>> interceptedCallExpression)
         {
             this.ResolveClassInstance();
 
-            Action<TInstance> blDelegate = callExpression.Compile();
-            this.InitMethodMetadata(callExpression, blDelegate);
+            Action<TInstance> blDelegate = interceptedCallExpression.Compile();
+            this.InitMethodMetadata(interceptedCallExpression, blDelegate);
 
             this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(() => blDelegate.Invoke(this.AugmentedClassInstance)));
         }
@@ -136,6 +136,8 @@ namespace Value.Framework.Aspectacular
             return entityList;
         }
 
+        
+
         /// <summary>
         /// Executes IQuerable that returns anonymous type.
         /// </summary>
@@ -172,6 +174,51 @@ namespace Value.Framework.Aspectacular
             return records;
         }
 
+
+        private static int CalcSkip(int pageIndex, int pageSize)
+        {
+            if (pageIndex < 0)
+                throw new ArgumentException("pageIndex parameter cannot be negative.");
+            if (pageSize < 1)
+                throw new ArgumentException("pageSize parameter must be greater than 0.");
+
+            return pageIndex * pageSize;
+        }
+
+        /// <summary>
+        /// Modifies "Select" query to bring only one page of data instead of an entire result set.
+        /// Executes modified query and returns a collection of records corresponding to the given page.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="pageIndex">0-based data page index.</param>
+        /// <param name="pageSize">Page size in the number of records.</param>
+        /// <param name="linqQueryExpression">Query that returns entire set.</param>
+        /// <returns>One page subset of data specified by the query.</returns>
+        public IList<TEntity> Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
+        {
+            int skipCount = CalcSkip(pageIndex, pageIndex);
+
+            this.Invoke(linqQueryExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
+            List<TEntity> entityList = (List<TEntity>)this.MethodExecutionResult;
+            return entityList;
+        }
+
+        /// <summary>
+        /// Filters in on-page subset of the collection.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="pageIndex">0-based data page index.</param>
+        /// <param name="pageSize">Page size in the number of records.</param>
+        /// <param name="sequenceExpression"></param>
+        /// <returns></returns>
+        public IList<TEntity> Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
+        {
+            int skipCount = CalcSkip(pageIndex, pageIndex);
+
+            this.Invoke(sequenceExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
+            List<TEntity> entityList = (List<TEntity>)this.MethodExecutionResult;
+            return entityList;
+        }
 
         /// <summary>
         /// Adds FirstOrDefault() to IQueryable
@@ -256,12 +303,12 @@ namespace Value.Framework.Aspectacular
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="aspects"></param>
-        /// <param name="callExpression"></param>
+        /// <param name="interceptedCallExpression"></param>
         /// <returns></returns>
-        public static TOut Invoke<TOut>(Aspect[] aspects, Expression<Func<TOut>> callExpression)
+        public static TOut Invoke<TOut>(Aspect[] aspects, Expression<Func<TOut>> interceptedCallExpression)
         {
             var context = new Interceptor(null, aspects);
-            TOut retVal = context.Invoke<TOut>(callExpression);
+            TOut retVal = context.Invoke<TOut>(interceptedCallExpression);
             return retVal;
         }
 
@@ -269,15 +316,15 @@ namespace Value.Framework.Aspectacular
         /// Executes/intercepts *static* function with no return result.
         /// </summary>
         /// <param name="aspects"></param>
-        /// <param name="callExpression"></param>
-        public static void Invoke(Aspect[] aspects, Expression<Action> callExpression)
+        /// <param name="interceptedCallExpression"></param>
+        public static void Invoke(Aspect[] aspects, Expression<Action> interceptedCallExpression)
         {
             var context = new Interceptor(null, aspects);
-            context.Invoke(callExpression);
+            context.Invoke(interceptedCallExpression);
         }
 
         /// <summary>
-        /// Retrieves AOP-augmented proxy, with specified set of aspects attached, for any given object referenced by isntance parameter.
+        /// Retrieves AOP-augmented proxy, with specified set of aspects attached, for any given object referenced by instance parameter.
         /// </summary>
         /// <typeparam name="TInstance"></typeparam>
         /// <param name="instance"></param>

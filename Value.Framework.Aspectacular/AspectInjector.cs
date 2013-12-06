@@ -77,6 +77,14 @@ namespace Value.Framework.Aspectacular
 
         #region Steps in sequence
 
+        protected virtual void Step_1_BeforeResolvingInstance()
+        {
+            this.CallAspects(aspect => aspect.Step_1_BeforeResolvingInstance());
+        }
+
+        /// <summary>
+        /// Not called for intercepted static methods
+        /// </summary>
         protected virtual void ResolveClassInstance()
         {
             this.Step_1_BeforeResolvingInstance();
@@ -92,11 +100,6 @@ namespace Value.Framework.Aspectacular
             // Augmented object can be aspect for its own method interceptions.
             if (this.AugmentedClassInstance is IAspect)
                 this.aspects.Add(this.AugmentedClassInstance as IAspect);
-        }
-
-        protected virtual void Step_1_BeforeResolvingInstance()
-        {
-            this.CallAspects(aspect => aspect.Step_1_BeforeResolvingInstance());
         }
 
         protected virtual void Step_2_BeforeTryingMethodExec()
@@ -243,12 +246,17 @@ namespace Value.Framework.Aspectacular
         /// Executes/intercepts *static* function with TOut return result.
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
-        /// <param name="callExpression"></param>
+        /// <param name="interceptedCallExpression"></param>
+        /// <param name="retValPostProcessor">
+        /// Delegate called immediately after callExpression function was executed. 
+        /// Allows additional massaging of the returned value. Useful when LINQ suffix functions, like ToList(), Single(), etc. 
+        /// need to be called in alloc/invoke/dispose pattern.
+        /// </param>
         /// <returns></returns>
-        public TOut Invoke<TOut>(Expression<Func<TOut>> callExpression, Func<TOut, object> retValPostProcessor = null)
+        public TOut Invoke<TOut>(Expression<Func<TOut>> interceptedCallExpression, Func<TOut, object> retValPostProcessor = null)
         {
-            Func<TOut> blDelegate = callExpression.Compile();
-            this.InitMethodMetadata(callExpression, blDelegate);
+            Func<TOut> blDelegate = interceptedCallExpression.Compile();
+            this.InitMethodMetadata(interceptedCallExpression, blDelegate);
 
             TOut retVal = default(TOut);
 
@@ -264,11 +272,11 @@ namespace Value.Framework.Aspectacular
         /// <summary>
         /// Executes/intercepts *static* function with no return value.
         /// </summary>
-        /// <param name="callExpression"></param>
-        public void Invoke(Expression<Action> callExpression)
+        /// <param name="interceptedCallExpression"></param>
+        public void Invoke(Expression<Action> interceptedCallExpression)
         {
-            Action blDelegate = callExpression.Compile();
-            this.InitMethodMetadata(callExpression, blDelegate);
+            Action blDelegate = interceptedCallExpression.Compile();
+            this.InitMethodMetadata(interceptedCallExpression, blDelegate);
 
             this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(() => blDelegate.Invoke()));
         }
