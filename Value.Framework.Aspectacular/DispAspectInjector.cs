@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Value.Framework.Aspectacular
 {
-    public class AllocateRunDisposeInterceptor<TDispClass> : InstanceInterceptor<TDispClass> 
+    public class AllocateRunDisposeProxy<TDispClass> : InstanceProxy<TDispClass> 
         where TDispClass : class, IDisposable, new()
     {
         private static TDispClass Instantiate()
@@ -22,7 +22,7 @@ namespace Value.Framework.Aspectacular
                 instance.Dispose();
         }
 
-        public AllocateRunDisposeInterceptor(params Aspect[] aspects)
+        public AllocateRunDisposeProxy(params Aspect[] aspects)
             : base(Instantiate, Cleanup, aspects)
         {
         }
@@ -38,10 +38,10 @@ namespace Value.Framework.Aspectacular
         /// <typeparam name="TDispClass"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static AllocateRunDisposeInterceptor<TDispClass> GetAllocDisposeProxy<TDispClass>(params Aspect[] aspects)
+        public static AllocateRunDisposeProxy<TDispClass> GetAllocDisposeProxy<TDispClass>(params Aspect[] aspects)
             where TDispClass : class, IDisposable, new()
         {
-            var proxy = new AllocateRunDisposeInterceptor<TDispClass>(aspects);
+            var proxy = new AllocateRunDisposeProxy<TDispClass>(aspects);
             return proxy;
         }
     }

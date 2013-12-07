@@ -12,7 +12,7 @@ namespace Value.Framework.Aspectacular
     /// <summary>
     /// Main base class encapsulating call interception and aspect injection logic.
     /// </summary>
-    public class Interceptor
+    public class Proxy
     {
         #region Limited fields and properties
 
@@ -56,7 +56,7 @@ namespace Value.Framework.Aspectacular
 
         #region Constructors
 
-        public Interceptor(Func<object> instanceFactory, Action<object> instanceCleaner, params Aspect[] aspects)
+        public Proxy(Func<object> instanceFactory, Action<object> instanceCleaner, params Aspect[] aspects)
         {
             this.instanceResolverFunc = instanceFactory;
             this.instanceCleanerFunc = instanceCleaner;
@@ -68,7 +68,7 @@ namespace Value.Framework.Aspectacular
             }
         }
 
-        public Interceptor(Func<object> instanceFactory, params Aspect[] aspects)
+        public Proxy(Func<object> instanceFactory, params Aspect[] aspects)
             : this(instanceFactory, instanceCleaner: null, aspects: aspects)
         {
         }

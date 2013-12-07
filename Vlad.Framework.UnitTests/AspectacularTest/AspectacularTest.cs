@@ -68,7 +68,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(Exception))]
         public void TestInterceptedException()
         {
             var someCls = new SomeTestClass(new DateTime(2010, 2, 5));

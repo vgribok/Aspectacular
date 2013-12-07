@@ -15,7 +15,7 @@ namespace Value.Framework.Aspectacular
     /// </summary>
     public interface IInterceptionContext
     {
-        Interceptor Context { get; set;  }
+        Proxy Context { get; set;  }
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ namespace Value.Framework.Aspectacular
     /// </summary>
     public abstract class Aspect : IAspect
     {
-        public virtual Interceptor Context { get; set; }
+        public virtual Proxy Context { get; set; }
 
         public Aspect() { }
 

@@ -10,7 +10,7 @@ using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
 {
-    public class InstanceInterceptor<TInstance> : Interceptor
+    public class InstanceProxy<TInstance> : Proxy
         where TInstance : class
     {
         public new TInstance AugmentedClassInstance
@@ -18,7 +18,7 @@ namespace Value.Framework.Aspectacular
             get { return (TInstance)base.AugmentedClassInstance; }
         }
 
-        public InstanceInterceptor(Func<TInstance> instanceFactory, Action<TInstance> instanceCleaner, Aspect[] aspects)
+        public InstanceProxy(Func<TInstance> instanceFactory, Action<TInstance> instanceCleaner, Aspect[] aspects)
             : base(instanceFactory,
                    inst =>
                    {
@@ -29,12 +29,12 @@ namespace Value.Framework.Aspectacular
         {
         }
 
-        public InstanceInterceptor(Func<TInstance> instanceFactory, params Aspect[] aspects)
+        public InstanceProxy(Func<TInstance> instanceFactory, params Aspect[] aspects)
             : this(instanceFactory, instanceCleaner: null, aspects: aspects)
         {
         }
 
-        public InstanceInterceptor(TInstance instance, params Aspect[] aspects)
+        public InstanceProxy(TInstance instance, params Aspect[] aspects)
             : this(() => instance, instanceCleaner: null, aspects: aspects)
         {
         }
@@ -307,7 +307,7 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public static TOut Invoke<TOut>(Aspect[] aspects, Expression<Func<TOut>> interceptedCallExpression)
         {
-            var context = new Interceptor(null, aspects);
+            var context = new Proxy(null, aspects);
             TOut retVal = context.Invoke<TOut>(interceptedCallExpression);
             return retVal;
         }
@@ -319,7 +319,7 @@ namespace Value.Framework.Aspectacular
         /// <param name="interceptedCallExpression"></param>
         public static void Invoke(Aspect[] aspects, Expression<Action> interceptedCallExpression)
         {
-            var context = new Interceptor(null, aspects);
+            var context = new Proxy(null, aspects);
             context.Invoke(interceptedCallExpression);
         }
 
@@ -330,10 +330,10 @@ namespace Value.Framework.Aspectacular
         /// <param name="instance"></param>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static InstanceInterceptor<TInstance> GetProxy<TInstance>(this TInstance instance, params Aspect[] aspects)
+        public static InstanceProxy<TInstance> GetProxy<TInstance>(this TInstance instance, params Aspect[] aspects)
             where TInstance : class
         {
-            var interceptor = new InstanceInterceptor<TInstance>(instance, aspects);
+            var interceptor = new InstanceProxy<TInstance>(instance, aspects);
             return interceptor;
         }
     }

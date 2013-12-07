@@ -31,7 +31,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
         /// A factory for getting AOP-augmented proxy to access AdventureWorksLT2008R2Entities instance members
         /// in allocate/invoke/dispose pattern.
         /// </summary>
-        public static DbContextSingleCallInterceptor<AdventureWorksLT2008R2Entities> AwDal
+        public static DbContextSingleCallProxy<AdventureWorksLT2008R2Entities> AwDal
         {
             get { return EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>(TestAspects); }
         }

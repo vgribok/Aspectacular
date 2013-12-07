@@ -10,10 +10,15 @@ using Value.Framework.Aspectacular.Data;
 
 namespace Value.Framework.Aspectacular.EntityFramework
 {
-    public class DbContextSingleCallInterceptor<TDbContext> : AllocateRunDisposeInterceptor<TDbContext>, IEfCallInterceptor, IStorageCommandRunner<TDbContext>
-        where TDbContext : DbContext, new()
+    /// <summary>
+    /// Alloc/invoke/dispose convenience class for EF DbContext subclasses.
+    /// </summary>
+    /// <typeparam name="TDbContext"></typeparam>
+    public class DbContextSingleCallProxy<TDbContext> 
+        : AllocateRunDisposeProxy<TDbContext>, IEfCallInterceptor, IStorageCommandRunner<TDbContext>
+            where TDbContext : DbContext, new()
     {
-        public DbContextSingleCallInterceptor(params Aspect[] aspects)
+        public DbContextSingleCallProxy(params Aspect[] aspects)
             : base(aspects)
         {
         }
@@ -66,10 +71,15 @@ namespace Value.Framework.Aspectacular.EntityFramework
         #endregion IStorageCommandRunner
     }
 
-    public class ObjectContextSingleCallInterceptor<TObjectContext> : AllocateRunDisposeInterceptor<TObjectContext>, IEfCallInterceptor, IStorageCommandRunner<TObjectContext>
-        where TObjectContext : ObjectContext, new()
+    /// <summary>
+    /// Alloc/invoke/dispose convenience class for EF ObjectContext subclasses.
+    /// </summary>
+    /// <typeparam name="TObjectContext"></typeparam>
+    public class ObjectContextSingleCallProxy<TObjectContext> 
+        : AllocateRunDisposeProxy<TObjectContext>, IEfCallInterceptor, IStorageCommandRunner<TObjectContext>
+            where TObjectContext : ObjectContext, new()
     {
-        public ObjectContextSingleCallInterceptor(params Aspect[] aspects)
+        public ObjectContextSingleCallProxy(params Aspect[] aspects)
             : base(aspects)
         {
         }
@@ -133,10 +143,10 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static DbContextSingleCallInterceptor<TDbContext> GetDbProxy<TDbContext>(params Aspect[] aspects)
+        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(params Aspect[] aspects)
             where TDbContext : DbContext, new()
         {
-            var proxy = new DbContextSingleCallInterceptor<TDbContext>(aspects);
+            var proxy = new DbContextSingleCallProxy<TDbContext>(aspects);
             return proxy;
         }
 
@@ -146,10 +156,10 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// <typeparam name="TObjectContext"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static ObjectContextSingleCallInterceptor<TObjectContext> GetOcProxy<TObjectContext>(params Aspect[] aspects)
+        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(params Aspect[] aspects)
             where TObjectContext : ObjectContext, new()
         {
-            var proxy = new ObjectContextSingleCallInterceptor<TObjectContext>(aspects);
+            var proxy = new ObjectContextSingleCallProxy<TObjectContext>(aspects);
             return proxy;
         }
     }

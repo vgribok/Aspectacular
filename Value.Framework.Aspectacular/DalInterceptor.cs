@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace Value.Framework.Aspectacular.Data
 {
-    public class MultiDataStoreStingleCallInterceptor<TMultiStoreMgr> : AllocateRunDisposeInterceptor<TMultiStoreMgr>, IEfCallInterceptor, IStorageCommandRunner<TMultiStoreMgr>
+    public class MultiDataStoreStingleCallProxy<TMultiStoreMgr> 
+        : AllocateRunDisposeProxy<TMultiStoreMgr>, IEfCallInterceptor, IStorageCommandRunner<TMultiStoreMgr>
             where TMultiStoreMgr : DataStoreManager, new()
     {
-        public MultiDataStoreStingleCallInterceptor(params Aspect[] aspects)
+        public MultiDataStoreStingleCallProxy(params Aspect[] aspects)
             : base(aspects)
         {
         }
@@ -71,10 +72,10 @@ namespace Value.Framework.Aspectacular.Data
         /// <typeparam name="TMultiStoreMgr"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static MultiDataStoreStingleCallInterceptor<TMultiStoreMgr> GetDalProxy<TMultiStoreMgr>(params Aspect[] aspects)
+        public static MultiDataStoreStingleCallProxy<TMultiStoreMgr> GetDalProxy<TMultiStoreMgr>(params Aspect[] aspects)
             where TMultiStoreMgr : DataStoreManager, new()
         {
-            var proxy = new MultiDataStoreStingleCallInterceptor<TMultiStoreMgr>(aspects);
+            var proxy = new MultiDataStoreStingleCallProxy<TMultiStoreMgr>(aspects);
             return proxy;
         }
     }
