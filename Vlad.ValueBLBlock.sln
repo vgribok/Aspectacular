@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Value.Framework.UnitTests",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Value.Framework.Aspectacular", "Value.Framework.Aspectacular\Value.Framework.Aspectacular.csproj", "{AA70188E-305F-4910-AFEC-6DB7E79F8603}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.AdventureWorks2008ObjectContext_Dal", "Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008ObjectContext_Dal.csproj", "{E728FBE5-B2AD-47FB-91C1-9E42C3B93A10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.AdventureWorks2008_Dal", "Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008_Dal.csproj", "{E728FBE5-B2AD-47FB-91C1-9E42C3B93A10}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Value.Framework.Aspectacular.EntityFramework", "Value.Framework.Aspectacular.EntityFramework\Value.Framework.Aspectacular.EntityFramework.csproj", "{ECC659DC-B903-40E9-9382-07BF719CF5B0}"
 EndProject

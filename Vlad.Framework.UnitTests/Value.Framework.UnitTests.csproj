@@ -68,9 +68,9 @@
     <Compile Include="SomeClass.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008ObjectContext_Dal.csproj">
+    <ProjectReference Include="..\Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008_Dal.csproj">
       <Project>{e728fbe5-b2ad-47fb-91c1-9e42c3b93a10}</Project>
-      <Name>Example.AdventureWorks2008ObjectContext_Dal</Name>
+      <Name>Example.AdventureWorks2008_Dal</Name>
     </ProjectReference>
     <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Value.Framework.Aspectacular.EntityFramework.csproj">
       <Project>{ecc659dc-b903-40e9-9382-07bf719cf5b0}</Project>
