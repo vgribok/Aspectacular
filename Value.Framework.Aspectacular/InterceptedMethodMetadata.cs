@@ -490,11 +490,12 @@ namespace Value.Framework.Aspectacular
 
         private string FormatThisValue(ParamValueOutputOptions valueOutputOptions)
         {
-            if(this.IsStaticMethod || valueOutputOptions == ParamValueOutputOptions.NoValue)
+            if (this.IsStaticMethod || valueOutputOptions == ParamValueOutputOptions.NoValue || this.IsReturnResultInvariant)
                 return string.Empty;
 
             object val = this.augmentedInstance;
             Type type = val == null ? null : val.GetType();
+            
             string thisValueStr = InterceptedMethodParamMetadata.FormatParamValue(type, val, valueOutputOptions == ParamValueOutputOptions.SlowUIValue);
 
             return string.Format("[this = {0}] ", thisValueStr);

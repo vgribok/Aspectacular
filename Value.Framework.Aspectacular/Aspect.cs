@@ -110,7 +110,7 @@ namespace Value.Framework.Aspectacular
         public override void Step_2_BeforeTryingMethodExec()
         {
             string methodSign = this.Context.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
-            Debug.WriteLine("About to call method \"{0}\".".SmartFormat(methodSign));
+            Debug.WriteLine("About to call {0} method \"{1}\".".SmartFormat(this.Context.CanCacheReturnedResult ? "cacheable" : "non-cacheable",  methodSign));
         }
 
         //public override void Step_5_FinallyAfterMethodExecution()
