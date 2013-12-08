@@ -29,13 +29,13 @@ namespace Value.Framework.Aspectacular
         private Action<object> instanceCleanerFunc;
         private volatile bool isUsed = false;
 
-        internal bool methodCalled = false;
+        public bool MethodWasCalled { get; protected set; }
 
         #endregion Limited fields and properties
 
         #region Public fields and properties
 
-        public object MethodExecutionResult { get; internal set; }
+        public object MethodReturnedValue { get; internal set; }
         public Exception MethodExecutionException { get; protected set; }
         public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
         public bool CancelInterceptedMethodCall { get; internal set; }
@@ -159,9 +159,9 @@ namespace Value.Framework.Aspectacular
 
             this.isUsed = true;
 
-            this.MethodExecutionResult = null;
+            this.MethodReturnedValue = null;
             this.MethodExecutionException = null;
-            this.methodCalled = false;
+            this.MethodWasCalled = false;
 
             try
             {
@@ -171,7 +171,7 @@ namespace Value.Framework.Aspectacular
                 {
                     if (!this.CancelInterceptedMethodCall)
                     {
-                        this.methodCalled = true;
+                        this.MethodWasCalled = true;
                         interceptedMethodCallerClosure.Invoke();
                     }
                 }
@@ -256,12 +256,12 @@ namespace Value.Framework.Aspectacular
 
         protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
         {
-            this.MethodExecutionResult = retVal;
+            this.MethodReturnedValue = retVal;
 
             this.Step_3_BeforeMassagingReturnedResult();
 
-            if (retValPostProcessor != null && this.MethodExecutionResult != null)
-                this.MethodExecutionResult = retValPostProcessor(retVal);
+            if (retValPostProcessor != null && this.MethodReturnedValue != null)
+                this.MethodReturnedValue = retValPostProcessor(retVal);
         }
 
         #endregion Utility methods
@@ -305,9 +305,73 @@ namespace Value.Framework.Aspectacular
             this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(() => blDelegate.Invoke()));
         }
 
-        //public string FormateReturnValue(bool trueUI_falseInternal)
-        //{
-        //    string retValStr = InterceptedMethodParamMetadata.FormatParamValue(this.MethodReturnType, this.interceptedMethodExpression.re, bool trueUI_falseInternal);
-        //}
+        /// <summary>
+        /// Returns cache key and function returned value.
+        /// It's slow as parameters get evaluated via Expression.Compile() and reflection Invoke().
+        /// </summary>
+        /// <param name="cacheKey">Key that uniquely identifies method and its parameter values.</param>
+        /// <returns></returns>
+        public object SlowGetReturnValueForCaching(out string cacheKey)
+        {
+            this.RequirePostExecutionPhase();
+
+            if(!this.CanCacheReturnedResult)
+                throw new Exception(string.Format("This method/class is not marked with [InvariantReturnAttribute]: \"{0}\".", this.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.NoValue)));
+
+            cacheKey = this.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
+
+            object retVal = this.GetReturnValueInternal();
+            return retVal;
+        }
+
+        /// <summary>
+        /// Returns string representation of method's return value;
+        /// </summary>
+        /// <param name="trueUI_falseInternal"></param>
+        /// <returns></returns>
+        public string FormateReturnValue(bool trueUI_falseInternal)
+        {
+            this.RequirePostExecutionPhase();
+
+            string retValStr = InterceptedMethodParamMetadata.FormatParamValue(this.InterceptedCallMetaData.MethodReturnType, this.GetReturnValueInternal(), trueUI_falseInternal);
+            return retValStr;
+        }
+
+        #region Utility methods
+
+        /// <summary>
+        /// Returns exception object for failed calls,
+        /// string.Empty for void return types, 
+        /// and actual returned result for successful non-void calls.
+        /// </summary>
+        /// <returns></returns>
+        private object GetReturnValueInternal()
+        {
+            this.RequirePostExecutionPhase();
+
+            object retVal;
+
+            if (this.InterceptedMedthodCallFailed)
+                retVal = this.MethodExecutionException;
+            else
+            {
+                if (this.InterceptedCallMetaData.IsStaticMethod)
+                    retVal = string.Empty;
+                else
+                    retVal = this.MethodReturnedValue;
+            }
+            return retVal;
+        }
+
+        /// <summary>
+        /// Ensures that proxy is in the post-execution state.
+        /// </summary>
+        private void RequirePostExecutionPhase()
+        {
+            if (!this.MethodWasCalled)
+                throw new Exception("Method returned value for caching is not available until after method was called.");
+        }
+
+        #endregion Utility methods
     }
 }

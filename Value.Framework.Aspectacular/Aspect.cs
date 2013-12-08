@@ -58,9 +58,9 @@ namespace Value.Framework.Aspectacular
         /// LINQ's List(), Single(), etc. methods may be used to execute
         /// query returned by the intercepted method. This interceptor
         /// is called after query was returned and before it was executed.
-        /// During this period, Context.MethodExecutionResult has exact value 
+        /// During this period, Context.MethodReturnedValue has exact value 
         /// returned by the intercepted method.
-        /// After this interceptor is called, Context.MethodExecutionResult may be changed,
+        /// After this interceptor is called, Context.MethodReturnedValue may be changed,
         /// primarily by LINQ modifiers, like List().
         /// </remarks>
         public virtual void Step_3_BeforeMassagingReturnedResult() { }
@@ -88,10 +88,10 @@ namespace Value.Framework.Aspectacular
         /// <param name="newReturnValue"></param>
         protected void CancelInterceptedMethodCallAndSetReturnValue(object newReturnValue)
         {
-            if (this.Context.methodCalled)
+            if (this.Context.MethodWasCalled)
                 throw new Exception("Invalid attempt to cancel intercepted method call after it was called.");
 
-            this.Context.MethodExecutionResult = newReturnValue;
+            this.Context.MethodReturnedValue = newReturnValue;
             this.Context.CancelInterceptedMethodCall = true;
         }
 
@@ -113,12 +113,15 @@ namespace Value.Framework.Aspectacular
             Debug.WriteLine("About to call {0} method \"{1}\".".SmartFormat(this.Context.CanCacheReturnedResult ? "cacheable" : "non-cacheable",  methodSign));
         }
 
-        //public override void Step_5_FinallyAfterMethodExecution()
-        //{
-        //    Debug.WriteLine("Method \"{0}\" {1}.".SmartFormat(
-        //            this.Context.InterceptedCallMetaData.GetMethodSignature(),
-        //            this.Context.MedthodHasFailed ? "failed" : "succeeded")
-        //    );
-        //}
+        public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
+        {
+            Debug.WriteLine("Method \"{0}\" {1} and returned: [{2}]."
+                .SmartFormat(
+                    this.Context.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowUIValue),
+                    interceptedCallSucceeded ? "succeeded" : "failed",
+                    this.Context.FormateReturnValue(trueUI_falseInternal: true)
+                )
+            );
+        }
     }
 }

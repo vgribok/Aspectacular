@@ -261,11 +261,11 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public static string FormatParamValue(Type type, object val, bool trueUI_falseInternal)
         {
-            if (val == null)
-                return "[null]";
-
             if (type.Equals(typeof(void)))
                 return string.Empty;
+
+            if (val == null)
+                return "[null]";
 
             if (trueUI_falseInternal && val is SecretValueHash)
                 return "[secret]";

@@ -93,7 +93,7 @@ namespace Value.Framework.Aspectacular
         public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
             this.Invoke(linqQueryExpression, query => (query == null || query is IList<TEntity>) ? query as IList<TEntity> : query.ToList());
-            IList<TEntity> entityList = (IList<TEntity>)this.MethodExecutionResult;
+            IList<TEntity> entityList = (IList<TEntity>)this.MethodReturnedValue;
             return entityList;
         }
 
@@ -106,7 +106,7 @@ namespace Value.Framework.Aspectacular
         public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
             this.Invoke(sequenceExpression, sequence => (sequence == null || sequence is IList<TEntity>) ? sequence as IList<TEntity> : sequence.ToList());
-            IList<TEntity> entityList = (IList<TEntity>)this.MethodExecutionResult;
+            IList<TEntity> entityList = (IList<TEntity>)this.MethodReturnedValue;
             return entityList;
         }
 
@@ -119,7 +119,7 @@ namespace Value.Framework.Aspectacular
         public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
             this.Invoke(linqQueryExpression, query => query.ToList());
-            List<TEntity> entityList = (List<TEntity>)this.MethodExecutionResult;
+            List<TEntity> entityList = (List<TEntity>)this.MethodReturnedValue;
             return entityList;
         }
 
@@ -132,7 +132,7 @@ namespace Value.Framework.Aspectacular
         public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
             this.Invoke(sequenceExpression, sequence => sequence.ToList());
-            List<TEntity> entityList = (List<TEntity>)this.MethodExecutionResult;
+            List<TEntity> entityList = (List<TEntity>)this.MethodReturnedValue;
             return entityList;
         }
 
@@ -199,7 +199,7 @@ namespace Value.Framework.Aspectacular
             int skipCount = CalcSkip(pageIndex, pageIndex);
 
             this.Invoke(linqQueryExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
-            List<TEntity> entityList = (List<TEntity>)this.MethodExecutionResult;
+            List<TEntity> entityList = (List<TEntity>)this.MethodReturnedValue;
             return entityList;
         }
 
@@ -216,7 +216,7 @@ namespace Value.Framework.Aspectacular
             int skipCount = CalcSkip(pageIndex, pageIndex);
 
             this.Invoke(sequenceExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
-            List<TEntity> entityList = (List<TEntity>)this.MethodExecutionResult;
+            List<TEntity> entityList = (List<TEntity>)this.MethodReturnedValue;
             return entityList;
         }
 
@@ -229,7 +229,7 @@ namespace Value.Framework.Aspectacular
         public TEntity Single<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
             this.Invoke(linqQueryExpression, query => query.FirstOrDefault());
-            TEntity entity = (TEntity)this.MethodExecutionResult;
+            TEntity entity = (TEntity)this.MethodReturnedValue;
             return entity;
         }
 
@@ -242,7 +242,7 @@ namespace Value.Framework.Aspectacular
         public TEntity Single<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
             this.Invoke(sequenceExpression, sequence => sequence.FirstOrDefault());
-            TEntity entity = (TEntity)this.MethodExecutionResult;
+            TEntity entity = (TEntity)this.MethodReturnedValue;
             return entity;
         }
 
