@@ -109,7 +109,7 @@ namespace Value.Framework.Aspectacular
     {
         public override void Step_2_BeforeTryingMethodExec()
         {
-            string methodSign = this.Context.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowUIValue);
+            string methodSign = this.Context.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
             Debug.WriteLine("About to call method \"{0}\".".SmartFormat(methodSign));
         }
 

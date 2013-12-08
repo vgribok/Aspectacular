@@ -52,6 +52,20 @@ namespace Value.Framework.Aspectacular
         /// </summary>
         public bool InterceptedMedthodCallFailed { get { return this.MethodExecutionException != null; } }
 
+        /// <summary>
+        /// Determines returned data cache-ability.
+        /// Returns true if this method will return same data if called at the same time
+        /// on two or more class instances (or on the same type for static methods).
+        /// </summary>
+        /// <remarks>
+        /// Aspects implementing caching must examine this property before caching data.
+        /// Mark classes and methods with InvariantReturnAttribute to mark them as cacheable or not.
+        /// </remarks>
+        public bool CanCacheReturnedResult
+        {
+            get { return this.InterceptedCallMetaData.IsReturnResultInvariant; }
+        }
+
         #endregion Public fields and properties
 
         #region Constructors
@@ -227,7 +241,17 @@ namespace Value.Framework.Aspectacular
         protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethod)
         {
             this.interceptedMethod = interceptedMethod;
-            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper);
+            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper, this.IsClassInstanceInvariant());
+        }
+
+        /// <summary>
+        /// Returns true if same method called on two or more instances 
+        /// of this class at the same time, will return same data.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual bool IsClassInstanceInvariant()
+        {
+            return false;
         }
 
         protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
@@ -280,5 +304,10 @@ namespace Value.Framework.Aspectacular
 
             this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(() => blDelegate.Invoke()));
         }
+
+        //public string FormateReturnValue(bool trueUI_falseInternal)
+        //{
+        //    string retValStr = InterceptedMethodParamMetadata.FormatParamValue(this.MethodReturnType, this.interceptedMethodExpression.re, bool trueUI_falseInternal);
+        //}
     }
 }

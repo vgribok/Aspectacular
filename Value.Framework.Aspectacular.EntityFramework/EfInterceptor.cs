@@ -69,6 +69,15 @@ namespace Value.Framework.Aspectacular.EntityFramework
         }
 
         #endregion IStorageCommandRunner
+
+        /// <summary>
+        /// Returns true if same method called on two or more instances 
+        /// of this class at the same time, will return same data.
+        /// </summary>
+        protected override bool IsClassInstanceInvariant()
+        {
+            return true;
+        }
     }
 
     /// <summary>
@@ -130,6 +139,15 @@ namespace Value.Framework.Aspectacular.EntityFramework
         }
 
         #endregion IStorageCommandRunner
+
+        /// <summary>
+        /// Returns true if same method called on two or more instances 
+        /// of this class at the same time, will return same data.
+        /// </summary>
+        protected override bool IsClassInstanceInvariant()
+        {
+            return true;
+        }
     }
 
     /// <summary>
