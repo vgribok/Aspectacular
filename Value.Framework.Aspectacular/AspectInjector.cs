@@ -320,7 +320,7 @@ namespace Value.Framework.Aspectacular
 
             cacheKey = this.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
 
-            object retVal = this.GetReturnValueInternal();
+            object retVal = this.GetReturnValueInternal(makeSecret: false);
             return retVal;
         }
 
@@ -333,7 +333,10 @@ namespace Value.Framework.Aspectacular
         {
             this.RequirePostExecutionPhase();
 
-            string retValStr = InterceptedMethodParamMetadata.FormatParamValue(this.InterceptedCallMetaData.MethodReturnType, this.GetReturnValueInternal(), trueUI_falseInternal);
+            string retValStr = InterceptedMethodParamMetadata.FormatParamValue(
+                                    this.InterceptedCallMetaData.MethodReturnType, 
+                                    this.GetReturnValueInternal(this.InterceptedCallMetaData.IsReturnValueSecret), 
+                                    trueUI_falseInternal);
             return retValStr;
         }
 
@@ -345,7 +348,7 @@ namespace Value.Framework.Aspectacular
         /// and actual returned result for successful non-void calls.
         /// </summary>
         /// <returns></returns>
-        private object GetReturnValueInternal()
+        private object GetReturnValueInternal(bool makeSecret)
         {
             this.RequirePostExecutionPhase();
 
@@ -358,7 +361,11 @@ namespace Value.Framework.Aspectacular
                 if (this.InterceptedCallMetaData.IsStaticMethod)
                     retVal = string.Empty;
                 else
+                {
                     retVal = this.MethodReturnedValue;
+                    if (makeSecret)
+                        retVal = new SecretValueHash(retVal);
+                }
             }
             return retVal;
         }

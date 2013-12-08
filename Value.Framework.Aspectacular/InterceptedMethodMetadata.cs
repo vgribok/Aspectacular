@@ -390,6 +390,15 @@ namespace Value.Framework.Aspectacular
             }
         }
 
+        public bool IsReturnValueSecret
+        {
+            get
+            {
+                SecretParamValueAttribute secretAttrib = this.MethodReflectionInfo.ReturnParameter.GetCustomAttribute<SecretParamValueAttribute>();
+                return secretAttrib != null;
+            }
+        }
+
         public string GetMethodSignature(ParamValueOutputOptions valueOutputOptions = ParamValueOutputOptions.NoValue)
         {
             string signature = string.Format("{0} {1}({2})",
