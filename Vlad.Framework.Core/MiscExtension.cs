@@ -7,6 +7,12 @@ using System.Threading.Tasks;
 
 namespace Value.Framework.Core
 {
+    public enum ParamDirectionEnum
+    {
+        In = 1, Out, RefInOut
+    }
+
+
     public static class MiscExtension
     {
         static readonly string[][] simpleParmTypeNames = 
@@ -25,6 +31,7 @@ namespace Value.Framework.Core
             new string[] { "Decimal", "decimal" },
             new string[] { "Double", "double" },
             new string[] { "Single", "float" },
+            new string[] { "Char", "char" },
         };
 
         static readonly Dictionary<string, string> stdTypeCSharpNames = new Dictionary<string, string>();
@@ -33,6 +40,12 @@ namespace Value.Framework.Core
         {
             foreach (string[] pair in simpleParmTypeNames)
                 stdTypeCSharpNames.Add(pair[0], pair[1]);
+        }
+
+        public static bool IsSimpleCSharpType(this Type type)
+        {
+            string typeName = type.Name.TrimEnd('&');
+            return stdTypeCSharpNames.ContainsKey(typeName);
         }
 
         public static string FormatCSharp(this Type type)
@@ -44,14 +57,32 @@ namespace Value.Framework.Core
             return typeName;
         }
 
-        public static string FormatCSharpType(this ParameterInfo parmInfo)
+        public static ParamDirectionEnum GetDirection(this ParameterInfo parmInfo)
         {
-            string refOrOut = string.Empty;
-
             bool isRef = parmInfo.ParameterType.Name.EndsWith("&");
 
             if (isRef)
-                refOrOut = parmInfo.IsOut ? "out " : "ref ";
+                return parmInfo.IsOut ? ParamDirectionEnum.Out : ParamDirectionEnum.RefInOut;
+
+            return ParamDirectionEnum.In;
+        }
+
+        public static string FormatCSharpType(this ParameterInfo parmInfo)
+        {
+            string refOrOut;
+
+            switch(parmInfo.GetDirection())
+            {
+                case ParamDirectionEnum.Out:
+                    refOrOut = "out ";
+                    break;
+                case ParamDirectionEnum.RefInOut:
+                    refOrOut = "ref ";
+                    break;
+                default:
+                    refOrOut = string.Empty;
+                    break;
+            }
 
             return string.Format("{0}{1}", refOrOut, parmInfo.ParameterType.FormatCSharp());
         }

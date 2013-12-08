@@ -227,7 +227,7 @@ namespace Value.Framework.Aspectacular
         protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethod)
         {
             this.interceptedMethod = interceptedMethod;
-            this.InterceptedCallMetaData = new InterceptedMethodMetadata(callLambdaWrapper);
+            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper);
         }
 
         protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)

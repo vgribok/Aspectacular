@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Value.Framework.Aspectacular;
 
 namespace Value.Framework.UnitTests
 {
@@ -45,10 +46,15 @@ namespace Value.Framework.UnitTests
             bogus.ToString();
         }
 
-        public static void MiscParmsStatic(int intParm, ref string refString, out bool outBool)
+        public static void MiscParmsStatic(int intParm, SomeTestClass classParm, ref string refString, out bool outBool)
         {
             refString = string.Format("{0} {1}", intParm, refString);
             outBool = true;
+        }
+
+        public bool FakeLogin(string username, [SecretParamValue] string password)
+        {
+            return (DateTime.UtcNow.Ticks & 1) == 1;
         }
     }
 

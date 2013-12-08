@@ -46,12 +46,22 @@ namespace Value.Framework.UnitTests.AspectacularTest
         {
             int intParm = 456;
             this.IntProp = intParm;
-            string refString = DateTime.Now.ToString();
+            string refString = DateTime.Now.Ticks.ToString();
             bool outBool = false;
+            SomeTestClass obj = new SomeTestClass();
 
             // Example of calling static void method.
-            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, ref refString, out outBool));
+            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, obj, ref refString, out outBool));
+            Assert.IsTrue(outBool);
+
+            System.Threading.Thread.Sleep(100);
+
+            intParm = 12456;
+            IntProp = intParm;
+            refString = DateTime.Now.Ticks.ToString();
+            obj = new SomeTestClass(new DateTime(1999, 5, 3));
             
+            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, obj, ref refString, out outBool));
             Assert.IsTrue(outBool);
         }
 
@@ -74,6 +84,26 @@ namespace Value.Framework.UnitTests.AspectacularTest
             var someCls = new SomeTestClass(new DateTime(2010, 2, 5));
             
             bool neverGetHere = someCls.GetProxy(TestAspects).Invoke(instance => instance.ThrowFailure());
+        }
+
+        [TestMethod]
+        public void TestMethodSignatures()
+        {
+            var obj = new SomeTestClass();
+
+            string username, password;
+
+            username = "one";
+            password = "password1";
+            obj.GetProxy(TestAspects).Invoke(inst => inst.FakeLogin(username, password));
+
+            obj = new SomeTestClass(new DateTime(2010, 11, 5));
+            //username = "two";
+            //password = "password2";
+            obj.GetProxy(TestAspects).Invoke(inst => inst.FakeLogin(username, password));
+
+            int index = "Wassup".GetProxy(TestAspects).Invoke(str => str.IndexOf('u'));
+            Assert.AreEqual(4, index);
         }
     }
 }
