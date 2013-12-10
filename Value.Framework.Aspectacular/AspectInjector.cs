@@ -241,17 +241,7 @@ namespace Value.Framework.Aspectacular
         protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethod)
         {
             this.interceptedMethod = interceptedMethod;
-            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper, this.IsClassInstanceInvariant());
-        }
-
-        /// <summary>
-        /// Returns true if same method called on two or more instances 
-        /// of this class at the same time, will return same data.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual bool IsClassInstanceInvariant()
-        {
-            return false;
+            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper);
         }
 
         protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)

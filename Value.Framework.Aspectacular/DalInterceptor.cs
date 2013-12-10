@@ -62,15 +62,6 @@ namespace Value.Framework.Aspectacular.Data
         {
             return this.Invoke(callExpression);
         }
-
-        /// <summary>
-        /// Returns true if same method called on two or more instances 
-        /// of this class at the same time, will return same data.
-        /// </summary>
-        protected override bool IsClassInstanceInvariant()
-        {
-            return true;
-        }
     }
 
     public static partial class AOP
