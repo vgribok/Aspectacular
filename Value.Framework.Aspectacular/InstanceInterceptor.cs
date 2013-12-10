@@ -333,7 +333,22 @@ namespace Value.Framework.Aspectacular
         public static InstanceProxy<TInstance> GetProxy<TInstance>(this TInstance instance, params Aspect[] aspects)
             where TInstance : class
         {
-            var interceptor = new InstanceProxy<TInstance>(instance, aspects);
+            return GetProxy(instance, forceCallInvariant: false, aspects: aspects);
+        }
+
+        /// <summary>
+        /// Retrieves AOP-augmented proxy, with specified set of aspects attached, for any given object referenced by instance parameter.
+        /// </summary>
+        /// <typeparam name="TInstance"></typeparam>
+        /// <param name="instance"></param>
+        /// <param name="forceCallInvariant">Pass true to mark intercepted method as call-invariant,
+        /// meaning that two calls made at the same time on different instances return same data.</param>
+        /// <param name="aspects"></param>
+        /// <returns></returns>
+        public static InstanceProxy<TInstance> GetProxy<TInstance>(this TInstance instance, bool forceCallInvariant, params Aspect[] aspects)
+            where TInstance : class
+        {
+            var interceptor = new InstanceProxy<TInstance>(instance, aspects) { ForceCallInvariance = forceCallInvariant };
             return interceptor;
         }
     }

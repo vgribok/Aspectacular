@@ -299,6 +299,8 @@ namespace Value.Framework.Aspectacular
 
         protected MethodCallExpression interceptedMethodExpression;
 
+        private readonly bool forceClassInstanceInvariant;
+
         /// <summary>
         /// Raw method metadata. Use this class's members instead, if possible.
         /// </summary>
@@ -321,7 +323,7 @@ namespace Value.Framework.Aspectacular
             get { return this.MethodReflectionInfo.ReturnType;  }
         }
 
-        internal InterceptedMethodMetadata(object augmentedInstance, LambdaExpression callLambdaExp)
+        internal InterceptedMethodMetadata(object augmentedInstance, LambdaExpression callLambdaExp, bool forceClassInstanceInvariant)
         {
             try
             {
@@ -336,6 +338,7 @@ namespace Value.Framework.Aspectacular
 
             this.augmentedInstance = augmentedInstance;
             this.MethodReflectionInfo = this.interceptedMethodExpression.Method;
+            this.forceClassInstanceInvariant = forceClassInstanceInvariant;
 
             this.InitParameterMetadata();
         }
@@ -383,7 +386,7 @@ namespace Value.Framework.Aspectacular
                 if (invarAttribute != null)
                     return invarAttribute.IsInstanceInvariant;
 
-                return false;
+                return this.forceClassInstanceInvariant;
             }
         }
 

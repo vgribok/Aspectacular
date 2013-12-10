@@ -29,8 +29,6 @@ namespace Value.Framework.Aspectacular
         private Action<object> instanceCleanerFunc;
         private volatile bool isUsed = false;
 
-        public bool MethodWasCalled { get; protected set; }
-
         #endregion Limited fields and properties
 
         #region Public fields and properties
@@ -44,6 +42,8 @@ namespace Value.Framework.Aspectacular
         /// Aspects may set this to true to break break aspect call sequence
         /// </summary>
         public bool StopAspectCallChain { get; set; }
+
+        public bool ForceCallInvariance { get; set; }
 
         /// <summary>
         /// Returns true if an attempt of executing intercepted method was made 
@@ -65,6 +65,8 @@ namespace Value.Framework.Aspectacular
         {
             get { return this.InterceptedCallMetaData.IsReturnResultInvariant; }
         }
+
+        public bool MethodWasCalled { get; protected set; }
 
         #endregion Public fields and properties
 
@@ -241,7 +243,7 @@ namespace Value.Framework.Aspectacular
         protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethod)
         {
             this.interceptedMethod = interceptedMethod;
-            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper);
+            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper, this.ForceCallInvariance);
         }
 
         protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
