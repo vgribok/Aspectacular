@@ -52,6 +52,7 @@ namespace Value.Framework.UnitTests
             outBool = true;
         }
 
+        [InvariantReturn]
         public bool FakeLogin(string username, [SecretParamValue] string password)
         {
             return (DateTime.UtcNow.Ticks & 1) == 1;

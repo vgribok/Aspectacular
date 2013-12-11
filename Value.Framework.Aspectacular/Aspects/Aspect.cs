@@ -58,9 +58,9 @@ namespace Value.Framework.Aspectacular
         /// LINQ's List(), Single(), etc. methods may be used to execute
         /// query returned by the intercepted method. This interceptor
         /// is called after query was returned and before it was executed.
-        /// During this period, Context.MethodReturnedValue has exact value 
+        /// During this period, Context.ReturnedValue has exact value 
         /// returned by the intercepted method.
-        /// After this interceptor is called, Context.MethodReturnedValue may be changed,
+        /// After this interceptor is called, Context.ReturnedValue may be changed,
         /// primarily by LINQ modifiers, like List().
         /// </remarks>
         public virtual void Step_3_BeforeMassagingReturnedResult() { }
@@ -91,7 +91,7 @@ namespace Value.Framework.Aspectacular
             if (this.Context.MethodWasCalled)
                 throw new Exception("Invalid attempt to cancel intercepted method call after it was called.");
 
-            this.Context.MethodReturnedValue = newReturnValue;
+            this.Context.ReturnedValue = newReturnValue;
             this.Context.CancelInterceptedMethodCall = true;
         }
 

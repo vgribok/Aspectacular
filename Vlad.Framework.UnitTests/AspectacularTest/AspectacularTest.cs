@@ -5,12 +5,15 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Value.Framework.Core;
 using Value.Framework.Aspectacular;
+using Value.Framework.Aspectacular.Aspects;
 
 namespace Value.Framework.UnitTests.AspectacularTest
 {
     [TestClass]
     public class AspectacularTest
     {
+        public static readonly StupidSimpleInProcCache testInProcCache = new StupidSimpleInProcCache();
+
         public TestContext TestContext { get; set; }
 
         public static Aspect[] TestAspects
@@ -21,6 +24,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
                 {
                      new DebugOutputAspect(),
                      new ThreeStrikesAspect(),
+                     new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
                 };
             }
         }

@@ -33,8 +33,19 @@ namespace Value.Framework.Aspectacular
 
         #region Public fields and properties
 
-        public object MethodReturnedValue { get; internal set; }
-        public Exception MethodExecutionException { get; protected set; }
+        /// <summary>
+        /// Value returned by the intercepted method, if method call has succeeded.
+        /// </summary>
+        public object ReturnedValue { get; internal set; }
+
+        /// <summary>
+        /// An exception thrown either by the intercepted method, if method failed, or by preceding aspects.
+        /// </summary>
+        public Exception MethodExecutionException { get; set; }
+
+        /// <summary>
+        /// Extensive information about method, its name, attributes, parameter names and value, etc.
+        /// </summary>
         public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
 
         /// <summary>
@@ -92,6 +103,10 @@ namespace Value.Framework.Aspectacular
             get { return this.InterceptedCallMetaData.IsReturnResultInvariant; }
         }
 
+        /// <summary>
+        /// Is set to false until an attempt to call intercepted method was made,
+        /// and is true after the method call attempt.
+        /// </summary>
         public bool MethodWasCalled { get; protected set; }
 
         #endregion Public fields and properties
@@ -190,7 +205,7 @@ namespace Value.Framework.Aspectacular
 
             this.isUsed = true;
 
-            this.MethodReturnedValue = null;
+            this.ReturnedValue = null;
             this.MethodExecutionException = null;
             this.MethodWasCalled = false;
 
@@ -202,15 +217,20 @@ namespace Value.Framework.Aspectacular
 
                 try
                 {
+                    if(this.CancelInterceptedMethodCall)
+                    {   // Returned result came from cache.
+                        if(this.InterceptedMedthodCallFailed)
+                        {   // Return cached exception.
+                            this.Step_4_Optional_AfterCatchingMethodExecException();
+                            throw this.MethodExecutionException;
+                        }
+                    }else
                     // Retry loop
                     for (this.AttemptsMade = 1; true; this.AttemptsMade++)
                     {   
                         try
                         {
-                            if (!this.CancelInterceptedMethodCall)
-                            {
-                                actualMethodInvokerClosure.Invoke(); // Step 3 (post-call returned result massaging) is called inside this closure.
-                            }
+                            actualMethodInvokerClosure.Invoke(); // Step 3 (post-call returned result massaging) is called inside this closure.
                             break; // success - break retry loop.
                         }
                         catch (Exception ex)
@@ -292,12 +312,12 @@ namespace Value.Framework.Aspectacular
 
         protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
         {
-            this.MethodReturnedValue = retVal;
+            this.ReturnedValue = retVal;
 
             this.Step_3_BeforeMassagingReturnedResult();
 
-            if (retValPostProcessor != null && this.MethodReturnedValue != null)
-                this.MethodReturnedValue = retValPostProcessor(retVal);
+            if (retValPostProcessor != null && this.ReturnedValue != null)
+                this.ReturnedValue = retValPostProcessor(retVal);
         }
 
         #endregion Utility methods
@@ -398,7 +418,7 @@ namespace Value.Framework.Aspectacular
                     retVal = string.Empty;
                 else
                 {
-                    retVal = this.MethodReturnedValue;
+                    retVal = this.ReturnedValue;
                     if (makeSecret)
                         retVal = new SecretValueHash(retVal);
                 }

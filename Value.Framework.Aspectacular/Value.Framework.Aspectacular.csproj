@@ -40,8 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Aspect.cs" />
+    <Compile Include="Aspects\Aspect.cs" />
     <Compile Include="AspectInjector.cs" />
+    <Compile Include="Aspects\CacheAspect.cs" />
     <Compile Include="DalInterceptor.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="DispAspectInjector.cs" />
