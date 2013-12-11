@@ -115,10 +115,11 @@ namespace Value.Framework.Aspectacular
 
         public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
         {
-            Debug.WriteLine("Method \"{0}\" {1} and returned: [{2}]."
+            Debug.WriteLine("Method \"{0}\" {1} after {2} attempt(s) and returned: [{3}]."
                 .SmartFormat(
                     this.Context.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowUIValue),
                     interceptedCallSucceeded ? "succeeded" : "failed",
+                    this.Context.AttemptsMade,
                     this.Context.FormateReturnValue(trueUI_falseInternal: true)
                 )
             );

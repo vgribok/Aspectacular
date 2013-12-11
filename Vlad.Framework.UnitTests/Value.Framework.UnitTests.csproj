@@ -66,6 +66,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RunCounter.cs" />
     <Compile Include="SomeClass.cs" />
+    <Compile Include="ThreeStrikesAspect.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008_Dal.csproj">

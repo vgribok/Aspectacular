@@ -11,7 +11,7 @@ namespace Value.Framework.Aspectacular.Data
         : AllocateRunDisposeProxy<TMultiStoreMgr>, IEfCallInterceptor, IStorageCommandRunner<TMultiStoreMgr>
             where TMultiStoreMgr : DataStoreManager, new()
     {
-        public MultiDataStoreStingleCallProxy(params Aspect[] aspects)
+        public MultiDataStoreStingleCallProxy(IEnumerable<Aspect> aspects)
             : base(aspects)
         {
         }
@@ -72,7 +72,7 @@ namespace Value.Framework.Aspectacular.Data
         /// <typeparam name="TMultiStoreMgr"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static MultiDataStoreStingleCallProxy<TMultiStoreMgr> GetDalProxy<TMultiStoreMgr>(params Aspect[] aspects)
+        public static MultiDataStoreStingleCallProxy<TMultiStoreMgr> GetDalProxy<TMultiStoreMgr>(IEnumerable<Aspect> aspects)
             where TMultiStoreMgr : DataStoreManager, new()
         {
             var proxy = new MultiDataStoreStingleCallProxy<TMultiStoreMgr>(aspects);

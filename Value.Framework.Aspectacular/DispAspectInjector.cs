@@ -22,7 +22,7 @@ namespace Value.Framework.Aspectacular
                 instance.Dispose();
         }
 
-        public AllocateRunDisposeProxy(params Aspect[] aspects)
+        public AllocateRunDisposeProxy(IEnumerable<Aspect> aspects)
             : base(Instantiate, Cleanup, aspects)
         {
         }
@@ -38,7 +38,7 @@ namespace Value.Framework.Aspectacular
         /// <typeparam name="TDispClass"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static AllocateRunDisposeProxy<TDispClass> GetAllocDisposeProxy<TDispClass>(params Aspect[] aspects)
+        public static AllocateRunDisposeProxy<TDispClass> GetAllocDisposeProxy<TDispClass>(IEnumerable<Aspect> aspects)
             where TDispClass : class, IDisposable, new()
         {
             var proxy = new AllocateRunDisposeProxy<TDispClass>(aspects);

@@ -18,7 +18,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
         : AllocateRunDisposeProxy<TDbContext>, IEfCallInterceptor, IStorageCommandRunner<TDbContext>
             where TDbContext : DbContext, new()
     {
-        public DbContextSingleCallProxy(params Aspect[] aspects)
+        public DbContextSingleCallProxy(IEnumerable<Aspect> aspects)
             : base(aspects)
         {
         }
@@ -79,7 +79,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
         : AllocateRunDisposeProxy<TObjectContext>, IEfCallInterceptor, IStorageCommandRunner<TObjectContext>
             where TObjectContext : ObjectContext, new()
     {
-        public ObjectContextSingleCallProxy(params Aspect[] aspects)
+        public ObjectContextSingleCallProxy(IEnumerable<Aspect> aspects)
             : base(aspects)
         {
         }
@@ -143,7 +143,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(params Aspect[] aspects)
+        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(IEnumerable<Aspect> aspects)
             where TDbContext : DbContext, new()
         {
             var proxy = new DbContextSingleCallProxy<TDbContext>(aspects);
@@ -156,7 +156,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// <typeparam name="TObjectContext"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(params Aspect[] aspects)
+        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(IEnumerable<Aspect> aspects)
             where TObjectContext : ObjectContext, new()
         {
             var proxy = new ObjectContextSingleCallProxy<TObjectContext>(aspects);

@@ -36,6 +36,23 @@ namespace Value.Framework.Aspectacular
         public object MethodReturnedValue { get; internal set; }
         public Exception MethodExecutionException { get; protected set; }
         public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
+
+        /// <summary>
+        /// Number of attempts made to call intercepted method.
+        /// </summary>
+        public byte AttemptsMade { get; private set; }
+
+        /// <summary>
+        /// Must be set by an aspect to indicate that failed intercepted call must be retried again.
+        /// </summary>
+        /// <remarks>
+        /// Aspects should set this flag to true after encountering specific exceptions.
+        /// </remarks>
+        public bool ShouldRetryCall { get; set; }
+        
+        /// <summary>
+        /// Can be set by an aspect to indicate that result was set from cache.
+        /// </summary>
         public bool CancelInterceptedMethodCall { get; internal set; }
 
         /// <summary>
@@ -43,6 +60,15 @@ namespace Value.Framework.Aspectacular
         /// </summary>
         public bool StopAspectCallChain { get; set; }
 
+        /// <summary>
+        /// Ensures that method called using this proxy instance will be treated
+        /// as call-invariant, which makes such method potentially cacheable.
+        /// </summary>
+        /// <remarks>
+        /// Call-invariance means that when the same method is called for two or more
+        /// instances (or on the same class for static methods) at the same time,
+        /// they will return same data.
+        /// </remarks>
         public bool ForceCallInvariance { get; set; }
 
         /// <summary>
@@ -72,7 +98,7 @@ namespace Value.Framework.Aspectacular
 
         #region Constructors
 
-        public Proxy(Func<object> instanceFactory, Action<object> instanceCleaner, params Aspect[] aspects)
+        public Proxy(Func<object> instanceFactory, Action<object> instanceCleaner, IEnumerable<Aspect> aspects)
         {
             this.instanceResolverFunc = instanceFactory;
             this.instanceCleanerFunc = instanceCleaner;
@@ -80,11 +106,11 @@ namespace Value.Framework.Aspectacular
             foreach (Aspect aspect in aspects)
             {
                 aspect.Context = this;
-                this.aspects.AddRange(aspects);
+                this.aspects.Add(aspect);
             }
         }
 
-        public Proxy(Func<object> instanceFactory, params Aspect[] aspects)
+        public Proxy(Func<object> instanceFactory, IEnumerable<Aspect> aspects)
             : this(instanceFactory, instanceCleaner: null, aspects: aspects)
         {
         }
@@ -133,6 +159,9 @@ namespace Value.Framework.Aspectacular
             this.CallAspects(aspect => aspect.Step_3_BeforeMassagingReturnedResult());
         }
 
+        /// <summary>
+        /// May be called multiple times for the same instance if call retry is enabled.
+        /// </summary>
         protected virtual void Step_4_Optional_AfterCatchingMethodExecException()
         {
             this.CallAspects(aspect => aspect.Step_4_Optional_AfterCatchingMethodExecException());
@@ -145,7 +174,7 @@ namespace Value.Framework.Aspectacular
 
         protected virtual void Step_6_Optional_AfterInstanceCleanup()
         {
-            this.CallAspectsBackwards(aspect => aspect.Step_6_Optional_AfterInstanceCleanup());
+            this.CallAspectsBackwards(aspect => { aspect.Step_6_Optional_AfterInstanceCleanup(); aspect.Context = null; });
         }
 
         #endregion Steps in sequence
@@ -153,8 +182,8 @@ namespace Value.Framework.Aspectacular
         /// <summary>
         /// Method call wrapper that calls aspects and the intercepted method.
         /// </summary>
-        /// <param name="interceptedMethodCallerClosure">Intercepted method call wrapped in an interceptor's closure.</param>
-        protected void ExecuteMainSequence(Action interceptedMethodCallerClosure)
+        /// <param name="actualMethodInvokerClosure">Intercepted method call wrapped in an interceptor's closure.</param>
+        protected void ExecuteMainSequence(Action actualMethodInvokerClosure)
         {
             if (this.isUsed)
                 throw new Exception("Same instance of the call interceptor cannot be used more than once.");
@@ -169,19 +198,33 @@ namespace Value.Framework.Aspectacular
             {
                 this.Step_2_BeforeTryingMethodExec();
 
+                this.MethodWasCalled = true;
+
                 try
                 {
-                    if (!this.CancelInterceptedMethodCall)
-                    {
-                        this.MethodWasCalled = true;
-                        interceptedMethodCallerClosure.Invoke();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this.MethodExecutionException = ex;
-                    this.Step_4_Optional_AfterCatchingMethodExecException();
-                    throw;
+                    // Retry loop
+                    for (this.AttemptsMade = 1; true; this.AttemptsMade++)
+                    {   
+                        try
+                        {
+                            if (!this.CancelInterceptedMethodCall)
+                            {
+                                actualMethodInvokerClosure.Invoke(); // Step 3 (post-call returned result massaging) is called inside this closure.
+                            }
+                            break; // success - break retry loop.
+                        }
+                        catch (Exception ex)
+                        {
+                            this.MethodExecutionException = ex;
+                            this.Step_4_Optional_AfterCatchingMethodExecException();
+
+                            if (!this.ShouldRetryCall)
+                                // No more call attempts - break the retry loop.
+                                throw;
+                            else
+                                this.ShouldRetryCall = false;
+                        }
+                    } // retry loop
                 }
                 finally
                 {
@@ -190,6 +233,7 @@ namespace Value.Framework.Aspectacular
             }
             finally
             {
+                // Cleanup phase.
                 if (this.instanceCleanerFunc != null)
                 {
                     try

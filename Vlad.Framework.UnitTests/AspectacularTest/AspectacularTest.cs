@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Value.Framework.Core;
@@ -19,6 +20,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
                 return new Aspect[]
                 {
                      new DebugOutputAspect(),
+                     new ThreeStrikesAspect(),
                 };
             }
         }
@@ -76,6 +78,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
             
             actual.ToString();
         }
+
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]
