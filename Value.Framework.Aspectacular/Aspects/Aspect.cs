@@ -41,7 +41,8 @@ namespace Value.Framework.Aspectacular
         public Aspect() { }
 
         /// <summary>
-        /// Called for non-static methods only
+        /// Called for non-static methods only.
+        /// Please note that method metadata is not available at this point.
         /// </summary>
         public virtual void Step_1_BeforeResolvingInstance() { }
 
@@ -102,6 +103,8 @@ namespace Value.Framework.Aspectacular
     {
         public override void Step_2_BeforeTryingMethodExec()
         {
+            //string sign = this.Context.InterceptedCallMetaData.GetMethodSignature();
+            //sign.ToString();
         }
     }
 
