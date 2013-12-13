@@ -10,9 +10,29 @@ using Value.Framework.Core;
 namespace Value.Framework.Aspectacular
 {
     /// <summary>
+    /// Implemented by proxy to give intercepted methods ability to log information that may be picked up by aspects.
+    /// </summary>
+    public interface IMethodLogProvider
+    {
+        void Log(EntryType entryType, string optionalKey, string format, params object[] args);
+    }
+
+    /// <summary>
+    /// If implemented by classes whose methods are intercepted, 
+    /// then intercepted method may log data for aspects to pick up, if they care.
+    /// </summary>
+    public interface ICallLogger
+    {
+        /// <summary>
+        /// An accessor to AOP logging functionality for intercepted methods.
+        /// </summary>
+        IMethodLogProvider AopLogger { get; set; }
+    }
+
+    /// <summary>
     /// Main base class encapsulating call interception and aspect injection logic.
     /// </summary>
-    public class Proxy
+    public class Proxy : CallLifetimeLog, IMethodLogProvider
     {
         #region Limited fields and properties
 
@@ -146,6 +166,9 @@ namespace Value.Framework.Aspectacular
         {
             this.Step_1_BeforeResolvingInstance();
             this.AugmentedClassInstance = this.instanceResolverFunc();
+
+            if (this.AugmentedClassInstance is ICallLogger)
+                (this.AugmentedClassInstance as ICallLogger).AopLogger = this;
 
             if (this.AugmentedClassInstance == null)
                 throw new Exception("Instance for AOP augmentation needs to be specified before intercepted method can be called.");
@@ -436,5 +459,11 @@ namespace Value.Framework.Aspectacular
         }
 
         #endregion Utility methods
+
+
+        void IMethodLogProvider.Log(EntryType entryType, string optionalKey, string format, params object[] args)
+        {
+            this.AddLogEntry(LoggerWho.Method, entryType, optionalKey, format, args);
+        }
     }
 }

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using System.Web;
 
 using Value.Framework.Core;
-using Value.Framework.Aspectacular.Aspects;
+//using Value.Framework.Aspectacular.Aspects;
 
-namespace Value.Framework.Aspectacular.Web
+namespace Value.Framework.Aspectacular.Aspects
 {
     /// <summary>
     /// Caches data for the duration of the request processing.
@@ -35,13 +35,15 @@ namespace Value.Framework.Aspectacular.Web
         {
             lock(HttpContext.Current.Items)
             {
-                HttpContext.Current.Items[key] = val;
+                HttpContext.Current.Items["RequestCache_" + key] = val;
             }
         }
 
         public bool TryGet(string key, out object val)
         {
             val = null;
+
+            key = "RequestCache_" + key;
 
             lock (HttpContext.Current.Items)
             {
@@ -68,6 +70,16 @@ namespace Value.Framework.Aspectacular.Web
         public static RequestCache Get()
         {
             return requestCacher;
+        }
+    }
+
+    /// <summary>
+    /// An aspect caching invariant intercepted function's returned values in the Request.Items[] collection.
+    /// </summary>
+    public class RequestCachAspect : CacheAspect<RequestCache>
+    {
+        public RequestCachAspect() : base(RequestCache.Get())
+        {
         }
     }
 }

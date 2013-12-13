@@ -15,8 +15,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
     /// Alloc/invoke/dispose convenience class for EF DbContext subclasses.
     /// </summary>
     /// <typeparam name="TDbContext"></typeparam>
-    public class DbContextSingleCallProxy<TDbContext> 
-        : AllocateRunDisposeProxy<TDbContext>, IEfCallInterceptor, IStorageCommandRunner<TDbContext>
+    public class DbContextSingleCallProxy<TDbContext> : AllocateRunDisposeProxy<TDbContext>, IEfCallInterceptor, IStorageCommandRunner<TDbContext>
             where TDbContext : DbContext, new()
     {
         public DbContextSingleCallProxy(IEnumerable<Aspect> aspects)
@@ -48,17 +47,6 @@ namespace Value.Framework.Aspectacular.EntityFramework
         #region Implementation of IStorageCommandRunner
 
         /// <summary>
-        /// Command that returns scalar value.
-        /// </summary>
-        /// <typeparam name="TOut"></typeparam>
-        /// <param name="callExpression"></param>
-        /// <returns></returns>
-        public TOut ExecuteCommand<TOut>(Expression<Func<TDbContext, TOut>> callExpression)
-        {
-            return this.Invoke(callExpression);
-        }
-
-        /// <summary>
         /// Command that returns no value except for int returned by underlying DB engine.
         /// </summary>
         /// <param name="callExpression"></param>
@@ -76,8 +64,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
     /// Alloc/invoke/dispose convenience class for EF ObjectContext subclasses.
     /// </summary>
     /// <typeparam name="TObjectContext"></typeparam>
-    public class ObjectContextSingleCallProxy<TObjectContext> 
-        : AllocateRunDisposeProxy<TObjectContext>, IEfCallInterceptor, IStorageCommandRunner<TObjectContext>
+    public class ObjectContextSingleCallProxy<TObjectContext> : AllocateRunDisposeProxy<TObjectContext>, IEfCallInterceptor, IStorageCommandRunner<TObjectContext>
             where TObjectContext : ObjectContext, new()
     {
         public ObjectContextSingleCallProxy(IEnumerable<Aspect> aspects)
@@ -107,17 +94,6 @@ namespace Value.Framework.Aspectacular.EntityFramework
         #endregion Implementation of IEfCallInterceptor
 
         #region Implementation of IStorageCommandRunner
-
-        /// <summary>
-        /// Command that returns scalar value.
-        /// </summary>
-        /// <typeparam name="TOut"></typeparam>
-        /// <param name="callExpression"></param>
-        /// <returns></returns>
-        public TOut ExecuteCommand<TOut>(Expression<Func<TObjectContext, TOut>> callExpression)
-        {
-            return this.Invoke(callExpression);
-        }
 
         /// <summary>
         /// Command that returns no value except for int returned by underlying DB engine.

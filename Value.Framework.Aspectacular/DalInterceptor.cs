@@ -7,11 +7,14 @@ using System.Threading.Tasks;
 
 namespace Value.Framework.Aspectacular.Data
 {
-    public class MultiDataStoreStingleCallProxy<TMultiStoreMgr> 
-        : AllocateRunDisposeProxy<TMultiStoreMgr>, IEfCallInterceptor, IStorageCommandRunner<TMultiStoreMgr>
-            where TMultiStoreMgr : DataStoreManager, new()
+    /// <summary>
+    /// Alloc/invoke/dispose convenience class for DalManager subclasses.
+    /// </summary>
+    /// <typeparam name="TMultiStoreMgr"></typeparam>
+    public class DalSingleCallProxy<TMultiStoreMgr> : AllocateRunDisposeProxy<TMultiStoreMgr>, IEfCallInterceptor, IStorageCommandRunner<TMultiStoreMgr>
+            where TMultiStoreMgr : DalManager, new()
     {
-        public MultiDataStoreStingleCallProxy(IEnumerable<Aspect> aspects)
+        public DalSingleCallProxy(IEnumerable<Aspect> aspects)
             : base(aspects)
         {
         }
@@ -51,17 +54,6 @@ namespace Value.Framework.Aspectacular.Data
             this.Invoke(callExpression);
             return this.SaveChangeReturnValue;
         }
-
-        /// <summary>
-        /// Command that returns scalar value.
-        /// </summary>
-        /// <typeparam name="TOut"></typeparam>
-        /// <param name="callExpression"></param>
-        /// <returns></returns>
-        public TOut ExecuteCommand<TOut>(Expression<Func<TMultiStoreMgr, TOut>> callExpression)
-        {
-            return this.Invoke(callExpression);
-        }
     }
 
     public static partial class AOP
@@ -72,10 +64,10 @@ namespace Value.Framework.Aspectacular.Data
         /// <typeparam name="TMultiStoreMgr"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static MultiDataStoreStingleCallProxy<TMultiStoreMgr> GetDalProxy<TMultiStoreMgr>(IEnumerable<Aspect> aspects)
-            where TMultiStoreMgr : DataStoreManager, new()
+        public static DalSingleCallProxy<TMultiStoreMgr> GetDalProxy<TMultiStoreMgr>(IEnumerable<Aspect> aspects)
+            where TMultiStoreMgr : DalManager, new()
         {
-            var proxy = new MultiDataStoreStingleCallProxy<TMultiStoreMgr>(aspects);
+            var proxy = new DalSingleCallProxy<TMultiStoreMgr>(aspects);
             return proxy;
         }
     }
