@@ -72,13 +72,16 @@ namespace Value.Framework.Aspectacular
         public bool StopAspectCallChain { get; set; }
 
         /// <summary>
-        /// Ensures that method called using this proxy instance will be treated
+        /// Ensures that method of a 3rd party class, called using this proxy instance will be treated
         /// as call-invariant, which makes such method potentially cacheable.
         /// </summary>
         /// <remarks>
         /// Call-invariance means that when the same method is called for two or more
         /// instances (or on the same class for static methods) at the same time,
         /// they will return same data.
+        /// This flag only affects classes and methods that don't have InvariantReturnAttribute applied.
+        /// This flag should be used only for classes whose source code cannot be modified
+        /// by adding InvariantReturnAttribute to it, like .NET framework and other binary .NET components.
         /// </remarks>
         public bool ForceCallInvariance { get; set; }
 
