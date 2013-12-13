@@ -47,7 +47,7 @@ namespace Value.Framework.Aspectacular
 
         public override string ToString()
         {
-            string entryAsText = string.Format("[{0}][{1}][{2}] {3}", 
+            string entryAsText = string.Format("[{0}][{1}] [{2}] = {3}", 
                     this.What,
                     this.Who == LoggerWho.Aspect ? "Aspect " + this.OptionalAspectType.Name : this.Who.ToString(),
                     this.Key.IsBlank() ? "MESSAGE" : this.Key,
