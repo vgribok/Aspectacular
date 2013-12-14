@@ -24,14 +24,6 @@ namespace Value.Framework.Aspectacular.Data
         /// <param name="callExpression"></param>
         /// <returns>Value returned by DB engines like SQL server when insert and update statements are run that return no value</returns>
         int ExecuteCommand(Expression<Func<TCmd>> callExpression);
-
-        /// <summary>
-        /// Command that returns scalar value.
-        /// </summary>
-        /// <typeparam name="TOut"></typeparam>
-        /// <param name="callExpression"></param>
-        /// <returns></returns>
-        TOut ExecuteCommand<TOut>(Expression<Func<TCmd, TOut>> callExpression);
     }
 
     public interface IEfCallInterceptor
@@ -59,7 +51,7 @@ namespace Value.Framework.Aspectacular.Data
 
     /// <summary>
     /// Base class for BL API- and AOP-friendly data store/connection managers,
-    /// supporting heterogeneous data stores, like ADO.NET, EF (DbContext and ObjectContext), NoSQL,
+    /// supporting multiple heterogeneous data stores, like ADO.NET, EF (DbContext and ObjectContext), NoSQL,
     /// and basically any other type.
     /// </summary>
     /// <remarks>
@@ -74,11 +66,11 @@ namespace Value.Framework.Aspectacular.Data
     /// implement IEfCallInterceptor interface by adding "public int SaveChangeReturnValue { get; set; }"
     /// to its definition, so that SaveChanges() would be called on all contexts.
     /// </remarks>
-    public abstract class DataStoreManager : IEfCallInterceptor, IDisposable
+    public abstract class DalManager : IEfCallInterceptor, IDisposable
     {
         private readonly Dictionary<Type, Lazy<IDisposable>> dataStores = new Dictionary<Type, Lazy<IDisposable>>();
 
-        protected DataStoreManager()
+        protected DalManager()
         {
         }
 
@@ -158,7 +150,7 @@ namespace Value.Framework.Aspectacular.Data
 
     #region Convenience intermediate base classes derived from DataStoreManager
 
-    public abstract class TwoDataStoreManager<TStore1, TStore2> : DataStoreManager 
+    public abstract class TwoDataStoreManager<TStore1, TStore2> : DalManager 
         where TStore1 : class, IDisposable, new()
         where TStore2 : class, IDisposable, new()
     {
@@ -169,7 +161,7 @@ namespace Value.Framework.Aspectacular.Data
         }
     }
 
-    public abstract class ThreeDataStoreManager<TStore1, TStore2, TStore3> : DataStoreManager
+    public abstract class ThreeDataStoreManager<TStore1, TStore2, TStore3> : DalManager
         where TStore1 : class, IDisposable, new()
         where TStore2 : class, IDisposable, new()
         where TStore3 : class, IDisposable, new()
@@ -183,7 +175,7 @@ namespace Value.Framework.Aspectacular.Data
         }
     }
 
-    public abstract class FourDataStoreManager<TStore1, TStore2, TStore3, TStore4> : DataStoreManager
+    public abstract class FourDataStoreManager<TStore1, TStore2, TStore3, TStore4> : DalManager
         where TStore1 : class, IDisposable, new()
         where TStore2 : class, IDisposable, new()
         where TStore3 : class, IDisposable, new()

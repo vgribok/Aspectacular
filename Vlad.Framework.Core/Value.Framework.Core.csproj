@@ -42,6 +42,7 @@
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Disposer.cs" />
     <Compile Include="MiscExtension.cs" />
+    <Compile Include="NonEmptyString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryableExtensions.cs" />
     <Compile Include="StringExtensions.cs" />

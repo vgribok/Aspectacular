@@ -97,6 +97,18 @@ namespace Value.Framework.Aspectacular
         }
 
         #endregion Utility Methods
+
+        /// <summary>
+        /// Adds entry to the log held by the proxy.
+        /// </summary>
+        /// <param name="entryType"></param>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void Log(EntryType entryType, string optionalKey, string format, params object[] args)
+        {
+            this.Context.AddLogEntry(this, entryType, optionalKey, format, args);
+        }
     }
 
     internal class DoNothingPerfTestAspect : Aspect
