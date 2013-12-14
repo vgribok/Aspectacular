@@ -98,6 +98,8 @@ namespace Value.Framework.Aspectacular
 
         #endregion Utility Methods
 
+        #region Logging methods
+
         /// <summary>
         /// Adds entry to the log held by the proxy.
         /// </summary>
@@ -109,6 +111,29 @@ namespace Value.Framework.Aspectacular
         {
             this.Context.AddLogEntry(this, entryType, optionalKey, format, args);
         }
+
+        /// <summary>
+        /// Shortcut for logging information.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogInformation(string optionalKey, string format, params object[] args)
+        {
+            this.Log(EntryType.Green, optionalKey, format, args);
+        }
+
+        /// <summary>
+        /// Shortcut for logging information.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="data"></param>
+        protected void LogInformation(string optionalKey, object data)
+        {
+            this.LogInformation(optionalKey, data.ToStringEx());
+        }
+
+        #endregion Logging methods
     }
 
     internal class DoNothingPerfTestAspect : Aspect

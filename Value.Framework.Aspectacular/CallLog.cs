@@ -51,7 +51,7 @@ namespace Value.Framework.Aspectacular
                     this.What,
                     this.Who == LoggerWho.Aspect ? "Aspect " + this.OptionalAspectType.Name : this.Who.ToString(),
                     this.Key.IsBlank() ? "MESSAGE" : this.Key,
-                    this.Message
+                    this.Message ?? "[NULL]"
                     );
             return entryAsText;
         }

@@ -15,28 +15,28 @@ namespace Value.Framework.Aspectacular.Web
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
     public class DemandAspNetRoleAttribute : System.Attribute
     {
-        protected readonly bool demandAny;
-        protected readonly string[] demandedRoles;
+        public bool DemandAny { get; protected set; }
+        public string[] DemandedRoles { get; protected set; }
 
         /// <summary>
         /// Marks methods and classes as requiring current user to the member of one or more ASP.NET security roles.
         /// </summary>
         /// <param name="trueDemandAny_falseDemandAll">If true, user must me a member of *at least one* role. If false, user must be a member of *all* roles.</param>
-        /// <param name="demandedRoles">Collection of roles in order to authorize access to a class or method called using AOP proxy.</param>
+        /// <param name="DemandedRoles">Collection of roles in order to authorize access to a class or method called using AOP proxy.</param>
         public DemandAspNetRoleAttribute(bool trueDemandAny_falseDemandAll, params string[] demandedRoles)
         {
             if (demandedRoles.IsNullOrEmpty())
                 throw new ArgumentNullException("roles");
 
-            this.demandAny = trueDemandAny_falseDemandAll;
-            this.demandedRoles = demandedRoles;
+            this.DemandAny = trueDemandAny_falseDemandAll;
+            this.DemandedRoles = demandedRoles;
         }
 
         /// <summary>
         /// Marks methods and classes as requiring current user to the member of one or more ASP.NET security roles.
         /// User must be a member of at least one demanded role in order to be authorized.
         /// </summary>
-        /// <param name="demandedRoles"></param>
+        /// <param name="DemandedRoles"></param>
         public DemandAspNetRoleAttribute(params string[] demandedRoles)
             : this(trueDemandAny_falseDemandAll: true, demandedRoles: demandedRoles)
         {
@@ -44,18 +44,18 @@ namespace Value.Framework.Aspectacular.Web
 
         internal bool IsCurrentUserAuthorized()
         {
-            if (this.demandedRoles.Length == 1)
-                return Roles.IsUserInRole(this.demandedRoles[0]);
+            if (this.DemandedRoles.Length == 1)
+                return Roles.IsUserInRole(this.DemandedRoles[0]);
 
             string[] userRoles = Roles.GetRolesForUser();
 
-            int roleMemshipCount = userRoles.Intersect(this.demandedRoles).Count();
+            int roleMemshipCount = userRoles.Intersect(this.DemandedRoles).Count();
 
-            if (this.demandAny)
+            if (this.DemandAny)
                 return roleMemshipCount > 0;
             else
                 // demand all
-                return roleMemshipCount == this.demandedRoles.Length;
+                return roleMemshipCount == this.DemandedRoles.Length;
         }
     }
 
@@ -67,16 +67,29 @@ namespace Value.Framework.Aspectacular.Web
         public override void Step_2_BeforeTryingMethodExec()
         {
             this.EnsureUserAspNetRoleAuthorization();
+            this.Log(EntryType.Yellow, "Authorized", true.ToString());
         }
 
         protected void EnsureUserAspNetRoleAuthorization()
         {
             DemandAspNetRoleAttribute aspNetRoleDem = this.Context.InterceptedCallMetaData.GetMethodOrClassAttribute<DemandAspNetRoleAttribute>();
+
+            this.LogInformation("Demanded roles", "{0}: {1}", 
+                                    aspNetRoleDem.DemandAny ? "ANY" : "ALL",
+                                    string.Join(", ", aspNetRoleDem.DemandedRoles)
+                                    );
+
             if (aspNetRoleDem == null)
                 return;
 
             if (aspNetRoleDem.IsCurrentUserAuthorized())
                 return;
+
+            this.Log(EntryType.Yellow, "Authorized", false.ToString());
+
+            string errorMsg = string.Format("User \"{0}\" is not authorized to call this function.", HttpContext.Current.User.Identity.Name);
+
+            this.Log(EntryType.Yellow, "Authorization Failed", errorMsg);
 
             try
             {
@@ -87,7 +100,7 @@ namespace Value.Framework.Aspectacular.Web
                 // No biggy if status code has already be written, we can skip this.
             }
 
-            throw new Exception(string.Format("User \"{0}\" is not authorized to call this function.", HttpContext.Current.User.Identity.Name));
+            throw new Exception(errorMsg);
         }
     }
 }

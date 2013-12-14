@@ -76,9 +76,9 @@ namespace Value.Framework.Aspectacular.Aspects
     /// <summary>
     /// An aspect caching invariant intercepted function's returned values in the Request.Items[] collection.
     /// </summary>
-    public class RequestCachAspect : CacheAspect<RequestCache>
+    public class RequestCacheAspect : CacheAspect<RequestCache>
     {
-        public RequestCachAspect() : base(RequestCache.Get())
+        public RequestCacheAspect() : base(RequestCache.Get())
         {
         }
     }

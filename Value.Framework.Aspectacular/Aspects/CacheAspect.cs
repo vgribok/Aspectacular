@@ -34,15 +34,16 @@ namespace Value.Framework.Aspectacular.Aspects
                 throw new ArgumentNullException("cacheProvider");
 
             this.Cache = cacheProvider;
+
+            this.LogInformation("Cache provider type", cacheProvider.GetType().FullName);
         }
 
         public override void Step_2_BeforeTryingMethodExec()
         {
+            this.LogInformation("Method is cacheable", this.Context.CanCacheReturnedResult);
+
             if (!this.Context.CanCacheReturnedResult)
-            {
-                //Trace.WriteLine(string.Format("Method \"{0}\" is not marked as call-invariant and therefore its result is not cacheable.", this.Context.InterceptedCallMetaData.GetMethodSignature()));
                 return;
-            }
 
             this.GetValueFromCacheIfItsThere();
         }
@@ -72,6 +73,8 @@ namespace Value.Framework.Aspectacular.Aspects
             object cachedValue;
             this.ValueFoundInCache = this.Cache.TryGet(cacheKey, out cachedValue);
 
+            this.LogInformation("Found in cache", this.ValueFoundInCache);
+
             if (this.ValueFoundInCache)
             {
                 if (cachedValue is Exception)
@@ -80,8 +83,6 @@ namespace Value.Framework.Aspectacular.Aspects
                     this.Context.ReturnedValue = cachedValue;
 
                 this.Context.CancelInterceptedMethodCall = true;
-
-                //Trace.WriteLine("Retrieved value from cache.");
             }
         }
 

@@ -23,7 +23,10 @@ namespace Value.Framework.Aspectacular.Aspects
         {
             ObjectQuery query = this.Context.ReturnedValue as ObjectQuery;
             if (query != null)
+            {
                 this.SQLorTrace = query.ToTraceString();
+                this.LogInformation("SQL", this.SQLorTrace);
+            }
         }
     }
 }
