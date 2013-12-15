@@ -29,6 +29,7 @@ namespace Value.Framework.Aspectacular
         void Step_4_Optional_AfterCatchingMethodExecException();
         void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded);
         void Step_6_Optional_AfterInstanceCleanup();
+        void Step_7_AfterEverythingSaidAndDone();
     }
 
     /// <summary>
@@ -81,6 +82,11 @@ namespace Value.Framework.Aspectacular
         /// </summary>
         public virtual void Step_6_Optional_AfterInstanceCleanup() { }
 
+        /// <summary>
+        /// The very final cutpoint in the life cycle of the call.
+        /// </summary>
+        public virtual void Step_7_AfterEverythingSaidAndDone() { }
+
         #region Utility Methods
 
         /// <summary>
@@ -113,56 +119,104 @@ namespace Value.Framework.Aspectacular
         }
 
         /// <summary>
-        /// Shortcut for logging information.
+        /// Shortcut for logging information entries.
         /// </summary>
         /// <param name="optionalKey"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        protected void LogInformation(string optionalKey, string format, params object[] args)
+        protected void LogInformationWithKey(string optionalKey, string format, params object[] args)
         {
-            this.Log(EntryType.Green, optionalKey, format, args);
+            this.Log(EntryType.Info, optionalKey, format, args);
         }
 
         /// <summary>
-        /// Shortcut for logging information.
+        /// Shortcut for logging information entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogInformation(string format, params object[] args)
+        {
+            this.LogInformationWithKey(null, format, args);
+        }
+
+        /// <summary>
+        /// Shortcut for logging information entries.
         /// </summary>
         /// <param name="optionalKey"></param>
         /// <param name="data"></param>
-        protected void LogInformation(string optionalKey, object data)
+        protected void LogInformationData(string optionalKey, object data)
         {
-            this.LogInformation(optionalKey, data.ToStringEx());
+            this.LogInformationWithKey(optionalKey, data.ToStringEx());
+        }
+
+        /// <summary>
+        /// Shortcut for logging error entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogErrorWithKey(string optionalKey, string format, params object[] args)
+        {
+            this.Log(EntryType.Error, optionalKey, format, args);
+        }
+
+        /// <summary>
+        /// Shortcut for logging error entries.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogError(string format, params object[] args)
+        {
+            this.LogErrorWithKey(null, format, args);
+        }
+
+        /// <summary>
+        /// Shortcut for logging warning entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogWarningWithKey(string optionalKey, string format, params object[] args)
+        {
+            this.Log(EntryType.Warning, optionalKey, format, args);
+        }
+
+        /// <summary>
+        /// Shortcut for logging warning entries.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogWarning(string format, params object[] args)
+        {
+            this.LogWarningWithKey(null, format, args);
+        }
+
+        /// <summary>
+        /// Generates log text from a collection of log entries specified by entrySelector delegate.
+        /// If entrySelector is null, all entries are used generate log text.
+        /// Environment.NewLine as line separator.
+        /// </summary>
+        /// <param name="entrySelector">Optional entry log filter delegate that may use entry.ToString() or its own logic to generate text for each selected log entry.</param>
+        /// <returns>Log text</returns>
+        public string GetLogText(Func<List<CallLogEntry>, IEnumerable<string>> entrySelector = null)
+        {
+            return this.GetLogText(null, entrySelector);
+        }
+
+        /// <summary>
+        /// Generates log text from a collection of log entries specified by entrySelector delegate.
+        /// If entrySelector is null, all entries are used generate log text.
+        /// Environment.NewLine as line separator.
+        /// </summary>
+        /// <param name="lineSeparator"></param>
+        /// <param name="entrySelector">Optional entry log filter delegate that may use entry.ToString() or its own logic to generate text for each selected log entry.</param>
+        /// <returns></returns>
+        public string GetLogText(string lineSeparator, Func<List<CallLogEntry>, IEnumerable<string>> entrySelector = null)
+        {
+            return this.Context.GetLogText(lineSeparator, entrySelector);
         }
 
         #endregion Logging methods
-    }
-
-    internal class DoNothingPerfTestAspect : Aspect
-    {
-        public override void Step_2_BeforeTryingMethodExec()
-        {
-            //string sign = this.Context.InterceptedCallMetaData.GetMethodSignature();
-            //sign.ToString();
-        }
-    }
-
-    public class DebugOutputAspect : Aspect
-    {
-        public override void Step_2_BeforeTryingMethodExec()
-        {
-            string methodSign = this.Context.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
-            Debug.WriteLine("About to call {0} method \"{1}\".".SmartFormat(this.Context.CanCacheReturnedResult ? "cacheable" : "non-cacheable",  methodSign));
-        }
-
-        public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
-        {
-            Debug.WriteLine("Method \"{0}\" {1} after {2} attempt(s) and returned: [{3}]."
-                .SmartFormat(
-                    this.Context.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowUIValue),
-                    interceptedCallSucceeded ? "succeeded" : "failed",
-                    this.Context.AttemptsMade,
-                    this.Context.FormateReturnValue(trueUI_falseInternal: true)
-                )
-            );
-        }
     }
 }

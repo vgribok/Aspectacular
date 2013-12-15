@@ -51,7 +51,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// </summary>
         /// <param name="callExpression"></param>
         /// <returns></returns>
-        public int ExecuteCommand(Expression<Func<TDbContext>> callExpression)
+        public int ExecuteCommand(Expression<Action<TDbContext>> callExpression)
         {
             this.Invoke(callExpression);
             return this.SaveChangeReturnValue;
@@ -100,7 +100,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// </summary>
         /// <param name="callExpression"></param>
         /// <returns></returns>
-        public int ExecuteCommand(Expression<Func<TObjectContext>> callExpression)
+        public int ExecuteCommand(Expression<Action<TObjectContext>> callExpression)
         {
             this.Invoke(callExpression);
             return this.SaveChangeReturnValue;

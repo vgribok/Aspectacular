@@ -22,9 +22,11 @@ namespace Value.Framework.UnitTests.AspectacularTest
             {
                 return new Aspect[]
                 {
-                     new DebugOutputAspect(),
+                     new DebugOutputAspect(/*EntryType.Error | EntryType.Warning*/),
                      new ThreeStrikesAspect(),
                      new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
+                     new LinqToSqlAspect(),
+                     new ReturnValueLoggerAspect(),
                 };
             }
         }
@@ -82,7 +84,6 @@ namespace Value.Framework.UnitTests.AspectacularTest
             
             actual.ToString();
         }
-
 
         [TestMethod]
         [ExpectedException(typeof(Exception))]

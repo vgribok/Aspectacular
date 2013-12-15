@@ -5,6 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Value.Framework.Core;
+using Value.Framework.Aspectacular;
+
 namespace Value.Framework.Aspectacular.Aspects
 {
     public interface ICacheProvider
@@ -34,18 +37,28 @@ namespace Value.Framework.Aspectacular.Aspects
                 throw new ArgumentNullException("cacheProvider");
 
             this.Cache = cacheProvider;
-
-            this.LogInformation("Cache provider type", cacheProvider.GetType().FullName);
         }
 
         public override void Step_2_BeforeTryingMethodExec()
         {
-            this.LogInformation("Method is cacheable", this.Context.CanCacheReturnedResult);
+            this.LogInformationWithKey("Cache provider type", this.Cache.GetType().FormatCSharp());
+            this.LogInformationData("Method is cacheable", this.Context.CanCacheReturnedResult);
 
             if (!this.Context.CanCacheReturnedResult)
                 return;
 
+            this.LogParametersWithValues();
+
             this.GetValueFromCacheIfItsThere();
+        }
+
+        private void LogParametersWithValues()
+        {
+            foreach (var paramInfo in this.Context.InterceptedCallMetaData.Params)
+            {
+                this.LogInformationWithKey("Parameter \"{0}\"".SmartFormat(paramInfo.Name),
+                        "Type: [{0}], Value: [{1}]", paramInfo.Type.FormatCSharp(), paramInfo.FormatSlowEvaluatingValue(trueUI_falseInternal: false));
+            }
         }
 
         public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
@@ -73,7 +86,7 @@ namespace Value.Framework.Aspectacular.Aspects
             object cachedValue;
             this.ValueFoundInCache = this.Cache.TryGet(cacheKey, out cachedValue);
 
-            this.LogInformation("Found in cache", this.ValueFoundInCache);
+            this.LogInformationData("Found in cache", this.ValueFoundInCache);
 
             if (this.ValueFoundInCache)
             {

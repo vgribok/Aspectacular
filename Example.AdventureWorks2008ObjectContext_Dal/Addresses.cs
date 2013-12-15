@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Value.Framework.Aspectacular;
+
 namespace Example.AdventureWorks2008ObjectContext_Dal
 {
     public partial class AdventureWorksLT2008R2Entities
@@ -15,6 +17,8 @@ namespace Example.AdventureWorks2008ObjectContext_Dal
         /// <returns></returns>
         public IQueryable<Address> QueryAddressByID(int addressID)
         {
+            this.LogInformationData("addressID", addressID);
+
             var q = from address in this.Addresses
                     where address.AddressID == addressID
                     select address;
@@ -24,6 +28,8 @@ namespace Example.AdventureWorks2008ObjectContext_Dal
 
         public IQueryable<Address> QueryCustomerAddressesByCustomerID(int customerID)
         {
+            this.LogInformationData("customerID", customerID);
+
             var q = from caddr in this.CustomerAddresses
                     join addr in this.Addresses on caddr.AddressID equals addr.AddressID
                     where caddr.CustomerID == customerID
@@ -43,6 +49,8 @@ namespace Example.AdventureWorks2008ObjectContext_Dal
 
         public IQueryable QueryUserCoutryStateCity(int customerID)
         {
+            this.LogInformationData("customerID", customerID);
+
             var q = from custAddr in this.QueryCustomerAddressesByCustomerID(customerID)
                     select new
                     {

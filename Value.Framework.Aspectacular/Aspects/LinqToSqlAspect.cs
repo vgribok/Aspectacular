@@ -22,11 +22,20 @@ namespace Value.Framework.Aspectacular.Aspects
         public override void Step_3_BeforeMassagingReturnedResult()
         {
             ObjectQuery query = this.Context.ReturnedValue as ObjectQuery;
+
             if (query != null)
+                this.SetSql(query.ToTraceString());
             {
-                this.SQLorTrace = query.ToTraceString();
-                this.LogInformation("SQL", this.SQLorTrace);
+                IQueryable q = this.Context.ReturnedValue as IQueryable;
+                if (q != null)
+                    this.SetSql(q.ToString());
             }
+        }
+
+        private void SetSql(string sql)
+        {
+            this.SQLorTrace = ("\r\n" + sql).Replace("\r\n", "\r\n\t");
+            this.LogInformationData("SQL", this.SQLorTrace);
         }
     }
 }

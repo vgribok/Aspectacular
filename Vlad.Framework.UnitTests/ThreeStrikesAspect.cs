@@ -18,7 +18,7 @@ namespace Value.Framework.UnitTests
             if (this.Context.AttemptsMade < 3)
             {
                 this.Context.ShouldRetryCall = true;
-                Debug.WriteLine("Retrying call for the {0} time due to \"{1}\".",  this.Context.AttemptsMade+1, this.Context.MethodExecutionException.Message);
+                this.LogInformationWithKey("Failed call retry", "{0} attempt will be made due to \"{1}\".",  this.Context.AttemptsMade+1, this.Context.MethodExecutionException.Message);
             }
         }
     }

@@ -67,14 +67,14 @@ namespace Value.Framework.Aspectacular.Web
         public override void Step_2_BeforeTryingMethodExec()
         {
             this.EnsureUserAspNetRoleAuthorization();
-            this.Log(EntryType.Yellow, "Authorized", true.ToString());
+            this.Log(EntryType.Warning, "Authorized", true.ToString());
         }
 
         protected void EnsureUserAspNetRoleAuthorization()
         {
             DemandAspNetRoleAttribute aspNetRoleDem = this.Context.InterceptedCallMetaData.GetMethodOrClassAttribute<DemandAspNetRoleAttribute>();
 
-            this.LogInformation("Demanded roles", "{0}: {1}", 
+            this.LogInformationWithKey("Demanded roles", "{0}: {1}", 
                                     aspNetRoleDem.DemandAny ? "ANY" : "ALL",
                                     string.Join(", ", aspNetRoleDem.DemandedRoles)
                                     );
@@ -85,11 +85,11 @@ namespace Value.Framework.Aspectacular.Web
             if (aspNetRoleDem.IsCurrentUserAuthorized())
                 return;
 
-            this.Log(EntryType.Yellow, "Authorized", false.ToString());
+            this.Log(EntryType.Warning, "Authorized", false.ToString());
 
             string errorMsg = string.Format("User \"{0}\" is not authorized to call this function.", HttpContext.Current.User.Identity.Name);
 
-            this.Log(EntryType.Yellow, "Authorization Failed", errorMsg);
+            this.Log(EntryType.Warning, "Authorization Failed", errorMsg);
 
             try
             {

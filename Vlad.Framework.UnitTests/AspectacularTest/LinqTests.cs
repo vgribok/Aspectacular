@@ -63,6 +63,9 @@ namespace Value.Framework.UnitTests.AspectacularTest
             }
 
             Assert.IsTrue(2 == addresses.Count);
+
+            int hkw = AwDal.ExecuteCommand(db => db.Bogus(335));
+            hkw.ToString();
         }
 
         [TestMethod]

@@ -49,12 +49,17 @@ namespace Value.Framework.Aspectacular.Data
         /// </summary>
         /// <param name="callExpression"></param>
         /// <returns></returns>
-        public int ExecuteCommand(Expression<Func<TMultiStoreMgr>> callExpression)
+        public int ExecuteCommand(Expression<Action<TMultiStoreMgr>> callExpression)
         {
             this.Invoke(callExpression);
             return this.SaveChangeReturnValue;
         }
     }
+}
+
+namespace Value.Framework.Aspectacular
+{
+    using Value.Framework.Aspectacular.Data;
 
     public static partial class AOP
     {

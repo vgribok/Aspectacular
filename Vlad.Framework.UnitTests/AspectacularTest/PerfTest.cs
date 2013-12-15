@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Value.Framework.Aspectacular;
 using Value.Framework.Core;
+using Value.Framework.Aspectacular.Aspects;
 
 using Example.AdventureWorks2008ObjectContext_Dal;
 

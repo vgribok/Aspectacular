@@ -5,30 +5,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
 using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
 {
-    /// <summary>
-    /// Implemented by proxy to give intercepted methods ability to log information that may be picked up by aspects.
-    /// </summary>
-    public interface IMethodLogProvider
-    {
-        void Log(EntryType entryType, string optionalKey, string format, params object[] args);
-    }
-
-    /// <summary>
-    /// If implemented by classes whose methods are intercepted, 
-    /// then intercepted method may log data for aspects to pick up, if they care.
-    /// </summary>
-    public interface ICallLogger
-    {
-        /// <summary>
-        /// An accessor to AOP logging functionality for intercepted methods.
-        /// </summary>
-        IMethodLogProvider AopLogger { get; set; }
-    }
-
     /// <summary>
     /// Main base class encapsulating call interception and aspect injection logic.
     /// </summary>
@@ -52,6 +33,11 @@ namespace Value.Framework.Aspectacular
         #endregion Limited fields and properties
 
         #region Public fields and properties
+
+        /// <summary>
+        /// Unique ID of the call.
+        /// </summary>
+        public readonly Guid CallID = Guid.NewGuid();
 
         /// <summary>
         /// Value returned by the intercepted method, if method call has succeeded.
@@ -138,6 +124,9 @@ namespace Value.Framework.Aspectacular
 
         public Proxy(Func<object> instanceFactory, Action<object> instanceCleaner, IEnumerable<Aspect> aspects)
         {
+            this.LogInformation("#### Starting new call log ###");
+            this.LogInformationData("Call ID", this.CallID);
+
             this.instanceResolverFunc = instanceFactory;
             this.instanceCleanerFunc = instanceCleaner;
 
@@ -146,6 +135,8 @@ namespace Value.Framework.Aspectacular
                 aspect.Context = this;
                 this.aspects.Add(aspect);
             }
+
+            this.LogInformationData("Initial Aspects", string.Join(", ", this.aspects.Select(asp => asp.GetType().FormatCSharp())));
         }
 
         public Proxy(Func<object> instanceFactory, IEnumerable<Aspect> aspects)
@@ -170,11 +161,11 @@ namespace Value.Framework.Aspectacular
             this.Step_1_BeforeResolvingInstance();
             this.AugmentedClassInstance = this.instanceResolverFunc();
 
-            if (this.AugmentedClassInstance is ICallLogger)
-                (this.AugmentedClassInstance as ICallLogger).AopLogger = this;
-
             if (this.AugmentedClassInstance == null)
                 throw new Exception("Instance for AOP augmentation needs to be specified before intercepted method can be called.");
+
+            if (this.AugmentedClassInstance is ICallLogger)
+                (this.AugmentedClassInstance as ICallLogger).AopLogger = this;
 
             // Augmented object can be interception context aware.
             if (this.AugmentedClassInstance is IInterceptionContext)
@@ -183,10 +174,16 @@ namespace Value.Framework.Aspectacular
             // Augmented object can be aspect for its own method interceptions.
             if (this.AugmentedClassInstance is IAspect)
                 this.aspects.Add(this.AugmentedClassInstance as IAspect);
+
+            this.LogInformationData("Type of resolved instance", this.AugmentedClassInstance.GetType().FormatCSharp());
         }
 
         protected virtual void Step_2_BeforeTryingMethodExec()
         {
+            this.LogInformationData("Method signature", this.InterceptedCallMetaData.GetMethodSignature());
+            this.LogInformationData("Intercepted method scope", this.InterceptedCallMetaData.IsStaticMethod ? "static" : "instance");
+            this.LogInformationData("Method is call-invariant", this.CanCacheReturnedResult);
+
             this.CallAspects(aspect => aspect.Step_2_BeforeTryingMethodExec());
         }
 
@@ -197,6 +194,7 @@ namespace Value.Framework.Aspectacular
 
         protected virtual void Step_3_BeforeMassagingReturnedResult()
         {
+            this.LogInformationData("Pre-massaging result type", this.ReturnedValue == null ? "NULL" : this.ReturnedValue.GetType().FormatCSharp());
             this.CallAspects(aspect => aspect.Step_3_BeforeMassagingReturnedResult());
         }
 
@@ -210,13 +208,35 @@ namespace Value.Framework.Aspectacular
 
         protected virtual void Step_5_FinallyAfterMethodExecution()
         {
+            this.LogInformationData("Call outcome", this.InterceptedMedthodCallFailed ? "failure" : "success");
+
+            if (this.InterceptedMedthodCallFailed)
+            {
+                this.LogErrorWithKey("Main exception", this.MethodExecutionException.ToStringEx());
+                this.LogErrorWithKey("Failed method", this.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue));
+            }
+            //else
+            //    // This can be slow if amount of data returned is large.
+            //    this.LogInformationData("Returned value", this.InterceptedCallMetaData.FormatReturnResult(this.ReturnedValue, trueUI_falseInternal: false));
+
+
             this.CallAspectsBackwards(aspect => aspect.Step_5_FinallyAfterMethodExecution(!this.InterceptedMedthodCallFailed));
         }
 
         protected virtual void Step_6_Optional_AfterInstanceCleanup()
         {
-            this.CallAspectsBackwards(aspect => { aspect.Step_6_Optional_AfterInstanceCleanup(); aspect.Context = null; });
+            this.LogInformation("Instance was cleaned up");
+
+            this.CallAspectsBackwards(aspect => aspect.Step_6_Optional_AfterInstanceCleanup());
         }
+
+        protected virtual void Step_7_AfterEverythingSaidAndDone()
+        {
+            this.LogInformation("**** Finished call with ID = {0} ****\r\n", this.CallID);
+
+            this.CallAspectsBackwards(aspect => { aspect.Step_7_AfterEverythingSaidAndDone(); aspect.Context = null; });
+        }
+
 
         #endregion Steps in sequence
 
@@ -293,6 +313,8 @@ namespace Value.Framework.Aspectacular
                             (this.AugmentedClassInstance as IInterceptionContext).Context = null;
                     }
                 }
+
+                this.Step_7_AfterEverythingSaidAndDone();
             }
         }
 
@@ -462,11 +484,5 @@ namespace Value.Framework.Aspectacular
         }
 
         #endregion Utility methods
-
-
-        void IMethodLogProvider.Log(EntryType entryType, string optionalKey, string format, params object[] args)
-        {
-            this.AddLogEntry(LoggerWho.Method, entryType, optionalKey, format, args);
-        }
     }
 }

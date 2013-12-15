@@ -256,7 +256,7 @@ namespace Value.Framework.Aspectacular
         /// Formats parameter/this/return value as string, 
         /// </summary>
         /// <param name="type"></param>
-        /// <param name="val"></param>
+        /// <param name="val">For secret values please pass "new SecretValueHash(someValue)"</param>
         /// <param name="trueUI_falseInternal"></param>
         /// <returns></returns>
         public static string FormatParamValue(Type type, object val, bool trueUI_falseInternal)
@@ -513,6 +513,15 @@ namespace Value.Framework.Aspectacular
         private string FormatMethodParameters(ParamValueOutputOptions valueOutputOptions = ParamValueOutputOptions.NoValue)
         {
             return string.Join(", ", this.Params.Select(pinfo => pinfo.ToString(valueOutputOptions)));
+        }
+
+        public string FormatReturnResult(object returnedResult, bool trueUI_falseInternal)
+        {
+            if (this.IsReturnValueSecret)
+                returnedResult = new SecretValueHash(returnedResult);
+
+            string returnValueStr = InterceptedMethodParamMetadata.FormatParamValue(this.MethodReturnType, returnedResult, trueUI_falseInternal);
+            return returnValueStr;
         }
     }
 }

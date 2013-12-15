@@ -23,9 +23,13 @@ namespace Value.Framework.Aspectacular.Data
         /// </summary>
         /// <param name="callExpression"></param>
         /// <returns>Value returned by DB engines like SQL server when insert and update statements are run that return no value</returns>
-        int ExecuteCommand(Expression<Func<TCmd>> callExpression);
+        int ExecuteCommand(Expression<Action<TCmd>> callExpression);
     }
 
+    /// <summary>
+    /// Entity Framework context marker interface.
+    /// 
+    /// </summary>
     public interface IEfCallInterceptor
     {
         /// <summary>
@@ -66,7 +70,7 @@ namespace Value.Framework.Aspectacular.Data
     /// implement IEfCallInterceptor interface by adding "public int SaveChangeReturnValue { get; set; }"
     /// to its definition, so that SaveChanges() would be called on all contexts.
     /// </remarks>
-    public abstract class DalManager : IEfCallInterceptor, IDisposable
+    public abstract class DalManager : IEfCallInterceptor, IDisposable, ICallLogger
     {
         private readonly Dictionary<Type, Lazy<IDisposable>> dataStores = new Dictionary<Type, Lazy<IDisposable>>();
 
@@ -146,6 +150,8 @@ namespace Value.Framework.Aspectacular.Data
                     dataStoreProxy.Value.Dispose();
             });
         }
+
+        IMethodLogProvider ICallLogger.AopLogger { get; set; }
     }
 
     #region Convenience intermediate base classes derived from DataStoreManager

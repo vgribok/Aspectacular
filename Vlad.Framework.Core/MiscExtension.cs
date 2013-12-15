@@ -48,13 +48,33 @@ namespace Value.Framework.Core
             return stdTypeCSharpNames.ContainsKey(typeName);
         }
 
-        public static string FormatCSharp(this Type type)
+        public static string FormatCSharp(this Type type, bool fullyQualified = false)
         {
-            string typeName = type.Name.TrimEnd('&');
-            if (!stdTypeCSharpNames.TryGetValue(typeName, out typeName))
-                typeName = type.Name;
+            string typeName = TypeToCSharpString(type, fullyQualified);
+
+            string stdName;
+            if (stdTypeCSharpNames.TryGetValue(typeName, out stdName))
+                typeName = stdName;
 
             return typeName;
+        }
+
+        private static string TypeToCSharpString(Type type, bool fullyQualified = false)
+        {
+            string typeName = (fullyQualified ? type.FullName : type.Name).TrimEnd('&');
+
+            if (!type.IsGenericType)
+                return typeName;
+
+            if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                Type underlyingType = type.GetGenericArguments()[0];
+                return string.Format("{0}?", TypeToCSharpString(underlyingType));
+            }
+            string baseName = typeName.Substring(0, typeName.IndexOf("`"));
+            string generic = string.Join(", ", type.GetGenericArguments().Select(paramType => TypeToCSharpString(paramType, fullyQualified)));
+            string fullName = string.Format("{0}<{1}>", baseName, generic);
+            return fullName;
         }
 
         public static ParamDirectionEnum GetDirection(this ParameterInfo parmInfo)
@@ -67,7 +87,7 @@ namespace Value.Framework.Core
             return ParamDirectionEnum.In;
         }
 
-        public static string FormatCSharpType(this ParameterInfo parmInfo)
+        public static string FormatCSharpType(this ParameterInfo parmInfo, bool fullyQualified = false)
         {
             string refOrOut;
 
@@ -84,7 +104,7 @@ namespace Value.Framework.Core
                     break;
             }
 
-            return string.Format("{0}{1}", refOrOut, parmInfo.ParameterType.FormatCSharp());
+            return string.Format("{0}{1}", refOrOut, parmInfo.ParameterType.FormatCSharp(fullyQualified));
         }
     }
 }

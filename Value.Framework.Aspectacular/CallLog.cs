@@ -8,7 +8,7 @@ using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
 {
-    public enum LoggerWho
+    public enum LogEntryOriginator
     {
         Proxy,
         Aspect,
@@ -16,27 +16,47 @@ namespace Value.Framework.Aspectacular
         Caller,
     }
 
-    public enum EntryType
+    [Flags]
+    public enum EntryType : int
     {
         /// <summary>
         /// Error
         /// </summary>
-        Red,
+        Error = 1,
 
         /// <summary>
         /// Warning
         /// </summary>
-        Yellow,
+        Warning = 2,
 
         /// <summary>
         /// Information
         /// </summary>
-        Green
+        Info = 4,
+    }
+
+    /// <summary>
+    /// Implemented by proxy to give intercepted methods ability to log information that may be picked up by aspects.
+    /// </summary>
+    public interface IMethodLogProvider
+    {
+    }
+
+    /// <summary>
+    /// If implemented by classes whose methods are intercepted, 
+    /// then intercepted method may log data for aspects to pick up, if they care.
+    /// </summary>
+    public interface ICallLogger
+    {
+        /// <summary>
+        /// An accessor to AOP logging functionality for intercepted methods.
+        /// </summary>
+        IMethodLogProvider AopLogger { get; set; }
     }
 
     public class CallLogEntry
     {
-        public LoggerWho Who { get; internal set; }
+        public LogEntryOriginator Who { get; internal set; }
         public Type OptionalAspectType { get; internal set; }
 
         public EntryType What { get; internal set; }
@@ -47,9 +67,9 @@ namespace Value.Framework.Aspectacular
 
         public override string ToString()
         {
-            string entryAsText = string.Format("[{0}][{1}] [{2}] = {3}", 
+            string entryAsText = string.Format("[{0}][{1}] [{2}] = \"{3}\"", 
                     this.What,
-                    this.Who == LoggerWho.Aspect ? "Aspect " + this.OptionalAspectType.Name : this.Who.ToString(),
+                    this.Who == LogEntryOriginator.Aspect ? "Aspect:" + this.OptionalAspectType.Name : this.Who.ToString(),
                     this.Key.IsBlank() ? "MESSAGE" : this.Key,
                     this.Message ?? "[NULL]"
                     );
@@ -69,28 +89,28 @@ namespace Value.Framework.Aspectacular
     {
         public readonly List<CallLogEntry> callLog = new List<CallLogEntry>();
 
-        internal void AddLogEntry(LoggerWho who, EntryType entryType, string optionalKey, string format, params object[] args)
+        internal void AddLogEntry(LogEntryOriginator who, EntryType entryType, string category, string format, params object[] args)
         {
-            if(who == LoggerWho.Aspect)
+            if(who == LogEntryOriginator.Aspect)
                 throw new ArgumentException("Parameter 'who = ' LoggerWho.Aspect cannot be used her. Use another method overload that takes Aspect class type.");
 
-            this.AddEntryIntrenal(who, null, entryType, optionalKey, format, args);
+            this.AddEntryIntrenal(who, null, entryType, category, format, args);
         }
 
-        internal void AddLogEntry(Aspect who, EntryType entryType, string optionalKey, string format, params object[] args)
+        internal void AddLogEntry(Aspect who, EntryType entryType, string category, string format, params object[] args)
         {
             if (who == null)
                 throw new ArgumentNullException("who");
 
-            this.AddEntryIntrenal(LoggerWho.Aspect, who.GetType(), entryType, optionalKey, format, args);
+            this.AddEntryIntrenal(LogEntryOriginator.Aspect, who.GetType(), entryType, category, format, args);
         }
 
-        private void AddEntryIntrenal(LoggerWho who, Type optionalAspectType, EntryType entryType, string optionalKey, string format, params object[] args)
+        private void AddEntryIntrenal(LogEntryOriginator who, Type optionalAspectType, EntryType entryType, string category, string format, params object[] args)
         {
             var entry = new CallLogEntry 
             { 
                 Who = who, 
-                Key = optionalKey, What = entryType, 
+                Key = category, What = entryType, 
                 Message = format.SmartFormat(args),
                 OptionalAspectType = optionalAspectType,
             };
@@ -98,21 +118,224 @@ namespace Value.Framework.Aspectacular
             this.callLog.Add(entry);
         }
 
-        public string GetLogText(Func<List<CallLogEntry>, IEnumerable<CallLogEntry>> entrySelector = null)
-        {
-            return GetLogText(null, entrySelector);
-        }
-
-        public string GetLogText(string lineSeparator, Func<List<CallLogEntry>, IEnumerable<CallLogEntry>> entrySelector = null)
+        /// <summary>
+        /// Generates log text from a collection of log entries specified by entrySelector delegate.
+        /// If entrySelector is null, all entries are used generate log text.
+        /// Environment.NewLine as line separator.
+        /// </summary>
+        /// <param name="lineSeparator"></param>
+        /// <param name="entrySelector">Optional entry log filter delegate that may use entry.ToString() or its own logic to generate text for each selected log entry.</param>
+        /// <returns></returns>
+        internal string GetLogText(string lineSeparator, Func<List<CallLogEntry>, IEnumerable<string>> entrySelector = null)
         {
             if(entrySelector == null)
-                entrySelector = entries => entries;
+                entrySelector = entries => entries.Select(entry => entry.ToString());
 
             if (string.IsNullOrEmpty(lineSeparator))
                 lineSeparator = Environment.NewLine;
 
-            string text = string.Join(lineSeparator, entrySelector(this.callLog).Select(entry => entrySelector.ToString()));
+            string text = string.Join(lineSeparator, entrySelector(this.callLog));
             return text;
+        }
+
+        #region Logging methods for the proxy
+
+        /// <summary>
+        /// Adds log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="entryType"></param>
+        /// <param name="category"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public void Log(EntryType entryType, string category, string format, params object[] args)
+        {
+            this.AddLogEntry(LogEntryOriginator.Proxy, entryType, category, format, args);
+        }
+
+        /// <summary>
+        /// Adds information log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="category"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public void LogInformationWithKey(string category, string format, params object[] args)
+        {
+            this.Log(EntryType.Info, category, format, args);
+        }
+
+        /// <summary>
+        /// Logs a piece of data as a log entry with key.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="key"></param>
+        /// <param name="val"></param>
+        public void LogInformationData(string key, object val)
+        {
+            this.Log(EntryType.Info, key, val.ToStringEx());
+        }
+
+        /// <summary>
+        /// Adds information log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public void LogInformation(string format, params object[] args)
+        {
+            this.LogInformationWithKey(null, format, args);
+        }
+
+        /// <summary>
+        /// Adds error log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="category"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public void LogErrorWithKey(string category, string format, params object[] args)
+        {
+            this.Log(EntryType.Error, category, format, args);
+        }
+
+        /// <summary>
+        /// Adds error log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public void LogError(string format, params object[] args)
+        {
+            this.LogErrorWithKey(null, format, args);
+        }
+
+        /// <summary>
+        /// Adds warning log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="category"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public void LogWarningWithKey(string category, string format, params object[] args)
+        {
+            this.Log(EntryType.Warning, category, format, args);
+        }
+
+        /// <summary>
+        /// Adds warning log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public void LogWarning(string format, params object[] args)
+        {
+            this.LogWarningWithKey(null, format, args);
+        }
+        
+        #endregion Logging methods for the proxy
+    }
+
+    /// <summary>
+    /// Holds logging methods accessible to intercepted methods if their parent class implements ICallLogger interface.
+    /// </summary>
+    public static class MethodCallLoggingExtensions
+    {
+        /// <summary>
+        /// Adds log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="entryType"></param>
+        /// <param name="category"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void Log(this ICallLogger interceptedClass, EntryType entryType, string category, string format, params object[] args)
+        {
+            if (interceptedClass == null || interceptedClass.AopLogger == null)
+                return;
+
+            CallLifetimeLog log = (CallLifetimeLog)interceptedClass.AopLogger;
+            log.AddLogEntry(LogEntryOriginator.Method, entryType, category, format, args);
+        }
+
+        /// <summary>
+        /// Adds information log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="category"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void LogInformationWithKey(this ICallLogger interceptedClass, string category, string format, params object[] args)
+        {
+            Log(interceptedClass, EntryType.Info, category, format, args);
+        }
+
+        /// <summary>
+        /// Logs a piece of data as a log entry with key.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="key"></param>
+        /// <param name="val"></param>
+        public static void LogInformationData(this ICallLogger interceptedClass, string key, object val)
+        {
+            Log(interceptedClass, EntryType.Info, key, val.ToStringEx());
+        }
+
+        /// <summary>
+        /// Adds information log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void LogInformation(this ICallLogger interceptedClass, string format, params object[] args)
+        {
+            LogInformationWithKey(interceptedClass, null, format, args);
+        }
+
+        /// <summary>
+        /// Adds error log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="category"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void LogErrorWithKey(this ICallLogger interceptedClass, string category, string format, params object[] args)
+        {
+            Log(interceptedClass, EntryType.Error, category, format, args);
+        }
+
+        /// <summary>
+        /// Adds error log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void LogError(this ICallLogger interceptedClass, string format, params object[] args)
+        {
+            LogErrorWithKey(interceptedClass, null, format, args);
+        }
+
+        /// <summary>
+        /// Adds warning log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="category"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void LogWarningWithKey(this ICallLogger interceptedClass, string category, string format, params object[] args)
+        {
+            Log(interceptedClass, EntryType.Warning, category, format, args);
+        }
+
+        /// <summary>
+        /// Adds warning log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
+        /// </summary>
+        /// <param name="interceptedClass"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        public static void LogWarning(this ICallLogger interceptedClass, string format, params object[] args)
+        {
+            LogWarningWithKey(interceptedClass, null, format, args);
         }
     }
 }
