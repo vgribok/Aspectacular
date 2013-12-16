@@ -178,6 +178,11 @@ namespace Value.Framework.Aspectacular
             }
         }
 
+        public ParamDirectionEnum Direction
+        {
+            get { return this.ParamReflection.GetDirection(); }
+        }
+
         #region Attribute access members
 
         public T GetCustomAttribute<T>(bool inherit = false) where T : System.Attribute
@@ -296,10 +301,10 @@ namespace Value.Framework.Aspectacular
     public class InterceptedMethodMetadata
     {
         private readonly Lazy<object> thisObjectSlowEvaluator = null;
-
         protected MethodCallExpression interceptedMethodExpression;
-
         private readonly bool forceClassInstanceInvariant;
+        private readonly Lazy<bool> hasOutputParams;
+
 
         /// <summary>
         /// Raw method metadata. Use this class's members instead, if possible.
@@ -339,6 +344,7 @@ namespace Value.Framework.Aspectacular
             this.augmentedInstance = augmentedInstance;
             this.MethodReflectionInfo = this.interceptedMethodExpression.Method;
             this.forceClassInstanceInvariant = forceClassInstanceInvariant;
+            this.hasOutputParams = new Lazy<bool>(() => this.Params.Any(p => p.Direction == ParamDirectionEnum.Out || p.Direction == ParamDirectionEnum.RefInOut));
 
             this.InitParameterMetadata();
         }
@@ -382,6 +388,12 @@ namespace Value.Framework.Aspectacular
         {
             get
             {
+                if (this.HasOutOrRefParams)
+                    // Since we can cache only single return result,
+                    // methods returning multiple values via out or ref parameters 
+                    // are disqualified from being cacheable.
+                    return false;
+
                 InvariantReturnAttribute invarAttribute = this.GetMethodOrClassAttribute<InvariantReturnAttribute>();
                 if (invarAttribute != null)
                     return invarAttribute.IsInstanceInvariant;
@@ -397,6 +409,11 @@ namespace Value.Framework.Aspectacular
                 SecretParamValueAttribute secretAttrib = this.MethodReflectionInfo.ReturnParameter.GetCustomAttribute<SecretParamValueAttribute>();
                 return secretAttrib != null;
             }
+        }
+
+        public bool HasOutOrRefParams
+        {
+            get { return this.hasOutputParams.Value; }
         }
 
         public string GetMethodSignature(ParamValueOutputOptions valueOutputOptions = ParamValueOutputOptions.NoValue)
