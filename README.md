@@ -1,7 +1,8 @@
 Vlad.ValueBLBlock
 =================
 
-Minimalist AOP framework for wrapping aspects around DAL/biz logic.
+Minimalist AOP framework for wrapping aspects around DAL/biz logic. See Wiki
+for usage details.
 
 =============================================================================
 The MIT License (MIT)
