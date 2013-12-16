@@ -123,6 +123,7 @@ namespace Value.Framework.Aspectacular
         public readonly ParameterInfo ParamReflection;
 
         private readonly Expression expression;
+        private readonly Lazy<ParamDirectionEnum> paramDirection;
 
         public InterceptedMethodParamMetadata(ParameterInfo paramReflection, Expression paramExpression)
         {
@@ -140,6 +141,8 @@ namespace Value.Framework.Aspectacular
 
                 return val;
             });
+
+            this.paramDirection = new Lazy<ParamDirectionEnum>(() => this.ParamReflection.GetDirection());
         }
 
         /// <summary>
@@ -180,7 +183,7 @@ namespace Value.Framework.Aspectacular
 
         public ParamDirectionEnum Direction
         {
-            get { return this.ParamReflection.GetDirection(); }
+            get { return this.paramDirection.Value; }
         }
 
         #region Attribute access members

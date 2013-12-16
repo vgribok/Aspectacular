@@ -46,6 +46,7 @@ namespace Value.Framework.UnitTests
             bogus.ToString();
         }
 
+        [InvariantReturn] // <-testing conflict between stated cacheability and output params.
         public static void MiscParmsStatic(int intParm, SomeTestClass classParm, ref string refString, out bool outBool)
         {
             refString = string.Format("{0} {1}", intParm, refString);
