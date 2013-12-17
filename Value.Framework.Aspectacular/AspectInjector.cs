@@ -130,11 +130,11 @@ namespace Value.Framework.Aspectacular
             this.instanceResolverFunc = instanceFactory;
             this.instanceCleanerFunc = instanceCleaner;
 
-            foreach (Aspect aspect in aspects)
+            aspects.ForEach(aspect =>
             {
                 aspect.Context = this;
                 this.aspects.Add(aspect);
-            }
+            });
 
             this.LogInformationData("Initial Aspects", string.Join(", ", this.aspects.Select(asp => asp.GetType().FormatCSharp())));
         }

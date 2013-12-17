@@ -52,6 +52,9 @@ namespace Value.Framework.Core
         /// <param name="func"></param>
         public static void ForEach<T>(this IEnumerable<T> collection, Action<T> func)
         {
+            if (collection == null)
+                return;
+
             foreach (T elem in collection)
                 func(elem);
         }
@@ -64,6 +67,9 @@ namespace Value.Framework.Core
         /// <param name="func"></param>
         public static void ForEach(this IEnumerable collection, Action<object> func)
         {
+            if (collection == null)
+                return;
+
             foreach (object elem in collection)
                 func(elem);
         }

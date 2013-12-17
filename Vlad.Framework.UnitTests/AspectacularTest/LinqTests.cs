@@ -51,7 +51,8 @@ namespace Value.Framework.UnitTests.AspectacularTest
 
             // With LINQ-friendly AOP shortcut
             
-            // Example 1: where AOP creates instance of AdventureWorksLT2008R2Entities, runs the DAL method, and disposes AdventureWorksLT2008R2Entities instance - all in one shot.
+            // Example 1: where AOP creates instance of AdventureWorksLT2008R2Entities, runs the DAL method, 
+            // and disposes AdventureWorksLT2008R2Entities instance - all in one shot.
             addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
 
             Assert.IsTrue(2 == addresses.Count);
@@ -63,9 +64,6 @@ namespace Value.Framework.UnitTests.AspectacularTest
             }
 
             Assert.IsTrue(2 == addresses.Count);
-
-            int hkw = AwDal.ExecuteCommand(db => db.Bogus(335));
-            hkw.ToString();
         }
 
         [TestMethod]
