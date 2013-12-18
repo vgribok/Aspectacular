@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
@@ -84,6 +85,12 @@ namespace Value.Framework.Aspectacular
 
         #region LINQ convenience shortcut methods
 
+        private void LogLinqModifierName(NonEmptyString linqModifier)
+        {
+            Debug.Assert(!linqModifier.ToString().IsBlank());
+            this.LogInformationData("LINQ Modifier", linqModifier);
+        }
+
         /// <summary>
         /// Triggers query execution by appending ToList() to IQueryable, if returned result is not IList already.
         /// </summary>
@@ -92,6 +99,7 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
+            this.LogLinqModifierName("List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
             this.Invoke(linqQueryExpression, query => (query == null || query is IList<TEntity>) ? query as IList<TEntity> : query.ToList());
             IList<TEntity> entityList = (IList<TEntity>)this.ReturnedValue;
             return entityList;
@@ -105,6 +113,7 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
+            this.LogLinqModifierName("List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
             this.Invoke(sequenceExpression, sequence => (sequence == null || sequence is IList<TEntity>) ? sequence as IList<TEntity> : sequence.ToList());
             IList<TEntity> entityList = (IList<TEntity>)this.ReturnedValue;
             return entityList;
@@ -118,6 +127,7 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
+            this.LogLinqModifierName("ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
             this.Invoke(linqQueryExpression, query => query.ToList());
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
@@ -131,12 +141,11 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
+            this.LogLinqModifierName("ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
             this.Invoke(sequenceExpression, sequence => sequence.ToList());
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
-
-        
 
         /// <summary>
         /// Executes IQuerable that returns anonymous type.
@@ -145,6 +154,7 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public List<object> List(Expression<Func<TInstance, IQueryable>> linqQueryExpression)
         {
+            this.LogLinqModifierName("List(Expression<Func<TInstance, IQueryable>> linqQueryExpression)");
             List<object> records = new List<object>();
 
             this.Invoke(linqQueryExpression, query => 
@@ -163,6 +173,7 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public List<object> List(Expression<Func<TInstance, IEnumerable>> sequenceExpression)
         {
+            this.LogLinqModifierName("List(Expression<Func<TInstance, IEnumerable>> sequenceExpression)");
             List<object> records = new List<object>();
 
             this.Invoke(sequenceExpression, sequence =>
@@ -196,6 +207,8 @@ namespace Value.Framework.Aspectacular
         /// <returns>One page subset of data specified by the query.</returns>
         public IList<TEntity> Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
+            this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
+
             int skipCount = CalcSkip(pageIndex, pageIndex);
 
             this.Invoke(linqQueryExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
@@ -213,6 +226,8 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public IList<TEntity> Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
+            this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
+
             int skipCount = CalcSkip(pageIndex, pageIndex);
 
             this.Invoke(sequenceExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
@@ -221,26 +236,28 @@ namespace Value.Framework.Aspectacular
         }
 
         /// <summary>
-        /// Adds FirstOrDefault() to IQueryable
+        /// Adds FirstOrDefault() to IQueryable return result.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
         /// <returns></returns>
         public TEntity Single<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
+            this.LogLinqModifierName("Single<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
             this.Invoke(linqQueryExpression, query => query.FirstOrDefault());
             TEntity entity = (TEntity)this.ReturnedValue;
             return entity;
         }
 
         /// <summary>
-        /// Adds FirstOrDefault() to IEnumerable
+        /// Adds FirstOrDefault() to IEnumerable return result.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
         /// <returns></returns>
         public TEntity Single<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
+            this.LogLinqModifierName("Single<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
             this.Invoke(sequenceExpression, sequence => sequence.FirstOrDefault());
             TEntity entity = (TEntity)this.ReturnedValue;
             return entity;
@@ -253,6 +270,8 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public object Single(Expression<Func<TInstance, IQueryable>> linqQueryExpression)
         {
+            this.LogLinqModifierName("Single(Expression<Func<TInstance, IQueryable>> linqQueryExpression)");
+
             object entity = null;
 
             this.Invoke(linqQueryExpression, query =>
@@ -275,6 +294,8 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public object Single(Expression<Func<TInstance, IEnumerable>> sequenceExpression)
         {
+            this.LogLinqModifierName("Single(Expression<Func<TInstance, IEnumerable>> sequenceExpression)");
+
             object entity = null;
 
             this.Invoke(sequenceExpression, sequence =>
@@ -288,6 +309,46 @@ namespace Value.Framework.Aspectacular
             });
 
             return entity;
+        }
+
+        /// <summary>
+        /// Adds Exists() to IQueryable return result.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="linqQueryExpression"></param>
+        /// <returns></returns>
+        public bool Exists<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
+        {
+            this.LogLinqModifierName("Exists<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
+            this.Invoke(linqQueryExpression, query => query.Exists());
+            return (bool)this.ReturnedValue;
+        }
+
+        /// <summary>
+        /// Adds Any() to IEnumerable return result.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="sequenceExpression"></param>
+        /// <returns></returns>
+        public bool Exists<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
+        {
+            this.LogLinqModifierName("Exists<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
+            this.Invoke(sequenceExpression, sequence => sequence.Any());
+            return (bool)this.ReturnedValue;
+        }
+
+        public bool Exists(Expression<Func<TInstance, IQueryable>> linqQueryExpression)
+        {
+            this.LogLinqModifierName("Exists(Expression<Func<TInstance, IQueryable>> linqQueryExpression)");
+            object record = this.Single(linqQueryExpression);
+            return record != null;
+        }
+
+        public bool Exists(Expression<Func<TInstance, IEnumerable>> sequenceExpression)
+        {
+            this.LogLinqModifierName("Exists(Expression<Func<TInstance, IEnumerable>> sequenceExpression)");
+            object record = this.Single(sequenceExpression);
+            return record != null;
         }
 
         #endregion Linq convenience shortcut methods
