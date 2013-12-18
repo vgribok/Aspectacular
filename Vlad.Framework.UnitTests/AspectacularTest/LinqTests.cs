@@ -22,7 +22,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
 
         const int customerIdWithManyAddresses = 29503;
 
-        public static Aspect[] TestAspects
+        public static IEnumerable<Aspect> TestAspects
         {
             get { return AspectacularTest.TestAspects; }
         }

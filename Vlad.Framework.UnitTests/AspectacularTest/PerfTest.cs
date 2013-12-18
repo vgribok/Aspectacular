@@ -30,7 +30,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
             }
         }
 
-        public static Aspect[] TestAspects
+        public static IEnumerable<Aspect> TestAspects
         {
             get { return AspectacularTest.TestAspects; }
         }

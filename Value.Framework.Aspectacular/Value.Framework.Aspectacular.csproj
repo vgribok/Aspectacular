@@ -44,6 +44,7 @@
     <Compile Include="AspectInjector.cs" />
     <Compile Include="Aspects\CacheAspect.cs" />
     <Compile Include="Aspects\LinqToSqlAspect.cs" />
+    <Compile Include="Aspects\RequiredAspectAttribute.cs" />
     <Compile Include="Aspects\SimpleStockAspects.cs" />
     <Compile Include="CallLog.cs" />
     <Compile Include="DalInterceptor.cs" />

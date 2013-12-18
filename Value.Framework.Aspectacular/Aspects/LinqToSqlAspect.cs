@@ -25,6 +25,7 @@ namespace Value.Framework.Aspectacular.Aspects
 
             if (query != null)
                 this.SetSql(query.ToTraceString());
+            else
             {
                 IQueryable q = this.Context.ReturnedValue as IQueryable;
                 if (q != null)

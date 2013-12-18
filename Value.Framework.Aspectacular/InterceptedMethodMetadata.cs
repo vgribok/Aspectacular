@@ -540,7 +540,9 @@ namespace Value.Framework.Aspectacular
             if (this.IsReturnValueSecret)
                 returnedResult = new SecretValueHash(returnedResult);
 
-            string returnValueStr = InterceptedMethodParamMetadata.FormatParamValue(this.MethodReturnType, returnedResult, trueUI_falseInternal);
+            Type retType = returnedResult == null ? this.MethodReturnType : returnedResult.GetType();
+
+            string returnValueStr = InterceptedMethodParamMetadata.FormatParamValue(retType, returnedResult, trueUI_falseInternal);
             return returnValueStr;
         }
     }

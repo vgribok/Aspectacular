@@ -130,11 +130,7 @@ namespace Value.Framework.Aspectacular
             this.instanceResolverFunc = instanceFactory;
             this.instanceCleanerFunc = instanceCleaner;
 
-            aspects.ForEach(aspect =>
-            {
-                aspect.Context = this;
-                this.aspects.Add(aspect);
-            });
+            aspects.ForEach(aspect => this.AddAspect(aspect));
 
             this.LogInformationData("Initial Aspects", string.Join(", ", this.aspects.Select(asp => asp.GetType().FormatCSharp())));
         }
@@ -194,7 +190,7 @@ namespace Value.Framework.Aspectacular
 
         protected virtual void Step_3_BeforeMassagingReturnedResult()
         {
-            this.LogInformationData("Pre-massaging result type", this.ReturnedValue == null ? "NULL" : this.ReturnedValue.GetType().FormatCSharp());
+            this.LogInformationData("Pre-massaging returned result type", this.ReturnedValue == null ? "NULL" : this.ReturnedValue.GetType().FormatCSharp());
             this.CallAspects(aspect => aspect.Step_3_BeforeMassagingReturnedResult());
         }
 
@@ -214,11 +210,12 @@ namespace Value.Framework.Aspectacular
             {
                 this.LogErrorWithKey("Main exception", this.MethodExecutionException.ToStringEx());
                 this.LogErrorWithKey("Failed method", this.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue));
+            }else
+            {
+                this.LogInformationData("Final returned result type", this.ReturnedValue == null ? "NULL" : this.ReturnedValue.GetType().FormatCSharp());
+                //    // This can be slow if amount of data returned is large.
+                //    this.LogInformationData("Returned value", this.InterceptedCallMetaData.FormatReturnResult(this.ReturnedValue, trueUI_falseInternal: false));
             }
-            //else
-            //    // This can be slow if amount of data returned is large.
-            //    this.LogInformationData("Returned value", this.InterceptedCallMetaData.FormatReturnResult(this.ReturnedValue, trueUI_falseInternal: false));
-
 
             this.CallAspectsBackwards(aspect => aspect.Step_5_FinallyAfterMethodExecution(!this.InterceptedMedthodCallFailed));
         }
@@ -257,6 +254,8 @@ namespace Value.Framework.Aspectacular
 
             try
             {
+                this.CheckForRequiredAspects();
+
                 this.Step_2_BeforeTryingMethodExec();
 
                 this.MethodWasCalled = true;
@@ -324,6 +323,43 @@ namespace Value.Framework.Aspectacular
         }
 
         #region Utility methods
+
+        private void AddAspect(Aspect aspect, bool trueAppend_falseInsertFirst = true)
+        {
+            aspect.Context = this;
+
+            if (trueAppend_falseInsertFirst)
+                this.aspects.Add(aspect);
+            else
+                this.aspects.Insert(0, aspect);
+        }
+
+        private void CheckForRequiredAspects()
+        {
+            IEnumerable<RequiredAspectAttribute> requiredAspAttribs = this.InterceptedCallMetaData.GetMethodOrClassAttributes<RequiredAspectAttribute>();
+
+            requiredAspAttribs.ForEach(requiredAspAttrib => this.EnsureRequiredAspect(requiredAspAttrib));
+        }
+
+        private void EnsureRequiredAspect(RequiredAspectAttribute requiredAspAttrib)
+        {
+            bool hasAspect = this.aspects.Where(asp => asp.GetType() == requiredAspAttrib.AspectClassType).Any();
+            if (hasAspect)
+                return;
+
+            if (requiredAspAttrib.InstantiateIfMissing == WhenRequiredAspectIsMissing.DontInstantiate)
+            {
+                throw new Exception("Aspect {0} is required by \"{1}\", but is not in the caller's aspect collection.".SmartFormat(
+                                                            requiredAspAttrib.AspectClassType.FormatCSharp(),
+                                                            this.InterceptedCallMetaData.GetMethodSignature()
+                                                        )
+                                   );
+            }
+
+            Aspect missingAspect = requiredAspAttrib.InstantiateAspect();
+
+            this.AddAspect(missingAspect, requiredAspAttrib.InstantiateIfMissing == WhenRequiredAspectIsMissing.InstantiateAndAppend);
+        }
 
         private void CallAspects(Action<Aspect> cutPointHandler)
         {

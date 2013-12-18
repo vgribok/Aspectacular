@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Value.Framework.Core;
 using Value.Framework.Aspectacular;
 using Value.Framework.Aspectacular.Aspects;
+using System.Collections.Generic;
 
 namespace Value.Framework.UnitTests.AspectacularTest
 {
@@ -16,18 +17,37 @@ namespace Value.Framework.UnitTests.AspectacularTest
 
         public TestContext TestContext { get; set; }
 
-        public static Aspect[] TestAspects
+        public static Aspect[] MainAspectsWithNoDebug
         {
             get
             {
                 return new Aspect[]
                 {
-                     new DebugOutputAspect(/*EntryType.Error | EntryType.Warning*/),
                      new ThreeStrikesAspect(),
                      new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
                      new LinqToSqlAspect(),
                      new ReturnValueLoggerAspect(),
+                     new SlowFullMethodSignatureAspect(),
                 };
+            }
+        }
+
+        public static Aspect[] DebugAspects
+        {
+            get
+            {
+                return new Aspect[]
+                {
+                    new DebugOutputAspect(/*EntryType.Error | EntryType.Warning*/),
+                };
+            }
+        }
+
+        public static IEnumerable<Aspect> TestAspects
+        {
+            get
+            {
+                return DebugAspects.Union(MainAspectsWithNoDebug);
             }
         }
 
@@ -103,12 +123,12 @@ namespace Value.Framework.UnitTests.AspectacularTest
 
             username = "one";
             password = "password1";
-            obj.GetProxy(TestAspects).Invoke(inst => inst.FakeLogin(username, password));
+            obj.GetProxy(MainAspectsWithNoDebug).Invoke(inst => inst.FakeLogin(username, password));
 
             obj = new SomeTestClass(new DateTime(2010, 11, 5));
             //username = "two";
             //password = "password2";
-            obj.GetProxy(TestAspects).Invoke(inst => inst.FakeLogin(username, password));
+            obj.GetProxy(MainAspectsWithNoDebug).Invoke(inst => inst.FakeLogin(username, password));
 
             int index = "Wassup".GetProxy(TestAspects).Invoke(str => str.IndexOf('u'));
             Assert.AreEqual(4, index);

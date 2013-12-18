@@ -69,7 +69,7 @@ namespace Value.Framework.Aspectacular
         {
             string entryAsText = string.Format("[{0}][{1}] [{2}] = \"{3}\"", 
                     this.What,
-                    this.Who == LogEntryOriginator.Aspect ? "Aspect:" + this.OptionalAspectType.Name : this.Who.ToString(),
+                    this.Who == LogEntryOriginator.Aspect ? "Aspect:" + this.OptionalAspectType.FormatCSharp() : this.Who.ToString(),
                     this.Key.IsBlank() ? "MESSAGE" : this.Key,
                     this.Message ?? "[NULL]"
                     );

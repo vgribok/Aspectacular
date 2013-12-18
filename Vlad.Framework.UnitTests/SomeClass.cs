@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Value.Framework.Aspectacular;
+using Value.Framework.Aspectacular.Aspects;
 
 namespace Value.Framework.UnitTests
 {
@@ -54,6 +55,7 @@ namespace Value.Framework.UnitTests
         }
 
         [InvariantReturn]
+        [RequiredAspect(typeof(DebugOutputAspect), WhenRequiredAspectIsMissing.InstantiateAndAddFirst /*, EntryType.Error | EntryType.Warning | EntryType.Info*/)]
         public bool FakeLogin(string username, [SecretParamValue] string password)
         {
             return (DateTime.UtcNow.Ticks & 1) == 1;
