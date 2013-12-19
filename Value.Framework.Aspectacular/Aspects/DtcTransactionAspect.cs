@@ -33,13 +33,27 @@ namespace Value.Framework.Aspectacular.Aspects
 
         public override void Step_2_BeforeTryingMethodExec()
         {
+            this.LogInformationWithKey("Starting DTC transaction", "Scope = {0}, Isolation Level = {1}, Timeout = {2}", this.transationScope, this.options.IsolationLevel, this.options.Timeout);
             this.transaction = new TransactionScope(this.transationScope, this.options);
         }
 
         public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
         {
-            if(interceptedCallSucceeded)
-                this.transaction.Complete();
+            if (!interceptedCallSucceeded)
+                this.LogInformation("Rolling back DTC transaction.");
+            else
+            {
+                bool success = false;
+                try
+                {
+                    this.transaction.Complete();
+                    success = true;
+                }
+                finally
+                {
+                    this.LogInformationData("Transaction committed", success);
+                }
+            }
 
             this.transaction.Dispose(); // Rolls transaction back if not committed.
             this.transaction = null;
