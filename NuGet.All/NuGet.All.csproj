@@ -8,9 +8,9 @@
     <ProjectGuid>{0451BAEF-DF2E-4B98-8644-94EE9415E389}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuGet.All</RootNamespace>
-    <AssemblyName>NuGet.All</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <RootNamespace>Value.Framework</RootNamespace>
+    <AssemblyName>Value.Framework.All</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -37,10 +37,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\Debug\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\Release\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject />
@@ -62,6 +64,24 @@
     <Folder Include="content\" />
     <Folder Include="lib\" />
     <Folder Include="src\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Value.Framework.Aspectacular.EntityFramework.csproj">
+      <Project>{ecc659dc-b903-40e9-9382-07bf719cf5b0}</Project>
+      <Name>Value.Framework.Aspectacular.EntityFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Value.Framework.Aspectacular.Web\Value.Framework.Aspectacular.Web.csproj">
+      <Project>{273275c4-4ae2-4cd1-8c1e-75ed8bfd50a1}</Project>
+      <Name>Value.Framework.Aspectacular.Web</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Value.Framework.Aspectacular\Value.Framework.Aspectacular.csproj">
+      <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
+      <Name>Value.Framework.Aspectacular</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vlad.Framework.Core\Value.Framework.Core.csproj">
+      <Project>{07e5da8b-6018-427b-9ecd-9c39ac691036}</Project>
+      <Name>Value.Framework.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

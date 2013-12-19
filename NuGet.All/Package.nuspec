@@ -1,36 +1,27 @@
-<?xml version="1.0"?>
-<package >
-  <metadata>
-    <id>NuGet.All</id>
-    <version>1.0.0</version>
-    <title>NuGet.All</title>
-    <authors>vlad.hrybok</authors>
-    <owners></owners>
-    <description>
-      A long description of the package. This shows up in the right pane of the Add Package Dialog as well as in the Package Manager Console when listing packages using the Get-Package command.
-    </description>
-    <releaseNotes>
-    </releaseNotes>
-    <summary>
-      A short description of the package. If specified, this shows up in the middle pane of the Add Package Dialog. If not specified, a truncated version of the description is used instead.
-    </summary>
-    <language>en-US</language>
-    <projectUrl>https://nuget.org/packages/NuGet.All</projectUrl>
-    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>http://opensource.org/licenses/Apache-2.0</licenseUrl>
-    <copyright>Copyright  2013</copyright>
-    <dependencies>
-        <group targetFramework="net40">
-          <dependency id="log4net" version="1.2.10" />
-        </group>
-    </dependencies>
-    <references></references>
-    <tags></tags>
-  </metadata>
-  <files>
-    <file src="lib\" target="lib" />
-    <file src="tools\" target="tools" />
-    <file src="content\" target="content" />
-  </files>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>Value.Framework.All</id>
+        <version>0.0.1.0</version>
+        <title>Value.Framework.All</title>
+        <authors>Vlad Hrybok</authors>
+        <owners>Vlad Hrybok</owners>
+        <licenseUrl>https://github.com/vgribok/Vlad.ValueBLBlock/blob/master/README.md</licenseUrl>
+        <projectUrl>https://github.com/vgribok/Vlad.ValueBLBlock</projectUrl>
+        <iconUrl>http://download.ultidev.com/Images/katrina128.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>An AOP framework that can intercept any method: instance or static, virtual or not. It's very easy to start using, has in-depth support of LINQ and Entity Framework and comes with bunch of useful stock aspect classes.</description>
+        <summary>Minimalistic, non-scary aspect-oriented open-source framework for .NET.</summary>
+        <releaseNotes>First Beta, for evaluation purposes only.</releaseNotes>
+        <copyright>Copyright  2013 Vlad Hrybok</copyright>
+        <language>en-US</language>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5" />
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="tools\init.ps1" target="tools\init.ps1" />
+        <file src="tools\install.ps1" target="tools\install.ps1" />
+        <file src="tools\uninstall.ps1" target="tools\uninstall.ps1" />
+    </files>
 </package>

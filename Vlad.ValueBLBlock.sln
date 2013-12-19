@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Value.Framework.Aspectacula
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.All", "NuGet.All\NuGet.All.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet Projects", "NuGet Projects", "{7626D21B-3354-41AE-B74D-476B0EB7978F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,5 +54,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389} = {7626D21B-3354-41AE-B74D-476B0EB7978F}
 	EndGlobalSection
 EndGlobal
