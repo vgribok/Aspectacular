@@ -8,8 +8,8 @@
     <ProjectGuid>{0451BAEF-DF2E-4B98-8644-94EE9415E389}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Value.Framework</RootNamespace>
-    <AssemblyName>Value.Framework.All</AssemblyName>
+    <RootNamespace>Value.Framework.Aspectacular</RootNamespace>
+    <AssemblyName>Value.Framework.Aspectacular.All</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
