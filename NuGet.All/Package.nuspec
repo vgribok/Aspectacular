@@ -19,6 +19,9 @@
         <dependencies>
             <group targetFramework=".NETFramework4.5" />
         </dependencies>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System.Configuration" targetFramework="" />
+        </frameworkAssemblies>
     </metadata>
     <files>
         <file src="bin\Release\Value.Framework.Aspectacular.dll" target="lib\net45\Value.Framework.Aspectacular.dll" />

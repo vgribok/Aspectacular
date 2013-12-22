@@ -130,6 +130,9 @@ namespace Value.Framework.Aspectacular
             this.instanceResolverFunc = instanceFactory;
             this.instanceCleanerFunc = instanceCleaner;
 
+            if (Aspect.DefaultAspects != null)
+                aspects = aspects == null ? Aspect.DefaultAspects : Aspect.DefaultAspects.Union(aspects);
+
             aspects.ForEach(aspect => this.AddAspect(aspect));
 
             this.LogInformationData("Initial Aspects", string.Join(", ", this.aspects.Select(asp => asp.GetType().FormatCSharp())));

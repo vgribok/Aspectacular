@@ -17,8 +17,6 @@ namespace Value.Framework.Core
     /// <returns></returns>
     public delegate object FastObjectActivator(Type classType, params object[] args);
 
-    public delegate T FastActivator<T>(params object[] args);
-
     public static class FastDynamicActivator
     {
         private static readonly ConcurrentDictionary<ConstructorInfo, FastObjectActivator> cachedActivators = new ConcurrentDictionary<ConstructorInfo, FastObjectActivator>();
@@ -39,15 +37,16 @@ namespace Value.Framework.Core
         }
 
         /// <summary>
-        /// Dynamic object activator that runs much faster than Reflection-based Activator.CreateInstance().
+        /// Returns delegate of a constructor for a given type, which runs much faster than Reflection-based Activator.CreateInstance().
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static FastActivator<T> GetFastActivator<T>(params object[] args)
+        public static Func<T> GetFastActivator<T>(params object[] args)
         {
-            FastObjectActivator activator = typeof(T).GetFastActivator(args);
-            return new FastActivator<T>(parms => (T)activator(typeof(T), parms));
+            FastObjectActivator rawActivator = typeof(T).GetFastActivator(args);
+            Func<T> activator = () => (T)rawActivator(typeof(T), args);
+            return activator;
         }
 
         private static ConstructorInfo FindConstructorByParams(Type classType, params object[] args)

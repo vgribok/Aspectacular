@@ -133,5 +133,11 @@ namespace Value.Framework.UnitTests.AspectacularTest
             int index = "Wassup".GetProxy(TestAspects).Invoke(str => str.IndexOf('u'));
             Assert.AreEqual(4, index);
         }
+
+        [TestMethod]
+        public void TestEmptyAspectCollection()
+        {
+            AOP.Invoke(null, () => DateTime.IsLeapYear(2012));
+        }
     }
 }

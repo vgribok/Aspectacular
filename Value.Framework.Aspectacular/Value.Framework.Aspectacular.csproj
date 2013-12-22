@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.Entity" />
     <Reference Include="System.Transactions" />
@@ -52,6 +53,7 @@
     <Compile Include="CallLog.cs" />
     <Compile Include="DalInterceptor.cs" />
     <Compile Include="Data.cs" />
+    <Compile Include="DefaultAspects.cs" />
     <Compile Include="DispAspectInjector.cs" />
     <Compile Include="InstanceInterceptor.cs" />
     <Compile Include="InterceptedMethodMetadata.cs" />

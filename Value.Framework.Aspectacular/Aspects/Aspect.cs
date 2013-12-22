@@ -39,6 +39,12 @@ namespace Value.Framework.Aspectacular
     {
         public virtual Proxy Context { get; set; }
 
+        static Aspect()
+        {
+            if (DefaultAspectFactory == null)
+                DefaultAspectFactory = DefaultAspectsConfigSection.GetDefaultAspects;
+        }
+
         public Aspect() { }
 
         /// <summary>
@@ -218,5 +224,21 @@ namespace Value.Framework.Aspectacular
         }
 
         #endregion Logging methods
+
+        /// <summary>
+        /// Default application-wide set of aspects supplied by DefaultAspectFactory delegate.
+        /// Default set aspects, if not empty, is always added first to all proxies aspect collections.
+        /// </summary>
+        public static IEnumerable<Aspect> DefaultAspects 
+        { 
+            get { return DefaultAspectFactory == null ? null : DefaultAspectFactory(); } 
+        }
+
+        /// <summary>
+        /// Delegate to a global aspect factory. 
+        /// By default it's DefaultAspectsConfigSection.GetDefaultAspects() loading
+        /// default aspects from .config file's DefaultAspectsConfigSection, if it's present.
+        /// </summary>
+        public static Func<IEnumerable<Aspect>> DefaultAspectFactory { get; set; }
     }
 }
