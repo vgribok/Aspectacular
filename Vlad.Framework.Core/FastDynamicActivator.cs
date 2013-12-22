@@ -161,7 +161,6 @@ namespace Value.Framework.Core
             Type classType = ctorInfo.DeclaringType;
             ParameterInfo[] paramsInfo = ctorInfo.GetParameters();
 
-            //ParameterExpression typeArgExp = Expression.Parameter(typeof(Type), "classType");
             //create a single param of type object[]
             ParameterExpression constructorArgsExp = Expression.Parameter(typeof(object[]), "args");
 
@@ -186,7 +185,7 @@ namespace Value.Framework.Core
 
             //create a lambda with the New
             //Expression as body and our param object[] as arg
-            Expression<FastObjectActivator> lambda = Expression.Lambda<FastObjectActivator>(newExp, /*typeArgExp, */ constructorArgsExp);
+            Expression<FastObjectActivator> lambda = Expression.Lambda<FastObjectActivator>(newExp, constructorArgsExp);
             FastObjectActivator constructorDelegate = lambda.Compile();
 
             return constructorDelegate;
