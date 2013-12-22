@@ -64,6 +64,9 @@ namespace Value.Framework.Core
         public static Func<object[], T> GetFastActivator<T>(params Type[] constructorArgTypes)
         {
             FastObjectActivator rawActivator = typeof(T).GetFastActivator(constructorArgTypes);
+            if (rawActivator == null)
+                return null;
+
             Func<object[], T> activator = (parms) => (T)rawActivator(typeof(T), parms);
             return activator;
         }
