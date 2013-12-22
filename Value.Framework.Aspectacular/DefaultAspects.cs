@@ -141,8 +141,8 @@ namespace Value.Framework.Aspectacular
                     {
                         string[] constructorArgs = parms.ToArray();
 
-                        FastObjectActivator rawActivator = aspectType.GetFastActivator(constructorArgs);
-                        Func<Aspect> activator = () => (Aspect)rawActivator(aspectType, constructorArgs);
+                        Func<object> rawActivator = aspectType.GetFastActivatorWithEmbeddedArgs(constructorArgs);
+                        Func<Aspect> activator = () => (Aspect)rawActivator();
                         initializators.Add(activator);
                     }
                     catch (Exception ex)

@@ -31,8 +31,7 @@ namespace Value.Framework.Aspectacular
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public class RequiredAspectAttribute : Attribute
     {
-        protected readonly FastObjectActivator activator;
-        protected readonly object[] constructorArgs = null;
+        protected readonly Func<Aspect> activator = null;
 
         /// <summary>
         /// Use to ensure certain aspect is used when method is intercepted.
@@ -49,18 +48,22 @@ namespace Value.Framework.Aspectacular
                 throw new ArgumentException("aspectType must be a subclass of the Aspect class.");
 
             this.AspectClassType = aspectType;
-            this.activator = missingAspectOption == WhenRequiredAspectIsMissing.DontInstantiate ? null : aspectType.GetFastActivator(constructorArgs);
 
-            if (this.CanCreateAspectInstance)
-                this.constructorArgs = constructorArgs;
-            else if (missingAspectOption != WhenRequiredAspectIsMissing.DontInstantiate)
-            {
-                string strErrorMsg = "Unable to find {0}({1}) constructor necessary to instantiate required missing aspect {0}."
-                                        .SmartFormat(aspectType.FormatCSharp(),
-                                                string.Join(", ", constructorArgs.Select(arg => arg == null ? "[ANY]" : arg.GetType().FormatCSharp()))
-                                         );
+            if (missingAspectOption != WhenRequiredAspectIsMissing.DontInstantiate)
+            {   // Need to instantiate missing aspect
+                Func<object> rawActivator = aspectType.GetFastActivatorWithEmbeddedArgs(constructorArgs);
+                if (rawActivator != null)
+                {
+                    this.activator = () => (Aspect)rawActivator();
+                }else
+                {   // No activator found
+                    string strErrorMsg = "Unable to find {0}({1}) constructor necessary to instantiate required missing aspect {0}."
+                                            .SmartFormat(aspectType.FormatCSharp(),
+                                                    string.Join(", ", constructorArgs.Select(arg => arg == null ? "[ANY]" : arg.GetType().FormatCSharp()))
+                                             );
 
-                throw new ArgumentException(strErrorMsg, "aspectType");
+                    throw new ArgumentException(strErrorMsg, "aspectType");
+                }
             }
 
             this.InstantiateIfMissing = missingAspectOption;
@@ -80,7 +83,7 @@ namespace Value.Framework.Aspectacular
 
         public Aspect InstantiateAspect()
         {
-            Aspect aspect = (Aspect)this.activator(this.AspectClassType, this.constructorArgs);
+            Aspect aspect = this.activator();
             return aspect;
         }
     }

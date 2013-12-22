@@ -15,8 +15,11 @@ namespace Value.Framework.Core
     /// <param name="classType"></param>
     /// <param name="args"></param>
     /// <returns></returns>
-    public delegate object FastObjectActivator(Type classType, params object[] args);
+    public delegate object FastObjectActivator(params object[] args);
 
+    /// <summary>
+    /// A much faster alternative to slow Activator.CreateInstance().
+    /// </summary>
     public static class FastDynamicActivator
     {
         private static readonly ConcurrentDictionary<ConstructorInfo, FastObjectActivator> cachedActivators = new ConcurrentDictionary<ConstructorInfo, FastObjectActivator>();
@@ -27,13 +30,29 @@ namespace Value.Framework.Core
         /// <param name="classType"></param>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static FastObjectActivator GetFastActivator(this Type classType, params object[] args)
+        public static FastObjectActivator GetFastActivator(this Type classType, params Type[] constructorArgTypes)
         {
-            ConstructorInfo ctorInfo = FindConstructorByParams(classType, args);
+            ConstructorInfo ctorInfo = FindConstructorByParams(classType, constructorArgTypes);
             if(ctorInfo == null)
                 return null;
 
-            return GetActivator(ctorInfo);
+            return GetActivatorForConstructor(ctorInfo);
+        }
+
+        /// <summary>
+        /// Returns delegate that creates an instance of a given type with the packaged set of constructor arguments passed as constructorArgs parameters.
+        /// </summary>
+        /// <param name="classType"></param>
+        /// <param name="constructorArgs"></param>
+        /// <returns>Delegate with parameters.</returns>
+        public static Func<object> GetFastActivatorWithEmbeddedArgs(this Type classType, params object[] constructorArgs)
+        {
+            FastObjectActivator rawActivator = GetFastActivator(classType, constructorArgs.ArgsToArgTypes());
+            if (rawActivator == null)
+                return null;
+
+            Func<object> activator = () => rawActivator(constructorArgs);
+            return activator;
         }
 
         /// <summary>
@@ -42,55 +61,30 @@ namespace Value.Framework.Core
         /// <typeparam name="T"></typeparam>
         /// <param name="args"></param>
         /// <returns></returns>
-        public static Func<T> GetFastActivator<T>(params object[] args)
+        public static Func<object[], T> GetFastActivator<T>(params Type[] constructorArgTypes)
         {
-            FastObjectActivator rawActivator = typeof(T).GetFastActivator(args);
-            Func<T> activator = () => (T)rawActivator(typeof(T), args);
+            FastObjectActivator rawActivator = typeof(T).GetFastActivator(constructorArgTypes);
+            Func<object[], T> activator = (parms) => (T)rawActivator(typeof(T), parms);
             return activator;
         }
 
-        private static ConstructorInfo FindConstructorByParams(Type classType, params object[] args)
+        /// <summary>
+        /// Returns delegate that creates an instance of a given type with the packaged set of constructor arguments passed as constructorArgs parameters.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="constructorArgs"></param>
+        /// <returns></returns>
+        public static Func<T> GetFastActivatorWithEmbeddedArgs<T>(params object[] constructorArgs)
         {
-            if (classType == null)
-                throw new ArgumentNullException("classType");
+            FastObjectActivator rawActivator = GetFastActivator(typeof(T), constructorArgs.ArgsToArgTypes());
+            if (rawActivator == null)
+                return null;
 
-            List<ConstructorInfo> ctors = new List<ConstructorInfo>();
-
-            foreach (ConstructorInfo ctorInfo in classType.GetConstructors())
-            {
-                if(!ctorInfo.IsPublic)
-                    continue;
-
-                ParameterInfo[] parms = ctorInfo.GetParameters();
-                if (parms.Length != args.Length)
-                    continue;
-
-                if(args.Length == 0)
-                    return ctorInfo;
-
-                bool sameType = true;
-
-                for (int i = 0; sameType && i < args.Length; i++)
-                {
-                    Type paramType = parms[i].ParameterType;
-
-                    if (args[i] == null)
-                        sameType = paramType.IsClass;
-                    else
-                    {
-                        Type argType = args[i].GetType();
-                        sameType = argType == paramType || argType.IsSubclassOf(paramType);
-                    }
-                }
-
-                if (sameType)
-                    return ctorInfo;
-            }
-
-            return null;
+            Func<T> activator = () => (T)rawActivator(constructorArgs);
+            return activator;
         }
 
-        public static FastObjectActivator GetActivator(this ConstructorInfo ctorInfo)
+        public static FastObjectActivator GetActivatorForConstructor(this ConstructorInfo ctorInfo)
         {
             FastObjectActivator activator;
             if (!cachedActivators.TryGetValue(ctorInfo, out activator))
@@ -100,6 +94,57 @@ namespace Value.Framework.Core
             }
 
             return activator;
+        }
+
+        /// <summary>
+        /// Returns collection of types for a collection of objects.
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
+        private static Type[] ArgsToArgTypes(this IEnumerable<object> args)
+        {
+            return args.Select(arg => arg == null ? typeof(object) : arg.GetType()).ToArray();
+        }
+
+        private static ConstructorInfo FindConstructorByParams(Type classType, Type[] constructorArgTypes)
+        {
+            if (classType == null)
+                throw new ArgumentNullException("classType");
+
+            List<ConstructorInfo> ctors = new List<ConstructorInfo>();
+
+            foreach (ConstructorInfo ctorInfo in classType.GetConstructors())
+            {
+                if (!ctorInfo.IsPublic)
+                    continue;
+
+                ParameterInfo[] parms = ctorInfo.GetParameters();
+                if (parms.Length != constructorArgTypes.Length)
+                    continue;
+
+                if (constructorArgTypes.Length == 0)
+                    return ctorInfo;
+
+                bool sameType = true;
+
+                for (int i = 0; sameType && i < constructorArgTypes.Length; i++)
+                {
+                    Type paramType = parms[i].ParameterType;
+
+                    if (constructorArgTypes[i] == null)
+                        sameType = paramType.IsClass;
+                    else
+                    {
+                        Type argType = constructorArgTypes[i];
+                        sameType = argType == paramType || argType.IsSubclassOf(paramType);
+                    }
+                }
+
+                if (sameType)
+                    return ctorInfo;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -116,7 +161,7 @@ namespace Value.Framework.Core
             Type classType = ctorInfo.DeclaringType;
             ParameterInfo[] paramsInfo = ctorInfo.GetParameters();
 
-            ParameterExpression typeArgExp = Expression.Parameter(typeof(Type), "classType");
+            //ParameterExpression typeArgExp = Expression.Parameter(typeof(Type), "classType");
             //create a single param of type object[]
             ParameterExpression constructorArgsExp = Expression.Parameter(typeof(object[]), "args");
 
@@ -141,7 +186,7 @@ namespace Value.Framework.Core
 
             //create a lambda with the New
             //Expression as body and our param object[] as arg
-            Expression<FastObjectActivator> lambda = Expression.Lambda<FastObjectActivator>(newExp, typeArgExp, constructorArgsExp);
+            Expression<FastObjectActivator> lambda = Expression.Lambda<FastObjectActivator>(newExp, /*typeArgExp, */ constructorArgsExp);
             FastObjectActivator constructorDelegate = lambda.Compile();
 
             return constructorDelegate;

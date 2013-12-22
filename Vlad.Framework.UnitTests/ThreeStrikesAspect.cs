@@ -37,7 +37,7 @@ namespace Value.Framework.UnitTests
         /// <param name="configParams"></param>
         public TimetampsAspect(string configParams)
         {
-            string useUtcStr = DefaultAspect.GetParameterValue(configParams, "useUtc", "false");
+            string useUtcStr = DefaultAspect.GetParameterValue(configParams, "Use Utc", "false");
             this.UseUtc = bool.Parse(useUtcStr);
         }
 
@@ -48,13 +48,12 @@ namespace Value.Framework.UnitTests
 
         public override void Step_2_BeforeTryingMethodExec()
         {
-            this.LogInformationData("Timestamp type for Step_2_BeforeTryingMethodExec", this.UseUtc ? "UTC time" : "Local time");
+            this.LogInformationData("Timestamp type", this.UseUtc ? "UTC time" : "Local time");
             this.LogInformationData("Timestamp for Step_2_BeforeTryingMethodExec", this.GetCurrent());
         }
 
         public override void Step_7_AfterEverythingSaidAndDone()
         {
-            this.LogInformationData("Timestamp type for Step_7_AfterEverythingSaidAndDone", this.UseUtc ? "UTC time" : "Local time");
             this.LogInformationData("Timestamp for Step_7_AfterEverythingSaidAndDone", this.GetCurrent());
         }
     }
