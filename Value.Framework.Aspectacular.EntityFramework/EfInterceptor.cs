@@ -120,7 +120,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(IEnumerable<Aspect> aspects)
+        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(IEnumerable<Aspect> aspects = null)
             where TDbContext : DbContext, new()
         {
             var proxy = new DbContextSingleCallProxy<TDbContext>(aspects);
@@ -133,7 +133,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// <typeparam name="TObjectContext"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(IEnumerable<Aspect> aspects)
+        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(IEnumerable<Aspect> aspects = null)
             where TObjectContext : ObjectContext, new()
         {
             var proxy = new ObjectContextSingleCallProxy<TObjectContext>(aspects);

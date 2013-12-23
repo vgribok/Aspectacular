@@ -137,7 +137,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
         [TestMethod]
         public void TestDefaultDebugAspect()
         {
-            int index = "Wassup".GetProxy(null).Invoke(str => str.IndexOf('u'));
+            int index = "Wassup".GetProxy().Invoke(str => str.IndexOf('u'));
             Assert.AreEqual(4, index);
         }
 

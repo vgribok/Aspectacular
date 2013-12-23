@@ -374,6 +374,17 @@ namespace Value.Framework.Aspectacular
         }
 
         /// <summary>
+        /// Executes/intercepts *static* function with TOut return result, using only default (.config) aspects.
+        /// </summary>
+        /// <typeparam name="TOut"></typeparam>
+        /// <param name="interceptedCallExpression"></param>
+        /// <returns></returns>
+        public static TOut Invoke<TOut>(Expression<Func<TOut>> interceptedCallExpression)
+        {
+            return Invoke<TOut>(aspects: null, interceptedCallExpression: interceptedCallExpression);
+        }
+
+        /// <summary>
         /// Executes/intercepts *static* function with no return result.
         /// </summary>
         /// <param name="aspects"></param>
@@ -385,12 +396,21 @@ namespace Value.Framework.Aspectacular
         }
 
         /// <summary>
+        /// Executes/intercepts *static* function with no return result, using only default (.config) aspects.
+        /// </summary>
+        /// <param name="interceptedCallExpression"></param>
+        public static void Invoke(Expression<Action> interceptedCallExpression)
+        {
+            Invoke(aspects: null, interceptedCallExpression: interceptedCallExpression);
+        }
+
+        /// <summary>
         /// Retrieves AOP-augmented proxy, with specified set of aspects attached, for any given object referenced by instance parameter.
         /// </summary>
         /// <typeparam name="TInstance"></typeparam>
         /// <param name="instance"></param>
         /// <returns></returns>
-        public static InstanceProxy<TInstance> GetProxy<TInstance>(this TInstance instance, IEnumerable<Aspect> aspects)
+        public static InstanceProxy<TInstance> GetProxy<TInstance>(this TInstance instance, IEnumerable<Aspect> aspects = null)
             where TInstance : class
         {
             var interceptor = new InstanceProxy<TInstance>(instance, aspects);

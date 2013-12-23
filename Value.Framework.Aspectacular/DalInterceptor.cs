@@ -69,7 +69,7 @@ namespace Value.Framework.Aspectacular
         /// <typeparam name="TMultiStoreMgr"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static DalSingleCallProxy<TMultiStoreMgr> GetDalProxy<TMultiStoreMgr>(IEnumerable<Aspect> aspects)
+        public static DalSingleCallProxy<TMultiStoreMgr> GetDalProxy<TMultiStoreMgr>(IEnumerable<Aspect> aspects = null)
             where TMultiStoreMgr : DalManager, new()
         {
             var proxy = new DalSingleCallProxy<TMultiStoreMgr>(aspects);

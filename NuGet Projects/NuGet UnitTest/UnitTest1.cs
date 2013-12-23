@@ -14,7 +14,7 @@ namespace NuGet_UnitTest
         {
             string str = "Hello, World!";
 
-            //int index = str.GetProxy(null).Invoke(s => s.IndexOf("lo"));
+            //int index = str.GetProxy().Invoke(s => s.IndexOf("lo"));
             //Assert.AreEqual(3, index);
         }
     }
