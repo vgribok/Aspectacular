@@ -1,6 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+//using Value.Framework.Core;
+//using Value.Framework.Aspectacular;
+
 namespace NuGet_UnitTest
 {
     [TestClass]
@@ -9,6 +12,10 @@ namespace NuGet_UnitTest
         [TestMethod]
         public void TestMethod1()
         {
+            string str = "Hello, World!";
+
+            //int index = str.GetProxy(null).Invoke(s => s.IndexOf("lo"));
+            //Assert.AreEqual(3, index);
         }
     }
 }
