@@ -30,7 +30,7 @@ namespace Value.Framework.Aspectacular.Aspects
     {
         public override void Step_2_BeforeTryingMethodExec()
         {
-            string methodSign = this.Context.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
+            string methodSign = this.Proxy.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
             this.LogInformationWithKey("Method signature with parameters", methodSign);
         }
     }
@@ -43,7 +43,7 @@ namespace Value.Framework.Aspectacular.Aspects
     {
         public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
         {
-            string returnResultFormatted = this.Context.InterceptedCallMetaData.FormatReturnResult(this.Context.ReturnedValue, trueUI_falseInternal: false);
+            string returnResultFormatted = this.Proxy.InterceptedCallMetaData.FormatReturnResult(this.Proxy.ReturnedValue, trueUI_falseInternal: false);
             this.LogInformationData("Returned value", returnResultFormatted);
         }
     }

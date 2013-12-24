@@ -21,13 +21,13 @@ namespace Value.Framework.Aspectacular.Aspects
 
         public override void Step_3_BeforeMassagingReturnedResult()
         {
-            ObjectQuery query = this.Context.ReturnedValue as ObjectQuery;
+            ObjectQuery query = this.Proxy.ReturnedValue as ObjectQuery;
 
             if (query != null)
                 this.SetSql(query.ToTraceString());
             else
             {
-                IQueryable q = this.Context.ReturnedValue as IQueryable;
+                IQueryable q = this.Proxy.ReturnedValue as IQueryable;
                 if (q != null)
                     this.SetSql(q.ToString());
             }

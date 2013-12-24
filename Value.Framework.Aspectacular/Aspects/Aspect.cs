@@ -15,7 +15,7 @@ namespace Value.Framework.Aspectacular
     /// </summary>
     public interface IInterceptionContext
     {
-        Proxy Context { get; set;  }
+        Proxy Proxy { get; set;  }
     }
 
     /// <summary>
@@ -37,7 +37,7 @@ namespace Value.Framework.Aspectacular
     /// </summary>
     public abstract class Aspect : IAspect
     {
-        public virtual Proxy Context { get; set; }
+        public virtual Proxy Proxy { get; set; }
 
         static Aspect()
         {
@@ -101,11 +101,11 @@ namespace Value.Framework.Aspectacular
         /// <param name="newReturnValue"></param>
         protected void CancelInterceptedMethodCallAndSetReturnValue(object newReturnValue)
         {
-            if (this.Context.MethodWasCalled)
+            if (this.Proxy.MethodWasCalled)
                 throw new Exception("Invalid attempt to cancel intercepted method call after it was called.");
 
-            this.Context.ReturnedValue = newReturnValue;
-            this.Context.CancelInterceptedMethodCall = true;
+            this.Proxy.ReturnedValue = newReturnValue;
+            this.Proxy.CancelInterceptedMethodCall = true;
         }
 
         #endregion Utility Methods
@@ -121,7 +121,7 @@ namespace Value.Framework.Aspectacular
         /// <param name="args"></param>
         protected void Log(EntryType entryType, string optionalKey, string format, params object[] args)
         {
-            this.Context.AddLogEntry(this, entryType, optionalKey, format, args);
+            this.Proxy.AddLogEntry(this, entryType, optionalKey, format, args);
         }
 
         /// <summary>
@@ -220,7 +220,7 @@ namespace Value.Framework.Aspectacular
         /// <returns></returns>
         public string GetLogText(string lineSeparator, Func<List<CallLogEntry>, IEnumerable<string>> entrySelector = null)
         {
-            return this.Context.GetLogText(lineSeparator, entrySelector);
+            return this.Proxy.GetLogText(lineSeparator, entrySelector);
         }
 
         #endregion Logging methods

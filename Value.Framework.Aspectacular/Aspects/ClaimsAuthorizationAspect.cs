@@ -122,7 +122,7 @@ namespace Value.Framework.Aspectacular.Aspects
 
         protected void EnsureAuthorization()
         {
-            AuthorizationDemandAttribute claimDemandAttrib = this.Context.InterceptedCallMetaData.GetMethodOrClassAttribute<AuthorizationDemandAttribute>();
+            AuthorizationDemandAttribute claimDemandAttrib = this.Proxy.InterceptedCallMetaData.GetMethodOrClassAttribute<AuthorizationDemandAttribute>();
 
             this.LogInformationWithKey("Demanded claims/roles", "{0}: {1}",
                                     claimDemandAttrib.DemandAny ? "ANY" : "ALL",

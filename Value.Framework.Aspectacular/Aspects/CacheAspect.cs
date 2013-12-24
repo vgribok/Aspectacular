@@ -42,9 +42,9 @@ namespace Value.Framework.Aspectacular.Aspects
         public override void Step_2_BeforeTryingMethodExec()
         {
             this.LogInformationWithKey("Cache provider type", this.Cache.GetType().FormatCSharp());
-            this.LogInformationData("Method is cacheable", this.Context.CanCacheReturnedResult);
+            this.LogInformationData("Method is cacheable", this.Proxy.CanCacheReturnedResult);
 
-            if (!this.Context.CanCacheReturnedResult)
+            if (!this.Proxy.CanCacheReturnedResult)
                 return;
 
             this.LogParametersWithValues();
@@ -54,7 +54,7 @@ namespace Value.Framework.Aspectacular.Aspects
 
         private void LogParametersWithValues()
         {
-            foreach (var paramInfo in this.Context.InterceptedCallMetaData.Params)
+            foreach (var paramInfo in this.Proxy.InterceptedCallMetaData.Params)
             {
                 this.LogInformationWithKey("Parameter \"{0}\"".SmartFormat(paramInfo.Name),
                         "Type: [{0}], Value: [{1}]", paramInfo.Type.FormatCSharp(), paramInfo.FormatSlowEvaluatingValue(trueUI_falseInternal: false));
@@ -63,7 +63,7 @@ namespace Value.Framework.Aspectacular.Aspects
 
         public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
         {
-            if (!this.Context.CanCacheReturnedResult)
+            if (!this.Proxy.CanCacheReturnedResult)
                 return;
 
             if (this.ValueFoundInCache)
@@ -75,7 +75,7 @@ namespace Value.Framework.Aspectacular.Aspects
         private void SaveValueToCache()
         {
             string cacheKey = this.BuildMethodCacheKeyVerySlowly();
-            object val = this.Context.InterceptedMedthodCallFailed ? this.Context.MethodExecutionException : this.Context.ReturnedValue;
+            object val = this.Proxy.InterceptedMedthodCallFailed ? this.Proxy.MethodExecutionException : this.Proxy.ReturnedValue;
             this.Cache.Set(cacheKey, val);
         }
 
@@ -91,17 +91,17 @@ namespace Value.Framework.Aspectacular.Aspects
             if (this.ValueFoundInCache)
             {
                 if (cachedValue is Exception)
-                    this.Context.MethodExecutionException = cachedValue as Exception;
+                    this.Proxy.MethodExecutionException = cachedValue as Exception;
                 else
-                    this.Context.ReturnedValue = cachedValue;
+                    this.Proxy.ReturnedValue = cachedValue;
 
-                this.Context.CancelInterceptedMethodCall = true;
+                this.Proxy.CancelInterceptedMethodCall = true;
             }
         }
 
         protected string BuildMethodCacheKeyVerySlowly()
         {
-            return this.Context.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
+            return this.Proxy.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
         }
     }
 }

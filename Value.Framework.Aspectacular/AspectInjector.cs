@@ -195,7 +195,7 @@ namespace Value.Framework.Aspectacular
 
             // Augmented object can be interception context aware.
             if (this.AugmentedClassInstance is IInterceptionContext)
-                ((IInterceptionContext)this.AugmentedClassInstance).Context = this;
+                ((IInterceptionContext)this.AugmentedClassInstance).Proxy = this;
 
             // Augmented object can be aspect for its own method interceptions.
             if (this.AugmentedClassInstance is IAspect)
@@ -261,7 +261,7 @@ namespace Value.Framework.Aspectacular
         {
             this.LogInformation("**** Finished call with ID = {0} ****\r\n", this.CallID);
 
-            this.CallAspectsBackwards(aspect => { aspect.Step_7_AfterEverythingSaidAndDone(); aspect.Context = null; });
+            this.CallAspectsBackwards(aspect => { aspect.Step_7_AfterEverythingSaidAndDone(); aspect.Proxy = null; });
         }
 
 
@@ -353,7 +353,7 @@ namespace Value.Framework.Aspectacular
                         finally
                         {
                             if (this.AugmentedClassInstance is IInterceptionContext)
-                                (this.AugmentedClassInstance as IInterceptionContext).Context = null;
+                                (this.AugmentedClassInstance as IInterceptionContext).Proxy = null;
                         }
                     }
 
@@ -371,7 +371,7 @@ namespace Value.Framework.Aspectacular
 
         private void AddAspect(Aspect aspect, bool trueAppend_falseInsertFirst = true)
         {
-            aspect.Context = this;
+            aspect.Proxy = this;
 
             if (trueAppend_falseInsertFirst)
                 this.aspects.Add(aspect);
