@@ -50,6 +50,8 @@ namespace Value.Framework.UnitTests
         [InvariantReturn] // <-testing conflict between stated cacheability and output params.
         public static void MiscParmsStatic(int intParm, SomeTestClass classParm, ref string refString, out bool outBool)
         {
+            Proxy.CurrentLog.LogInformationData("Static method logging test", DateTime.UtcNow);
+
             refString = string.Format("{0} {1}", intParm, refString);
             outBool = true;
         }

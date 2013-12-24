@@ -378,7 +378,6 @@ namespace Value.Framework.Aspectacular
             get 
             { 
                 return (this.MethodReflectionInfo.Attributes & System.Reflection.MethodAttributes.Static) != 0;
-                //return this.interceptedMethodExpression.Object == null; 
             }
         }
 

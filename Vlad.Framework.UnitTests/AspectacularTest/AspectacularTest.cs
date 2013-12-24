@@ -146,5 +146,21 @@ namespace Value.Framework.UnitTests.AspectacularTest
         {
             AOP.Invoke(null, () => DateTime.IsLeapYear(2012));
         }
+
+        [TestMethod]
+        public void TestStaticLogging()
+        {
+            Assert.IsNull(Proxy.CurrentLog);
+
+            int intParm = 456;
+            this.IntProp = intParm;
+            string refString = DateTime.Now.Ticks.ToString();
+            bool outBool = false;
+            SomeTestClass obj = new SomeTestClass();
+
+            // Example of calling static void method.
+            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, obj, ref refString, out outBool));
+            Assert.IsTrue(outBool);
+        }
     }
 }

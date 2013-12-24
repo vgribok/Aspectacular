@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-
 using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
@@ -16,6 +17,8 @@ namespace Value.Framework.Aspectacular
     public class Proxy : CallLifetimeLog, IMethodLogProvider
     {
         #region Limited fields and properties
+
+        private readonly static ThreadLocal<Stack<Proxy>> proxyStack = new ThreadLocal<Stack<Proxy>>(() => new Stack<Proxy>());
 
         /// <summary>
         /// Instance of an object whose methods are intercepted.
@@ -30,9 +33,33 @@ namespace Value.Framework.Aspectacular
         private Action<object> instanceCleanerFunc;
         private volatile bool isUsed = false;
 
+        private static Stack<Proxy> ProxyStack { get { return proxyStack.Value; } }
+
         #endregion Limited fields and properties
 
         #region Public fields and properties
+
+        /// <summary>
+        /// Enables AOP logging by intercepted *static* methods.
+        /// </summary>
+        public static IMethodLogProvider CurrentLog 
+        { 
+            get 
+            {
+                Proxy currentProxy = ProxyStack.Any() ? ProxyStack.Peek() : null;
+
+                if (currentProxy != null && !currentProxy.InterceptedCallMetaData.IsStaticMethod)
+                {
+                    throw new Exception("Proxy.CurrentLog can only be used from inside intercepted *static* methods. " +
+                                    "Intercepted instance methods must instead belong to a class implementing ICallLogger interface. " +
+                                    "Currently-intercepted method \"{0}\" is not static."
+                                    .SmartFormat(currentProxy.InterceptedCallMetaData.GetMethodSignature())
+                                );
+                }
+
+                return currentProxy;
+            } 
+        }
 
         /// <summary>
         /// Unique ID of the call.
@@ -257,71 +284,86 @@ namespace Value.Framework.Aspectacular
 
             try
             {
-                this.CheckForRequiredAspects();
-
-                this.Step_2_BeforeTryingMethodExec();
-
-                this.MethodWasCalled = true;
+#if DEBUG
+                if (Proxy.ProxyStack.Any())
+                    Debug.Assert(Proxy.ProxyStack.Peek() != this);
+#endif
+                Proxy.ProxyStack.Push(this);
 
                 try
                 {
-                    if(this.CancelInterceptedMethodCall)
-                    {   // Returned result came from cache.
-                        if(this.InterceptedMedthodCallFailed)
-                        {   // Return cached exception.
-                            this.Step_4_Optional_AfterCatchingMethodExecException();
-                            throw this.MethodExecutionException;
-                        }
-                    }else
-                    // Retry loop
-                    for (this.AttemptsMade = 1; true; this.AttemptsMade++)
-                    {   
-                        try
-                        {
-                            actualMethodInvokerClosure.Invoke(); // Step 3 (post-call returned result massaging) is called inside this closure.
-                            break; // success - break retry loop.
-                        }
-                        catch (Exception ex)
-                        {
-                            this.MethodExecutionException = ex;
-                            this.Step_4_Optional_AfterCatchingMethodExecException();
+                    this.CheckForRequiredAspects();
 
-                            if (this.ShouldRetryCall)
-                                this.ShouldRetryCall = false;
-                            else
-                            {
-                                // No more call attempts - break the retry loop.
-                                if (ex == this.MethodExecutionException)
-                                    throw;
+                    this.Step_2_BeforeTryingMethodExec();
 
+                    this.MethodWasCalled = true;
+
+                    try
+                    {
+                        if (this.CancelInterceptedMethodCall)
+                        {   // Returned result came from cache.
+                            if (this.InterceptedMedthodCallFailed)
+                            {   // Return cached exception.
+                                this.Step_4_Optional_AfterCatchingMethodExecException();
                                 throw this.MethodExecutionException;
                             }
                         }
-                    } // retry loop
+                        else
+                            // Retry loop
+                            for (this.AttemptsMade = 1; true; this.AttemptsMade++)
+                            {
+                                try
+                                {
+                                    actualMethodInvokerClosure.Invoke(); // Step 3 (post-call returned result massaging) is called inside this closure.
+                                    break; // success - break retry loop.
+                                }
+                                catch (Exception ex)
+                                {
+                                    this.MethodExecutionException = ex;
+                                    this.Step_4_Optional_AfterCatchingMethodExecException();
+
+                                    if (this.ShouldRetryCall)
+                                        this.ShouldRetryCall = false;
+                                    else
+                                    {
+                                        // No more call attempts - break the retry loop.
+                                        if (ex == this.MethodExecutionException)
+                                            throw;
+
+                                        throw this.MethodExecutionException;
+                                    }
+                                }
+                            } // retry loop
+                    }
+                    finally
+                    {
+                        this.Step_5_FinallyAfterMethodExecution();
+                    }
                 }
                 finally
                 {
-                    this.Step_5_FinallyAfterMethodExecution();
+                    // Cleanup phase.
+                    if (this.instanceCleanerFunc != null)
+                    {
+                        try
+                        {
+                            this.instanceCleanerFunc.Invoke(this.AugmentedClassInstance);
+                            this.Step_6_Optional_AfterInstanceCleanup();
+                        }
+                        finally
+                        {
+                            if (this.AugmentedClassInstance is IInterceptionContext)
+                                (this.AugmentedClassInstance as IInterceptionContext).Context = null;
+                        }
+                    }
+
+                    this.Step_7_AfterEverythingSaidAndDone();
                 }
             }
             finally
             {
-                // Cleanup phase.
-                if (this.instanceCleanerFunc != null)
-                {
-                    try
-                    {
-                        this.instanceCleanerFunc.Invoke(this.AugmentedClassInstance);
-                        this.Step_6_Optional_AfterInstanceCleanup();
-                    }
-                    finally
-                    {
-                        if (this.AugmentedClassInstance is IInterceptionContext)
-                            (this.AugmentedClassInstance as IInterceptionContext).Context = null;
-                    }
-                }
-
-                this.Step_7_AfterEverythingSaidAndDone();
+                Proxy top = Proxy.ProxyStack.Pop();
+                Debug.Assert(top == this);
             }
         }
 
