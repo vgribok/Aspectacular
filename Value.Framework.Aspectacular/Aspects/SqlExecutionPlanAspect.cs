@@ -10,38 +10,35 @@ using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular.Aspects
 {
-    public interface ISqlCmdRetriever
-    {
-        SqlCommand GetCommand(object interceptedObject);
-    }
-
-    public class SqlExecutionPlanAspect : Aspect
+    /// <summary>
+    /// Logs T-SQL execution plan of a SqlCommand.
+    /// </summary>
+    public class SqlCmdExecutionPlanAspect : Aspect
     {
         protected SqlCommand command = null;
-        protected readonly ISqlCmdRetriever cmdRetriever;
+        protected readonly Func<object, SqlCommand> cmdRetriever;
 
         /// <summary>
         /// Aspect that log SQL Execution plan of an intercepted SqlCommand.
         /// </summary>
         /// <param name="formatXmlOrText">string in the format of "format=text;" or "format=xml;".
         /// If not specified, XML format is used.</param>
-        public SqlExecutionPlanAspect(string formatXmlOrText)
-            : this(cmdFetcher: null, formatXmlOrText: formatXmlOrText)
+        public SqlCmdExecutionPlanAspect(string formatXmlOrText)
+            : this(cmdFetcher: null)
         {
+            if (!formatXmlOrText.IsBlank())
+                this.TrueText_FalseXml = bool.Parse(DefaultAspect.GetParameterValue(formatXmlOrText, "format", "false"));
         }
 
         /// <summary>
         /// Aspect that log SQL Execution plan of a SqlCommand.
         /// </summary>
         /// <param name="cmdFetcher">Optional SqlCommand factory. If not specified, intercepted object should be SqlCommand.</param>
-        /// <param name="formatXmlOrText">string in the format of "format=text;" or "format=xml;".
-        /// If not specified, XML format is used.</param>
-        public SqlExecutionPlanAspect(ISqlCmdRetriever cmdFetcher = null, string formatXmlOrText = null)
+        /// <param name="formatXmlOrText">Specifies output format of the execution plan text: plain text or XML.</param>
+        public SqlCmdExecutionPlanAspect(Func<object, SqlCommand> cmdFetcher = null, bool trueText_falseXml = false)
         {
             this.cmdRetriever = cmdFetcher;
-
-            if (!formatXmlOrText.IsBlank())
-                this.TrueText_FalseXml = bool.Parse(DefaultAspect.GetParameterValue(formatXmlOrText, "format", "false"));
+            this.TrueText_FalseXml = trueText_falseXml;
         }
 
         public bool TrueText_FalseXml { get; set; }
@@ -51,7 +48,7 @@ namespace Value.Framework.Aspectacular.Aspects
             if (this.Proxy.AugmentedClassInstance == null)
                 return;
 
-            this.command = this.cmdRetriever == null ? this.Proxy.AugmentedClassInstance as SqlCommand : this.cmdRetriever.GetCommand(this.Proxy.AugmentedClassInstance);
+            this.command = this.cmdRetriever == null ? this.Proxy.AugmentedClassInstance as SqlCommand : this.cmdRetriever(this.Proxy.AugmentedClassInstance);
             if (this.command == null)
                 return;
 
@@ -64,7 +61,7 @@ namespace Value.Framework.Aspectacular.Aspects
                 this.command.Connection.StateChange += this.OnConnectionStateChange;
         }
 
-        void OnConnectionStateChange(object sender, StateChangeEventArgs e)
+        private void OnConnectionStateChange(object sender, StateChangeEventArgs e)
         {
             if (e.CurrentState == ConnectionState.Open)
                 this.OnConnectionOpened();
@@ -77,17 +74,28 @@ namespace Value.Framework.Aspectacular.Aspects
             SqlCommand showplanCmd = new SqlCommand("set showplan_{0} on".SmartFormat(outputFormat), this.command.Connection);
             showplanCmd.ExecuteNonQuery();
 
+            string executionPlan = null;
             using (SqlDataReader showplan_results = this.command.ExecuteReader())
             {
                 if (showplan_results.Read())
-                {
-                    string executionPlan = showplan_results[0].ToString();
-                    this.LogInformationData("T-SQL Execution Plan", executionPlan);
-                }
+                    executionPlan = showplan_results[0].ToString();
             }
+            
+            if(executionPlan != null)
+                this.ProcessExecutionPlan(executionPlan);
 
             SqlCommand showplan_off_cmd = new SqlCommand("set showplan_{0} off".SmartFormat(outputFormat), this.command.Connection);
             showplanCmd.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        /// Do something with the execution plan.
+        /// Default action is to log it.
+        /// </summary>
+        /// <param name="executionPlan"></param>
+        protected virtual void ProcessExecutionPlan(string executionPlan)
+        {
+            this.LogInformationData("T-SQL Execution Plan", executionPlan);
         }
     }
 }

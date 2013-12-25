@@ -28,6 +28,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
                      new LinqToSqlAspect(),
                      new ReturnValueLoggerAspect(),
                      new SlowFullMethodSignatureAspect(),
+                     //new SqlCmdExecutionPlanAspect(),
                 };
             }
         }
