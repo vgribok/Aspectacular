@@ -15,17 +15,28 @@ namespace Value.Framework.Aspectacular.Aspects
         SqlCommand GetCommand(object interceptedObject);
     }
 
-    public abstract class SqlExecutionPlanAspect : Aspect
+    public class SqlExecutionPlanAspect : Aspect
     {
         protected SqlCommand command = null;
         protected readonly ISqlCmdRetriever cmdRetriever;
 
         /// <summary>
-        /// 
+        /// Aspect that log SQL Execution plan of an intercepted SqlCommand.
         /// </summary>
-        /// <param name="cmdFetcher"></param>
-        /// <param name="formatXmlOrText">string in the format of "format=xml;"</param>
-        public SqlExecutionPlanAspect(ISqlCmdRetriever cmdFetcher, string formatXmlOrText)
+        /// <param name="formatXmlOrText">string in the format of "format=text;" or "format=xml;".
+        /// If not specified, XML format is used.</param>
+        public SqlExecutionPlanAspect(string formatXmlOrText)
+            : this(cmdFetcher: null, formatXmlOrText: formatXmlOrText)
+        {
+        }
+
+        /// <summary>
+        /// Aspect that log SQL Execution plan of a SqlCommand.
+        /// </summary>
+        /// <param name="cmdFetcher">Optional SqlCommand factory. If not specified, intercepted object should be SqlCommand.</param>
+        /// <param name="formatXmlOrText">string in the format of "format=text;" or "format=xml;".
+        /// If not specified, XML format is used.</param>
+        public SqlExecutionPlanAspect(ISqlCmdRetriever cmdFetcher = null, string formatXmlOrText = null)
         {
             this.cmdRetriever = cmdFetcher;
 
@@ -40,7 +51,7 @@ namespace Value.Framework.Aspectacular.Aspects
             if (this.Proxy.AugmentedClassInstance == null)
                 return;
 
-            this.command = this.cmdRetriever.GetCommand(this.Proxy.AugmentedClassInstance);
+            this.command = this.cmdRetriever == null ? this.Proxy.AugmentedClassInstance as SqlCommand : this.cmdRetriever.GetCommand(this.Proxy.AugmentedClassInstance);
             if (this.command == null)
                 return;
 
