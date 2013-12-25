@@ -26,6 +26,7 @@ namespace Value.Framework.Aspectacular
         void Step_1_BeforeResolvingInstance();
         void Step_2_BeforeTryingMethodExec();
         void Step_3_BeforeMassagingReturnedResult();
+        void Step_4_Optional_AfterSuccessfulCallCompletion();
         void Step_4_Optional_AfterCatchingMethodExecException();
         void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded);
         void Step_6_Optional_AfterInstanceCleanup();
@@ -61,6 +62,7 @@ namespace Value.Framework.Aspectacular
         /// <summary>
         /// Called after intercepted method returned result and 
         /// before interceptor augmented it, usually by LINQ modifiers like List().
+        /// May be called multiple times if retries are enabled.
         /// </summary>
         /// <remarks>
         /// LINQ's List(), Single(), etc. methods may be used to execute
@@ -74,7 +76,17 @@ namespace Value.Framework.Aspectacular
         public virtual void Step_3_BeforeMassagingReturnedResult() { }
 
         /// <summary>
-        /// Called after method execution failed (thrown an exception)
+        /// Called after method itself and optional result massager were called successfully.
+        /// May be called multiple times when retries are enabled.
+        /// </summary>
+        /// <remarks>
+        /// Since this method may be called multiple times on retries,
+        /// put all finalization/cleanup logic into steps 5-7.
+        /// </remarks>
+        public virtual void Step_4_Optional_AfterSuccessfulCallCompletion() { }
+
+        /// <summary>
+        /// Called after method execution failed (thrown an exception).
         /// </summary>
         public virtual void Step_4_Optional_AfterCatchingMethodExecException() { }
 

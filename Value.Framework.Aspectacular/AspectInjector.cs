@@ -20,12 +20,6 @@ namespace Value.Framework.Aspectacular
 
         private readonly static ThreadLocal<Stack<Proxy>> proxyStack = new ThreadLocal<Stack<Proxy>>(() => new Stack<Proxy>());
 
-        /// <summary>
-        /// Instance of an object whose methods are intercepted.
-        /// Null when static methods are intercepted.
-        /// Can be an derived from IAspect of object wants to be its own 
-        /// </summary>
-        protected object AugmentedClassInstance { get; set; }
         protected Delegate interceptedMethod;
         protected readonly List<IAspect> aspects = new List<IAspect>();
 
@@ -38,6 +32,12 @@ namespace Value.Framework.Aspectacular
         #endregion Limited fields and properties
 
         #region Public fields and properties
+        /// <summary>
+        /// Instance of an object whose methods are intercepted.
+        /// Null when static methods are intercepted.
+        /// Can be an derived from IAspect of object wants to be its own 
+        /// </summary>
+        public object AugmentedClassInstance { get; protected set; }
 
         /// <summary>
         /// Enables AOP logging by intercepted *static* methods.
@@ -83,6 +83,7 @@ namespace Value.Framework.Aspectacular
 
         /// <summary>
         /// Number of attempts made to call intercepted method.
+        /// Starts with 1.
         /// </summary>
         public byte AttemptsMade { get; private set; }
 
@@ -232,6 +233,14 @@ namespace Value.Framework.Aspectacular
             this.CallAspects(aspect => aspect.Step_4_Optional_AfterCatchingMethodExecException());
         }
 
+        /// <summary>
+        /// May be called multiple times due to retries.
+        /// </summary>
+        protected virtual void Step_4_Optional_AfterSuccessfulCallCompletion()
+        {
+            this.CallAspectsBackwards(aspect => aspect.Step_4_Optional_AfterSuccessfulCallCompletion());
+        }
+
         protected virtual void Step_5_FinallyAfterMethodExecution()
         {
             this.LogInformationData("Call outcome", this.InterceptedMedthodCallFailed ? "failure" : "success");
@@ -307,15 +316,21 @@ namespace Value.Framework.Aspectacular
                                 this.Step_4_Optional_AfterCatchingMethodExecException();
                                 throw this.MethodExecutionException;
                             }
-                        }
-                        else
+                        }else
+                        {
                             // Retry loop
                             for (this.AttemptsMade = 1; true; this.AttemptsMade++)
                             {
                                 try
                                 {
                                     actualMethodInvokerClosure.Invoke(); // Step 3 (post-call returned result massaging) is called inside this closure.
-                                    break; // success - break retry loop.
+                                    
+                                    this.Step_4_Optional_AfterSuccessfulCallCompletion();
+
+                                    if (this.ShouldRetryCall)
+                                        this.ShouldRetryCall = false;
+                                    else
+                                        break; // success - break retry loop.
                                 }
                                 catch (Exception ex)
                                 {
@@ -334,6 +349,7 @@ namespace Value.Framework.Aspectacular
                                     }
                                 }
                             } // retry loop
+                        }
                     }
                     finally
                     {
