@@ -37,7 +37,7 @@ namespace Value.Framework.Aspectacular.Aspects
         /// <param name="formatXmlOrText">Specifies output format of the execution plan text: plain text or XML.</param>
         public SqlCmdExecutionPlanAspect(Func<object, SqlCommand> cmdFetcher = null, bool trueText_falseXml = false)
         {
-            this.cmdRetriever = cmdFetcher;
+            this.cmdRetriever = cmdFetcher ?? (obj => obj as SqlCommand);
             this.TrueText_FalseXml = trueText_falseXml;
         }
 
@@ -48,7 +48,7 @@ namespace Value.Framework.Aspectacular.Aspects
             if (this.Proxy.AugmentedClassInstance == null)
                 return;
 
-            this.command = this.cmdRetriever == null ? this.Proxy.AugmentedClassInstance as SqlCommand : this.cmdRetriever(this.Proxy.AugmentedClassInstance);
+            this.command = this.cmdRetriever(this.Proxy.AugmentedClassInstance);
             if (this.command == null)
                 return;
 
