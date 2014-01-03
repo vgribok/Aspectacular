@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+
 using Value.Framework.Core;
 
 namespace Value.Framework.Aspectacular
@@ -125,7 +126,7 @@ namespace Value.Framework.Aspectacular
         private readonly Expression expression;
         private readonly Lazy<ParamDirectionEnum> paramDirection;
 
-        public InterceptedMethodParamMetadata(ParameterInfo paramReflection, Expression paramExpression)
+        public InterceptedMethodParamMetadata(ParameterInfo paramReflection, Expression paramExpression, object augmentedObject)
         {
             this.ParamReflection = paramReflection;
             this.Name = this.ParamReflection.Name;
@@ -134,7 +135,7 @@ namespace Value.Framework.Aspectacular
 
             this.slowEvaluatingValueLoader = new Lazy<object>(() =>
             {
-                object val = VerySlowlyCompileAndInvoke(this.expression);
+                object val = VerySlowlyCompileAndInvoke(augmentedObject, this.expression);
 
                 if (this.ValueIsSecret)
                     val = new SecretValueHash(val);
@@ -244,18 +245,29 @@ namespace Value.Framework.Aspectacular
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        public static object VerySlowlyCompileAndInvoke(Expression expression)
+        public static object VerySlowlyCompileAndInvoke(object augmentedObject, Expression expression)
         {
             object val = null;
 
             if (expression != null)
             {
-                if (expression.NodeType == ExpressionType.Constant)
-                    val = ((ConstantExpression)expression).Value;
-                else
-                    // This is really, veeery, terribly slow. 
-                    // The performance loss double-whammy is expression compilation plus reflection invocation.
-                    val = Expression.Lambda(expression).Compile().DynamicInvoke();
+                switch(expression.NodeType)
+                {
+                    case ExpressionType.Constant:
+                        val = ((ConstantExpression)expression).Value;
+                        break;
+                    case ExpressionType.Parameter:
+                        {
+                            ParameterExpression pex = (ParameterExpression)expression;
+                            if(augmentedObject != null && pex.Type == augmentedObject.GetType())
+                                return augmentedObject;
+                        }
+                        val = expression.EvaluateExpressionVerySlow();
+                        break;
+                    default:
+                        val = expression.EvaluateExpressionVerySlow();
+                        break;
+                }
             }
             return val;
         }
@@ -360,7 +372,7 @@ namespace Value.Framework.Aspectacular
             {
                 Expression paramExpression = this.interceptedMethodExpression.Arguments[i];
 
-                var paramMetadata = new InterceptedMethodParamMetadata(paramData[i], paramExpression);
+                var paramMetadata = new InterceptedMethodParamMetadata(paramData[i], paramExpression, this.augmentedInstance);
                 this.Params.Add(paramMetadata);
             }
         }

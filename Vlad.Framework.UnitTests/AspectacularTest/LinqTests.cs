@@ -20,7 +20,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
     {
         public TestContext TestContext { get; set; }
 
-        const int customerIdWithManyAddresses = 29503;
+        public const int customerIdWithManyAddresses = 29503;
 
         public static IEnumerable<Aspect> TestAspects
         {

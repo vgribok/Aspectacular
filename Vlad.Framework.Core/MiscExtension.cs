@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -108,5 +109,19 @@ namespace Value.Framework.Core
         }
 
 
+        /// <summary>
+        /// Very slow! Evaluates expression by turning it into a function expression, compiling it, and then calling using Reflection.
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
+        public static object EvaluateExpressionVerySlow(this Expression expression)
+        {
+            // This is really, veeery, terribly slow. 
+            // The performance loss double-whammy is expression compilation plus reflection invocation.
+            LambdaExpression lx = Expression.Lambda(expression);
+            Delegate caller = lx.Compile(); // Slowness #1 - compilation is slow.
+            var val = caller.DynamicInvoke();  // Slowness # 2 - dynamic (Reflection) invocation. 
+            return val;
+        }
     }
 }

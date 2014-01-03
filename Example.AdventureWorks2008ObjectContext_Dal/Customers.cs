@@ -5,9 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Value.Framework.Aspectacular;
+using Value.Framework.Data.EntityFramework;
 
 namespace Example.AdventureWorks2008ObjectContext_Dal
 {
+    public partial class Customer : IDbEntityKey
+    {
+        public object DbContextEntityKey
+        {
+            get { return this.CustomerID; }
+        }
+    }
+
     public partial class AdventureWorksLT2008R2Entities
     {
         public IQueryable<Customer> QueryCustomerByID(int customerID)
