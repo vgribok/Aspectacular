@@ -11,7 +11,7 @@ namespace Value.Framework.Aspectacular.Data
     /// Alloc/invoke/dispose convenience class for DalManager subclasses.
     /// </summary>
     /// <typeparam name="TMultiStoreMgr"></typeparam>
-    public class DalSingleCallProxy<TMultiStoreMgr> : AllocateRunDisposeProxy<TMultiStoreMgr>, IEfCallInterceptor, IStorageCommandRunner<TMultiStoreMgr>
+    public class DalSingleCallProxy<TMultiStoreMgr> : DbEngineProxy<TMultiStoreMgr>
             where TMultiStoreMgr : DalManager, new()
     {
         public DalSingleCallProxy(IEnumerable<Aspect> aspects)
@@ -19,40 +19,19 @@ namespace Value.Framework.Aspectacular.Data
         {
         }
 
-        #region Base class overrides
-
-        protected override void InvokeActualInterceptedMethod(Action interceptedMethodClosure)
+        /// <summary>
+        /// A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="aspects"></param>
+        public DalSingleCallProxy(TMultiStoreMgr instance, IEnumerable<Aspect> aspects)
+            : base(instance, aspects)
         {
-            base.InvokeActualInterceptedMethod(interceptedMethodClosure);
-            this.DoSaveChanges();
         }
 
-        #endregion Base class overrides
-
-        #region Implementation of IStorageCommandRunner
-
-        public int SaveChangeReturnValue
-        {
-            get { return this.AugmentedClassInstance.SaveChangeReturnValue; }
-            set { this.AugmentedClassInstance.SaveChangeReturnValue = value; }
-        }
-
-        public int SaveChanges()
+        public override int CommitChanges()
         {
             return this.AugmentedClassInstance.SaveChanges();
-        }
-
-        #endregion IStorageCommandRunner
-
-        /// <summary>
-        /// Command that returns no value except for int returned by underlying DB engine.
-        /// </summary>
-        /// <param name="callExpression"></param>
-        /// <returns></returns>
-        public int ExecuteCommand(Expression<Action<TMultiStoreMgr>> callExpression)
-        {
-            this.Invoke(callExpression);
-            return this.SaveChangeReturnValue;
         }
     }
 }
@@ -73,6 +52,22 @@ namespace Value.Framework.Aspectacular
             where TMultiStoreMgr : DalManager, new()
         {
             var proxy = new DalSingleCallProxy<TMultiStoreMgr>(aspects);
+            return proxy;
+        }
+
+        /// <summary>
+        /// Returns InstanceProxy[TMultiStoreMgr] for DalManager instance that already exist.
+        /// Returned proxy won't call DalManager.Dispose() after method invocation.
+        /// Supports ExecuteCommand() method.
+        /// </summary>
+        /// <typeparam name="TMultiStoreMgr"></typeparam>
+        /// <param name="existingInstance"></param>
+        /// <param name="aspects"></param>
+        /// <returns></returns>
+        public static DalSingleCallProxy<TMultiStoreMgr> GetDalProxy<TMultiStoreMgr>(this TMultiStoreMgr existingInstance, IEnumerable<Aspect> aspects = null)
+            where TMultiStoreMgr : DalManager, new()
+        {
+            var proxy = new DalSingleCallProxy<TMultiStoreMgr>(existingInstance, aspects);
             return proxy;
         }
     }

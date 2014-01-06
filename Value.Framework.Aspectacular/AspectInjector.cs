@@ -150,13 +150,13 @@ namespace Value.Framework.Aspectacular
 
         #region Constructors
 
-        public Proxy(Func<object> instanceFactory, Action<object> instanceCleaner, IEnumerable<Aspect> aspects)
+        public Proxy(Func<object> instanceFactory, Action<object> optionalInstanceCleaner, IEnumerable<Aspect> aspects)
         {
             this.LogInformation("#### Starting new call log ###");
             this.LogInformationData("Call ID", this.CallID);
 
             this.instanceResolverFunc = instanceFactory;
-            this.instanceCleanerFunc = instanceCleaner;
+            this.instanceCleanerFunc = optionalInstanceCleaner;
 
             if (Aspect.DefaultAspects != null)
                 aspects = aspects == null ? Aspect.DefaultAspects : Aspect.DefaultAspects.Union(aspects);
@@ -167,7 +167,7 @@ namespace Value.Framework.Aspectacular
         }
 
         public Proxy(Func<object> instanceFactory, IEnumerable<Aspect> aspects)
-            : this(instanceFactory, instanceCleaner: null, aspects: aspects)
+            : this(instanceFactory, optionalInstanceCleaner: null, aspects: aspects)
         {
         }
 

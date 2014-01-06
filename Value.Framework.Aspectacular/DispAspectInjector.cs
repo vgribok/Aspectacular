@@ -10,6 +10,26 @@ namespace Value.Framework.Aspectacular
     public class AllocateRunDisposeProxy<TDispClass> : InstanceProxy<TDispClass> 
         where TDispClass : class, IDisposable, new()
     {
+        /// <summary>
+        /// A pass-through constructor that creates proxy which does neither instantiate nor cleans up the instance after it's used.
+        /// </summary>
+        /// <param name="instance"></param>
+        /// <param name="aspects"></param>
+        public AllocateRunDisposeProxy(TDispClass instance, IEnumerable<Aspect> aspects)
+            : base(instance, aspects)
+        {
+        }
+
+        /// <summary>
+        /// Creates proxy that instantiates IDisposable class
+        /// and after method invocation calls class's Dispose().
+        /// </summary>
+        /// <param name="aspects"></param>
+        public AllocateRunDisposeProxy(IEnumerable<Aspect> aspects)
+            : base(Instantiate, Cleanup, aspects)
+        {
+        }
+
         private static TDispClass Instantiate()
         {
             TDispClass instance = new TDispClass();
@@ -20,11 +40,6 @@ namespace Value.Framework.Aspectacular
         {
             if (instance != null)
                 instance.Dispose();
-        }
-
-        public AllocateRunDisposeProxy(IEnumerable<Aspect> aspects)
-            : base(Instantiate, Cleanup, aspects)
-        {
         }
     }
 

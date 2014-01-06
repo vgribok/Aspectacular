@@ -15,7 +15,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
     /// Alloc/invoke/dispose convenience class for EF DbContext subclasses.
     /// </summary>
     /// <typeparam name="TDbContext"></typeparam>
-    public class DbContextSingleCallProxy<TDbContext> : AllocateRunDisposeProxy<TDbContext>, IEfCallInterceptor, IStorageCommandRunner<TDbContext>
+    public class DbContextSingleCallProxy<TDbContext> : DbEngineProxy<TDbContext>
             where TDbContext : DbContext, new()
     {
         public DbContextSingleCallProxy(IEnumerable<Aspect> aspects)
@@ -23,48 +23,27 @@ namespace Value.Framework.Aspectacular.EntityFramework
         {
         }
 
-        #region Base class overrides
-
-        protected override void InvokeActualInterceptedMethod(Action interceptedMethodClosure)
+        /// <summary>
+        /// A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
+        /// </summary>
+        /// <param name="dbContext"></param>
+        /// <param name="aspects"></param>
+        public DbContextSingleCallProxy(TDbContext dbContext, IEnumerable<Aspect> aspects)
+            : base(dbContext, aspects)
         {
-            base.InvokeActualInterceptedMethod(interceptedMethodClosure);
-            this.DoSaveChanges();
         }
 
-        #endregion Base class overrides
-
-        #region Implementation of IEfCallInterceptor
-
-        public int SaveChangeReturnValue { get; set; }
-
-        public int SaveChanges()
+        public override int CommitChanges()
         {
             return this.AugmentedClassInstance.SaveChanges();
         }
-
-        #endregion Implementation of IEfCallInterceptor
-
-        #region Implementation of IStorageCommandRunner
-
-        /// <summary>
-        /// Command that returns no value except for int returned by underlying DB engine.
-        /// </summary>
-        /// <param name="callExpression"></param>
-        /// <returns></returns>
-        public int ExecuteCommand(Expression<Action<TDbContext>> callExpression)
-        {
-            this.Invoke(callExpression);
-            return this.SaveChangeReturnValue;
-        }
-
-        #endregion IStorageCommandRunner
     }
 
     /// <summary>
     /// Alloc/invoke/dispose convenience class for EF ObjectContext subclasses.
     /// </summary>
     /// <typeparam name="TObjectContext"></typeparam>
-    public class ObjectContextSingleCallProxy<TObjectContext> : AllocateRunDisposeProxy<TObjectContext>, IEfCallInterceptor, IStorageCommandRunner<TObjectContext>
+    public class ObjectContextSingleCallProxy<TObjectContext> : DbEngineProxy<TObjectContext>
             where TObjectContext : ObjectContext, new()
     {
         public ObjectContextSingleCallProxy(IEnumerable<Aspect> aspects)
@@ -72,41 +51,20 @@ namespace Value.Framework.Aspectacular.EntityFramework
         {
         }
 
-        #region Base class overrides
-
-        protected override void InvokeActualInterceptedMethod(Action interceptedMethodClosure)
+        /// <summary>
+        /// A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
+        /// </summary>
+        /// <param name="ocContext"></param>
+        /// <param name="aspects"></param>
+        public ObjectContextSingleCallProxy(TObjectContext ocContext, IEnumerable<Aspect> aspects)
+            : base(ocContext, aspects)
         {
-            base.InvokeActualInterceptedMethod(interceptedMethodClosure);
-            this.DoSaveChanges();
         }
 
-        #endregion Base class overrides
-
-        #region Implementation of IEfCallInterceptor
-
-        public int SaveChangeReturnValue { get; set; }
-
-        public int SaveChanges()
+        public override int CommitChanges()
         {
             return this.AugmentedClassInstance.SaveChanges();
         }
-
-        #endregion Implementation of IEfCallInterceptor
-
-        #region Implementation of IStorageCommandRunner
-
-        /// <summary>
-        /// Command that returns no value except for int returned by underlying DB engine.
-        /// </summary>
-        /// <param name="callExpression"></param>
-        /// <returns></returns>
-        public int ExecuteCommand(Expression<Action<TObjectContext>> callExpression)
-        {
-            this.Invoke(callExpression);
-            return this.SaveChangeReturnValue;
-        }
-
-        #endregion IStorageCommandRunner
     }
 
     /// <summary>
@@ -115,7 +73,7 @@ namespace Value.Framework.Aspectacular.EntityFramework
     public static partial class EfAOP
     {
         /// <summary>
-        /// Returns AOP proxy for EF DbContext class
+        /// Returns AOP proxy for EF DbContext class that will instantiate DbContext and after usage calls DbContext.Dispose()
         /// </summary>
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="aspects"></param>
@@ -124,6 +82,22 @@ namespace Value.Framework.Aspectacular.EntityFramework
             where TDbContext : DbContext, new()
         {
             var proxy = new DbContextSingleCallProxy<TDbContext>(aspects);
+            return proxy;
+        }
+
+        /// <summary>
+        /// Returns InstanceProxy[TDbContext] for DbContext instance that already exist.
+        /// Returned proxy won't call DbContext.Dispose() after method invocation.
+        /// Supports ExecuteCommand() method.
+        /// </summary>
+        /// <typeparam name="TDbContext"></typeparam>
+        /// <param name="dbExistingContext"></param>
+        /// <param name="aspects"></param>
+        /// <returns></returns>
+        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(this TDbContext dbExistingContext, IEnumerable<Aspect> aspects = null)
+            where TDbContext : DbContext, new()
+        {
+            var proxy = new DbContextSingleCallProxy<TDbContext>(dbExistingContext, aspects);
             return proxy;
         }
 
@@ -137,6 +111,22 @@ namespace Value.Framework.Aspectacular.EntityFramework
             where TObjectContext : ObjectContext, new()
         {
             var proxy = new ObjectContextSingleCallProxy<TObjectContext>(aspects);
+            return proxy;
+        }
+
+        /// <summary>
+        /// Returns InstanceProxy[TObjectContext] for ObjectContext instance that already exist.
+        /// Returned proxy won't call ObjectContext.Dispose() after method invocation.
+        /// Supports ExecuteCommand() method.
+        /// </summary>
+        /// <typeparam name="TObjectContext"></typeparam>
+        /// <param name="existingOcContext"></param>
+        /// <param name="aspects"></param>
+        /// <returns></returns>
+        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(this TObjectContext existingOcContext, IEnumerable<Aspect> aspects = null)
+            where TObjectContext : ObjectContext, new()
+        {
+            var proxy = new ObjectContextSingleCallProxy<TObjectContext>(existingOcContext, aspects);
             return proxy;
         }
     }

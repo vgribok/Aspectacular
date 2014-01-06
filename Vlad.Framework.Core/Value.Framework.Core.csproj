@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdoNetExtensions.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="Disposer.cs" />
     <Compile Include="FastDynamicActivator.cs" />

@@ -28,7 +28,7 @@ namespace Value.Framework.Aspectacular.Data
 
     /// <summary>
     /// Entity Framework context marker interface.
-    /// 
+    /// (Can be implemented by both EF proxies and EF DbContext & ObjectContext classes.
     /// </summary>
     public interface IEfCallInterceptor
     {
@@ -42,15 +42,6 @@ namespace Value.Framework.Aspectacular.Data
         /// </summary>
         /// <returns></returns>
         int SaveChanges();
-    }
-
-    public static class IEfCallInterceptorExt
-    {
-        public static int DoSaveChanges(this IEfCallInterceptor efInterceptor)
-        {
-            efInterceptor.SaveChangeReturnValue = efInterceptor.SaveChanges();
-            return efInterceptor.SaveChangeReturnValue;
-        }
     }
 
     /// <summary>
@@ -131,7 +122,10 @@ namespace Value.Framework.Aspectacular.Data
                 {
                     IEfCallInterceptor efContext = dataStoreProxy.Value as IEfCallInterceptor;
                     if (efContext != null)
-                        total += efContext.DoSaveChanges();
+                    {
+                        efContext.SaveChangeReturnValue = efContext.SaveChanges();
+                        total += efContext.SaveChangeReturnValue;
+                    }
                 }
             });
 

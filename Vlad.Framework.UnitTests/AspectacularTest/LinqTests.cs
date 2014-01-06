@@ -9,9 +9,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Value.Framework.Core;
 using Value.Framework.Aspectacular;
+using Value.Framework.Data.EntityFramework;
+using Value.Framework.Aspectacular.EntityFramework;
 
 using Example.AdventureWorks2008ObjectContext_Dal;
-using Value.Framework.Aspectacular.EntityFramework;
 
 namespace Value.Framework.UnitTests.AspectacularTest
 {
@@ -60,7 +61,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
             // Example 2: with simple AOP proxied call for existing instance of DbContext.
             using (var db = new AdventureWorksLT2008R2Entities())
             {
-                addresses = db.GetProxy(TestAspects).List(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
+                addresses = db.GetDbProxy(TestAspects).List(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
             }
 
             Assert.IsTrue(2 == addresses.Count);
@@ -73,6 +74,33 @@ namespace Value.Framework.UnitTests.AspectacularTest
 
             foreach (var record in countryStateBityRecords)
                 this.TestContext.WriteLine("{0}", record);
+        }
+
+        [TestMethod]
+        public void TestExecuteCommand()
+        {
+            Customer mrAndrewCencini;
+            const string originalEmail = "andrew2@adventure-works.com";
+            const string anotherEmail = "VH.andrew2@adventure-works.com";
+            string replacementEmail;
+
+            using (var dbc = new AdventureWorksLT2008R2Entities())
+            {
+                mrAndrewCencini = dbc.GetDbProxy(TestAspects).Single(db => db.QueryCustomerByID(163));
+                
+                replacementEmail = mrAndrewCencini.EmailAddress == originalEmail ? anotherEmail : originalEmail;
+                mrAndrewCencini.EmailAddress = replacementEmail;
+
+                int recordsTouched = dbc.GetDbProxy(TestAspects).ExecuteCommand(db => db.ToStringEx(""));
+                Assert.AreEqual(1, recordsTouched);
+                mrAndrewCencini = dbc.GetDbProxy(TestAspects).Single(db => db.QueryCustomerByID(163));
+            }
+
+            Assert.AreEqual(mrAndrewCencini.EmailAddress, replacementEmail);
+
+            //Customer mrAndrewCencini = new Customer { CustomerID = 163 };
+            //int retVal = AwDal.ExecuteCommand(db => db.DeleteEntity(mrAndrewCencini));
+            //Assert.AreEqual(1, retVal);
         }
     }
 }

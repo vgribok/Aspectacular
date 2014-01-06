@@ -54,6 +54,7 @@
     <Compile Include="CallLog.cs" />
     <Compile Include="DalInterceptor.cs" />
     <Compile Include="Data.cs" />
+    <Compile Include="DbEngineProxy.cs" />
     <Compile Include="DefaultAspects.cs" />
     <Compile Include="DispAspectInjector.cs" />
     <Compile Include="InstanceInterceptor.cs" />
