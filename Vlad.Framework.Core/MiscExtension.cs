@@ -16,7 +16,7 @@ namespace Value.Framework.Core
 
     public static class MiscExtension
     {
-        static readonly string[][] simpleParmTypeNames = 
+        private static readonly string[][] simpleParmTypeNames = 
         {
             new string[] { "Void", "void" },
             new string[] { "String", "string" },
@@ -25,7 +25,7 @@ namespace Value.Framework.Core
             new string[] { "Int16", "short" },
             new string[] { "UInt16", "ushort" },
             new string[] { "Int32", "int" },
-            new string[] { "UInt32", "int" },
+            new string[] { "UInt32", "uint" },
             new string[] { "Int64", "long" },
             new string[] { "UInt64", "ulong" },
             new string[] { "Boolean", "bool" },
@@ -35,7 +35,7 @@ namespace Value.Framework.Core
             new string[] { "Char", "char" },
         };
 
-        static readonly Dictionary<string, string> stdTypeCSharpNames = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> stdTypeCSharpNames = new Dictionary<string, string>();
 
         static MiscExtension()
         {
@@ -43,12 +43,24 @@ namespace Value.Framework.Core
                 stdTypeCSharpNames.Add(pair[0], pair[1]);
         }
 
+        /// <summary>
+        /// Returns true if type is one of the following:
+        /// void, string, byte, sbyte, short, ushort, int, uint, long, ulong, bool, decimal, double, float, char
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
         public static bool IsSimpleCSharpType(this Type type)
         {
             string typeName = type.Name.TrimEnd('&');
             return stdTypeCSharpNames.ContainsKey(typeName);
         }
 
+        /// <summary>
+        /// Returns type name formatted according to C# language. Properly supports generics.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="fullyQualified"></param>
+        /// <returns></returns>
         public static string FormatCSharp(this Type type, bool fullyQualified = false)
         {
             string typeName = TypeToCSharpString(type, fullyQualified);
@@ -88,6 +100,12 @@ namespace Value.Framework.Core
             return ParamDirectionEnum.In;
         }
 
+        /// <summary>
+        /// Returns type name formatted according to C# language. Properly supports generics.
+        /// </summary>
+        /// <param name="parmInfo"></param>
+        /// <param name="fullyQualified"></param>
+        /// <returns></returns>
         public static string FormatCSharpType(this ParameterInfo parmInfo, bool fullyQualified = false)
         {
             string refOrOut;
@@ -108,7 +126,6 @@ namespace Value.Framework.Core
             return string.Format("{0}{1}", refOrOut, parmInfo.ParameterType.FormatCSharp(fullyQualified));
         }
 
-
         /// <summary>
         /// Very slow! Evaluates expression by turning it into a function expression, compiling it, and then calling using Reflection.
         /// </summary>
@@ -122,6 +139,23 @@ namespace Value.Framework.Core
             Delegate caller = lx.Compile(); // Slowness #1 - compilation is slow.
             var val = caller.DynamicInvoke();  // Slowness # 2 - dynamic (Reflection) invocation. 
             return val;
+        }
+
+        /// <summary>
+        /// Returns true if classType is derived from interface TInterface
+        /// </summary>
+        /// <typeparam name="TInterface"></typeparam>
+        /// <param name="classType"></param>
+        /// <returns></returns>
+        public static bool IsDerivedFromInterface<TInterface>(this Type classType) 
+            where TInterface : class
+        {
+            Type interfaceType = typeof(TInterface);
+
+            if(!interfaceType.IsInterface)
+                throw new Exception("\"{0}\" is not an interface.".SmartFormat(interfaceType.FormatCSharp()));
+
+            return interfaceType.IsAssignableFrom(classType);
         }
     }
 }
