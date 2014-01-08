@@ -47,13 +47,13 @@ namespace Value.Framework.Aspectacular
     {
         /// <summary>
         /// Returns AOP proxy for TDispClass class derived from IDisposable.
-        /// The proxy will instantiate the TDispClass object before the intercepted method call,
-        /// and dispose of it after the intercepted method call.
+        /// The proxy will instantiate the TDispClass object before making the intercepted method call,
+        /// and dispose of the instance after the intercepted method call.
         /// </summary>
         /// <typeparam name="TDispClass"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static AllocateRunDisposeProxy<TDispClass> GetAllocDisposeProxy<TDispClass>(IEnumerable<Aspect> aspects)
+        public static AllocateRunDisposeProxy<TDispClass> GetProxy<TDispClass>(IEnumerable<Aspect> aspects)
             where TDispClass : class, IDisposable, new()
         {
             var proxy = new AllocateRunDisposeProxy<TDispClass>(aspects);

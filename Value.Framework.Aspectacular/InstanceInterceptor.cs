@@ -416,21 +416,5 @@ namespace Value.Framework.Aspectacular
             var interceptor = new InstanceProxy<TInstance>(instance, aspects);
             return interceptor;
         }
-
-        /// <summary>
-        /// Retrieves AOP-augmented proxy, with specified set of aspects attached, for an new object of the non-IDisposable TInstance type.
-        /// </summary>
-        /// <typeparam name="TInstance"></typeparam>
-        /// <param name="aspects"></param>
-        /// <returns></returns>
-        public static InstanceProxy<TInstance> GetProxy<TInstance>(IEnumerable<Aspect> aspects = null)
-            where TInstance : class, new()
-        {
-            if (typeof(TInstance).IsDerivedFromInterface<IDisposable>())
-                throw new Exception("Please use AOP.GetAllocDisposeProxy<TInstance>() for classes like \"{0}\" derived from IDisposable".SmartFormat(typeof(TInstance).FormatCSharp()));
-
-            var proxy = new InstanceProxy<TInstance>(new TInstance(), aspects);
-            return proxy;
-        }
     }
 }

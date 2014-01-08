@@ -63,7 +63,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
             Assert.AreEqual("whatevs 2/5/2010 12:00:00 AM", actual);
 
             // Example of instantiating an IDisposable class, calling its instance method returning string, and disposing of class instance.
-            actual = AOP.GetAllocDisposeProxy<SomeTestDisposable>(TestAspects).Invoke(dispInstance => dispInstance.Echo("some text"));
+            actual = AOP.GetProxy<SomeTestDisposable>(TestAspects).Invoke(dispInstance => dispInstance.Echo("some text"));
             
             Assert.AreEqual("some text", actual);
         }

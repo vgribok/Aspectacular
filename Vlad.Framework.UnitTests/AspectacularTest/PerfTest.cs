@@ -8,6 +8,7 @@ using Value.Framework.Core;
 using Value.Framework.Aspectacular.Aspects;
 
 using Example.AdventureWorks2008ObjectContext_Dal;
+using Value.Framework.Aspectacular.EntityFramework;
 
 namespace Value.Framework.UnitTests.AspectacularTest
 {
@@ -194,7 +195,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
             long runsPerSec;
 
             runsPerSec = RunCounter.SpinPerSec(millisecToRun, () =>
-                            AOP.GetAllocDisposeProxy<AdventureWorksLT2008R2Entities>(doNothingAspects)
+                            EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>(doNothingAspects)
                                 .List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses))
                             );
 
