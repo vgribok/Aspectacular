@@ -63,7 +63,7 @@ namespace Value.Framework.Data.EntityFramework
 
             object key = entityKeyRetriever(entity);
             if (key == null)
-                throw new ArgumentException("Entity must have");
+                throw new ArgumentException("Entity must have a non-null key field or collection of fields.");
 
             DbSet<TEntity> table = db.Set<TEntity>();
 
