@@ -50,6 +50,9 @@ namespace Value.Framework.Aspectacular
 
         public int SaveChanges()
         {
+            if (this.AugmentedClassInstance == null) // SaveChanges() called directly, like db.GetDbProxy().SaveChanges();
+                return this.ExecuteCommand(db => DbEngineProxy<TDbEngine>.SaveChangesDirect());
+
             this.SaveChangeReturnValue = this.CommitChanges();
 
             this.LogInformationData("SaveChanges() result", this.SaveChangeReturnValue);
@@ -82,6 +85,17 @@ namespace Value.Framework.Aspectacular
         /// </summary>
         /// <returns></returns>
         public abstract int CommitChanges();
+
+        #region Utility Methods
+
+        /// <summary>
+        /// Do-nothing method that facilitates calling db.GetDbProxy().SaveChanges();
+        /// </summary>
+        private static void SaveChangesDirect()
+        {
+        }
+
+        #endregion Utility Methods
     }
 
     //public class AdoNetProxy<TDbConnection> : DbEngineProxy<TDbConnection>
