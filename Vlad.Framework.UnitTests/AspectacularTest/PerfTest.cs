@@ -17,7 +17,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
     {
         public TestContext TestContext { get; set; }
 
-        const int millisecToRun = 2 * 1000;
+        public const int millisecToRun = 2 * 1000;
         const int customerIdWithManyAddresses = 29503;
 
         private Aspect[] doNothingAspects
