@@ -79,5 +79,23 @@ namespace Value.Framework.Core
             foreach (object elem in query)
                 yield return elem;
         }
+
+        /// <summary>
+        /// More convenient form of Union().
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="addToCollection"></param>
+        /// <param name="items"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> More<T>(this IEnumerable<T> addToCollection, params T[] items)
+        {
+            if (addToCollection == null)
+                return items;
+
+            if(items == null)
+                return addToCollection;
+
+            return addToCollection.Union(items);
+        }
     }
 }

@@ -7,6 +7,7 @@ using Value.Framework.Core;
 using Value.Framework.Aspectacular;
 using Value.Framework.Aspectacular.Aspects;
 using System.Collections.Generic;
+using System.Net.Mail;
 
 namespace Value.Framework.UnitTests.AspectacularTest
 {
@@ -33,23 +34,19 @@ namespace Value.Framework.UnitTests.AspectacularTest
             }
         }
 
-        public static Aspect[] DebugAspects
-        {
-            get
-            {
-                return new Aspect[]
-                {
-                    new DebugOutputAspect(/*EntryType.Error | EntryType.Warning*/),
-                };
-            }
-        }
-
         public static IEnumerable<Aspect> TestAspects
         {
             get
             {
-                return DebugAspects.Union(MainAspectsWithNoDebug);
+                return MainAspectsWithNoDebug.More(
+                    new TraceOutputAspect(/* EntryType.Error | EntryType.Warning */)
+                    );
             }
+        }
+
+        public static IEnumerable<Aspect> MoreTestAspects(params Aspect[] aspects)
+        {
+            return TestAspects.Union(aspects);
         }
 
         [TestMethod]

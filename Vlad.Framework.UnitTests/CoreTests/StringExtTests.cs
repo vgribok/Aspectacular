@@ -12,8 +12,8 @@ namespace Value.Framework.UnitTests.CoreTests
         public void TestNullToString()
         {
             string nullStr = null;
-            string actual = nullStr.ToStringEx("xoxoxo!");
-            Assert.AreEqual("xoxoxo!", actual);
+            string actual = nullStr.ToStringEx("hahaha!");
+            Assert.AreEqual("hahaha!", actual);
         }
     }
 }
