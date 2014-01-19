@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Value.Framework.Core")]
+[assembly: AssemblyTitle("Aspectacular.Framework.Core")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Value BL Block Framework for .NET")]
+[assembly: AssemblyProduct("Aspectacular.Framework")]
 [assembly: AssemblyCopyright("Copyright © Vlad Hrybok, 2013 - present")]
 [assembly: AssemblyTrademark("UltiDev LLC, Value Framework")]
 [assembly: AssemblyCulture("")]

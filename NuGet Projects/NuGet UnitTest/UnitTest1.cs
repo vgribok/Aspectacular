@@ -1,9 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-//using Value.Framework.Core;
-//using Value.Framework.Aspectacular;
-
 namespace NuGet_UnitTest
 {
     [TestClass]

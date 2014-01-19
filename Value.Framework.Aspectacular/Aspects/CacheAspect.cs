@@ -5,10 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Value.Framework.Core;
-using Value.Framework.Aspectacular;
-
-namespace Value.Framework.Aspectacular.Aspects
+namespace Aspectacular
 {
     public interface ICacheProvider
     {

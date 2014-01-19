@@ -5,10 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Security;
-using Value.Framework.Aspectacular.Aspects;
-using Value.Framework.Core;
 
-namespace Value.Framework.Aspectacular.Web
+namespace Aspectacular
 {
     /// <summary>
     /// Decorate methods and classes with this attribute.

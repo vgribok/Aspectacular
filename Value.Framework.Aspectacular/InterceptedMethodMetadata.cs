@@ -6,9 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-using Value.Framework.Core;
-
-namespace Value.Framework.Aspectacular
+namespace Aspectacular
 {
     /// <summary>
     /// Apply this attribute to parameters and return values 

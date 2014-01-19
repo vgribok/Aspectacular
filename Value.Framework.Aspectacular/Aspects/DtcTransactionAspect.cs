@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 
-namespace Value.Framework.Aspectacular.Aspects
+namespace Aspectacular
 {
     /// <summary>
     /// Aspect implementing DTC transaction.

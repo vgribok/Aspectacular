@@ -2,13 +2,10 @@
 using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Value.Framework.UnitTests.AspectacularTest;
-using Value.Framework.Core;
-using Value.Framework.Aspectacular;
-using Value.Framework.Data.EntityFramework;
+using Aspectacular;
 using Example.AdventureWorks2008ObjectContext_Dal;
 
-namespace Value.Framework.UnitTests.CoreTests
+namespace Aspectacular.Test
 {
     [TestClass]
     public class EfExtensionsTest

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace Value.Framework.Core
+namespace Aspectacular
 {
     /// <summary>
     /// Enables the efficient, dynamic composition of query predicates.

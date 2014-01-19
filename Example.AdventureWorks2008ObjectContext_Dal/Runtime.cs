@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Value.Framework.Aspectacular;
-using Value.Framework.Aspectacular.Data;
+using Aspectacular;
 
 namespace Example.AdventureWorks2008ObjectContext_Dal
 {

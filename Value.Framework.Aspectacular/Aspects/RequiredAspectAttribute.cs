@@ -4,9 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Value.Framework.Core;
-
-namespace Value.Framework.Aspectacular
+namespace Aspectacular
 {
     public enum WhenRequiredAspectIsMissing
     {

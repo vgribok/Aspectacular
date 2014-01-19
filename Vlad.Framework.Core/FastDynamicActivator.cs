@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Value.Framework.Core
+namespace Aspectacular
 {
     /// <summary>
     /// Fast dynamic object instantiator.

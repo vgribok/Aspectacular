@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Value.Framework.Core;
-using Value.Framework.Aspectacular;
-using Value.Framework.Aspectacular.Aspects;
 using System.Collections.Generic;
 using System.Net.Mail;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Value.Framework.UnitTests.AspectacularTest
+using Aspectacular;
+using Aspectacular.Test;
+
+namespace Aspectacular.Test
 {
     [TestClass]
     public class AspectacularTest

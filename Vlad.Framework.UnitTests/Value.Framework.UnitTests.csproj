@@ -6,8 +6,8 @@
     <ProjectGuid>{D080195E-560B-4A30-837D-A1239A823EC2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Value.Framework.UnitTests</RootNamespace>
-    <AssemblyName>Value.Framework.UnitTests</AssemblyName>
+    <RootNamespace>Aspectacular.Test</RootNamespace>
+    <AssemblyName>Aspectacular.Framework.UnitTests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>

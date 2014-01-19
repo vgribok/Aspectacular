@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Value.Framework.Core
+namespace Aspectacular
 {
     public class DisposeAfter<TDisp> where TDisp : IDisposable, new()
     {

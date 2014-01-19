@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Value.Framework.Data.EntityFramework
+namespace Aspectacular
 {
     /// <summary>
     /// If implemented by DbContext entities, makes Attaching and Deleting entities easier (eliminates key finder delegate).

@@ -7,8 +7,8 @@
     <ProjectGuid>{AA70188E-305F-4910-AFEC-6DB7E79F8603}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Value.Framework.Aspectacular</RootNamespace>
-    <AssemblyName>Value.Framework.Aspectacular</AssemblyName>
+    <RootNamespace>Aspectacular</RootNamespace>
+    <AssemblyName>Aspectacular.Framework.Main</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

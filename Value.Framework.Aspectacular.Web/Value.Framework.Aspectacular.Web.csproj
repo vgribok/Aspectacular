@@ -7,8 +7,8 @@
     <ProjectGuid>{273275C4-4AE2-4CD1-8C1E-75ED8BFD50A1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Value.Framework.Aspectacular.Web</RootNamespace>
-    <AssemblyName>Value.Framework.Aspectacular.Web</AssemblyName>
+    <RootNamespace>Aspectacular</RootNamespace>
+    <AssemblyName>Aspectacular.Framework.Web</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

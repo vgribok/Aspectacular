@@ -7,9 +7,8 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Value.Framework.Core;
 
-namespace Value.Framework.Aspectacular
+namespace Aspectacular
 {
     public class InstanceProxy<TInstance> : Proxy
         where TInstance : class

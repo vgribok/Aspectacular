@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Value.Framework.Aspectacular.Aspects
+namespace Aspectacular
 {
     /// <summary>
     /// Aspect allowing capturing SQL from Entity Framework queries

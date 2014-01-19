@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 
-namespace Value.Framework.Core.Data
+namespace Aspectacular
 {
     /// <summary>
     /// A better (IEnumerable[IDataRecord]) version of executing and iteration through the ADO.NET data reader.

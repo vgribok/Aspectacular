@@ -5,11 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-using Value.Framework.Core;
-
-using Value.Framework.Aspectacular;
-
-namespace Value.Framework.Aspectacular.Data
+namespace Aspectacular
 {
     /// <summary>
     /// Interface of the non-select database storage command execution.

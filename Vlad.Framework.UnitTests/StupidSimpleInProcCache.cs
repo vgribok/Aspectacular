@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 
-using Value.Framework.Aspectacular.Aspects;
+using Aspectacular;
 
-namespace Value.Framework.UnitTests
+namespace Aspectacular.Test
 {
     public class StupidSimpleInProcCache : ICacheProvider
     {

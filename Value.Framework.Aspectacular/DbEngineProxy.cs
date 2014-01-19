@@ -7,10 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-using Value.Framework.Core;
-using Value.Framework.Aspectacular.Data;
-
-namespace Value.Framework.Aspectacular
+namespace Aspectacular
 {
     /// <summary>
     /// Base class for proxies dealing with EF, ADO.NET and other connection-based data access engines.

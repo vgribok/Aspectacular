@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Value.Framework.Aspectacular.EntityFramework
+namespace Aspectacular
 {
     /// <summary>
     /// Implementation of disposable pattern for

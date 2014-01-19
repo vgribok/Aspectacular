@@ -5,9 +5,8 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Value.Framework.Core;
 
-namespace Value.Framework.Aspectacular
+namespace Aspectacular
 {
     /// <summary>
     /// An element for DefaultAspectsConfigSection collection.

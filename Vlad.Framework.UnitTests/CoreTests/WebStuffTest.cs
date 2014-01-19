@@ -5,15 +5,11 @@ using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Value.Framework.Core;
-using Value.Framework.Aspectacular;
-using Value.Framework.Aspectacular.Web;
+using Aspectacular;
 
 using Example.AdventureWorks2008ObjectContext_Dal;
 
-using Value.Framework.UnitTests.AspectacularTest;
-
-namespace Value.Framework.UnitTests.CoreTests
+namespace Aspectacular.Test
 {
     /// <summary>
     /// Summary description for WebStuffTest
@@ -65,7 +61,7 @@ namespace Value.Framework.UnitTests.CoreTests
             Assert.AreEqual(null, nullObj);
 
             IList<Address> addresses = LinqTests.GetQueryCustomerAddressesByCustomerID();
-            json = AOP.Invoke(AspectacularTest.AspectacularTest.TestAspects, () => addresses.ToJsonString());
+            json = AOP.Invoke(AspectacularTest.TestAspects, () => addresses.ToJsonString());
 
             Address[] deserializedAddresses = json.FromJsonString<Address[]>();
             

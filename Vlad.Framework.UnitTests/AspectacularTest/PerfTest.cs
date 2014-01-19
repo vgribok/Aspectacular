@@ -3,14 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Value.Framework.Aspectacular;
-using Value.Framework.Core;
-using Value.Framework.Aspectacular.Aspects;
+using Aspectacular;
 
 using Example.AdventureWorks2008ObjectContext_Dal;
-using Value.Framework.Aspectacular.EntityFramework;
 
-namespace Value.Framework.UnitTests.AspectacularTest
+namespace Aspectacular.Test
 {
     [TestClass]
     public class PerfTest

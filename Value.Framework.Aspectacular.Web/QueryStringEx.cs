@@ -6,9 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-using Value.Framework.Core;
-
-namespace Value.Framework.Aspectacular.Web
+namespace Aspectacular
 {
     public static class QueryStringEx
     {

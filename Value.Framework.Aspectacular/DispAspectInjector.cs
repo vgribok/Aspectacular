@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Value.Framework.Aspectacular
+namespace Aspectacular
 {
     public class AllocateRunDisposeProxy<TDispClass> : InstanceProxy<TDispClass> 
         where TDispClass : class, IDisposable, new()

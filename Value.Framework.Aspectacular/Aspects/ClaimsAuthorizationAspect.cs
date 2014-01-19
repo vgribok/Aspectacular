@@ -5,9 +5,8 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
-using Value.Framework.Core;
 
-namespace Value.Framework.Aspectacular.Aspects
+namespace Aspectacular
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public abstract class AuthorizationDemandAttribute : Attribute

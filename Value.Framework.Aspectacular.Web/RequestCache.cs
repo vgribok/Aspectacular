@@ -5,10 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-using Value.Framework.Core;
-//using Value.Framework.Aspectacular.Aspects;
-
-namespace Value.Framework.Aspectacular.Aspects
+namespace Aspectacular
 {
     /// <summary>
     /// Caches data for the duration of the request processing.

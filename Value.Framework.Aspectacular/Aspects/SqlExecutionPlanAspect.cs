@@ -6,9 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Value.Framework.Core;
-
-namespace Value.Framework.Aspectacular.Aspects
+namespace Aspectacular
 {
     /// <summary>
     /// Logs T-SQL execution plan of a SqlCommand.

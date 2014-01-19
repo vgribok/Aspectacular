@@ -7,14 +7,10 @@ using System.Collections;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Value.Framework.Core;
-using Value.Framework.Aspectacular;
-using Value.Framework.Data.EntityFramework;
-using Value.Framework.Aspectacular.EntityFramework;
-
+using Aspectacular;
 using Example.AdventureWorks2008ObjectContext_Dal;
 
-namespace Value.Framework.UnitTests.AspectacularTest
+namespace Aspectacular.Test
 {
     [TestClass]
     public class LinqTests

@@ -7,9 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-using Value.Framework.Aspectacular.Data;
-
-namespace Value.Framework.Aspectacular.EntityFramework
+namespace Aspectacular
 {
     /// <summary>
     /// Alloc/invoke/dispose convenience class for EF DbContext subclasses.

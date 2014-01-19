@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Value.Framework.Core
+namespace Aspectacular
 {
     /// <summary>
     /// Represents a string that is never "" or has only white spaces in it.

@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-using Value.Framework.Core;
-using Value.Framework.Aspectacular;
 using System.Diagnostics;
 
-namespace Value.Framework.Aspectacular.Aspects
+namespace Aspectacular
 {
     /// <summary>
     /// Aspect for measuring baseline performance of this AOP framework.

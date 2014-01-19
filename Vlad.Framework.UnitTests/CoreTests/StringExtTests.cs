@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Value.Framework.Core;
+using Aspectacular;
 
-namespace Value.Framework.UnitTests.CoreTests
+namespace Aspectacular.CoreTests
 {
     [TestClass]
     public class StringExtTests

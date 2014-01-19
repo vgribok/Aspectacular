@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Value.Framework.Aspectacular.Data
+namespace Aspectacular
 {
     /// <summary>
     /// Alloc/invoke/dispose convenience class for DalManager subclasses.
@@ -34,11 +34,6 @@ namespace Value.Framework.Aspectacular.Data
             return this.AugmentedClassInstance.SaveChanges();
         }
     }
-}
-
-namespace Value.Framework.Aspectacular
-{
-    using Value.Framework.Aspectacular.Data;
 
     public static partial class AOP
     {

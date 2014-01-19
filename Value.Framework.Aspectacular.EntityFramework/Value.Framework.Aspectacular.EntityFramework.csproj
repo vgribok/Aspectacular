@@ -7,8 +7,8 @@
     <ProjectGuid>{ECC659DC-B903-40E9-9382-07BF719CF5B0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Value.Framework.Aspectacular.EntityFramework</RootNamespace>
-    <AssemblyName>Value.Framework.Aspectacular.EntityFramework</AssemblyName>
+    <RootNamespace>Aspectacular</RootNamespace>
+    <AssemblyName>Aspectacular.Framework.EntityFramework</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>

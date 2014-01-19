@@ -4,10 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Value.Framework.Aspectacular;
-using Value.Framework.Aspectacular.Aspects;
 
-namespace Value.Framework.UnitTests
+using Aspectacular;
+
+namespace Aspectacular.Test
 {
     public class SomeTestClass
     {

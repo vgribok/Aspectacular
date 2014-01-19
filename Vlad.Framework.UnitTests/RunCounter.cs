@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Value.Framework.Core;
+using Aspectacular;
 
-namespace Value.Framework.UnitTests
+namespace Aspectacular.Test
 {
     public static class RunCounter
     {

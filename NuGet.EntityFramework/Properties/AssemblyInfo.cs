@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Value.Framework.Aspectacular.EntityFramework")]
+[assembly: AssemblyTitle("Aspectacular.Framework.Nuget.EntityFramework")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Value.Framework.Aspectacular")]
-[assembly: AssemblyCopyright("Copyright ©  2013 Vlad Hrybok")]
+[assembly: AssemblyProduct("Aspectacular.Framework")]
+[assembly: AssemblyCopyright("Copyright © Vlad Hrybok 2013-Present")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
