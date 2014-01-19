@@ -49,6 +49,7 @@
     <Compile Include="EfInterceptor.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IDbEntityKey.cs" />
+    <Compile Include="LazyLoadSwitch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

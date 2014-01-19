@@ -34,7 +34,7 @@ namespace Value.Framework.UnitTests.AspectacularTest
         /// </summary>
         public static DbContextSingleCallProxy<AdventureWorksLT2008R2Entities> AwDal
         {
-            get { return EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>(TestAspects); }
+            get { return EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>(TestAspects, lazyLoadingEnabled: false); }
         }
 
         [TestMethod]
@@ -65,6 +65,12 @@ namespace Value.Framework.UnitTests.AspectacularTest
             }
 
             Assert.IsTrue(2 == addresses.Count);
+        }
+
+        internal static IList<Address> GetQueryCustomerAddressesByCustomerID()
+        {
+            var addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
+            return addresses;
         }
 
         [TestMethod]

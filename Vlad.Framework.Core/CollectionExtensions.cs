@@ -45,7 +45,7 @@ namespace Value.Framework.Core
         }
 
         /// <summary>
-        /// foreach loop done with a delegate.
+        /// Lambda-style foreach loop.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
@@ -60,7 +60,7 @@ namespace Value.Framework.Core
         }
 
         /// <summary>
-        /// foreach loop done with a delegate.
+        /// Lambda-style foreach loop.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
@@ -72,6 +72,35 @@ namespace Value.Framework.Core
 
             foreach (object elem in collection)
                 func(elem);
+        }
+
+        /// <summary>
+        /// Lambda-style for loop
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="func"></param>
+        public static void For<T>(this IList<T> collection, Action<IList<T>, int> func)
+        {
+            if (collection == null)
+                return;
+
+            for (int i = 0; i < collection.Count; i++)
+                func(collection, i);
+        }
+
+        /// <summary>
+        /// Lambda-style for loop
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="func"></param>
+        public static void ForLoop(this IList collection, Action<IList, int> func)
+        {
+            if (collection == null)
+                return;
+
+            for (int i = 0; i < collection.Count; i++)
+                func(collection, i);
         }
 
         public static IEnumerable ToEnumerable(this IQueryable query)
@@ -96,6 +125,33 @@ namespace Value.Framework.Core
                 return addToCollection;
 
             return addToCollection.Union(items);
+        }
+    }
+
+    public class Pair<T1, T2>
+    {
+        public readonly T1 First;
+        public readonly T2 Second;
+
+        public Pair(T1 first, T2 second)
+        {
+            this.First = first;
+            this.Second = second;
+        }
+
+        public Pair(KeyValuePair<T1, T2> pair)
+            : this(pair.Key, pair.Value)
+        {
+        }
+
+        public static implicit operator Pair<T1, T2>(KeyValuePair<T1, T2> kvPair)
+        {
+            return new Pair<T1, T2>(kvPair);
+        }
+
+        public static implicit operator KeyValuePair<T1, T2>(Pair<T1, T2> pair)
+        {
+            return new KeyValuePair<T1, T2>(pair.First, pair.Second);
         }
     }
 }

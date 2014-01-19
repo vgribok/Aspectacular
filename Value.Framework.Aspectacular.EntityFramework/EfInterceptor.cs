@@ -18,9 +18,12 @@ namespace Value.Framework.Aspectacular.EntityFramework
     public class DbContextSingleCallProxy<TDbContext> : DbEngineProxy<TDbContext>
             where TDbContext : DbContext, new()
     {
-        public DbContextSingleCallProxy(IEnumerable<Aspect> aspects)
+        private readonly bool? lazyLoading = null;
+
+        public DbContextSingleCallProxy(IEnumerable<Aspect> aspects, bool lazyLoadingEnabled = true)
             : base(aspects)
         {
+            this.lazyLoading = lazyLoadingEnabled;
         }
 
         /// <summary>
@@ -31,6 +34,14 @@ namespace Value.Framework.Aspectacular.EntityFramework
         public DbContextSingleCallProxy(TDbContext dbContext, IEnumerable<Aspect> aspects)
             : base(dbContext, aspects)
         {
+        }
+
+        protected override void Step_2_BeforeTryingMethodExec()
+        {
+            if (this.lazyLoading != null)
+                this.AugmentedClassInstance.Configuration.LazyLoadingEnabled = this.lazyLoading.Value;
+
+            base.Step_2_BeforeTryingMethodExec();
         }
 
         public override int CommitChanges()
@@ -46,9 +57,12 @@ namespace Value.Framework.Aspectacular.EntityFramework
     public class ObjectContextSingleCallProxy<TObjectContext> : DbEngineProxy<TObjectContext>
             where TObjectContext : ObjectContext, new()
     {
-        public ObjectContextSingleCallProxy(IEnumerable<Aspect> aspects)
+        private readonly bool? lazyLoading = null;
+
+        public ObjectContextSingleCallProxy(IEnumerable<Aspect> aspects, bool lazyLoadingEnabled = true)
             : base(aspects)
         {
+            this.lazyLoading = lazyLoadingEnabled;
         }
 
         /// <summary>
@@ -59,6 +73,14 @@ namespace Value.Framework.Aspectacular.EntityFramework
         public ObjectContextSingleCallProxy(TObjectContext ocContext, IEnumerable<Aspect> aspects)
             : base(ocContext, aspects)
         {
+        }
+
+        protected override void Step_2_BeforeTryingMethodExec()
+        {
+            if (this.lazyLoading != null)
+                this.AugmentedClassInstance.ContextOptions.LazyLoadingEnabled = this.lazyLoading.Value;
+
+            base.Step_2_BeforeTryingMethodExec();
         }
 
         public override int CommitChanges()
@@ -78,10 +100,10 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(IEnumerable<Aspect> aspects = null)
+        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(IEnumerable<Aspect> aspects = null, bool lazyLoadingEnabled = true)
             where TDbContext : DbContext, new()
         {
-            var proxy = new DbContextSingleCallProxy<TDbContext>(aspects);
+            var proxy = new DbContextSingleCallProxy<TDbContext>(aspects, lazyLoadingEnabled);
             return proxy;
         }
 
@@ -107,10 +129,10 @@ namespace Value.Framework.Aspectacular.EntityFramework
         /// <typeparam name="TObjectContext"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(IEnumerable<Aspect> aspects = null)
+        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(IEnumerable<Aspect> aspects = null, bool lazyLoadingEnabled = true)
             where TObjectContext : ObjectContext, new()
         {
-            var proxy = new ObjectContextSingleCallProxy<TObjectContext>(aspects);
+            var proxy = new ObjectContextSingleCallProxy<TObjectContext>(aspects, lazyLoadingEnabled);
             return proxy;
         }
 
