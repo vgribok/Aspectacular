@@ -157,5 +157,30 @@ namespace Aspectacular
 
             return interfaceType.IsAssignableFrom(classType);
         }
+
+        /// <summary>
+        /// Returns DateTime representing beginning of the day, at midnight.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static DateTime StartOfDay(this DateTime dt)
+        {
+            return dt.Date;
+        }
+
+        /// <summary>
+        /// Returns DateTime representing the last moment of the day specified by dt.
+        /// Can be used as an inclusive end date range for a single day.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static DateTime EndOfDay(this DateTime dt)
+        {
+            DateTime start = dt.Date;
+            DateTime next = start.AddDays(1);
+            DateTime end = new DateTime(next.Ticks - 1);
+            
+            return end;
+        }
     }
 }

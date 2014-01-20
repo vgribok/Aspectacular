@@ -65,6 +65,7 @@
     <Compile Include="AspectacularTest\AspectacularTest.cs" />
     <Compile Include="AspectacularTest\PerfTest.cs" />
     <Compile Include="AspectacularTest\LinqTests.cs" />
+    <Compile Include="CoreTests\RangeTest.cs" />
     <Compile Include="CoreTests\StringExtTests.cs" />
     <Compile Include="CoreTests\EfExtensionsTest.cs" />
     <Compile Include="CoreTests\WebStuffTest.cs" />
