@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Aspectacular
 {
     /// <summary>
-    /// Represents a string that is never "" or has only white spaces in it.
+    /// Represents a string that is never "" or has only white spaces in it: it's either null or non-empty, non-whitespace string.
     /// </summary>
     public class NonEmptyString : IComparable
     {

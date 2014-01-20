@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -192,5 +193,63 @@ namespace Aspectacular
         }
 
         #endregion Value type parsing
+
+        #region Improved upper/lower case conversion methods
+
+        /// <summary>
+        /// Better version of string.ToLower() - 
+        /// handles null properly. Uses user's UI culture if optional culture is not specified.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="optionalCultureInfo">Optional CultureInfo. Users user's UI culture if not specified.</param>
+        /// <returns></returns>
+        public static string ToLowerEx(this string str, CultureInfo optionalCultureInfo = null)
+        {
+            if (str == null)
+                return null;
+
+            str = str.ToLower(optionalCultureInfo ?? CultureInfo.InstalledUICulture);
+
+            return str;
+        }
+
+        /// <summary>
+        /// Better version of string.ToLowerInvariant() - handles null properly.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string ToLowerInvariantEx(this string str)
+        {
+            return str.ToLowerEx(CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Better version of string.ToUpper() - 
+        /// handles null properly. Uses user's UI culture if optional culture is not specified.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="optionalCultureInfo">Optional CultureInfo. Users user's UI culture if not specified.</param>
+        /// <returns></returns>
+        public static string ToUpperEx(this string str, CultureInfo optionalCultureInfo = null)
+        {
+            if (str == null)
+                return null;
+
+            str = str.ToUpper(optionalCultureInfo ?? CultureInfo.InstalledUICulture);
+
+            return str;
+        }
+
+        /// <summary>
+        /// Better version of string.ToUpperInvariant() - handles null properly.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string ToUpperInvariantEx(this string str)
+        {
+            return str.ToUpperEx(CultureInfo.InvariantCulture);
+        }
+
+        #endregion Improved upper/lower case conversion methods
     }
 }
