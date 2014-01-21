@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -42,6 +43,8 @@ namespace Aspectacular
             foreach (string[] pair in simpleParmTypeNames)
                 stdTypeCSharpNames.Add(pair[0], pair[1]);
         }
+
+        #region Type extensions
 
         /// <summary>
         /// Returns true if type is one of the following:
@@ -182,5 +185,94 @@ namespace Aspectacular
             
             return end;
         }
+
+        public static object GetPropertyValue(this Type type, string propertyName, object instance)
+        {
+            if (instance != null && instance.GetType() != type)
+                throw new Exception("Type mismatch between type and instance.GetType().");
+
+            PropertyInfo pi = type.GetProperty(propertyName);
+            Debug.Assert(pi != null);
+
+            object val = pi.GetValue(propertyName, null);
+            return val;
+        }
+
+        /// <summary>
+        /// Returns value of an instance property.
+        /// Uses reflection, somewhat slow.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance"></param>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        public static T GetPropertyValue<T>(this object instance, string propertyName)
+        {
+            if (instance == null)
+                throw new ArgumentNullException("instance");
+
+            object val = GetPropertyValue(instance.GetType(), propertyName, instance);
+            return (T)val;
+        }
+
+        /// <summary>
+        /// Returns value of a static property.
+        /// Uses reflection, somewhat slow.
+        /// </summary>
+        /// <typeparam name="T">Type of returned value.</typeparam>
+        /// <param name="type"></param>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        public static T GetPropertyValue<T>(this Type type, string propertyName)
+        {
+            object val = GetPropertyValue(type, propertyName, instance: null);
+            return (T)val;
+        }
+
+
+        public static object GetMemberFieldValue(this Type type, string fieldName, object instance)
+        {
+            if (instance != null && instance.GetType() != type)
+                throw new Exception("Type mismatch between type and instance.GetType().");
+
+            FieldInfo pi = type.GetField(fieldName);
+            Debug.Assert(pi != null);
+
+            object val = pi.GetValue(fieldName);
+            return val;
+        }
+
+        /// <summary>
+        /// Returns value of an instance field.
+        /// Uses reflection, somewhat slow.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="instance"></param>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        public static T GetMemberFieldValue<T>(this object instance, string fieldName)
+        {
+            if (instance == null)
+                throw new ArgumentNullException("instance");
+
+            object val = GetMemberFieldValue(instance.GetType(), fieldName, instance);
+            return (T)val;
+        }
+
+        /// <summary>
+        /// Returns value of a static field.
+        /// Uses reflection, somewhat slow.
+        /// </summary>
+        /// <typeparam name="T">Type of returned value.</typeparam>
+        /// <param name="type"></param>
+        /// <param name="fieldName"></param>
+        /// <returns></returns>
+        public static T GetMemberFieldValue<T>(this Type type, string fieldName)
+        {
+            object val = GetMemberFieldValue(type, fieldName, instance: null);
+            return (T)val;
+        }
+
+        #endregion Type extensions
     }
 }
