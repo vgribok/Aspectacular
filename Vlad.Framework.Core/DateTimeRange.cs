@@ -54,10 +54,12 @@ namespace Aspectacular
 
         CurrentOrSpecified = LocalTimeUnit + AllowsOnlySingle + 0,
         Previous = LocalTimeUnit + 1,
+        PreviousAndCurrent = Previous + CurrentOrSpecified,
         Next = LocalTimeUnit + 2,
+        CurrentAndNext = CurrentOrSpecified + Next,
 
-        PreviousDayOfWeek = Previous + AllowsOnlySingle,
-        NextDayOfWeek = Next + AllowsOnlySingle,
+        //PreviousDayOfWeek = Previous + AllowsOnlySingle,
+        //NextDayOfWeek = Next + AllowsOnlySingle,
     }
 
 
@@ -92,7 +94,9 @@ namespace Aspectacular
     public enum LocalTimespanQualifiers : int
     {
         Previous = TimespanQualifiers.Previous,
+        PreviousAndCurrent = TimespanQualifiers.PreviousAndCurrent,
         Next = TimespanQualifiers.Next,
+        CurrentAndNext = TimespanQualifiers.CurrentAndNext,
     }
 
     public class RelativeTimeRange
@@ -162,18 +166,16 @@ namespace Aspectacular
 
         public DateRange GetDateTimeRange(out bool isUtc)
         {
+            // TODO : Implement range calculation.
             throw new NotImplementedException();
         }
 
-        private DateTime ReferenceTime
+        private DateTime GetReferenceTime()
         {
-            get
-            {
-                if (this.referenceMoment == null)
-                    return this.IsUtcRange ? DateTime.UtcNow : DateTime.Now;
+            if (this.referenceMoment == null)
+                return this.IsUtcRange ? DateTime.UtcNow : DateTime.Now;
 
-                return this.referenceMoment.Value;
-            }
+            return this.referenceMoment.Value;
         }
     }
 }
