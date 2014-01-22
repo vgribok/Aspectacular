@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="AdoNetExtensions.cs" />
     <Compile Include="CollectionExtensions.cs" />
+    <Compile Include="DateTimeRange.cs" />
     <Compile Include="Disposer.cs" />
     <Compile Include="FastDynamicActivator.cs" />
     <Compile Include="MiscExtension.cs" />

@@ -153,5 +153,21 @@ namespace Aspectacular
             : base(start, end)
         {
         }
+
+        public DateRange ToUtc()
+        {
+            DateTime? newStart = this.HasStart ? this.Start.Value.ToUniversalTime() : (DateTime?)null;
+            DateTime? newEnd = this.HasEnd ? this.End.Value.ToUniversalTime() : (DateTime?)null;
+
+            return new DateRange(newStart, newEnd);
+        }
+
+        public DateRange ToLocal()
+        {
+            DateTime? newStart = this.HasStart ? this.Start.Value.ToLocalTime() : (DateTime?)null;
+            DateTime? newEnd = this.HasEnd ? this.End.Value.ToLocalTime() : (DateTime?)null;
+
+            return new DateRange(newStart, newEnd);
+        }
     }
 }
