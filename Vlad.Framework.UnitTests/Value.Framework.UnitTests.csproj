@@ -67,6 +67,7 @@
     <Compile Include="AspectacularTest\LinqTests.cs" />
     <Compile Include="CoreTests\DynamicPropertyReaderTest.cs" />
     <Compile Include="CoreTests\RangeTest.cs" />
+    <Compile Include="CoreTests\RelativeTimeRangeTest.cs" />
     <Compile Include="CoreTests\StringExtTests.cs" />
     <Compile Include="CoreTests\EfExtensionsTest.cs" />
     <Compile Include="CoreTests\WebStuffTest.cs" />

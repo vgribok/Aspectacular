@@ -169,5 +169,21 @@ namespace Aspectacular
 
             return new DateRange(newStart, newEnd);
         }
+
+        public static DateRange operator +(DateRange range, TimeSpan span)
+        {
+            DateTime? newStart = range.HasStart ? range.Start.Value + span : (DateTime?)null;
+            DateTime? newEnd = range.HasEnd ? range.End.Value + span : (DateTime?)null;
+
+            return new DateRange(newStart, newEnd);
+        }
+
+        public static DateRange operator -(DateRange range, TimeSpan span)
+        {
+            DateTime? newStart = range.HasStart ? range.Start.Value - span : (DateTime?)null;
+            DateTime? newEnd = range.HasEnd ? range.End.Value - span : (DateTime?)null;
+
+            return new DateRange(newStart, newEnd);
+        }
     }
 }
