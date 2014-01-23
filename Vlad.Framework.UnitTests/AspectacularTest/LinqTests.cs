@@ -104,5 +104,17 @@ namespace Aspectacular.Test
             //int retVal = AwDal.ExecuteCommand(db => db.DeleteEntity(mrAndrewCencini));
             //Assert.AreEqual(1, retVal);
         }
+
+        [TestMethod]
+        public void TestOrderByPropertyName()
+        {
+            string[] strs = { "Very long", "Short" };
+            
+            string[] sorted = strs.OrderByProperty("Length").ToArray();
+            Assert.AreEqual(strs[0], sorted[1]);
+
+            sorted = strs.OrderByProperty(null).ToArray();
+            Assert.AreEqual(strs[0], sorted[0]);
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace Aspectacular
 {
@@ -125,6 +126,69 @@ namespace Aspectacular
                 return addToCollection;
 
             return addToCollection.Union(items);
+        }
+
+
+        /// <summary>
+        /// Returns sequence of objects ordered by the value of the given property.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="entityPropertyName">Property by which collection will be ordered.</param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> OrderByProperty<T>(this IEnumerable<T> collection, string entityPropertyName, bool orderAscending = true)
+        {
+            if (collection == null)
+                return null;
+
+            if (string.IsNullOrEmpty(entityPropertyName))
+                return collection;
+
+            Type entityType = typeof(T);
+            PropertyInfo pi = entityType.GetProperty(entityPropertyName);
+            if (pi == null)
+                throw new ArgumentException("Property \"{0}\" was not found in type \"{1}\".".SmartFormat(entityPropertyName, entityType.FormatCSharp()));
+
+            IEnumerable<T> ordered;
+
+            if (orderAscending)
+                ordered = collection.OrderBy(r => pi.GetValue(r, null));
+            else
+                ordered = collection.OrderByDescending(r => pi.GetValue(r, null));
+
+            return ordered;
+        }
+
+        /// <summary>
+        /// Returns sequence of objects ordered by the value of the given field.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="entityFieldName">Class field by which collection will be ordered.</param>
+        /// <param name="order"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> OrderByField<T>(this IEnumerable<T> collection, string entityFieldName, bool orderAscending = true)
+        {
+            if (collection == null)
+                return null;
+
+            if (string.IsNullOrEmpty(entityFieldName))
+                return collection;
+
+            Type entityType = typeof(T);
+            FieldInfo fi = entityType.GetField(entityFieldName);
+            if (fi == null)
+                throw new ArgumentException("Field \"{0}\" was not found in type \"{1}\".".SmartFormat(entityFieldName, entityType.FormatCSharp()));
+
+            IEnumerable<T> ordered;
+
+            if (orderAscending)
+                ordered = collection.OrderBy(r => fi.GetValue(r));
+            else
+                ordered = collection.OrderByDescending(r => fi.GetValue(r));
+
+            return ordered;
         }
     }
 
