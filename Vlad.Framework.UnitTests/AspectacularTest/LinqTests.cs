@@ -109,7 +109,9 @@ namespace Aspectacular.Test
         public void TestOrderByPropertyName()
         {
             string[] strs = { "Very long", "Short" };
-            
+
+            Assert.AreEqual(strs[0].Length, strs[0].GetPropertyValue<int>("Length"));
+
             string[] sorted = strs.OrderByProperty("Length").ToArray();
             Assert.AreEqual(strs[0], sorted[1]);
 

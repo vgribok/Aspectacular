@@ -53,7 +53,10 @@ namespace Aspectacular.Test.CoreTests
             const int secondsToRun = 1;
 
             long runsPerSec = RunCounter.SpinPerSec(secondsToRun * 1000, () => testString.GetPropertyValue<int>("Length"));
-            this.TestContext.WriteLine("Ran dynamic property accessor {0:#,#0} per second.", (double)runsPerSec / (double)secondsToRun);
+            long actualRunsPerSec = (long)((double)runsPerSec / (double)secondsToRun);
+            long expectedBaseLine = 2450000;
+
+            this.TestContext.WriteLine("Ran dynamic property accessor {0:#,#0} per second, expected {1:#,#0}.", actualRunsPerSec, expectedBaseLine);
         }
     }
 }

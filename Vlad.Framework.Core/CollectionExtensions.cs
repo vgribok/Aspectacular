@@ -139,24 +139,9 @@ namespace Aspectacular
         /// <returns></returns>
         public static IEnumerable<T> OrderByProperty<T>(this IEnumerable<T> collection, string entityPropertyName, bool orderAscending = true)
         {
-            if (collection == null)
-                return null;
-
-            if (string.IsNullOrEmpty(entityPropertyName))
-                return collection;
-
-            Type entityType = typeof(T);
-            PropertyInfo pi = entityType.GetProperty(entityPropertyName);
-            if (pi == null)
-                throw new ArgumentException("Property \"{0}\" was not found in type \"{1}\".".SmartFormat(entityPropertyName, entityType.FormatCSharp()));
-
-            IEnumerable<T> ordered;
-
-            if (orderAscending)
-                ordered = collection.OrderBy(r => pi.GetValue(r, null));
-            else
-                ordered = collection.OrderByDescending(r => pi.GetValue(r, null));
-
+            IEnumerable<T> ordered = collection.OrderByMember(entityPropertyName, orderAscending,
+                                                (propName, entity) => entity.GetType().GetPropertyValue(propName, entity)
+                                            );
             return ordered;
         }
 
@@ -170,23 +155,23 @@ namespace Aspectacular
         /// <returns></returns>
         public static IEnumerable<T> OrderByField<T>(this IEnumerable<T> collection, string entityFieldName, bool orderAscending = true)
         {
-            if (collection == null)
-                return null;
+            IEnumerable<T> ordered = collection.OrderByMember(entityFieldName, orderAscending, 
+                                                (fldName, entity) => entity.GetType().GetMemberFieldValue(fldName, entity)
+                                            );
+            return ordered;
+        }
 
-            if (string.IsNullOrEmpty(entityFieldName))
+        private static IEnumerable<TEntity> OrderByMember<TEntity>(this IEnumerable<TEntity> collection, string memberName, bool orderAscending, Func<string, object, object> memberValueReader)
+        {
+            if (collection == null || string.IsNullOrEmpty(memberName))
                 return collection;
 
-            Type entityType = typeof(T);
-            FieldInfo fi = entityType.GetField(entityFieldName);
-            if (fi == null)
-                throw new ArgumentException("Field \"{0}\" was not found in type \"{1}\".".SmartFormat(entityFieldName, entityType.FormatCSharp()));
-
-            IEnumerable<T> ordered;
+            IEnumerable<TEntity> ordered;
 
             if (orderAscending)
-                ordered = collection.OrderBy(r => fi.GetValue(r));
+                ordered = collection.OrderBy(r => memberValueReader(memberName, r));
             else
-                ordered = collection.OrderByDescending(r => fi.GetValue(r));
+                ordered = collection.OrderByDescending(r => memberValueReader(memberName, r));
 
             return ordered;
         }

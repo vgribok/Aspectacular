@@ -191,10 +191,11 @@ namespace Aspectacular
             if (instance != null && instance.GetType() != type)
                 throw new Exception("Type mismatch between type and instance.GetType().");
 
-            PropertyInfo pi = type.GetProperty(propertyName);
-            Debug.Assert(pi != null);
+            PropertyInfo propInfo = type.GetProperty(propertyName);
+            if (propInfo == null)
+                throw new Exception("Type \"{0}\" has no \"{1}\" property.".SmartFormat(type.FormatCSharp(), propertyName));
 
-            object val = pi.GetValue(propertyName, null);
+            object val = propInfo.GetValue(instance, null);
             return val;
         }
 
@@ -235,10 +236,11 @@ namespace Aspectacular
             if (instance != null && instance.GetType() != type)
                 throw new Exception("Type mismatch between type and instance.GetType().");
 
-            FieldInfo pi = type.GetField(fieldName);
-            Debug.Assert(pi != null);
+            FieldInfo fieldInfo = type.GetField(fieldName);
+            if (fieldInfo == null)
+                throw new Exception("Type \"{0}\" has no \"{1}\" field.".SmartFormat(type.FormatCSharp(), fieldName));
 
-            object val = pi.GetValue(fieldName);
+            object val = fieldInfo.GetValue(instance);
             return val;
         }
 

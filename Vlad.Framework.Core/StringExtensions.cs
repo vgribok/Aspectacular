@@ -32,14 +32,14 @@ namespace Aspectacular
 
         /// <summary>
         /// When args are not supplied, format string curly braces '{' and '}' are left unchanged.
-        /// Allows "some format {0}}.SmartFormat(myData);" syntax.
+        /// Allows "Some format string {0}".SmartFormat(myData); syntax.
         /// </summary>
         /// <param name="format"></param>
         /// <param name="args"></param>
         /// <returns></returns>
         public static string SmartFormat(this string format, params object[] args)
         {
-            if (args.IsNullOrEmpty())
+            if (format == null || args.IsNullOrEmpty())
                 return format;
 
             return string.Format(format, args);
