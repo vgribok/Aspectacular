@@ -15,7 +15,7 @@ namespace Aspectacular
     }
 
 
-    public static class MiscExtension
+    public static class TypeAndRefectionExtensions
     {
         private static readonly string[][] simpleParmTypeNames = 
         {
@@ -38,7 +38,7 @@ namespace Aspectacular
 
         private static readonly Dictionary<string, string> stdTypeCSharpNames = new Dictionary<string, string>();
 
-        static MiscExtension()
+        static TypeAndRefectionExtensions()
         {
             foreach (string[] pair in simpleParmTypeNames)
                 stdTypeCSharpNames.Add(pair[0], pair[1]);
@@ -159,31 +159,6 @@ namespace Aspectacular
                 throw new Exception("\"{0}\" is not an interface.".SmartFormat(interfaceType.FormatCSharp()));
 
             return interfaceType.IsAssignableFrom(classType);
-        }
-
-        /// <summary>
-        /// Returns DateTime representing beginning of the day, at midnight.
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <returns></returns>
-        public static DateTime StartOfDay(this DateTime dt)
-        {
-            return dt.Date;
-        }
-
-        /// <summary>
-        /// Returns DateTime representing the last moment of the day specified by dt.
-        /// Can be used as an inclusive end date range for a single day.
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <returns></returns>
-        public static DateTime EndOfDay(this DateTime dt)
-        {
-            DateTime start = dt.Date;
-            DateTime next = start.AddDays(1);
-            DateTime end = new DateTime(next.Ticks - 1);
-            
-            return end;
         }
 
         public static object GetPropertyValue(this Type type, string propertyName, object instance)

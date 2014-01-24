@@ -6,15 +6,29 @@ using System.Threading.Tasks;
 
 namespace Aspectacular
 {
-    public class DisposeAfter<TDisp> where TDisp : IDisposable, new()
+    public static class DisposeAfter 
     {
-        public static T Execute<T>(Func<TDisp, T> func)
+        /// <summary>
+        /// Instantiates instance, executes and calls Dispose() in one shot.
+        /// </summary>
+        /// <typeparam name="TDisp">Disposable type to create instance of.</typeparam>
+        /// <typeparam name="T">Function return result type.</typeparam>
+        /// <param name="func">Function to call</param>
+        /// <returns></returns>
+        public static T Execute<TDisp, T>(Func<TDisp, T> func)
+            where TDisp : IDisposable, new()
         {
             using (var disp = new TDisp())
                 return func(disp);
         }
 
-        public static void Execute(Action<TDisp> func)
+        /// <summary>
+        /// Instantiates instance, executes and calls Dispose() in one shot.
+        /// </summary>
+        /// <typeparam name="TDisp">Disposable type to create instance of.</typeparam>
+        /// <param name="func">Function to call.</param>
+        public static void Execute<TDisp>(Action<TDisp> func)
+            where TDisp : IDisposable, new()
         {
             using (var disp = new TDisp())
                 func(disp);

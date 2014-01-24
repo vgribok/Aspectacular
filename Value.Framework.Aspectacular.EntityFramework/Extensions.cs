@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Aspectacular
 {
-    public static class Extensions
+    public static class EfExtensions
     {
         /// <summary>
         /// If entity with the same key already in the ObjectContext, returns that entity.

@@ -182,13 +182,5 @@ namespace Aspectacular
             DateRange range = span.GetDateTimeRange(out isUtc, referenceMoment);
             return range;
         }
-
-        public static DateTime GoTo(this DateTime dt, Func<DateTime, bool> searchFunc, Func<DateTime, DateTime> stepFunc)
-        {
-            while (!searchFunc(dt))
-                dt = stepFunc(dt);
-
-            return dt;
-        }
     }
 }

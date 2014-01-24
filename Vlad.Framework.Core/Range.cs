@@ -5,16 +5,27 @@ using System.Text;
 
 namespace Aspectacular
 {
+    /// <summary>
+    /// Class representing an inclusive range between two comparable objects.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class RangeBase<T> : IEquatable<RangeBase<T>> 
         where T : IComparable
     {
         protected readonly object start = null;
         protected readonly object end = null;
 
+        /// <summary>
+        /// Range's inclusive lower bound.
+        /// </summary>
         public T Start 
         { 
             get { return (T)this.start; }
         }
+        
+        /// <summary>
+        /// Range's inclusive higher bound. 
+        /// </summary>
         public T End 
         {
             get { return (T)this.end; } 
@@ -37,14 +48,29 @@ namespace Aspectacular
             }
         }
 
+        /// <summary>
+        /// Returns false if range is open-ended on the left.
+        /// </summary>
         public virtual bool HasStart
         {
             get { return this.start != null; }
         }
 
+        /// <summary>
+        /// Returns false if range is open-ended on the right.
+        /// </summary>
         public virtual bool HasEnd
         {
             get { return this.end != null; }
+        }
+
+        public override bool Equals(object obj)
+        {
+            RangeBase<T> other = obj as RangeBase<T>;
+            if (other != null)
+                return this.Equals(other);
+
+            return base.Equals(obj);
         }
 
         public bool Equals(RangeBase<T> other)
@@ -83,6 +109,11 @@ namespace Aspectacular
             return true;
         }
 
+        /// <summary>
+        /// Returns true if given value lies within the range.
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
         public bool Contains(T val)
         {
             bool equalOrGreaterThanStart = !this.HasStart || this.Start.CompareTo(val) <= 0;
@@ -105,19 +136,27 @@ namespace Aspectacular
         }
     }
 
+    /// <summary>
+    /// Range of reference types. May be used for strings.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class Range<T> : RangeBase<T>
         where T : class, IComparable
     {
-        public Range(T start, T end)
+        internal protected Range(T start, T end)
             : base(start, end)
         {
         }
     }
 
+    /// <summary>
+    /// Range of value types. My be used for numerical types.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ValueRange<T> : RangeBase<T>
         where T : struct, IComparable
     {
-        public ValueRange(T? start, T? end)
+        internal protected ValueRange(T? start, T? end)
             : base(start == null ? (object)null : (object)start.Value, end == null ? (object)null : (object)end.Value)
         {
         }
@@ -134,19 +173,47 @@ namespace Aspectacular
 
     public static class RangeFactory
     {
+        /// <summary>
+        /// Factory method for simplified instantiation of Range class.
+        /// </summary>
+        /// <typeparam name="T">Reference type, like string.</typeparam>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
         public static Range<T> CreateRange<T>(T start, T end)
             where T : class, IComparable
         {
             return new Range<T>(start, end);
         }
 
+        /// <summary>
+        /// Factory method for simplified instantiation of Range class.
+        /// </summary>
+        /// <typeparam name="T">value type, like int, decimal, etc.</typeparam>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
         public static ValueRange<T> CreateRange<T>(T? start, T? end)
             where T : struct, IComparable
         {
             return new ValueRange<T>(start, end);
         }
+
+        /// <summary>
+        /// Factory method for simplified instantiation of Range class.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public static DateRange CreateRange(DateTime? start, DateTime? end)
+        {
+            return new DateRange(start, end);
+        }
     }
 
+    /// <summary>
+    /// Class representing a range of date/time values.
+    /// </summary>
     public class DateRange : ValueRange<DateTime>
     {
         public DateRange(DateTime? start, DateTime? end)
@@ -170,20 +237,20 @@ namespace Aspectacular
             return new DateRange(newStart, newEnd);
         }
 
-        public static DateRange operator +(DateRange range, TimeSpan span)
-        {
-            DateTime? newStart = range.HasStart ? range.Start.Value + span : (DateTime?)null;
-            DateTime? newEnd = range.HasEnd ? range.End.Value + span : (DateTime?)null;
+        //public static DateRange operator +(DateRange range, TimeSpan span)
+        //{
+        //    DateTime? newStart = range.HasStart ? range.Start.Value + span : (DateTime?)null;
+        //    DateTime? newEnd = range.HasEnd ? range.End.Value + span : (DateTime?)null;
 
-            return new DateRange(newStart, newEnd);
-        }
+        //    return new DateRange(newStart, newEnd);
+        //}
 
-        public static DateRange operator -(DateRange range, TimeSpan span)
-        {
-            DateTime? newStart = range.HasStart ? range.Start.Value - span : (DateTime?)null;
-            DateTime? newEnd = range.HasEnd ? range.End.Value - span : (DateTime?)null;
+        //public static DateRange operator -(DateRange range, TimeSpan span)
+        //{
+        //    DateTime? newStart = range.HasStart ? range.Start.Value - span : (DateTime?)null;
+        //    DateTime? newEnd = range.HasEnd ? range.End.Value - span : (DateTime?)null;
 
-            return new DateRange(newStart, newEnd);
-        }
+        //    return new DateRange(newStart, newEnd);
+        //}
     }
 }

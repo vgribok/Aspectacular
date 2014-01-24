@@ -9,6 +9,15 @@ namespace Aspectacular
 {
     public static class EmailHelper
     {
+        /// <summary>
+        /// Sends SMTP email using .config file settings.
+        /// </summary>
+        /// <param name="isBodyHtml"></param>
+        /// <param name="optioanlFromAddress">If null, .config from address value is used.</param>
+        /// <param name="optionalReplyToAddress">If null, reply-to address is the same as from address.</param>
+        /// <param name="subject"></param>
+        /// <param name="body"></param>
+        /// <param name="toAddresses"></param>
         public static void SendSmtpEmail(bool isBodyHtml, NonEmptyString optioanlFromAddress, NonEmptyString optionalReplyToAddress, string subject, string body, params string[] toAddresses)
         {
             if (toAddresses != null)
@@ -34,7 +43,7 @@ namespace Aspectacular
             message.Body = body;
             message.IsBodyHtml = isBodyHtml;
 
-            SmtpClient smtpClient = new SmtpClient { Timeout = 10 * 1000 };
+            SmtpClient smtpClient = new SmtpClient(); // { Timeout = 10 * 1000 };
             smtpClient.Send(message);
         }
 

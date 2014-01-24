@@ -44,10 +44,11 @@
   <ItemGroup>
     <Compile Include="AdoNetExtensions.cs" />
     <Compile Include="CollectionExtensions.cs" />
+    <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DateTimeRange.cs" />
     <Compile Include="Disposer.cs" />
     <Compile Include="FastDynamicActivator.cs" />
-    <Compile Include="MiscExtension.cs" />
+    <Compile Include="TypeAndRefectionExtensions.cs" />
     <Compile Include="NonEmptyString.cs" />
     <Compile Include="PredicateBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
