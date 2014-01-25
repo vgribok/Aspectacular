@@ -44,6 +44,16 @@ namespace Aspectacular
                 stdTypeCSharpNames.Add(pair[0], pair[1]);
         }
 
+        public static bool IsNullOrDefault<T>(this T? val) where T : struct, IEquatable<T>
+        {
+            return val == null || val.Value.Equals(default(T));
+        }
+
+        //public static bool IsNullOrDefault<T>(this T? val) where T : struct
+        //{
+        //    return val == null || val.Value.Equals(default(T));
+        //}
+
         #region Type extensions
 
         /// <summary>
