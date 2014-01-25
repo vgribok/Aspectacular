@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Aspectacular
@@ -251,5 +252,24 @@ namespace Aspectacular
         }
 
         #endregion Improved upper/lower case conversion methods
+
+        /// <summary>
+        /// Simple, exception-free way of getting regular expression group value.
+        /// Returns null if group is not found.
+        /// </summary>
+        /// <param name="rexParsingResult"></param>
+        /// <param name="groupName"></param>
+        /// <returns></returns>
+        public static string GetGroupValue(this Match rexParsingResult, string groupName)
+        {
+            if (rexParsingResult == null)
+                return null;
+
+            Group group = rexParsingResult.Groups[groupName];
+            if (group == null || group.Length == 0 || !group.Success)
+                return null;
+
+            return group.Value;
+        }
     }
 }

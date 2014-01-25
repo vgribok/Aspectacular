@@ -194,5 +194,79 @@ namespace Aspectacular
             var stronglyTyped = table.DefaultView.Cast<TDataRow>();
             return stronglyTyped;
         }
+
+        #region ADO.NET field value conversion extensions
+
+        /// <summary>
+        /// Casts data returned by ADO.NET to given type.
+        /// DbNull gets converted as null.
+        /// </summary>
+        /// <typeparam name="TClass">Reference type, like string.</typeparam>
+        /// <param name="adoFldVal"></param>
+        /// <returns></returns>
+        public static TClass FromAdoToClass<TClass>(this object adoFldVal) where TClass : class
+        {
+            if (adoFldVal == null || adoFldVal == DBNull.Value)
+                return null;
+
+            return (TClass)adoFldVal;
+        }
+
+        /// <summary>
+        /// Casts data returned by ADO.NET to string.
+        /// DbNull gets converted as null.
+        /// </summary>
+        /// <param name="adoFldVal"></param>
+        /// <returns></returns>
+        public static string FromAdoToString(this object adoFldVal)
+        {
+            return adoFldVal.FromAdoToClass<string>();
+        }
+
+        /// <summary>
+        /// Casts data returned by ADO.NET to given type.
+        /// DbNull gets converted as null.
+        /// </summary>
+        /// <typeparam name="TVal">Value type, like int, DateTime, bool, etc.</typeparam>
+        /// <param name="adoFldVal"></param>
+        /// <returns></returns>
+        public static TVal? FromAdoTo<TVal>(this object adoFldVal) where TVal : struct
+        {
+            if (adoFldVal == null || adoFldVal == DBNull.Value)
+                return null;
+
+            return (TVal)adoFldVal;
+        }
+
+        /// <summary>
+        /// Casts data returned by ADO.NET to given type.
+        /// DbNull gets replaced by defaultVal.
+        /// </summary>
+        /// <typeparam name="TVal">Value type, like int, DateTime, bool, etc.</typeparam>
+        /// <param name="adoFldVal"></param>
+        /// <param name="defaultVal">Value to be used when source is DbNull/null</param>
+        /// <returns></returns>
+        public static TVal FromAdoTo<TVal>(this object adoFldVal, TVal defaultVal = default(TVal)) where TVal : struct
+        {
+            if (adoFldVal == null || adoFldVal == DBNull.Value)
+                return defaultVal;
+
+            return (TVal)adoFldVal;
+        }
+
+        /// <summary>
+        /// Converts value to ADO.NET-friendly value by converting null into DbNull.
+        /// </summary>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static object ToAdoValue(this object val)
+        {
+            if (val == null || (object)val == DBNull.Value)
+                return DBNull.Value;
+
+            return val;
+        }
+
+        #endregion ADO.NET field value conversion extensions
     }
 }
