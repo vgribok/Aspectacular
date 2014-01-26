@@ -50,7 +50,7 @@ namespace Aspectacular
         /// <summary>
         /// Global email address format check regular expression pattern.
         /// </summary>
-        public static readonly string emailCheckRegexPattern = @"(?<UserBeforeAt>[\w\.]{2,}) @ (?<Domain> (?<DomainMain>.{2,})  \. (?<DomainSuffix> \w{2,6}) )".Replace(" ", string.Empty);
+        public static readonly string emailCheckRegexPattern = @"(?<UserBeforeAt>[\w\.-]{2,}) @ (?<Domain> (?<DomainMain>.{2,})  \. (?<DomainSuffix> \w{2,6}) )".Replace(" ", string.Empty);
 
         /// <summary>
         /// Global email address format check regular expression.
