@@ -30,5 +30,24 @@ namespace Aspectacular.CoreTests
             actual = nullStr.ToLowerEx();
             Assert.IsNull(actual);
         }
+
+        [TestMethod]
+        public void TestNonEmptyString()
+        {
+            NonEmptyString nbs = null;
+            Assert.IsNull(nbs);
+            Assert.IsTrue(nbs == null);
+            Assert.AreEqual("Empty", nbs.ToStringEx("Empty"));
+            Assert.IsNull(nbs.ToStringEx(null));
+
+            nbs = string.Empty;
+            Assert.IsNotNull(nbs);
+            Assert.IsTrue(nbs == null);
+
+            nbs = "Hello!";
+            Assert.IsTrue(nbs == "Hello!");
+            Assert.AreEqual(nbs, "Hello!");
+            Assert.IsTrue(nbs.CompareTo("abc") > 0);
+        }
     }
 }

@@ -16,9 +16,9 @@ namespace Aspectacular
         /// <param name="obj"></param>
         /// <param name="nullObjString"></param>
         /// <returns></returns>
-        public static string ToStringEx(this object obj, string nullObjString = "")
+        public static string ToStringEx(this object obj, string nullObjString = null)
         {
-            return obj == null ? (nullObjString ?? string.Empty) : obj.ToString();
+            return obj == null ? nullObjString : obj.ToString();
         }
 
         /// <summary>

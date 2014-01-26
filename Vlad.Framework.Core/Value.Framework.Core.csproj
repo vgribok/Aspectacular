@@ -48,6 +48,7 @@
     <Compile Include="DateTimeRange.cs" />
     <Compile Include="Disposer.cs" />
     <Compile Include="FastDynamicActivator.cs" />
+    <Compile Include="ModifiedString.cs" />
     <Compile Include="TypeAndRefectionExtensions.cs" />
     <Compile Include="NonEmptyString.cs" />
     <Compile Include="PredicateBuilder.cs" />

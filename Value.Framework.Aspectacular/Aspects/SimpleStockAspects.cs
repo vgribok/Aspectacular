@@ -66,7 +66,7 @@ namespace Aspectacular
         {
             var q = from entry in entries
                     where (entry.What & this.entryTypeFilter) != 0
-                    select entry.ToStringEx();
+                    select entry.ToString();
 
             return q;
         }
