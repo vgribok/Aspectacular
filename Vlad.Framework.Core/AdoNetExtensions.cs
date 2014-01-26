@@ -261,7 +261,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static object ToAdoValue(this object val)
         {
-            if (val == null || (object)val == DBNull.Value)
+            if (val == null || val == DBNull.Value)
                 return DBNull.Value;
 
             return val;
