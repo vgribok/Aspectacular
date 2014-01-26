@@ -50,7 +50,6 @@
     <Compile Include="FastDynamicActivator.cs" />
     <Compile Include="ModifiedString.cs" />
     <Compile Include="TypeAndRefectionExtensions.cs" />
-    <Compile Include="NonEmptyString.cs" />
     <Compile Include="PredicateBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryableExtensions.cs" />

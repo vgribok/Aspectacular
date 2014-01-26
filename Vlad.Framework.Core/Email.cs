@@ -44,7 +44,7 @@ namespace Aspectacular
     /// Smart class can be used a substitute for "string emailAddress;".
     /// Has implicit conversion operators from and to string and thus can be used in method parameters for email addresses.
     /// </summary>
-    public class EmailAddress : IEquatable<EmailAddress>, IEquatable<string>, IComparable, IComparable<EmailAddress>, IComparable<string>
+    public class EmailAddress : StringWithConstraints
     {
         /// <summary>
         /// Global email address format check regular expression pattern.
@@ -57,11 +57,22 @@ namespace Aspectacular
         /// </summary>
         public static Regex emailFormatRegex = new Regex(emailCheckRegexPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
-        public readonly Match Match; 
+        public Match Match { get; protected set; }
 
-        public EmailAddress(string emailAddress)
+        public EmailAddress(string emailAddress) : base(emailAddress)
         {
-            this.Match = ParseEmailAddress(emailAddress);
+        }
+
+        public override string String
+        {
+            get
+            {
+                return this.FullAddress;
+            }
+            protected set
+            {
+                this.Match = ParseEmailAddress(value);
+            }
         }
 
         /// <summary>
@@ -75,11 +86,6 @@ namespace Aspectacular
         public static implicit operator EmailAddress(string emailAddress)
         {
             return new EmailAddress(emailAddress);
-        }
-
-        public static implicit operator string(EmailAddress parsedEmail)
-        {
-            return parsedEmail == null ? null : parsedEmail.FullAddress;
         }
 
         /// <summary>
@@ -102,7 +108,7 @@ namespace Aspectacular
         /// </summary>
         public string FullAddress
         {
-            get { return this.ToString(); }
+            get { return !this.IsValid ? null : "{0}@{1}".SmartFormat(this[EmailAddressParts.UserBeforeAt], this[EmailAddressParts.Domain]); }
         }
 
         /// <summary>
@@ -125,71 +131,8 @@ namespace Aspectacular
 
             return emailFormatRegex.Match(emailAddress.Trim());
         }
-
         
         #endregion Utility methods
-
-        #region Virtual overrides and interface implementations
-
-        /// <summary>
-        /// Returns null if parsed string was not in the valid email address format.
-        /// Otherwise, return full email address.
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return !this.IsValid ? null : "{0}@{1}".SmartFormat(this[EmailAddressParts.UserBeforeAt], this[EmailAddressParts.Domain]);
-        }
-
-        public override int GetHashCode()
-        {
-            string stringEmail = this;
-            return stringEmail == null ? 0 : stringEmail.GetHashCode();
-        }
-
-        public bool Equals(EmailAddress other)
-        {
-            return this.Equals(other.ToStringEx());
-        }
-
-        public bool Equals(string other)
-        {
-            string address = this;
-            return (address == null && other == null) || address.Equals(other);
-        }
-
-        public int CompareTo(object obj)
-        {
-            string address = this;
-            string other = null;
-
-            if (obj != null)
-            {
-                if (obj is string)
-                    other = (string)obj;
-                else if (obj is EmailAddress)
-                    other = (EmailAddress)obj;
-                else
-                    throw new Exception("EmailAddress cannot be compared to \"{0}\".".SmartFormat(obj.GetType().FormatCSharp()));
-            }
-
-            if (address == null)
-                return other == null ? 0 : int.MinValue;
-
-            return address.CompareTo(other);
-        }
-
-        public int CompareTo(EmailAddress other)
-        {
-            return this.CompareTo((object)other);
-        }
-
-        public int CompareTo(string other)
-        {
-            return this.CompareTo((object)other);
-        }
-
-        #endregion Virtual overrides and interface implementations
     }
 
     public static class EmailHelper

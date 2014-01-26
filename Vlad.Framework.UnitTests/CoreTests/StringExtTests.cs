@@ -48,6 +48,39 @@ namespace Aspectacular.CoreTests
             Assert.IsTrue(nbs == "Hello!");
             Assert.AreEqual(nbs, "Hello!");
             Assert.IsTrue(nbs.CompareTo("abc") > 0);
+
+            NonEmptyTrimmedString ts = "";
+            Assert.IsNotNull(ts);
+            Assert.IsTrue(ts == null);
+
+            ts = " Something ";
+            Assert.AreEqual(ts, "Something");
+            Assert.IsTrue("Something" == ts);
+        }
+
+        public class TestTruncatedString : TruncatedString
+        {
+            public TestTruncatedString(string str, uint maxLength, string optionalEllipsis = "...")
+                : base(str, maxLength, optionalEllipsis)
+            {
+            }
+        }
+
+        [TestMethod]
+        public void TruncatedStringTest()
+        {
+            TestTruncatedString ts = new TestTruncatedString("Short string", 10000, "doesn't matter");
+            Assert.AreEqual(ts, "Short string");
+
+            ts = new TestTruncatedString("Very long string", 4, null);
+            Assert.AreEqual(ts, "Very");
+
+            ts = new TestTruncatedString("Very long string", 10);
+            Assert.AreEqual(ts, "Very lo...");
+
+            String255 s255 = "By eliminating unnecessary casts, implicit conversions can improve source code readability. However, because implicit conversions do not require programmers to explicitly cast from one type to the other, care must be taken to prevent unexpected results. In general, implicit conversion operators should never throw exceptions and never lose information so that they can be used safely without the programmer's awareness. If a conversion operator cannot meet those criteria, it should be marked explicit. For more information, see Using Conversion Operators.";
+            string actual = s255;
+            Assert.AreEqual(255, actual.Length);
         }
     }
 }
