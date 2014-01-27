@@ -47,6 +47,7 @@
     <Compile Include="RequestCache.cs" />
     <Compile Include="RequestExtensions.cs" />
     <Compile Include="SimpleJsonSerializer.cs" />
+    <Compile Include="SmartSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
