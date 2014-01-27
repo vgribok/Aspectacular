@@ -45,6 +45,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryStringEx.cs" />
     <Compile Include="RequestCache.cs" />
+    <Compile Include="RequestExtensions.cs" />
     <Compile Include="SimpleJsonSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
