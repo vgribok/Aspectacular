@@ -82,5 +82,16 @@ namespace Aspectacular.CoreTests
             string actual = s255;
             Assert.AreEqual(255, actual.Length);
         }
+
+        [TestMethod]
+        public void TestParsing()
+        {
+            string str = null;
+            bool actual = str.Parse(false);
+            Assert.AreEqual(false, actual);
+
+            actual = "True".Parse(false);
+            Assert.AreEqual(true, actual);
+        }
     }
 }
