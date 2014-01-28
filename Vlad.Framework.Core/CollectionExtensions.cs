@@ -175,6 +175,42 @@ namespace Aspectacular
 
             return ordered;
         }
+
+        /// <summary>
+        /// Returns null if value was not found in the dictionary.
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TVal">Value type</typeparam>
+        /// <param name="dictionary"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static TVal? GetValueSafe<TKey, TVal>(this Dictionary<TKey, TVal> dictionary, TKey key)
+            where TVal : struct
+        {
+            TVal val;
+            if (!dictionary.TryGetValue(key, out val))
+                return null;
+
+            return val;
+        }
+
+        /// <summary>
+        /// Returns null if value was not found in the dictionary.
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TVal">Reference type</typeparam>
+        /// <param name="dictionary"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public static TVal GetObjectValueSafe<TKey, TVal>(this Dictionary<TKey, TVal> dictionary, TKey key)
+            where TVal : class
+        {
+            TVal val;
+            if (!dictionary.TryGetValue(key, out val))
+                return null;
+
+            return val;
+        }
     }
 
     public class Pair<T1, T2>
