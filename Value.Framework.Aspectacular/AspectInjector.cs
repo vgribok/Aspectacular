@@ -190,6 +190,9 @@ namespace Aspectacular
             if (this.AugmentedClassInstance == null)
                 throw new Exception("Instance for AOP augmentation needs to be specified before intercepted method can be called.");
 
+            if(this.AugmentedClassInstance is IAspect)
+                throw new Exception("Aspects should not be used as AOP-augmented instance. Perhaps you are mistakenly using AOP.GetProxy() for a static method call? If so, use AOP.Invoke() instead of AOP.GetProxy().");
+
             if (this.AugmentedClassInstance is ICallLogger)
                 (this.AugmentedClassInstance as ICallLogger).AopLogger = this;
 
