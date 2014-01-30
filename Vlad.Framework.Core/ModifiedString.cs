@@ -200,7 +200,7 @@ namespace Aspectacular
             protected set
             {
                 this.OriginalString = value;
-                base.String = value.TruncateIfExceed((uint)this.MaxLen, this.Ellipsis);
+                base.String = value.TruncateIfExceeds((uint)this.MaxLen, this.Ellipsis);
             }
         }
     }
