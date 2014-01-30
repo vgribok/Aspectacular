@@ -271,5 +271,20 @@ namespace Aspectacular
 
             return group.Value;
         }
+
+        public static string TruncateIfExceed(this string str, uint maxLen, string optionalEllipsis = "...")
+        {
+            if (str == null || str.Length <= maxLen )
+                return str;
+
+            NonNullString ellipsis = optionalEllipsis;
+            if (ellipsis.String.Length > maxLen)
+                ellipsis = (string)null;
+
+            string truncated = str.Substring(0, (int)maxLen - ellipsis.String.Length);
+            truncated = string.Format("{0}{1}", truncated, ellipsis);
+
+            return truncated;
+        }
     }
 }

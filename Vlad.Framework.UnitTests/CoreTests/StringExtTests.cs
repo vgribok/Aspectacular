@@ -72,6 +72,12 @@ namespace Aspectacular.CoreTests
             TestTruncatedString ts = new TestTruncatedString("Short string", 10000, "doesn't matter");
             Assert.AreEqual(ts, "Short string");
 
+            ts = new TestTruncatedString("Short string", 5, "........very long ellipsis......");
+            Assert.AreEqual(ts, "Short");
+
+            ts = new TestTruncatedString("Whatever", 7);
+            Assert.AreEqual(ts, "What...");
+
             ts = new TestTruncatedString("Very long string", 4, null);
             Assert.AreEqual(ts, "Very");
 
