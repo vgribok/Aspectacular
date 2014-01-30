@@ -49,6 +49,37 @@ namespace Aspectacular
         #region Value type parsing
 
         /// <summary>
+        /// Parses string and returns default value if parsing failed.
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <param name="str"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static TEnum Parse<TEnum>(this string str, TEnum defaultValue) where TEnum : struct
+        {
+            TEnum val;
+            if (Enum.TryParse<TEnum>(str, out val))
+                return val;
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Parses string and returns null if parsing failed.
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static TEnum? Parse<TEnum>(this string str) where TEnum : struct
+        {
+            TEnum val;
+            if (Enum.TryParse<TEnum>(str, out val))
+                return val;
+
+            return null;
+        }
+
+        /// <summary>
         /// Parses string and returns null if parsing failed.
         /// </summary>
         /// <param name="str"></param>
