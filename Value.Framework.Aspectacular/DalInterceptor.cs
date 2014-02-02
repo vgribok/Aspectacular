@@ -49,7 +49,10 @@ namespace Aspectacular
             var proxy = new DalSingleCallProxy<TMultiStoreMgr>(aspects);
             return proxy;
         }
+    }
 
+    public static partial class AopExsts
+    {
         /// <summary>
         /// Returns InstanceProxy[TMultiStoreMgr] for DalManager instance that already exist.
         /// Returned proxy won't call DalManager.Dispose() after method invocation.

@@ -49,6 +49,37 @@ namespace Aspectacular
         #region Value type parsing
 
         /// <summary>
+        /// Parses string and returns default value if parsing failed.
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <param name="str"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static TEnum Parse<TEnum>(this string str, TEnum defaultValue) where TEnum : struct
+        {
+            TEnum val;
+            if (Enum.TryParse<TEnum>(str, out val))
+                return val;
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Parses string and returns null if parsing failed.
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static TEnum? Parse<TEnum>(this string str) where TEnum : struct
+        {
+            TEnum val;
+            if (Enum.TryParse<TEnum>(str, out val))
+                return val;
+
+            return null;
+        }
+
+        /// <summary>
         /// Parses string and returns null if parsing failed.
         /// </summary>
         /// <param name="str"></param>
@@ -272,7 +303,7 @@ namespace Aspectacular
             return group.Value;
         }
 
-        public static string TruncateIfExceed(this string str, uint maxLen, string optionalEllipsis = "...")
+        public static string TruncateIfExceeds(this string str, uint maxLen, string optionalEllipsis = "...")
         {
             if (str == null || str.Length <= maxLen )
                 return str;

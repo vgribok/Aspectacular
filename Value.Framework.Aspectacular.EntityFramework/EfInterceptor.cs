@@ -106,6 +106,22 @@ namespace Aspectacular
         }
 
         /// <summary>
+        /// Returns AOP proxy for EF ObjectContext class
+        /// </summary>
+        /// <typeparam name="TObjectContext"></typeparam>
+        /// <param name="aspects"></param>
+        /// <returns></returns>
+        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(IEnumerable<Aspect> aspects = null, bool lazyLoadingEnabled = true)
+            where TObjectContext : ObjectContext, new()
+        {
+            var proxy = new ObjectContextSingleCallProxy<TObjectContext>(aspects, lazyLoadingEnabled);
+            return proxy;
+        }
+    }
+
+    public static partial class EfAopExts
+    {
+        /// <summary>
         /// Returns InstanceProxy[TDbContext] for DbContext instance that already exist.
         /// Returned proxy won't call DbContext.Dispose() after method invocation.
         /// Supports ExecuteCommand() method.
@@ -118,19 +134,6 @@ namespace Aspectacular
             where TDbContext : DbContext, new()
         {
             var proxy = new DbContextSingleCallProxy<TDbContext>(dbExistingContext, aspects);
-            return proxy;
-        }
-
-        /// <summary>
-        /// Returns AOP proxy for EF ObjectContext class
-        /// </summary>
-        /// <typeparam name="TObjectContext"></typeparam>
-        /// <param name="aspects"></param>
-        /// <returns></returns>
-        public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(IEnumerable<Aspect> aspects = null, bool lazyLoadingEnabled = true)
-            where TObjectContext : ObjectContext, new()
-        {
-            var proxy = new ObjectContextSingleCallProxy<TObjectContext>(aspects, lazyLoadingEnabled);
             return proxy;
         }
 

@@ -402,7 +402,10 @@ namespace Aspectacular
         {
             Invoke(aspects: null, interceptedCallExpression: interceptedCallExpression);
         }
+    }
 
+    public static partial class AopExsts
+    {
         /// <summary>
         /// Retrieves AOP-augmented proxy, with specified set of aspects attached, for any given object referenced by instance parameter.
         /// </summary>
