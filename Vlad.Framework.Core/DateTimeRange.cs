@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -19,21 +20,21 @@ namespace Aspectacular
     public enum TimeUnits : int
     {
         UtcUnit = 0x10, // Time unit that is better suited for UTC time ranges (like PAST xxx units). Typically, hours, minutes and seconds.
-        Seconds = UtcUnit + 1,
-        Minutes = UtcUnit + 2,
-        Hours = UtcUnit + 3,
+        Second = UtcUnit + 1,
+        Minute = UtcUnit + 2,
+        Hour = UtcUnit + 3,
         Eternity = UtcUnit + 4, // Open-ended past or future
 
         LocalTimeUnit = 0x100, // Time units that is better suited for Local (day-based) time ranges.
-        Days = LocalTimeUnit + 1,
-        Weeks = LocalTimeUnit + 1, 
-        Months = LocalTimeUnit + 2, 
-        Quarters = LocalTimeUnit + 3, 
-        Years = LocalTimeUnit + 4, 
-        Decades = LocalTimeUnit + 5, 
-        Centuries = LocalTimeUnit + 6,
+        Day = LocalTimeUnit + 1,
+        Week = LocalTimeUnit + 2, 
+        Month = LocalTimeUnit + 3, 
+        Quarter = LocalTimeUnit + 4, 
+        Year = LocalTimeUnit + 5, 
+        Decade = LocalTimeUnit + 6, 
+        Century = LocalTimeUnit + 7,
 
-        //DayOfWeek = 0x1000, // can be used only with the span of 1, and only previous
+        //DayOfWeek = 0x1000, // can be used only with the unitCount of 1, and only previous
         //Sunday = LocalTimeSpan + DayOfWeek + 1,
         //Monday = LocalTimeSpan + DayOfWeek + 2,
         //Tuesday = LocalTimeSpan + DayOfWeek + 3,
@@ -66,9 +67,10 @@ namespace Aspectacular
 
     public enum UtcTimeUnits : int
     {
-        Second = TimeUnits.Seconds,
-        Minute = TimeUnits.Minutes,
-        Hour = TimeUnits.Hours,
+        Second = TimeUnits.Second,
+        Minute = TimeUnits.Minute,
+        Hour = TimeUnits.Hour,
+        Eternity = TimeUnits.Eternity,
     }
 
     public enum UtcTimespanQualifiers : int
@@ -80,17 +82,17 @@ namespace Aspectacular
 
     public enum LocalTimeUnits : int
     {
-        Second = TimeUnits.Seconds,
-        Minute = TimeUnits.Minutes,
-        Hour = TimeUnits.Hours,
+        Second = TimeUnits.Second,
+        Minute = TimeUnits.Minute,
+        Hour = TimeUnits.Hour,
 
-        Day = TimeUnits.Days,
-        Week = TimeUnits.Weeks,
-        Month = TimeUnits.Months,
-        Quarter = TimeUnits.Quarters,
-        Year = TimeUnits.Years,
-        Decade = TimeUnits.Decades,
-        Century = TimeUnits.Centuries,
+        Day = TimeUnits.Day,
+        Week = TimeUnits.Week,
+        Month = TimeUnits.Month,
+        Quarter = TimeUnits.Quarter,
+        Year = TimeUnits.Year,
+        Decade = TimeUnits.Decade,
+        Century = TimeUnits.Century,
     }
     public enum LocalTimespanQualifiers : int
     {
@@ -106,27 +108,23 @@ namespace Aspectacular
     /// </summary>
     public class RelativeTimeSpan
     {
-        public readonly bool IsUtcRange;
-
         private readonly TimeUnits unit;
         private readonly TimespanQualifiers direction;
-        public readonly ulong Span;
+        public readonly ulong UnitCount;
 
         /// <summary>
         /// Constructor for Past and Future ranges
         /// </summary>
         /// <param name="direction"></param>
         /// <param name="unit"></param>
-        /// <param name="span"></param>
+        /// <param name="unitCount"></param>
         /// <param name="referenceMoment"></param>
-        public RelativeTimeSpan(UtcTimespanQualifiers direction, UtcTimeUnits unit, ulong span = 1)
+        public RelativeTimeSpan(UtcTimespanQualifiers direction, UtcTimeUnits unit, ulong unitCount = 1)
         {
-            if (span == 0)
+            if (unitCount == 0)
                 throw new ArgumentOutOfRangeException("span value must be 1 or greater.");
 
-            this.IsUtcRange = true;
-
-            this.Span = span;
+            this.UnitCount = unitCount;
             this.unit = (TimeUnits)(int)unit;
             this.direction = (TimespanQualifiers)(int)direction;
         }
@@ -136,16 +134,14 @@ namespace Aspectacular
         /// </summary>
         /// <param name="direction"></param>
         /// <param name="unit"></param>
-        /// <param name="span"></param>
+        /// <param name="unitCount"></param>
         /// <param name="referenceMoment"></param>
-        public RelativeTimeSpan(LocalTimespanQualifiers direction, LocalTimeUnits unit, ulong span = 1)
+        public RelativeTimeSpan(LocalTimespanQualifiers direction, LocalTimeUnits unit, ulong unitCount = 1)
         {
-            if (span == 0)
+            if (unitCount == 0)
                 throw new ArgumentOutOfRangeException("span value must be 1 or greater.");
 
-            this.IsUtcRange = false;
-
-            this.Span = span;
+            this.UnitCount = unitCount;
             this.unit = (TimeUnits)(int)unit;
             this.direction = (TimespanQualifiers)(int)direction;
         }
@@ -157,29 +153,179 @@ namespace Aspectacular
         /// <param name="referenceMoment"></param>
         public RelativeTimeSpan(LocalTimeUnits unit)
         {
-            this.IsUtcRange = false;
-
-            this.Span = 1;
+            this.UnitCount = 1;
             this.unit = (TimeUnits)(int)unit;
             this.direction = TimespanQualifiers.CurrentOrSpecified;
         }
 
-        public DateRange GetDateTimeRange(out bool isUtc, DateTime? referenceMoment = null)
+        public DateRange GetDateTimeRange(DateTime? referenceMoment = null)
         {
-            DateTime refMoment = referenceMoment == null ? (this.IsUtcRange ? DateTime.UtcNow : DateTime.Now) : referenceMoment.Value;
+            DateTime refMoment = this.AdjustRefMoment(referenceMoment);
 
-            // TODO : Implement range calculation.
-            throw new NotImplementedException();
+            // TODO : not completed yet.
+
+            DateTime start = refMoment.StartOf(this.unit);
+            DateTime end = refMoment.EndOf(this.unit);
+
+            DateRange range = new DateRange(start, end);
+            return range;
         }
 
+        private DateTime AdjustRefMoment(DateTime? referenceMoment)
+        {
+            DateTime refMoment = referenceMoment == null ? (this.unit.GetKind() == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now) : referenceMoment.Value;
+            return refMoment;
+        }
     }
 
     public static class RelativeTimeSpanExtensions
     {
-        public static DateRange Current(this LocalTimeUnits unit, out bool isUtc, DateTime? referenceMoment = null)
+        public static DateTimeKind GetKind(this TimeUnits unit)
+        {
+            if ((unit & TimeUnits.UtcUnit) != 0)
+                return DateTimeKind.Utc;
+            if ((unit & TimeUnits.LocalTimeUnit) != 0)
+                return DateTimeKind.Local;
+
+            return DateTimeKind.Unspecified;
+        }
+
+        /// <summary>
+        /// Returns higher time unit in which the given unit is *repeated within*.
+        /// This is not a direct hierarchy! Different types of units may have same parent.
+        /// For example, Month number 1..12 is repeated within a Year, so Month's parent is Year, not quarter.
+        /// Quarter 1..4 also is repeated within a year, so Quarter's parent is also year.
+        /// Same goes for Week number 1..52.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <returns></returns>
+        public static TimeUnits? CalculationParent(this TimeUnits unit)
+        {
+            switch(unit)
+            {
+                case TimeUnits.Century:
+                    return null; // no parent.
+                case TimeUnits.Decade:
+                    return TimeUnits.Century;
+                case TimeUnits.Year:
+                    return null; // no parent.
+                case TimeUnits.Quarter:
+                    return TimeUnits.Year;
+                case TimeUnits.Month:
+                    return TimeUnits.Year;
+                case TimeUnits.Week:
+                    return TimeUnits.Year;
+                case TimeUnits.Day:
+                    return TimeUnits.Month;
+                case TimeUnits.Hour:
+                    return TimeUnits.Day;
+                case TimeUnits.Minute:
+                    return TimeUnits.Hour;
+                case TimeUnits.Second:
+                    return TimeUnits.Minute;
+            }
+
+            throw new Exception("Parent of \"{0}\" is not specified.".SmartFormat(unit));
+        }
+
+        public static DateTime StartOf(this DateTime dt, TimeUnits unit)
+        {
+            //DateTimeKind dtKind = dt.Kind == DateTimeKind.Unspecified ? DateTimeKind.Local : dt.Kind;
+            DateTimeKind dtKind = unit.GetKind();
+
+            switch (unit)
+            {
+                case TimeUnits.Century:
+                    {
+                        int year = dt.Year / 100 * 100;
+                        return new DateTime(year, 1, 1, 0, 0, 0, dtKind);
+                    }
+                case TimeUnits.Decade:
+                    {
+                        int year = dt.Year / 10 * 10;
+                        return new DateTime(year, 1, 1, 0, 0, 0, dtKind);
+                    }
+                case TimeUnits.Year:
+                    {
+                        return new DateTime(dt.Year, 1, 1, 0, 0, 0, dtKind);
+                    }
+                case TimeUnits.Quarter:
+                    {
+                        int month = (dt.Quarter() - 1) * 3 + 1;
+                        return new DateTime(dt.Year, month, 1, 0, 0, 0, dtKind);
+                    }
+                case TimeUnits.Week:
+                    {
+                        DayOfWeek weekStart = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
+                        int delta = weekStart - dt.DayOfWeek;
+                        return dt.AddDays(delta).StartOf(TimeUnits.Day);
+                    }
+                case TimeUnits.Month:
+                    {
+                        return new DateTime(dt.Year, dt.Month, 1, 0, 0, 0, dtKind);
+                    }
+                case TimeUnits.Day:
+                    {
+                        return new DateTime(dt.Year, dt.Month, dt.Day, 0, 0, 0, dtKind);
+                    }
+                case TimeUnits.Hour:
+                    {
+                        return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, 0, 0, dtKind);
+                    }
+                case TimeUnits.Minute:
+                    {
+                        return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, 0, dtKind);
+                    }
+                case TimeUnits.Second:
+                    {
+                        return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dtKind);
+                    }
+            }
+
+            throw new Exception("Calculation of start of unit \"{0}\" is not implemented.".SmartFormat(unit));
+        }
+
+        public static DateTime Add(this DateTime dt, int count, TimeUnits unit)
+        {
+            switch (unit)
+            {
+                case TimeUnits.Century:
+                    return dt.AddYears(count * 100);
+                case TimeUnits.Day:
+                    return dt.AddDays(count);
+                case TimeUnits.Decade:
+                    return dt.AddYears(count * 10);
+                case TimeUnits.Hour:
+                    return dt.AddHours(count);
+                case TimeUnits.Minute:
+                    return dt.AddMinutes(count);
+                case TimeUnits.Month:
+                    return dt.AddMonths(count);
+                case TimeUnits.Quarter:
+                    return dt.AddMonths(count * 3);
+                case TimeUnits.Second:
+                    return dt.AddSeconds(count);
+                case TimeUnits.Week:
+                    return dt.AddDays(count * 7);
+                case TimeUnits.Year:
+                    return dt.AddYears(count);
+            }
+
+            throw new Exception("Adding \"{0}\" is not implemented.".SmartFormat(unit));
+        }
+
+        public static DateTime EndOf(this DateTime dt, TimeUnits unit)
+        {
+            DateTime start = dt.StartOf(unit);
+            DateTime next = start.Add(1, unit);
+            DateTime end = new DateTime(next.Ticks - 1, dt.Kind);
+            return end;
+        }
+
+        public static DateRange Current(this LocalTimeUnits unit, DateTime? referenceMoment = null)
         {
             var span = new RelativeTimeSpan(unit);
-            DateRange range = span.GetDateTimeRange(out isUtc, referenceMoment);
+            DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
     }

@@ -83,15 +83,5 @@ namespace Aspectacular.Test.CoreTests
             Assert.IsTrue(intRange.Contains(int.MaxValue));
             Assert.IsFalse(intRange.Contains(int.MinValue));
         }
-
-        [TestMethod]
-        public void EndOfDayTest()
-        {
-            var dt = DateTime.Now;
-            Assert.AreEqual(dt.StartOfDay(), dt.EndOfDay().StartOfDay());
-
-            dt = DateTime.Now.Date;
-            Assert.AreEqual(dt.StartOfDay(), dt.EndOfDay().StartOfDay());
-        }
     }
 }

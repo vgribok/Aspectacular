@@ -65,6 +65,7 @@
     <Compile Include="AspectacularTest\AspectacularTest.cs" />
     <Compile Include="AspectacularTest\PerfTest.cs" />
     <Compile Include="AspectacularTest\LinqTests.cs" />
+    <Compile Include="CoreTests\DateTImeExtTest.cs" />
     <Compile Include="CoreTests\DynamicPropertyReaderTest.cs" />
     <Compile Include="CoreTests\EmailHelpersTest.cs" />
     <Compile Include="CoreTests\RangeTest.cs" />

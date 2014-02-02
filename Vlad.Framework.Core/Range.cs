@@ -221,8 +221,33 @@ namespace Aspectacular
         {
         }
 
+        /// <summary>
+        /// Returns, whether date range is UTC, Local, or unspecified.
+        /// </summary>
+        public DateTimeKind Kind
+        {
+            get
+            {
+                DateTimeKind? startKind = this.HasStart ? this.Start.Value.Kind : (DateTimeKind?)null;
+                DateTimeKind? endKind = this.HasEnd ? this.End.Value.Kind : (DateTimeKind?)null;
+
+                if (startKind == null && endKind == null)
+                    return DateTimeKind.Unspecified;
+
+                if (startKind == null)
+                    return endKind.Value;
+                if (endKind == null)
+                    return startKind.Value;
+
+                return startKind.Value == endKind.Value ? startKind.Value : DateTimeKind.Unspecified;
+            }
+        }
+
         public DateRange ToUtc()
         {
+            if (this.Kind == DateTimeKind.Utc)
+                return this;
+
             DateTime? newStart = this.HasStart ? this.Start.Value.ToUniversalTime() : (DateTime?)null;
             DateTime? newEnd = this.HasEnd ? this.End.Value.ToUniversalTime() : (DateTime?)null;
 
@@ -231,24 +256,27 @@ namespace Aspectacular
 
         public DateRange ToLocal()
         {
+            if (this.Kind == DateTimeKind.Local)
+                return this;
+
             DateTime? newStart = this.HasStart ? this.Start.Value.ToLocalTime() : (DateTime?)null;
             DateTime? newEnd = this.HasEnd ? this.End.Value.ToLocalTime() : (DateTime?)null;
 
             return new DateRange(newStart, newEnd);
         }
 
-        //public static DateRange operator +(DateRange range, TimeSpan span)
+        //public static DateRange operator +(DateRange range, TimeSpan unitCount)
         //{
-        //    DateTime? newStart = range.HasStart ? range.Start.Value + span : (DateTime?)null;
-        //    DateTime? newEnd = range.HasEnd ? range.End.Value + span : (DateTime?)null;
+        //    DateTime? newStart = range.HasStart ? range.Start.Value + unitCount : (DateTime?)null;
+        //    DateTime? newEnd = range.HasEnd ? range.End.Value + unitCount : (DateTime?)null;
 
         //    return new DateRange(newStart, newEnd);
         //}
 
-        //public static DateRange operator -(DateRange range, TimeSpan span)
+        //public static DateRange operator -(DateRange range, TimeSpan unitCount)
         //{
-        //    DateTime? newStart = range.HasStart ? range.Start.Value - span : (DateTime?)null;
-        //    DateTime? newEnd = range.HasEnd ? range.End.Value - span : (DateTime?)null;
+        //    DateTime? newStart = range.HasStart ? range.Start.Value - unitCount : (DateTime?)null;
+        //    DateTime? newEnd = range.HasEnd ? range.End.Value - unitCount : (DateTime?)null;
 
         //    return new DateRange(newStart, newEnd);
         //}
