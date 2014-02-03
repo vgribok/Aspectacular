@@ -12,11 +12,23 @@ namespace Aspectacular
     /// </summary>
     public abstract class StringWithConstraints : IComparable, IComparable<StringWithConstraints>, IComparable<string>, IEquatable<StringWithConstraints>, IEquatable<string>
     {
-        public virtual string String { get; protected set;}
-
-        protected StringWithConstraints(string str)
+        private string str;
+        protected Func<string, string> massager;
+        
+        public virtual string String 
         {
-            this.String = str;
+            get { return this.str; }
+            set { this.str = this.massager(value); }
+        }
+
+        //protected StringWithConstraints() 
+        //    : this(null)
+        //{
+        //}
+
+        protected StringWithConstraints(Func<string, string> massager)
+        {
+            this.massager = massager;
         }
 
         public static bool operator ==(StringWithConstraints ms, object obj)
@@ -111,9 +123,15 @@ namespace Aspectacular
     /// </summary>
     public class NonEmptyString : StringWithConstraints
     {
-        public NonEmptyString(string str)
-            : base(str.IsBlank() ? null : str)
+        public NonEmptyString()
+            : base(str => str.IsBlank() ? null : str)
         {
+        }
+
+        public NonEmptyString(string str)
+            : this()
+        {
+            this.String = str;
         }
 
         public static implicit operator NonEmptyString(string str)
@@ -126,11 +144,17 @@ namespace Aspectacular
     /// Represents a string that is either null, or non-empty/non-blank string with no leading or trailing white spaces.
     /// Empty string becomes null, non-empty strings get trimmed.
     /// </summary>
-    public class NonEmptyTrimmedString : NonEmptyString
+    public class NonEmptyTrimmedString : StringWithConstraints
     {
-        public NonEmptyTrimmedString(string str)
-            : base(str == null ? null : str.Trim())
+        public NonEmptyTrimmedString()
+            : base(str => str.IsBlank() ? null : str.Trim())
         {
+        }
+
+        public NonEmptyTrimmedString(string str)
+            : this()
+        {
+            this.String = str;
         }
 
         public static implicit operator NonEmptyTrimmedString(string str)
@@ -144,9 +168,15 @@ namespace Aspectacular
     /// </summary>
     public class TrimmedString : StringWithConstraints
     {
-        public TrimmedString(string str)
-            : base(str == null ? null : str.Trim())
+        public TrimmedString()
+            : base(str => str == null ? null : str.Trim())
         {
+        }
+
+        public TrimmedString(string str)
+            : this()
+        {
+            this.String = str;
         }
 
         public static implicit operator TrimmedString(string str)
@@ -160,9 +190,15 @@ namespace Aspectacular
     /// </summary>
     public class NonNullString : StringWithConstraints
     {
-        public NonNullString(string str)
-            : base(str == null ? string.Empty : str)
+        public NonNullString()
+            : base(str => str == null ? string.Empty : str)
         {
+        }
+
+        public NonNullString(string str)
+            : this()
+        {
+            this.String = str;
         }
 
         public static implicit operator NonNullString(string str)
@@ -183,12 +219,18 @@ namespace Aspectacular
         public readonly NonNullString Ellipsis = string.Empty;
 
         public TruncatedString(string str, uint maxLength, string optionalEllipsis = "...")
-            : base(string.Empty)
+            : base(ss => ss)
         {
+            this.massager = (s) => this.Massage(s);
             this.MaxLen = (int)maxLength;
             this.Ellipsis = optionalEllipsis;
 
             this.String = str;
+        }
+
+        protected string Massage(string str)
+        {
+            return str.TruncateIfExceeds((uint)this.MaxLen, this.Ellipsis);
         }
 
         public override string String
@@ -197,10 +239,10 @@ namespace Aspectacular
             {
                 return base.String;
             }
-            protected set
+            set
             {
                 this.OriginalString = value;
-                base.String = value.TruncateIfExceeds((uint)this.MaxLen, this.Ellipsis);
+                base.String = value;
             }
         }
     }
@@ -211,6 +253,10 @@ namespace Aspectacular
     /// </summary>
     public class String255 : TruncatedString
     {
+        public String255() : this(null)
+        {
+        }
+
         public String255(string str)
             : base(str, 255, optionalEllipsis: null)
         {

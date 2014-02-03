@@ -59,8 +59,13 @@ namespace Aspectacular
 
         public Match Match { get; protected set; }
 
-        public EmailAddress(string emailAddress) : base(emailAddress)
+        public EmailAddress() : this(null)
         {
+        }
+
+        public EmailAddress(string emailAddress) : base(str => str)
+        {
+            this.String = emailAddress;
         }
 
         public override string String
@@ -69,7 +74,7 @@ namespace Aspectacular
             {
                 return this.FullAddress;
             }
-            protected set
+            set
             {
                 this.Match = ParseEmailAddress(value);
             }

@@ -99,5 +99,35 @@ namespace Aspectacular.CoreTests
             actual = "True".Parse(false);
             Assert.AreEqual(true, actual);
         }
+
+        public class TestEntity
+        {
+            public string Text { get; set; }
+            public int Count { get; set; }
+            public NonEmptyTrimmedString FancyString { get; set; }
+            public DateTime Date { get; set; }
+            //public ValueRange<int> IntRange { get; set; }
+            public Range<string> StringRange { get; set; }
+        }
+
+        [TestMethod]
+        public void TestConstrainedStringSerialization()
+        {
+            TestEntity te = new TestEntity
+            {
+                 Count = 23,
+                  Date = DateTime.Now,
+                   Text = " Any Text ",
+                   FancyString = " Fancy Text ",
+                 //IntRange = new ValueRange<int>(-3, 5),
+                 StringRange = new Range<string>(null, "xyz"),
+            };
+
+            string json = te.ToJsonString();
+            TestEntity te2 = json.FromJsonString<TestEntity>();
+            Assert.AreEqual(te.FancyString, te2.FancyString);
+            //Assert.AreEqual(te.IntRange, te2.IntRange);
+            Assert.AreEqual(te.StringRange, te2.StringRange);
+        }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace Aspectacular
 {
@@ -9,48 +11,59 @@ namespace Aspectacular
     /// Class representing an inclusive range between two comparable objects.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class RangeBase<T> : IEquatable<RangeBase<T>> 
+    public abstract class RangeBase<T> : IEquatable<RangeBase<T>>, ISerializable 
         where T : IComparable
     {
-        protected readonly object start = null;
-        protected readonly object end = null;
+        protected object start = null;
+        protected object end = null;
 
         /// <summary>
         /// Range's inclusive lower bound.
         /// </summary>
-        public T Start 
+        public virtual T Start 
         { 
             get { return (T)this.start; }
+            set { this.start = value; this.CheckOrder(); }
         }
         
         /// <summary>
         /// Range's inclusive higher bound. 
         /// </summary>
-        public T End 
+        public virtual T End 
         {
-            get { return (T)this.end; } 
+            get { return (T)this.end; }
+            set { this.end = value; this.CheckOrder(); }
+        }
+
+        protected void CheckOrder()
+        {
+            if (this.start != null && this.end != null)
+            {
+                int comparisonResult = ((T)this.start).CompareTo(this.end);
+                if (comparisonResult > 0) // swap required
+                {
+                    object temp = this.start;
+                    this.start = this.end;
+                    this.end = temp;
+                }
+            }
+        }
+
+        protected RangeBase() : this(null, null)
+        {
         }
 
         public RangeBase(object start, object end)
         {
-            object startObj = start;
-            object endObj = end;
-
-            if (startObj == null || endObj == null)
-            {
-                this.start = start;
-                this.end = end;
-            }else
-            {
-                int comparisonResult = ((T)start).CompareTo(end);
-                this.start = comparisonResult <= 0 ? start : end;
-                this.end = comparisonResult <= 0 ? end : start;
-            }
+            this.start = start;
+            this.end = end;
+            this.CheckOrder();
         }
 
         /// <summary>
         /// Returns false if range is open-ended on the left.
         /// </summary>
+        [XmlIgnore]
         public virtual bool HasStart
         {
             get { return this.start != null; }
@@ -59,6 +72,7 @@ namespace Aspectacular
         /// <summary>
         /// Returns false if range is open-ended on the right.
         /// </summary>
+        [XmlIgnore]
         public virtual bool HasEnd
         {
             get { return this.end != null; }
@@ -134,6 +148,19 @@ namespace Aspectacular
 
             return "{{ {0} : {1} }}".SmartFormat(startStr, endStr);
         }
+
+        protected RangeBase(SerializationInfo info, StreamingContext ctxt)
+        {
+            this.start = info.GetValue("Start", typeof(T));
+            this.end = info.GetValue("End", typeof(T));
+        }
+
+        public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("Start", this.Start);
+            info.AddValue("End", this.End);
+            this.CheckOrder();
+        }
     }
 
     /// <summary>
@@ -143,8 +170,17 @@ namespace Aspectacular
     public class Range<T> : RangeBase<T>
         where T : class, IComparable
     {
-        internal protected Range(T start, T end)
+        public Range() : this(null, null)
+        {
+        }
+
+        public Range(T start, T end)
             : base(start, end)
+        {
+        }
+    
+        private Range(SerializationInfo info, StreamingContext ctxt)
+            : base(info, ctxt)
         {
         }
     }
@@ -156,18 +192,35 @@ namespace Aspectacular
     public class ValueRange<T> : RangeBase<T>
         where T : struct, IComparable
     {
-        internal protected ValueRange(T? start, T? end)
+        public ValueRange() : this(null, null)
+        {
+        }
+
+        public ValueRange(T? start, T? end)
             : base(start == null ? (object)null : (object)start.Value, end == null ? (object)null : (object)end.Value)
         {
         }
 
+
+        protected ValueRange(SerializationInfo info, StreamingContext ctxt)
+        {
+            this.start = info.GetValue("Start", typeof(T?));
+            this.end = info.GetValue("End", typeof(T?));
+            this.CheckOrder();
+        }
+
+        //[XmlIgnore]
         public new T? Start
         {
             get { return this.start == null ? (T?)null : (T)this.start; }
+            set { base.start = value; this.CheckOrder(); }
         }
+
+        //[XmlIgnore]
         public new T? End
         {
             get { return this.end == null ? (T?)null : (T)this.end; }
+            set { base.end = value; this.CheckOrder(); }
         }
     }
 
@@ -216,8 +269,18 @@ namespace Aspectacular
     /// </summary>
     public class DateRange : ValueRange<DateTime>
     {
+        public DateRange()
+            : this(null, null)
+        {
+        }
+
         public DateRange(DateTime? start, DateTime? end)
             : base(start, end)
+        {
+        }
+
+        protected DateRange(SerializationInfo info, StreamingContext ctxt)
+            : base(info, ctxt)
         {
         }
 

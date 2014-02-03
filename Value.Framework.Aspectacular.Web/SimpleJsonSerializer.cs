@@ -24,12 +24,12 @@ namespace Aspectacular
             return JsSerializer.DeserializeObject(jsonStr);
         }
 
-        public static T FromJsonString<T>(this string jsonStr)
+        public static T FromJsonString<T>(this string jsonStr) //where T : new()
         {
             return JsSerializer.Deserialize<T>(jsonStr);
         }
 
-        public static T FromJsonObject<T>(this object obj)
+        public static T FromJsonObject<T>(this object obj) //where T : new()
         {
             return obj.ToJsonString().FromJsonString<T>();
         }
