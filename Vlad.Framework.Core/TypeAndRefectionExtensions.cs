@@ -261,5 +261,14 @@ namespace Aspectacular
         }
 
         #endregion Type extensions
+
+        public static bool IsFlagOn(this int valueToCheck, int flag)
+        {
+            return (valueToCheck & flag) == flag;
+        }
+        public static bool IsAnyFlagOn(this int valueToCheck, int flag)
+        {
+            return (valueToCheck & flag) != 0;
+        }
     }
 }

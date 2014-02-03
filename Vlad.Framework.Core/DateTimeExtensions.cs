@@ -48,5 +48,15 @@ namespace Aspectacular
 
             return dt;
         }
+
+        /// <summary>
+        /// Subtracts 1 tick from the give time.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static DateTime PreviousMoment(this DateTime dt)
+        {
+            return new DateTime(dt.Ticks - 1, dt.Kind);
+        }
     }
 }

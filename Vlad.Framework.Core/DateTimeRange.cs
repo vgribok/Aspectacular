@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 
 namespace Aspectacular
 {
-
     /*
      *            Time Unit Start    Reference Moment      Time Unit End
      *  Example:   (Day start)             (Now)              (Day End)
-     * ----- Previous -->|<-- Current -------|-------- Current -->|<-- Next -------
+     * ----- Previous -->|<-- Current -------+-------- Current -->|<-- Next -------
+     * ----------------->|<-------To Date -->|
      * ----------------------------- Past -->|<-- Future --------------------------
      * 
      */
@@ -19,7 +20,7 @@ namespace Aspectacular
     [Flags]
     public enum TimeUnits : int
     {
-        UtcUnit = 0x10, // Time unit that is better suited for UTC time ranges (like PAST xxx units). Typically, hours, minutes and seconds.
+        UtcUnit = 0x10, // Time Unit that is better suited for UTC time ranges (like PAST xxx units). Typically, hours, minutes and seconds.
         Second = UtcUnit + 1,
         Minute = UtcUnit + 2,
         Hour = UtcUnit + 3,
@@ -33,15 +34,6 @@ namespace Aspectacular
         Year = LocalTimeUnit + 5, 
         Decade = LocalTimeUnit + 6, 
         Century = LocalTimeUnit + 7,
-
-        //DayOfWeek = 0x1000, // can be used only with the unitCount of 1, and only previous
-        //Sunday = LocalTimeSpan + DayOfWeek + 1,
-        //Monday = LocalTimeSpan + DayOfWeek + 2,
-        //Tuesday = LocalTimeSpan + DayOfWeek + 3,
-        //Wednesday = LocalTimeSpan + DayOfWeek + 4,
-        //Thursday = LocalTimeSpan + DayOfWeek + 5,
-        //Friday = LocalTimeSpan + DayOfWeek + 6,
-        //Saturday = LocalTimeSpan + DayOfWeek + 7,
     }
 
     [Flags]
@@ -54,52 +46,14 @@ namespace Aspectacular
         LocalTimeSpan = 0x100, 
         AllowsOnlySingle = 0x1000,
 
+        /// <summary>
+        /// To date/till now. For example, year to date, hour till now.
+        /// </summary>
+        ToDate = LocalTimeSpan + UtcTimespan + AllowsOnlySingle + 0,
+
         CurrentOrSpecified = LocalTimeSpan + AllowsOnlySingle + 0,
         Previous = LocalTimeSpan + 1,
-        PreviousAndCurrent = Previous + CurrentOrSpecified,
         Next = LocalTimeSpan + 2,
-        CurrentAndNext = CurrentOrSpecified + Next,
-
-        //PreviousDayOfWeek = Previous + AllowsOnlySingle,
-        //NextDayOfWeek = Next + AllowsOnlySingle,
-    }
-
-
-    public enum UtcTimeUnits : int
-    {
-        Second = TimeUnits.Second,
-        Minute = TimeUnits.Minute,
-        Hour = TimeUnits.Hour,
-        Eternity = TimeUnits.Eternity,
-    }
-
-    public enum UtcTimespanQualifiers : int
-    {
-        Past = TimespanQualifiers.Past,
-        Future = TimespanQualifiers.Future,
-    }
-
-
-    public enum LocalTimeUnits : int
-    {
-        Second = TimeUnits.Second,
-        Minute = TimeUnits.Minute,
-        Hour = TimeUnits.Hour,
-
-        Day = TimeUnits.Day,
-        Week = TimeUnits.Week,
-        Month = TimeUnits.Month,
-        Quarter = TimeUnits.Quarter,
-        Year = TimeUnits.Year,
-        Decade = TimeUnits.Decade,
-        Century = TimeUnits.Century,
-    }
-    public enum LocalTimespanQualifiers : int
-    {
-        Previous = TimespanQualifiers.Previous,
-        PreviousAndCurrent = TimespanQualifiers.PreviousAndCurrent,
-        Next = TimespanQualifiers.Next,
-        CurrentAndNext = TimespanQualifiers.CurrentAndNext,
     }
 
     /// <summary>
@@ -108,73 +62,73 @@ namespace Aspectacular
     /// </summary>
     public class RelativeTimeSpan
     {
-        private readonly TimeUnits unit;
-        private readonly TimespanQualifiers direction;
+        public readonly TimeUnits Unit;
+        public readonly TimespanQualifiers Direction;
         public readonly ulong UnitCount;
 
         /// <summary>
-        /// Constructor for Past and Future ranges
         /// </summary>
-        /// <param name="direction"></param>
-        /// <param name="unit"></param>
+        /// <param name="Direction"></param>
+        /// <param name="Unit"></param>
         /// <param name="unitCount"></param>
         /// <param name="referenceMoment"></param>
-        public RelativeTimeSpan(UtcTimespanQualifiers direction, UtcTimeUnits unit, ulong unitCount = 1)
+        public RelativeTimeSpan(TimespanQualifiers direction, TimeUnits unit, ulong unitCount = 1)
         {
             if (unitCount == 0)
                 throw new ArgumentOutOfRangeException("span value must be 1 or greater.");
 
-            this.UnitCount = unitCount;
-            this.unit = (TimeUnits)(int)unit;
-            this.direction = (TimespanQualifiers)(int)direction;
-        }
+            if(!direction.IsCompatibleWith(unit))
+                throw new ArgumentException("Time direction \"{0}\" cannot be used with the unit type \"{1}\".".SmartFormat(direction, unit));
 
-        /// <summary>
-        /// Constructor for Previous and Future ranges
-        /// </summary>
-        /// <param name="direction"></param>
-        /// <param name="unit"></param>
-        /// <param name="unitCount"></param>
-        /// <param name="referenceMoment"></param>
-        public RelativeTimeSpan(LocalTimespanQualifiers direction, LocalTimeUnits unit, ulong unitCount = 1)
-        {
-            if (unitCount == 0)
-                throw new ArgumentOutOfRangeException("span value must be 1 or greater.");
+            if(direction.HasFlag(TimespanQualifiers.AllowsOnlySingle) && unitCount > 1)
+                throw new ArgumentException("Time direction \"{0}\" can only be used with unitCount=1.".SmartFormat(direction));
 
             this.UnitCount = unitCount;
-            this.unit = (TimeUnits)(int)unit;
-            this.direction = (TimespanQualifiers)(int)direction;
-        }
-
-        /// <summary>
-        /// Constructor for Current range
-        /// </summary>
-        /// <param name="unit"></param>
-        /// <param name="referenceMoment"></param>
-        public RelativeTimeSpan(LocalTimeUnits unit)
-        {
-            this.UnitCount = 1;
-            this.unit = (TimeUnits)(int)unit;
-            this.direction = TimespanQualifiers.CurrentOrSpecified;
+            this.Unit = unit;
+            this.Direction = direction;
         }
 
         public DateRange GetDateTimeRange(DateTime? referenceMoment = null)
         {
-            DateTime refMoment = this.AdjustRefMoment(referenceMoment);
+            DateTime refMoment = referenceMoment == null || referenceMoment.Value == default(DateTime) ? 
+                        (this.Unit.GetKind() == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now) 
+                        : referenceMoment.Value;
 
-            // TODO : not completed yet.
+            DateTime? start = null, end = null;
 
-            DateTime start = refMoment.StartOf(this.unit);
-            DateTime end = refMoment.EndOf(this.unit);
+            switch(this.Direction)
+            {
+                case TimespanQualifiers.CurrentOrSpecified:
+                    start = refMoment.StartOf(this.Unit);
+                    end = refMoment.EndOf(this.Unit);
+                    break;
+                case TimespanQualifiers.ToDate:
+                    start = refMoment.StartOf(this.Unit);
+                    end = refMoment; // refMoment.EndOf(TimeUnits.Day);
+                    break;
+                case TimespanQualifiers.Past:
+                    Debug.Assert(this.Unit.HasFlag(TimeUnits.UtcUnit));
+                    end = refMoment;
+                    start = this.Unit == TimeUnits.Eternity ? (DateTime?)null : end.Value.Add(-(int)this.UnitCount, this.Unit);
+                    break;
+                case TimespanQualifiers.Future:
+                    Debug.Assert(this.Unit.HasFlag(TimeUnits.UtcUnit));
+                    start = refMoment;
+                    end = this.Unit == TimeUnits.Eternity ? (DateTime?)null : start.Value.Add((int)this.UnitCount, this.Unit);
+                    break;
+                case TimespanQualifiers.Previous:
+                    end = refMoment.StartOf(this.Unit);
+                    start = end.Value.Add(-(int)this.UnitCount, this.Unit);
+                    end = end.Value.PreviousMoment();
+                    break;
+                case TimespanQualifiers.Next:
+                    start = refMoment.StartOf(this.Unit).Add(1, this.Unit);
+                    end = start.Value.Add((int)this.UnitCount, this.Unit);
+                    break;
+            }
 
             DateRange range = new DateRange(start, end);
             return range;
-        }
-
-        private DateTime AdjustRefMoment(DateTime? referenceMoment)
-        {
-            DateTime refMoment = referenceMoment == null ? (this.unit.GetKind() == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now) : referenceMoment.Value;
-            return refMoment;
         }
     }
 
@@ -190,14 +144,22 @@ namespace Aspectacular
             return DateTimeKind.Unspecified;
         }
 
+        public static bool IsCompatibleWith(this TimespanQualifiers direction, TimeUnits unit)
+        {
+            int directionFlags = (int)(direction & (TimespanQualifiers.UtcTimespan | TimespanQualifiers.LocalTimeSpan));
+            int unitFlags = (int)(unit & (TimeUnits.UtcUnit | TimeUnits.LocalTimeUnit));
+
+            return (directionFlags & unitFlags) != 0;
+        }
+
         /// <summary>
-        /// Returns higher time unit in which the given unit is *repeated within*.
+        /// Returns higher time Unit in which the given Unit is *repeated within*.
         /// This is not a direct hierarchy! Different types of units may have same parent.
         /// For example, Month number 1..12 is repeated within a Year, so Month's parent is Year, not quarter.
         /// Quarter 1..4 also is repeated within a year, so Quarter's parent is also year.
         /// Same goes for Week number 1..52.
         /// </summary>
-        /// <param name="unit"></param>
+        /// <param name="Unit"></param>
         /// <returns></returns>
         public static TimeUnits? CalculationParent(this TimeUnits unit)
         {
@@ -318,15 +280,115 @@ namespace Aspectacular
         {
             DateTime start = dt.StartOf(unit);
             DateTime next = start.Add(1, unit);
-            DateTime end = new DateTime(next.Ticks - 1, dt.Kind);
+            DateTime end = next.PreviousMoment();
             return end;
         }
 
-        public static DateRange Current(this LocalTimeUnits unit, DateTime? referenceMoment = null)
+        #region DateRanage factory methods
+
+        public static DateRange Current(this TimeUnits unit, DateTime? referenceMoment = null)
         {
-            var span = new RelativeTimeSpan(unit);
+            var span = new RelativeTimeSpan(TimespanQualifiers.CurrentOrSpecified, unit);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
+
+        public static DateRange ToDate(this TimeUnits unit, DateTime? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(TimespanQualifiers.ToDate, unit);
+            DateRange range = span.GetDateTimeRange(referenceMoment);
+            return range;
+        }
+
+        public static DateRange Past(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(TimespanQualifiers.Past, unit, unitCount);
+            DateRange range = span.GetDateTimeRange(referenceMoment);
+            return range;
+        }
+
+        public static DateRange Future(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(TimespanQualifiers.Future, unit, unitCount);
+            DateRange range = span.GetDateTimeRange(referenceMoment);
+            return range;
+        }
+
+        public static DateRange Previous(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(TimespanQualifiers.Previous, unit, unitCount);
+            DateRange range = span.GetDateTimeRange(referenceMoment);
+            return range;
+        }
+
+        public static DateRange Next(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(TimespanQualifiers.Next, unit, unitCount);
+            DateRange range = span.GetDateTimeRange(referenceMoment);
+            return range;
+        }
+
+
+        public static DateRange RangeCurrent(this DateTime dt, TimeUnits unit)
+        {
+            return unit.Current(dt);
+        }
+
+        public static DateRange RangeCurrent(this DateTime? dt, TimeUnits unit)
+        {
+            return unit.Current(dt);
+        }
+
+        public static DateRange RangeToDate(this DateTime dt, TimeUnits unit)
+        {
+            return unit.ToDate(dt);
+        }
+
+        public static DateRange RangeToDate(this DateTime? dt, TimeUnits unit)
+        {
+            return unit.ToDate(dt);
+        }
+
+        public static DateRange RangePast(this DateTime dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Past(unitCount, dt);
+        }
+
+        public static DateRange RangePast(this DateTime? dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Past(unitCount, dt);
+        }
+
+        public static DateRange RangeFuture(this DateTime dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Future(unitCount, dt);
+        }
+
+        public static DateRange RangeFuture(this DateTime? dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Future(unitCount, dt);
+        }
+
+        public static DateRange RangePrevious(this DateTime dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Previous(unitCount, dt);
+        }
+
+        public static DateRange RangePrevious(this DateTime? dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Previous(unitCount, dt);
+        }
+
+        public static DateRange RangeNext(this DateTime dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Next(unitCount, dt);
+        }
+
+        public static DateRange RangeNext(this DateTime? dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Next(unitCount, dt);
+        }
+
+        #endregion DateRanage factory methods
     }
 }

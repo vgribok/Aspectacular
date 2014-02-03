@@ -49,13 +49,8 @@ namespace Aspectacular.Test.CoreTests
         {
             // Previous September
             DateTime localNow = new DateTime(2013, 9, 5); //DateTime.Now;
-
-            DateTime refMoment = localNow.GoTo(dt => dt.Month == 9 && dt != localNow, dt => dt.AddMonths(-1)); // Finds past September;
-            Assert.IsTrue(refMoment.Month == 9 && (localNow.Month > 9 || refMoment.Year < localNow.Year));
-            Assert.AreEqual(refMoment, new DateTime(2012, 9, 5));
-
-            DateRange range = LocalTimeUnits.Month.Current(refMoment);
-            Assert.IsFalse(range.Kind == DateTimeKind.Utc);
+            DateRange range = TimeUnits.Month.Current(localNow.Add(-1, TimeUnits.Year));
+            Assert.AreEqual(DateTimeKind.Local, range.Kind);
         }
 
         [TestMethod]
