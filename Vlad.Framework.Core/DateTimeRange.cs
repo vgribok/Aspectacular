@@ -192,8 +192,7 @@ namespace Aspectacular
 
         public static DateTime StartOf(this DateTime dt, TimeUnits unit)
         {
-            //DateTimeKind dtKind = dt.Kind == DateTimeKind.Unspecified ? DateTimeKind.Local : dt.Kind;
-            DateTimeKind dtKind = unit.GetKind();
+            DateTimeKind dtKind = dt.Kind == DateTimeKind.Unspecified ? DateTimeKind.Local : dt.Kind;
 
             switch (unit)
             {

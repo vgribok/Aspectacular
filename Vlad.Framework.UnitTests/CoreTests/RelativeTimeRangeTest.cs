@@ -106,6 +106,7 @@ namespace Aspectacular.Test.CoreTests
             Assert.AreEqual("12/31/2013 12:00:00 AM", actual.ToString());
             Assert.AreEqual(DateTimeKind.Local, actual.Kind);
 
+            dt = (new DateTime(2013, 12, 31, 0, 0, 0, DateTimeKind.Utc)).EndOf(TimeUnits.Day);
 
             actual = dt.StartOf(TimeUnits.Hour);
             Assert.AreEqual("12/31/2013 11:00:00 PM", actual.ToString());
