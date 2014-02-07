@@ -356,6 +356,10 @@ namespace Aspectacular
 
             this.augmentedInstance = augmentedInstance;
             this.MethodReflectionInfo = this.interceptedMethodExpression.Method;
+
+            if (this.augmentedInstance == null && !this.MethodReflectionInfo.IsStatic)
+                throw new Exception("Null instance specified for instance method \"{0}\". Please use obj.GetProxy().Invoke() instead of AOP.Invoke().".SmartFormat(this.GetMethodSignature(ParamValueOutputOptions.NoValue)));
+
             this.forceClassInstanceInvariant = forceClassInstanceInvariant;
             this.hasOutputParams = new Lazy<bool>(() => this.Params.Any(p => p.Direction == ParamDirectionEnum.Out || p.Direction == ParamDirectionEnum.RefInOut));
 
