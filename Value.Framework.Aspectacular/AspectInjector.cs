@@ -48,13 +48,7 @@ namespace Aspectacular
                 Proxy currentProxy = ProxyStack.Any() ? ProxyStack.Peek() : null;
 
                 if (currentProxy != null && !currentProxy.InterceptedCallMetaData.IsStaticMethod)
-                {
-                    throw new Exception("Proxy.CurrentLog can only be used from inside intercepted *static* methods. " +
-                                    "Intercepted instance methods must instead belong to a class implementing ICallLogger interface. " +
-                                    "Currently-intercepted method \"{0}\" is not static."
-                                    .SmartFormat(currentProxy.InterceptedCallMetaData.GetMethodSignature())
-                                );
-                }
+                    currentProxy = null; // Proxy.CurrentLog cannot be used when instance (non-static) is intercepted.
 
                 return currentProxy;
             } 
