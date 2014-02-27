@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Aspectacular
@@ -36,10 +37,17 @@ namespace Aspectacular
     /// </summary>
     public abstract class Aspect : IAspect
     {
+        /// <summary>
+        /// Should be set when application is exiting.
+        /// </summary>
+        public static ManualResetEvent ApplicationExiting = new ManualResetEvent(initialState: false);
+
         public virtual Proxy Proxy { get; set; }
 
         static Aspect()
         {
+            AppDomain.CurrentDomain.DomainUnload += new EventHandler((domainRaw, evt) => ApplicationExiting.Set());
+
             if (DefaultAspectFactory == null)
                 DefaultAspectFactory = DefaultAspectsConfigSection.GetDefaultAspects;
         }

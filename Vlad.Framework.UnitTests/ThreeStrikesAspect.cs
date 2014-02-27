@@ -9,21 +9,6 @@ using Aspectacular;
 
 namespace Aspectacular.Test
 {
-    /// <summary>
-    /// Makes three attempts to call intercepted method if it throws and exception.
-    /// </summary>
-    public class ThreeStrikesAspect : Aspect
-    {
-        public override void Step_4_Optional_AfterCatchingMethodExecException()
-        {
-            if (this.Proxy.AttemptsMade < 3)
-            {
-                this.Proxy.ShouldRetryCall = true;
-                this.LogInformationWithKey("Failed call retry", "{0} attempt will be made due to \"{1}\".",  this.Proxy.AttemptsMade+1, this.Proxy.MethodExecutionException.Message);
-            }
-        }
-    }
-
     public class TimetampsAspect : Aspect
     {
         public bool UseUtc { get; protected set; }

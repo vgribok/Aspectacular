@@ -23,7 +23,6 @@ namespace Aspectacular.Test
             {
                 return new Aspect[]
                 {
-                     new ThreeStrikesAspect(),
                      new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
                      new LinqToSqlAspect(),
                      new ReturnValueLoggerAspect(),

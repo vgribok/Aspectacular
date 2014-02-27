@@ -334,8 +334,10 @@ namespace Aspectacular
                                     this.Step_4_Optional_AfterCatchingMethodExecException();
 
                                     if (this.ShouldRetryCall)
+                                    {
+                                        this.MethodExecutionException = null;
                                         this.ShouldRetryCall = false;
-                                    else
+                                    }else
                                     {
                                         // No more call attempts - break the retry loop.
                                         if (ex == this.MethodExecutionException)
