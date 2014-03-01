@@ -84,7 +84,7 @@ namespace Aspectacular
             {
                 this.LogInformationWithKey("Retry delay", "{0:#,#0}", this.MillisecDelayBetweenRetries);
                 
-                if (ApplicationExiting.WaitOne((int)this.MillisecDelayBetweenRetries))
+                if (Threading.Sleep(this.MillisecDelayBetweenRetries) == SleepResult.Aborted)
                 {   // Application exiting. Abort retry loop.
                     this.Proxy.ShouldRetryCall = false;
                     this.LogInformationData("Retry Aborted", true);

@@ -40,6 +40,7 @@ namespace Aspectacular
         /// <summary>
         /// Should be set when application is exiting.
         /// </summary>
+        [Obsolete("Please use Threading.ApplicationExiting and Threading.Sleep() instead.")]
         public static ManualResetEvent ApplicationExiting = new ManualResetEvent(initialState: false);
 
         public virtual Proxy Proxy { get; set; }

@@ -88,7 +88,7 @@ namespace Aspectacular.Test
             Task asyncAbortGenerator = Task.Run(() => 
             {
                 Thread.Sleep(100);
-                Aspect.ApplicationExiting.Set();
+                Threading.ApplicationExiting.Set();
             });
 
             var proxy = this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect));
@@ -99,7 +99,7 @@ namespace Aspectacular.Test
             }
             finally
             {
-                Aspect.ApplicationExiting.Reset();
+                Threading.ApplicationExiting.Reset();
 
                 bool aborted = proxy.callLog.Exists(l => l.Key == "Retry Aborted");
                 Assert.IsTrue(aborted);
