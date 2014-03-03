@@ -317,5 +317,28 @@ namespace Aspectacular
 
             return truncated;
         }
+
+        /// <summary>
+        /// Concatenates [str] given number of times. 
+        /// Returns null if count is less than 1.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public static string Repeat(this string str, int count)
+        {
+            if (count < 1)
+                return null;
+
+            if (count == 1 || string.IsNullOrEmpty(str))
+                return str;
+
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < count; i++)
+                sb.Append(str);
+
+            return sb.ToString();
+        }
     }
 }

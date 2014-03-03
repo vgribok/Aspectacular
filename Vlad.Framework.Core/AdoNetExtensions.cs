@@ -173,16 +173,16 @@ namespace Aspectacular
             }
         }
 
-        /// <summary>
-        /// Exposes ADO.NET DataTable as an IEnumerable[DataRow]
-        /// </summary>
-        /// <param name="table"></param>
-        /// <returns></returns>
-        public static IEnumerable<DataRow> AsEnumerable(this DataTable table)
-        {
-            var stronglyTyped = table.DefaultView.Cast<DataRow>();
-            return stronglyTyped;
-        }
+        ///// <summary>
+        ///// Exposes ADO.NET DataTable as an IEnumerable[DataRow]
+        ///// </summary>
+        ///// <param name="table"></param>
+        ///// <returns></returns>
+        //public static IEnumerable<DataRow> AsEnumerable(this DataTable table)
+        //{
+        //    var stronglyTyped = table.DefaultView.Cast<DataRow>();
+        //    return stronglyTyped;
+        //}
 
         /// <summary>
         /// </summary>

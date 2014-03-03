@@ -104,6 +104,28 @@ namespace Aspectacular
                 func(collection, i);
         }
 
+        /// <summary>
+        /// Calls [handler] given number of times and passes zero-based iteration index to it.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <param name="handler"></param>
+        public static void Repeat(this int count, Action<int> handler)
+        {
+            for (int i = 0; i < count; i++)
+                handler(i);
+        }
+
+        /// <summary>
+        /// Calls [handler] given number of times and passes zero-based iteration index to it.
+        /// </summary>
+        /// <param name="count"></param>
+        /// <param name="handler"></param>
+        public static void Repeat(this long count, Action<long> handler)
+        {
+            for (long i = 0; i < count; i++)
+                handler(i);
+        }
+
         public static IEnumerable ToEnumerable(this IQueryable query)
         {
             foreach (object elem in query)
