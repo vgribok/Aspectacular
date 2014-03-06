@@ -51,21 +51,23 @@ namespace Aspectacular
     public class DebugOutputAspect : Aspect
     {
         public readonly EntryType entryTypeFilter;
+        public readonly string key;
 
         public DebugOutputAspect()
             : this(EntryType.Error | EntryType.Warning | EntryType.Info)
         {
         }
 
-        public DebugOutputAspect(EntryType typeOfEntriesToOutput)
+        public DebugOutputAspect(EntryType typeOfEntriesToOutput, string optionalKey = null)
         {
             this.entryTypeFilter = typeOfEntriesToOutput;
+            this.key = optionalKey;
         }
 
-        protected IEnumerable<string> GetTextEntries(List<CallLogEntry> entries)
+        protected virtual IEnumerable<string> GetTextEntries(List<CallLogEntry> entries)
         {
             var q = from entry in entries
-                    where (entry.What & this.entryTypeFilter) != 0
+                    where (entry.What & this.entryTypeFilter) != 0 && (this.key == null || entry.Key == this.key)
                     select entry.ToString();
 
             return q;
@@ -85,8 +87,8 @@ namespace Aspectacular
     /// </summary>
     public class TraceOutputAspect : DebugOutputAspect
     {
-        public TraceOutputAspect(EntryType typeOfEntriesToOutput)
-            : base(typeOfEntriesToOutput)
+        public TraceOutputAspect(EntryType typeOfEntriesToOutput, string optionalKey = null)
+            : base(typeOfEntriesToOutput, optionalKey)
         {
         }
 
