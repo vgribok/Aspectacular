@@ -38,9 +38,9 @@ namespace Aspectacular.Test
             this.LogInformationData("Timestamp for Step_2_BeforeTryingMethodExec", this.GetCurrent());
         }
 
-        public override void Step_7_AfterEverythingSaidAndDone()
+        public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
         {
-            this.LogInformationData("Timestamp for Step_7_AfterEverythingSaidAndDone", this.GetCurrent());
+            this.LogInformationData("Timestamp for Step_5_FinallyAfterMethodExecution", this.GetCurrent());
         }
     }
 }
