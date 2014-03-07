@@ -101,11 +101,11 @@ namespace Aspectacular
             get { return this["aspects"] as DefaultAspectCollection; }
         }
 
-        private static readonly Lazy<List<Func<Aspect>>> defaultAspectActivators;
+        private static readonly Lazy<List<Func<Aspect>>> configAspectActivators;
         
         static DefaultAspectsConfigSection()
         {
-            defaultAspectActivators = new Lazy<List<Func<Aspect>>>(LoadDefaultAspectConfig);
+            configAspectActivators = new Lazy<List<Func<Aspect>>>(LoadDefaultAspectConfig);
         }
 
         public static DefaultAspectsConfigSection LoadConfigSection()
@@ -154,11 +154,11 @@ namespace Aspectacular
             return initializators;
         }
 
-        public static IEnumerable<Aspect> GetDefaultAspects()
+        public static IEnumerable<Aspect> GetConfigAspects()
         {
             try
             {
-                return defaultAspectActivators.Value.Select(activator => activator());
+                return configAspectActivators.Value.Select(activator => activator());
             }
             catch (Exception ex)
             {

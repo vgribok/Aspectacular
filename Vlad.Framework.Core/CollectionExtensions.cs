@@ -136,18 +136,30 @@ namespace Aspectacular
         /// More convenient form of Union().
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="addToCollection"></param>
-        /// <param name="items"></param>
+        /// <param name="leftCollection"></param>
+        /// <param name="rightCollection"></param>
         /// <returns></returns>
         public static IEnumerable<T> More<T>(this IEnumerable<T> addToCollection, params T[] items)
         {
-            if (addToCollection == null)
-                return items;
+            return SmartUnion<T>(addToCollection, items);
+        }
 
-            if(items == null)
-                return addToCollection;
+        /// <summary>
+        /// A better version of the Union() method that won't trip up on null collections.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="leftCollection"></param>
+        /// <param name="rightCollection"></param>
+        /// <returns></returns>
+        public static IEnumerable<T> SmartUnion<T>(this IEnumerable<T> leftCollection, IEnumerable<T> rightCollection)
+        {
+            if (leftCollection == null)
+                return rightCollection;
 
-            return addToCollection.Union(items);
+            if (rightCollection == null)
+                return leftCollection;
+
+            return leftCollection.Union(rightCollection);
         }
 
 

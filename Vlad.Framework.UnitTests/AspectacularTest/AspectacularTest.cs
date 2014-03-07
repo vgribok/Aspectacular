@@ -15,13 +15,9 @@ namespace Aspectacular.Test
     {
         public static readonly StupidSimpleInProcCache testInProcCache = new StupidSimpleInProcCache();
 
-        public TestContext TestContext { get; set; }
-
-        public static Aspect[] MainAspectsWithNoDebug
+        static AspectacularTest()
         {
-            get
-            {
-                return new Aspect[]
+            var defaultAspects = new Aspect[]
                 {
                      new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
                      new LinqToSqlAspect(),
@@ -29,16 +25,20 @@ namespace Aspectacular.Test
                      new SlowFullMethodSignatureAspect(),
                      //new SqlCmdExecutionPlanAspect(),
                 };
-            }
+
+            Aspect.GlobalAspects.AddRange(defaultAspects);
         }
+
+        public TestContext TestContext { get; set; }
 
         public static IEnumerable<Aspect> TestAspects
         {
             get
             {
-                return MainAspectsWithNoDebug.More(
+                return new Aspect[] 
+                {
                     new TraceOutputAspect(/* EntryType.Error | EntryType.Warning */)
-                    );
+                };
             }
         }
 
@@ -119,12 +119,12 @@ namespace Aspectacular.Test
 
             username = "one";
             password = "password1";
-            obj.GetProxy(MainAspectsWithNoDebug).Invoke(inst => inst.FakeLogin(username, password));
+            obj.GetProxy().Invoke(inst => inst.FakeLogin(username, password));
 
             obj = new SomeTestClass(new DateTime(2010, 11, 5));
             //username = "two";
             //password = "password2";
-            obj.GetProxy(MainAspectsWithNoDebug).Invoke(inst => inst.FakeLogin(username, password));
+            obj.GetProxy().Invoke(inst => inst.FakeLogin(username, password));
 
             int index = "Wassup".GetProxy(TestAspects).Invoke(str => str.IndexOf('u'));
             Assert.AreEqual(4, index);

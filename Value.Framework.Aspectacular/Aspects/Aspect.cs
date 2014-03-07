@@ -43,6 +43,14 @@ namespace Aspectacular
         [Obsolete("Please use Threading.ApplicationExiting and Threading.Sleep() instead.")]
         public static ManualResetEvent ApplicationExiting = new ManualResetEvent(initialState: false);
 
+        /// <summary>
+        /// Programmatically-changeable collection of default aspects.
+        /// </summary>
+        public static readonly List<Aspect> GlobalAspects = new List<Aspect>();
+
+        /// <summary>
+        /// AOP proxy intercepting current call.
+        /// </summary>
         public virtual Proxy Proxy { get; set; }
 
         static Aspect()
@@ -50,7 +58,7 @@ namespace Aspectacular
             AppDomain.CurrentDomain.DomainUnload += new EventHandler((domainRaw, evt) => ApplicationExiting.Set());
 
             if (DefaultAspectFactory == null)
-                DefaultAspectFactory = DefaultAspectsConfigSection.GetDefaultAspects;
+                DefaultAspectFactory = DefaultAspectsConfigSection.GetConfigAspects;
         }
 
         public Aspect() { }
@@ -245,17 +253,21 @@ namespace Aspectacular
         #endregion Logging methods
 
         /// <summary>
-        /// Default application-wide set of aspects supplied by DefaultAspectFactory delegate.
-        /// Default set aspects, if not empty, is always added first to all proxies aspect collections.
+        /// Default application-wide set of aspects supplied by DefaultAspectFactory delegate and GlobalAspects collection.
+        /// Default set aspects, if not empty, is always added first to all proxy aspect collections.
         /// </summary>
         public static IEnumerable<Aspect> DefaultAspects 
         { 
-            get { return DefaultAspectFactory == null ? null : DefaultAspectFactory(); } 
+            get 
+            { 
+                IEnumerable<Aspect> configAspects = DefaultAspectFactory == null ? null : DefaultAspectFactory();
+                return configAspects.SmartUnion(GlobalAspects);
+            } 
         }
 
         /// <summary>
         /// Delegate to a global aspect factory. 
-        /// By default it's DefaultAspectsConfigSection.GetDefaultAspects() loading
+        /// By default it's DefaultAspectsConfigSection.GetConfigAspects() loading
         /// default aspects from .config file's DefaultAspectsConfigSection, if it's present.
         /// </summary>
         public static Func<IEnumerable<Aspect>> DefaultAspectFactory { get; set; }

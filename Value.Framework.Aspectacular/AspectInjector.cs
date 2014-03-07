@@ -151,8 +151,7 @@ namespace Aspectacular
             this.instanceResolverFunc = instanceFactory;
             this.instanceCleanerFunc = optionalInstanceCleaner;
 
-            if (Aspect.DefaultAspects != null)
-                aspects = aspects == null ? Aspect.DefaultAspects : Aspect.DefaultAspects.Union(aspects);
+            aspects = Aspect.DefaultAspects.SmartUnion(aspects);
 
             aspects.ForEach(aspect => this.AddAspect(aspect));
 
