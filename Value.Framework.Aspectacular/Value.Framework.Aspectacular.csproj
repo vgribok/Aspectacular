@@ -61,6 +61,7 @@
     <Compile Include="InstanceInterceptor.cs" />
     <Compile Include="InterceptedMethodMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlConnAttribs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Vlad.Framework.Core\Value.Framework.Core.csproj">
