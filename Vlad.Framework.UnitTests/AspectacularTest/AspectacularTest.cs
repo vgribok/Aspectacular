@@ -17,16 +17,19 @@ namespace Aspectacular.Test
 
         static AspectacularTest()
         {
-            var defaultAspects = new Aspect[]
-                {
-                     new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
-                     new LinqToSqlAspect(),
-                     new ReturnValueLoggerAspect(),
-                     new SlowFullMethodSignatureAspect(),
-                     //new SqlCmdExecutionPlanAspect(),
-                };
+            Aspect.DefaultAspectFactory = () =>
+            {
+                var defaultAspects = new Aspect[]
+                    {
+                            new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
+                            new LinqToSqlAspect(),
+                            new ReturnValueLoggerAspect(),
+                            new SlowFullMethodSignatureAspect(),
+                            //new SqlCmdExecutionPlanAspect(),
+                    };
 
-            Aspect.GlobalAspects.AddRange(defaultAspects);
+                return defaultAspects;
+            };
         }
 
         public TestContext TestContext { get; set; }

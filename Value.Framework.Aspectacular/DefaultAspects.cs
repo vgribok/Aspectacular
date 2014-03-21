@@ -154,7 +154,7 @@ namespace Aspectacular
             return initializators;
         }
 
-        public static IEnumerable<Aspect> GetConfigAspects()
+        internal static IEnumerable<Aspect> GetConfigAspects()
         {
             try
             {

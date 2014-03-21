@@ -44,11 +44,6 @@ namespace Aspectacular
         public static ManualResetEvent ApplicationExiting = new ManualResetEvent(initialState: false);
 
         /// <summary>
-        /// Programmatically-changeable collection of default aspects.
-        /// </summary>
-        public static readonly List<Aspect> GlobalAspects = new List<Aspect>();
-
-        /// <summary>
         /// AOP proxy intercepting current call.
         /// </summary>
         public virtual Proxy Proxy { get; set; }
@@ -56,9 +51,6 @@ namespace Aspectacular
         static Aspect()
         {
             AppDomain.CurrentDomain.DomainUnload += new EventHandler((domainRaw, evt) => ApplicationExiting.Set());
-
-            if (DefaultAspectFactory == null)
-                DefaultAspectFactory = DefaultAspectsConfigSection.GetConfigAspects;
         }
 
         public Aspect() { }
@@ -256,12 +248,16 @@ namespace Aspectacular
         /// Default application-wide set of aspects supplied by DefaultAspectFactory delegate and GlobalAspects collection.
         /// Default set aspects, if not empty, is always added first to all proxy aspect collections.
         /// </summary>
-        public static IEnumerable<Aspect> DefaultAspects 
+        public static IEnumerable<Aspect> DefaultAspects
         { 
             get 
-            { 
-                IEnumerable<Aspect> configAspects = DefaultAspectFactory == null ? null : DefaultAspectFactory();
-                return configAspects.SmartUnion(GlobalAspects);
+            {
+                IEnumerable<Aspect> configAspects = DefaultAspectsConfigSection.GetConfigAspects();
+
+                if(DefaultAspectFactory != null)
+                    configAspects = configAspects.SmartUnion(DefaultAspectFactory());
+
+                return configAspects;
             } 
         }
 
