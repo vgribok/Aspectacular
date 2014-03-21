@@ -21,7 +21,7 @@ namespace Aspectacular.Test
             {
                 var defaultAspects = new Aspect[]
                     {
-                            new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
+                            //new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
                             new LinqToSqlAspect(),
                             new ReturnValueLoggerAspect(),
                             new SlowFullMethodSignatureAspect(),
