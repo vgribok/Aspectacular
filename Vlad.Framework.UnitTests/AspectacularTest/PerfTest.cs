@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Aspectacular;
 
-using Example.AdventureWorks2008ObjectContext_Dal;
+using Example.AdventureWorks2008ObjectContext_Dal.DbCtx;
 
 namespace Aspectacular.Test
 {
@@ -42,11 +42,11 @@ namespace Aspectacular.Test
 
             long runsPerSec;
 
-            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.Invoke(null, () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
+            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.Invoke(() => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
             this.TestContext.WriteLine("DoNothingStatic() STATIC PROXIED PARALLEL LOCALVARS CONSTANTPARAMS got {0} cps, with expected {1} cps.", runsPerSec, baseLineMultiThreadConstStaticParmRunsPerSec);
             //Assert.IsTrue(runsPerSec >= baseLineMultiThreadConstStaticParmRunsPerSec);
 
-            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.Invoke(null, () => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.Invoke(() => SomeTestClass.DoNothingStatic(123, "bogus", false, 1m, null)));
             this.TestContext.WriteLine("DoNothingStatic() STATIC PROXIED SEQUENTIAL CONSTANTPARAMS got {0} cps, with expected {1} cps.", runsPerSec, baseLineSingleThreadConstStaticParmRunsPerSec);
             //Assert.IsTrue(runsPerSec >= baseLineSingleThreadConstStaticParmRunsPerSec);
         }
@@ -89,11 +89,11 @@ namespace Aspectacular.Test
 
             long runsPerSec;
 
-            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.Invoke(null, () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
+            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.Invoke(() => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
             this.TestContext.WriteLine("DoNothingStatic() STATIC PROXIED PARALLEL VRPARAMS got {0} cps, with expected {1} cps.", runsPerSec, baseLineParallelRunsPerSec);
             //Assert.IsTrue(runsPerSec >= baseLineParallelRunsPerSec);
 
-            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.Invoke(null, () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.Invoke(() => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
             this.TestContext.WriteLine("DoNothingStatic() STATIC PROXIED SEQUENTIAL VARPARAMS got {0} cps, with expected {1} cps.", runsPerSec, baseLineRunsPerSec);
             //Assert.IsTrue(runsPerSec >= baseLineRunsPerSec);
         }
@@ -109,7 +109,7 @@ namespace Aspectacular.Test
 
             long runsPerSec;
 
-            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.Invoke(null, () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
+            runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => AOP.Invoke(() => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
             this.TestContext.WriteLine("SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr) non-parallel perf test result: {0} calls/second.", runsPerSec);
         }
 
@@ -124,7 +124,7 @@ namespace Aspectacular.Test
 
             long runsPerSec;
 
-            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.Invoke(null, () => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
+            runsPerSec = RunCounter.SpinParallelPerSec(millisecToRun, () => AOP.Invoke(() => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
             
             this.TestContext.WriteLine("SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr) parallel perf test result: {0} calls/second.", runsPerSec);
         }

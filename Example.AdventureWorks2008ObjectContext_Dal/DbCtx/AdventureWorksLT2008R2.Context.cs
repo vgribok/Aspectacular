@@ -7,7 +7,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Example.AdventureWorks2008ObjectContext_Dal
+namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
 {
     using System;
     using System.Data.Entity;

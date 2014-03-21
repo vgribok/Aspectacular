@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Aspectacular;
 
-namespace Example.AdventureWorks2008ObjectContext_Dal
+namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
 {
     public partial class Customer : IDbEntityKey
     {

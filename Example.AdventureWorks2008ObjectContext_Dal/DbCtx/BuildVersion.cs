@@ -7,20 +7,16 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Example.AdventureWorks2008ObjectContext_Dal
+namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class CustomerAddress
+    public partial class BuildVersion
     {
-        public int CustomerID { get; set; }
-        public int AddressID { get; set; }
-        public string AddressType { get; set; }
-        public System.Guid rowguid { get; set; }
+        public byte SystemInformationID { get; set; }
+        public string Database_Version { get; set; }
+        public System.DateTime VersionDate { get; set; }
         public System.DateTime ModifiedDate { get; set; }
-    
-        public virtual Address Address { get; set; }
-        public virtual Customer Customer { get; set; }
     }
 }

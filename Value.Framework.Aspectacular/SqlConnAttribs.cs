@@ -12,6 +12,9 @@ namespace Aspectacular
     {
         /// <summary>
         /// SQL commands injected before queries to improve query performance.
+        /// To avoid using them, just set the value of SqlConnectionAttributes = null;
+        /// Feel free to specify any commands you wish - they will be executed
+        /// every time SQL Server connection is opened by EF AOP Proxies.
         /// </summary>
         public static NonEmptyString SqlConnectionAttributes = 
                                         "SET ANSI_NULLS ON;\r\n" +
@@ -23,7 +26,7 @@ namespace Aspectacular
                                         "SET ARITHABORT ON;\r\n"; // Improves performance a lot (matches SQL Studio), produces much execution plans. More at http://technet.microsoft.com/en-us/library/ms190306.aspx
 
         /// <summary>
-        /// Adds SQL Server command attribute injection which improves query performance.
+        /// Adds SQL Server command attributes which improves query performance.
         /// </summary>
         /// <param name="sqlConn"></param>
         public static void AttachSqlConnectionAttribs(this SqlConnection sqlConn)

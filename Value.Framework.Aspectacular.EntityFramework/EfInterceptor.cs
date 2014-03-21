@@ -18,8 +18,6 @@ namespace Aspectacular
     public class DbContextSingleCallProxy<TDbContext> : DbEngineProxy<TDbContext>
             where TDbContext : DbContext, new()
     {
-        public static volatile bool UseSqlConnectionModifiers = true;
-
         private readonly bool? lazyLoading = null;
 
         public DbContextSingleCallProxy(IEnumerable<Aspect> aspects, bool lazyLoadingEnabled = true)
@@ -38,24 +36,16 @@ namespace Aspectacular
         {
         }
 
-        private void ModifySqlConnection()
+        protected override SqlConnection GetSqlConnection()
         {
-            if (!UseSqlConnectionModifiers || SqlUtils.SqlConnectionAttributes == null)
-                return;
-
-            if (this.AugmentedClassInstance.Database.Connection is SqlConnection)
-            {
-                SqlConnection sqlConn = (SqlConnection)this.AugmentedClassInstance.Database.Connection;
-                sqlConn.AttachSqlConnectionAttribs();
-            }
+            SqlConnection sqlConnection = this.AugmentedClassInstance.Database.Connection as SqlConnection;
+            return sqlConnection;
         }
 
         protected override void Step_2_BeforeTryingMethodExec()
         {
             if (this.lazyLoading != null)
                 this.AugmentedClassInstance.Configuration.LazyLoadingEnabled = this.lazyLoading.Value;
-
-            this.ModifySqlConnection();
 
             base.Step_2_BeforeTryingMethodExec();
         }
@@ -73,8 +63,6 @@ namespace Aspectacular
     public class ObjectContextSingleCallProxy<TObjectContext> : DbEngineProxy<TObjectContext>
             where TObjectContext : ObjectContext, new()
     {
-        public static volatile bool UseSqlConnectionModifiers = true;
-
         private readonly bool? lazyLoading = null;
 
         public ObjectContextSingleCallProxy(IEnumerable<Aspect> aspects, bool lazyLoadingEnabled = true)
@@ -93,32 +81,20 @@ namespace Aspectacular
         {
         }
 
-        private void ModifySqlConnection()
+        protected override SqlConnection GetSqlConnection()
         {
-            if (!UseSqlConnectionModifiers || SqlUtils.SqlConnectionAttributes == null)
-                return;
+            var entityConnection = this.AugmentedClassInstance.Connection as System.Data.EntityClient.EntityConnection;
+            if (entityConnection == null)
+                return null;
 
-            if (this.AugmentedClassInstance.Connection is SqlConnection)
-            {
-                SqlConnection sqlConn = (SqlConnection)this.AugmentedClassInstance.Connection;
-                sqlConn.AttachSqlConnectionAttribs();
-
-                //this.AugmentedClassInstance.Connection.StateChange += (connRaw, evt) =>
-                //{
-                //    SqlConnection sqlConn = (SqlConnection)connRaw;
-
-                //    if (sqlConn.State == ConnectionState.Open)
-                //        this.AugmentedClassInstance.ExecuteStoreCommand(SqlUtils.SqlConnectionAttributes);
-                //};
-            }
+            var sqlConnection = entityConnection.StoreConnection as SqlConnection;
+            return sqlConnection;
         }
 
         protected override void Step_2_BeforeTryingMethodExec()
         {
             if (this.lazyLoading != null)
                 this.AugmentedClassInstance.ContextOptions.LazyLoadingEnabled = this.lazyLoading.Value;
-
-            this.ModifySqlConnection();
 
             base.Step_2_BeforeTryingMethodExec();
         }

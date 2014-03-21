@@ -6,7 +6,25 @@ using System.Threading.Tasks;
 
 using Aspectacular;
 
-namespace Example.AdventureWorks2008ObjectContext_Dal
+namespace Example.AdventureWorks2008ObjectContext_Dal.ObjCtx
+{
+    //public partial class AdventureWorksLT2008R2EntitiesObjCtx
+    //{
+    //    public IQueryable<Address> QueryCustomerAddressesByCustomerID(int customerID)
+    //    {
+    //        this.LogInformationData("customerID", customerID);
+
+    //        var q = from caddr in this.CustomerAddresses
+    //                join addr in this.Addresses on caddr.AddressID equals addr.AddressID
+    //                where caddr.CustomerID == customerID
+    //                select addr;
+
+    //        return q;
+    //    }
+    //}
+}
+
+namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
 {
     public partial class AdventureWorksLT2008R2Entities
     {

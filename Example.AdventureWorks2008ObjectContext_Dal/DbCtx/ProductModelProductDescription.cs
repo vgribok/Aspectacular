@@ -7,23 +7,20 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Example.AdventureWorks2008ObjectContext_Dal
+namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
 {
     using System;
     using System.Collections.Generic;
     
-    public partial class ProductDescription
+    public partial class ProductModelProductDescription
     {
-        public ProductDescription()
-        {
-            this.ProductModelProductDescriptions = new HashSet<ProductModelProductDescription>();
-        }
-    
+        public int ProductModelID { get; set; }
         public int ProductDescriptionID { get; set; }
-        public string Description { get; set; }
+        public string Culture { get; set; }
         public System.Guid rowguid { get; set; }
         public System.DateTime ModifiedDate { get; set; }
     
-        public virtual ICollection<ProductModelProductDescription> ProductModelProductDescriptions { get; set; }
+        public virtual ProductDescription ProductDescription { get; set; }
+        public virtual ProductModel ProductModel { get; set; }
     }
 }

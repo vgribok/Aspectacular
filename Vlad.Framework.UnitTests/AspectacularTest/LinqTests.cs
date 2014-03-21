@@ -8,7 +8,8 @@ using System.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Aspectacular;
-using Example.AdventureWorks2008ObjectContext_Dal;
+using Example.AdventureWorks2008ObjectContext_Dal.DbCtx;
+//using ObjCtx = Example.AdventureWorks2008ObjectContext_Dal.ObjCtx;
 
 namespace Aspectacular.Test
 {
@@ -32,6 +33,11 @@ namespace Aspectacular.Test
         {
             get { return EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>(TestAspects, lazyLoadingEnabled: false); }
         }
+
+        //public static ObjectContextSingleCallProxy<ObjCtx.AdventureWorksLT2008R2EntitiesObjCtx> AwDalOcx
+        //{
+        //    get { return EfAOP.GetOcProxy<ObjCtx.AdventureWorksLT2008R2EntitiesObjCtx>(TestAspects, lazyLoadingEnabled: false); }
+        //}
 
         [TestMethod]
         public void LinqTestOne()
@@ -62,6 +68,19 @@ namespace Aspectacular.Test
 
             Assert.IsTrue(2 == addresses.Count);
         }
+
+        //[TestMethod]
+        //public void TestObjectContextEf()
+        //{
+        //    using (var db = new ObjCtx.AdventureWorksLT2008R2EntitiesObjCtx())
+        //    {
+        //        var addresses = db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList();
+        //        Assert.IsTrue(2 == addresses.Count);
+        //    }
+
+        //    var addresses2 = AwDalOcx.List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
+        //    Assert.IsTrue(2 == addresses2.Count);
+        //}
 
         internal static IList<Address> GetQueryCustomerAddressesByCustomerID()
         {

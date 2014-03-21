@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Aspectacular;
 
-using Example.AdventureWorks2008ObjectContext_Dal;
+using Example.AdventureWorks2008ObjectContext_Dal.DbCtx;
 
 namespace Aspectacular.Test
 {
