@@ -13,6 +13,8 @@ namespace Aspectacular.Test
     [TestClass]
     public class AspectacularTest
     {
+        #region Aspect Initialization
+
         public static readonly StupidSimpleInProcCache testInProcCache = new StupidSimpleInProcCache();
 
         static AspectacularTest()
@@ -21,7 +23,7 @@ namespace Aspectacular.Test
             {
                 var defaultAspects = new Aspect[]
                     {
-                            //new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
+                            new CacheAspect<StupidSimpleInProcCache>(testInProcCache),
                             new LinqToSqlAspect(),
                             new ReturnValueLoggerAspect(),
                             new SlowFullMethodSignatureAspect(),
@@ -49,6 +51,8 @@ namespace Aspectacular.Test
         {
             return TestAspects.Union(aspects);
         }
+
+        #endregion Aspect Initialization
 
         [TestMethod]
         public void TestOne()

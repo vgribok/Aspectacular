@@ -16,6 +16,8 @@ namespace Aspectacular.Test
     [TestClass]
     public class LinqTests
     {
+        #region Initialization
+
         public TestContext TestContext { get; set; }
 
         public const int customerIdWithManyAddresses = 29503;
@@ -24,6 +26,8 @@ namespace Aspectacular.Test
         {
             get { return AspectacularTest.TestAspects; }
         }
+
+        #endregion Initialization
 
         /// <summary>
         /// A factory for getting AOP-augmented proxy to access AdventureWorksLT2008R2Entities instance members
@@ -44,28 +48,27 @@ namespace Aspectacular.Test
         {
             IList<Address> addresses;
 
-            // Without AOP
+            // Regular EF call without AOP:
             using (var db = new AdventureWorksLT2008R2Entities())
             {
+                db.Configuration.LazyLoadingEnabled = false;
                 addresses = db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList();
             }
-
             Assert.IsTrue(2 == addresses.Count);
 
-            // With LINQ-friendly AOP shortcut
+            // Now same with LINQ-friendly AOP shortcuts:
             
             // Example 1: where AOP creates instance of AdventureWorksLT2008R2Entities, runs the DAL method, 
             // and disposes AdventureWorksLT2008R2Entities instance - all in one shot.
             addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
-
             Assert.IsTrue(2 == addresses.Count);
 
             // Example 2: with simple AOP proxied call for existing instance of DbContext.
             using (var db = new AdventureWorksLT2008R2Entities())
             {
+                db.Configuration.LazyLoadingEnabled = false;
                 addresses = db.GetDbProxy(TestAspects).List(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
             }
-
             Assert.IsTrue(2 == addresses.Count);
         }
 
@@ -107,6 +110,8 @@ namespace Aspectacular.Test
 
             using (var dbc = new AdventureWorksLT2008R2Entities())
             {
+                dbc.Configuration.LazyLoadingEnabled = false;
+
                 mrAndrewCencini = dbc.GetDbProxy(TestAspects).Single(db => db.QueryCustomerByID(163));
                 
                 replacementEmail = mrAndrewCencini.EmailAddress == originalEmail ? anotherEmail : originalEmail;

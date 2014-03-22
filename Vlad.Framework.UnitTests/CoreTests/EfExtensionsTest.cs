@@ -31,6 +31,8 @@ namespace Aspectacular.Test
             Customer cust2;
             using (var dbc = new AdventureWorksLT2008R2Entities())
             {
+                dbc.Configuration.LazyLoadingEnabled = false;
+
                 cust = dbc.GetProxy(LinqTests.TestAspects).Single(db => db.QueryCustomerByID(LinqTests.customerIdWithManyAddresses));
                 cust2 = dbc.GetProxy(LinqTests.TestAspects).Invoke(db => db.GetOrAttach(OrhpanCust));
             }

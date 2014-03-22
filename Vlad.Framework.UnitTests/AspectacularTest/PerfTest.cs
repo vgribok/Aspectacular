@@ -137,6 +137,8 @@ namespace Aspectacular.Test
 
             using (var db = new AdventureWorksLT2008R2Entities())
             {
+                db.Configuration.LazyLoadingEnabled = false;
+
                 runsPerSec = RunCounter.SpinPerSec(millisecToRun, () =>
                                 db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList()
                             );
@@ -151,6 +153,8 @@ namespace Aspectacular.Test
 
             using (var db = new AdventureWorksLT2008R2Entities())
             {
+                db.Configuration.LazyLoadingEnabled = false;
+
                 runsPerSec = RunCounter.SpinPerSec(millisecToRun, () => 
                                 db.GetProxy().List(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses))
                             );
@@ -168,6 +172,8 @@ namespace Aspectacular.Test
                 {
                     using (var db = new AdventureWorksLT2008R2Entities())
                     {
+                        db.Configuration.LazyLoadingEnabled = false;
+
                         db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList();
                     }
                 });
