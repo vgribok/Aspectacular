@@ -90,5 +90,41 @@ namespace Aspectacular.Test.CoreTests
             week = dt.WeekOfYear(CalendarWeekRule.FirstDay);
             Assert.AreEqual(1, week);
         }
+
+        [TestMethod]
+        public void TestToSortableIntDate()
+        {
+            DateTime dt = new DateTime(1961, 04, 12, 16, 12, 1, 98, DateTimeKind.Utc);
+            
+            int actual = dt.ToSortableIntDate();
+            Assert.AreEqual(19610412, actual);
+            
+            DateTime dactual = actual.FromSortableIntDateTime(dt.Kind);
+            Assert.AreEqual(dt.StartOf(TimeUnits.Day), dactual);
+            
+            actual = dt.ToSortableIntTime();
+            Assert.AreEqual(161201, actual);
+            
+            dactual = actual.FromSortableIntTime(dt);
+            Assert.AreEqual(dt.StartOf(TimeUnits.Second), dactual);
+
+            long lactual = dt.ToSortableLongTime(includeMilliseconds: true);
+            Assert.AreEqual(161201098, lactual);
+            
+            dactual = lactual.FromSortableIntTime(dt);
+            Assert.AreEqual(dt, dactual);
+
+            lactual = dt.ToSortableLongDateTime(includeMilliseconds: true);
+            Assert.AreEqual(19610412161201098, lactual);
+
+            dactual = lactual.FromSortableIntDateTime(dt.Kind);
+            Assert.AreEqual(dt, dactual);
+
+            lactual = dt.ToSortableLongDateTime(includeMilliseconds: false);
+            Assert.AreEqual(19610412161201, lactual);
+
+            dactual = lactual.FromSortableIntDateTime(dt.Kind);
+            Assert.AreEqual(dt.StartOf(TimeUnits.Second), dactual);
+        }
     }
 }

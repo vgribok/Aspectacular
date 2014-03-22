@@ -262,6 +262,21 @@ namespace Aspectacular
 
         #endregion Type extensions
 
+        /// <summary>
+        /// Converts default value of T to T? with no value.
+        /// If value is not default, returns value itself.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        public static T? NullIfDefault<T>(this T? val) where T : struct
+        {
+            if (val == null)
+                return val;
+
+            return val.Value.Equals(default(T)) ? (T?)null : val;
+        }
+
         public static bool IsFlagOn(this int valueToCheck, int flag)
         {
             return (valueToCheck & flag) == flag;

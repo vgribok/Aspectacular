@@ -246,11 +246,26 @@ namespace Aspectacular
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <returns></returns>
+        [Obsolete("Please use CreateValueRange<T>(start, end) instead.")]
         public static ValueRange<T> CreateRange<T>(T? start, T? end)
             where T : struct, IComparable
         {
             return new ValueRange<T>(start, end);
         }
+
+        /// <summary>
+        /// Factory method for simplified instantiation of Range class.
+        /// </summary>
+        /// <typeparam name="T">value type, like int, decimal, etc.</typeparam>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <returns></returns>
+        public static ValueRange<T> CreateValueRange<T>(T? start, T? end)
+            where T : struct, IComparable
+        {
+            return new ValueRange<T>(start, end);
+        }
+
 
         /// <summary>
         /// Factory method for simplified instantiation of Range class.

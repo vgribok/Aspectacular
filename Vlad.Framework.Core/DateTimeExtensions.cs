@@ -6,6 +6,9 @@ using System.Text;
 
 namespace Aspectacular
 {
+    /// <summary>
+    /// Contains utility & convenience DateTime methods
+    /// </summary>
     public static class DateTimeExtensions
     {
         /// <summary>
@@ -57,6 +60,203 @@ namespace Aspectacular
         public static DateTime PreviousMoment(this DateTime dt)
         {
             return new DateTime(dt.Ticks - 1, dt.Kind);
+        }
+
+        #region Sortable DateTime Integer Conversion
+
+        /// <summary>
+        /// Converts date part of the date time 
+        /// to integer in the YYYYMMDD format.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns>Integer in the YYYYMMDD format</returns>
+        public static int ToSortableIntDate(this DateTime dt)
+        {
+            int retVal = (dt.Year * 100 + dt.Month) * 100 + dt.Day;
+            return retVal;
+        }
+
+        /// <summary>
+        /// Returns integer in the format of HHmmss or HHmmssFFF.
+        /// Optional "FFF" is milliseconds.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="includeMilliseconds"></param>
+        /// <returns></returns>
+        public static long ToSortableLongTime(this DateTime dt, bool includeMilliseconds = false)
+        {
+            long retVal = (dt.Hour * 100 + dt.Minute) * 100 + dt.Second;
+
+            if (includeMilliseconds)
+                retVal = retVal * 1000 + dt.Millisecond;
+
+            return retVal;
+        }
+
+        /// <summary>
+        /// Returns integer in the format of HHmmss or HHmmssFFF.
+        /// Optional "FFF" is milliseconds.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="includeMilliseconds"></param>
+        /// <returns></returns>
+        public static int ToSortableIntTime(this DateTime dt, bool includeMilliseconds = false)
+        {
+            long sortableTime = ToSortableLongTime(dt, includeMilliseconds);
+            if (sortableTime > int.MaxValue)
+                throw new Exception("{0:#,#0} value exceeds maximum integer value".SmartFormat(sortableTime));
+
+            return (int)sortableTime;
+        }
+
+        /// <summary>
+        /// Returns integer in the format of YYYYMMDDHHmmss or similar with fractional seconds.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="includeMilliseconds"></param>
+        /// <returns></returns>
+        public static long ToSortableLongDateTime(this DateTime dt, bool includeMilliseconds = false)
+        {
+            long multiplier = includeMilliseconds ? 1000000000 : 1000000;
+            long result = (long)ToSortableIntDate(dt) * multiplier + ToSortableLongTime(dt, includeMilliseconds);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Returns DateTime created from an integer in the YYYYMMDD, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF format.
+        /// </summary>
+        /// <param name="sortableDateTime"></param>
+        /// <param name="dtKind"></param>
+        /// <returns></returns>
+        public static DateTime FromSortableIntDateTime(this long sortableDateTime, DateTimeKind dtKind = DateTimeKind.Unspecified)
+        {
+            byte digitsInDateOnly = 4 + 2 + 2; 
+            byte totalDigits = (byte)((int)Math.Log10(sortableDateTime) + 1);
+            byte timePartDigits = (byte)(totalDigits - digitsInDateOnly);
+            int timePartOrder = (int)MathExtensions.Pow(10, timePartDigits);
+
+            int sortableDate = (int)(sortableDateTime / timePartOrder); // YYYYMMDD
+            int day = sortableDate % 100;
+            sortableDate /= 100;
+            int month = sortableDate % 100;
+            sortableDate /= 100;
+            int year = sortableDate;
+
+            DateTime dt = new DateTime(year, month, day, 0, 0, 0, dtKind);
+
+            long sortableTimePart = sortableDateTime % timePartOrder; // 0, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF
+            if (sortableTimePart > 0)
+                dt = sortableTimePart.FromSortableIntTime(dt);
+
+            return dt;
+        }
+
+        /// <summary>
+        /// Returns DateTime created from an integer in the YYYYMMDD, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF format.
+        /// </summary>
+        /// <param name="sortableDateTime"></param>
+        /// <param name="dtKind"></param>
+        /// <returns></returns>
+        public static DateTime FromSortableIntDateTime(this int sortableDateTime, DateTimeKind dtKind = DateTimeKind.Unspecified)
+        {
+            return FromSortableIntDateTime((long)sortableDateTime, dtKind);
+        }
+
+        /// <summary>
+        /// Returns DateTime created from an integer in the YYYYMMDD, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF format.
+        /// </summary>
+        /// <param name="sortableDateTime"></param>
+        /// <param name="dtKind"></param>
+        /// <returns></returns>
+        public static DateTime? FromSortableIntDateTime(this string sortableDateTime, DateTimeKind dtKind = DateTimeKind.Unspecified)
+        {
+            long? sortableVal = sortableDateTime.ParseLong();
+            if (sortableVal == null)
+                return null;
+
+            return sortableVal.Value.FromSortableIntDateTime(dtKind);
+        }
+
+        /// <summary>
+        /// Returns time value via DateTime result
+        /// created from integer in the HHmmss or HHmmssFFF format.
+        /// Optional "FFF" is milliseconds.
+        /// </summary>
+        /// <param name="sortableDateTime"></param>
+        /// <param name="datePart">Date to which time will be appended.</param>
+        /// <returns></returns>
+        public static DateTime FromSortableIntTime(this long sortableDateTime, DateTime datePart = default(DateTime))
+        {
+            const int noMilliseconds = 1000000;
+            bool hasMilliseconds = sortableDateTime > noMilliseconds * 10;
+
+            int milliseconds = 0;
+
+            if (hasMilliseconds)
+            {
+                milliseconds = (int)(sortableDateTime % 1000);
+                sortableDateTime /= 1000;
+            }
+
+            int seconds = (int)sortableDateTime % 100;
+            sortableDateTime /= 100;
+
+            int minutes = (int)sortableDateTime % 100;
+            sortableDateTime /= 100;
+
+            int hours = (int)sortableDateTime;
+
+            DateTime dt = new DateTime(datePart.Year, datePart.Month, datePart.Day, hours, minutes, seconds, milliseconds, datePart.Kind);
+            return dt;
+        }
+
+        /// <summary>
+        /// Returns time value via DateTime result
+        /// created from integer in the HHmmss or HHmmssFFF format.
+        /// Optional "FFF" is milliseconds.
+        /// </summary>
+        /// <param name="sortableDateTime"></param>
+        /// <param name="datePart">Date to which time will be appended.</param>
+        /// <returns></returns>
+        public static DateTime FromSortableIntTime(this int sortableDateTime, DateTime datePart = default(DateTime))
+        {
+            return FromSortableIntTime((long)sortableDateTime, datePart);
+        }
+
+        /// <summary>
+        /// Returns time value via DateTime result
+        /// created from integer in the HHmmss or HHmmssFFF format.
+        /// Optional "FFF" is milliseconds.
+        /// </summary>
+        /// <param name="sortableDateTime"></param>
+        /// <param name="datePart">Date to which time will be appended.</param>
+        /// <returns></returns>
+        public static DateTime? FromSortableIntTime(this string sortableDateTime, DateTime datePart = default(DateTime))
+        {
+            long? sortableVal = sortableDateTime.ParseLong();
+            if (sortableVal == null)
+                return null;
+
+            return sortableVal.Value.FromSortableIntTime(datePart);
+        }
+
+        #endregion Sortable DateTime Integer Conversion
+    }
+
+    public static class MathExtensions
+    {
+        /// <summary>
+        /// Fast calculation of x power of n for integers.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="power"></param>
+        /// <returns></returns>
+        public static long Pow(this int x, byte power)
+        {
+            long result = 1, ipower = power;
+            ipower.Repeat(_ => result *= x);
+            return result;
         }
     }
 }

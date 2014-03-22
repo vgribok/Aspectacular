@@ -142,6 +142,35 @@ namespace Aspectacular
         /// </summary>
         /// <param name="str"></param>
         /// <returns></returns>
+        public static long? ParseLong(this string str)
+        {
+            long val;
+            if (long.TryParse(str, out val))
+                return val;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Parses string and returns default value if parsing failed.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static long Parse(this string str, long defaultValue)
+        {
+            long val;
+            if (long.TryParse(str, out val))
+                return val;
+
+            return defaultValue;
+        }
+
+        /// <summary>
+        /// Parses string and returns null if parsing failed.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
         public static bool? ParseBool(this string str)
         {
             bool val;
