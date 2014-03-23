@@ -15,7 +15,7 @@ namespace Aspectacular
     /// Alloc/invoke/dispose convenience class for EF DbContext subclasses.
     /// </summary>
     /// <typeparam name="TDbContext"></typeparam>
-    public class DbContextSingleCallProxy<TDbContext> : DbEngineProxy<TDbContext>
+    public class DbContextSingleCallProxy<TDbContext> : DbEngineProxy<TDbContext>, ISqlServerConnectionProvider
             where TDbContext : DbContext, new()
     {
         private readonly bool? lazyLoading = null;
@@ -36,12 +36,6 @@ namespace Aspectacular
         {
         }
 
-        protected override SqlConnection GetSqlConnection()
-        {
-            SqlConnection sqlConnection = this.AugmentedClassInstance.Database.Connection as SqlConnection;
-            return sqlConnection;
-        }
-
         protected override void Step_2_BeforeTryingMethodExec()
         {
             if (this.lazyLoading != null)
@@ -54,13 +48,25 @@ namespace Aspectacular
         {
             return this.AugmentedClassInstance.SaveChanges();
         }
+
+        /// <summary>
+        /// Implements ISqlServerConnectionProvider.
+        /// Returns SqlConnection, if Context is for SQL Server.
+        /// </summary>
+        public SqlConnection SqlConnection
+        {
+            get 
+            {
+                return this.AugmentedClassInstance.GetSqlConnection();
+            }
+        }
     }
 
     /// <summary>
     /// Alloc/invoke/dispose convenience class for EF ObjectContext subclasses.
     /// </summary>
     /// <typeparam name="TObjectContext"></typeparam>
-    public class ObjectContextSingleCallProxy<TObjectContext> : DbEngineProxy<TObjectContext>
+    public class ObjectContextSingleCallProxy<TObjectContext> : DbEngineProxy<TObjectContext>, ISqlServerConnectionProvider
             where TObjectContext : ObjectContext, new()
     {
         private readonly bool? lazyLoading = null;
@@ -81,16 +87,6 @@ namespace Aspectacular
         {
         }
 
-        protected override SqlConnection GetSqlConnection()
-        {
-            var entityConnection = this.AugmentedClassInstance.Connection as System.Data.EntityClient.EntityConnection;
-            if (entityConnection == null)
-                return null;
-
-            var sqlConnection = entityConnection.StoreConnection as SqlConnection;
-            return sqlConnection;
-        }
-
         protected override void Step_2_BeforeTryingMethodExec()
         {
             if (this.lazyLoading != null)
@@ -102,6 +98,17 @@ namespace Aspectacular
         public override int CommitChanges()
         {
             return this.AugmentedClassInstance.SaveChanges();
+        }
+
+        /// <summary>
+        /// Implements ISqlServerConnectionProvider.
+        /// </summary>
+        public SqlConnection SqlConnection
+        {
+            get 
+            {
+                return this.AugmentedClassInstance.GetSqlConnection();
+            }
         }
     }
 

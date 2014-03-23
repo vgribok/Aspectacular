@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Objects;
 using System.Data.Objects.DataClasses;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -123,6 +124,40 @@ namespace Aspectacular
         public static void DeleteEntity<TEntity>(this DbContext db, TEntity entity) where TEntity : class, IDbEntityKey
         {
             db.DeleteEntity(entity, ent => ent.DbContextEntityKey);
+        }
+
+        /// <summary>
+        /// If DbContext is for SQL Server,
+        /// returns SqlConnection. Otherwise returns null.
+        /// </summary>
+        /// <param name="db"></param>
+        /// <returns></returns>
+        public static SqlConnection GetSqlConnection(this DbContext db)
+        {
+            if (db == null || db.Database == null)
+                return null;
+
+            SqlConnection sqlConnection = db.Database.Connection as SqlConnection;
+            return sqlConnection;
+        }
+
+        /// <summary>
+        /// If ObjectContext is for SQL Server,
+        /// returns SqlConnection. Otherwise returns null.
+        /// </summary>
+        /// <param name="db"></param>
+        /// <returns></returns>
+        public static SqlConnection GetSqlConnection(this ObjectContext db)
+        {
+            if (db == null)
+                return null;
+
+            var entityConnection = db.Connection as System.Data.EntityClient.EntityConnection;
+            if (entityConnection == null)
+                return null;
+
+            var sqlConnection = entityConnection.StoreConnection as SqlConnection;
+            return sqlConnection;
         }
     }
 }

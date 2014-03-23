@@ -57,7 +57,7 @@ namespace Aspectacular
     /// implement IEfCallInterceptor interface by adding "public int SaveChangeReturnValue { get; set; }"
     /// to its definition, so that SaveChanges() would be called on all contexts.
     /// </remarks>
-    public abstract class DalManager : IEfCallInterceptor, IDisposable, ICallLogger
+    public abstract class DalManager : IEfCallInterceptor, IDisposable, ICallLogger, ISqlServerMultiConnectionProvider
     {
         private readonly Dictionary<Type, Lazy<IDisposable>> dataStores = new Dictionary<Type, Lazy<IDisposable>>();
 
@@ -68,7 +68,18 @@ namespace Aspectacular
         protected void AddDataStoreInitializer<TDataStore>()
             where TDataStore : class, IDisposable, new()
         {
-            this.dataStores[typeof(TDataStore)] = new Lazy<IDisposable>(() => new TDataStore(), isThreadSafe: true);
+            this.dataStores[typeof(TDataStore)] = new Lazy<IDisposable>(isThreadSafe: true, valueFactory: this.CreateDataStoreInstance<TDataStore>);
+        }
+
+        private TDataStore CreateDataStoreInstance<TDataStore>()
+            where TDataStore : class, IDisposable, new()
+        {
+            var db = new TDataStore();
+            
+            if (this.SqlConnectionAttributeApplicator != null)
+                this.SqlConnectionAttributeApplicator(db as ISqlServerConnectionProvider);
+
+            return db;
         }
 
         protected bool IsStoreInitialized<TDataStore>()
@@ -142,6 +153,11 @@ namespace Aspectacular
         }
 
         IMethodLogProvider ICallLogger.AopLogger { get; set; }
+
+        /// <summary>
+        /// This value may be set by a SqlConnectionAttributesAspect to improve SQL Server query performance.
+        /// </summary>
+        public Action<ISqlServerConnectionProvider> SqlConnectionAttributeApplicator { get; set; }
     }
 
     #region Convenience intermediate base classes derived from DataStoreManager

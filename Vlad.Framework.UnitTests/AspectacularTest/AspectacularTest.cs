@@ -27,6 +27,7 @@ namespace Aspectacular.Test
                             new LinqToSqlAspect(),
                             new ReturnValueLoggerAspect(),
                             new SlowFullMethodSignatureAspect(),
+                            new SqlConnectionAttributesAspect(),
                             //new SqlCmdExecutionPlanAspect(),
                     };
 

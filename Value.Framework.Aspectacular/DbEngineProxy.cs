@@ -16,11 +16,6 @@ namespace Aspectacular
     public abstract class DbEngineProxy<TDbEngine> : AllocateRunDisposeProxy<TDbEngine>, IEfCallInterceptor, IStorageCommandRunner<TDbEngine>
         where TDbEngine : class, IDisposable, new()
     {
-        /// <summary>
-        /// If true, adds SqlUtils.SqlConnectionAttributes after establishing SQl Server connection.
-        /// </summary>
-        public static volatile bool UseSqlConnectionModifiers = true;
-
         public DbEngineProxy(IEnumerable<Aspect> aspects)
             : base(aspects)
         {
@@ -42,23 +37,6 @@ namespace Aspectacular
         {
             base.InvokeActualInterceptedMethod(interceptedMethodClosure);
             this.SaveChanges();
-        }
-
-        protected override void Step_2_BeforeTryingMethodExec()
-        {
-            this.ModifySqlConnectionAttributesIfApplies();
-
-            base.Step_2_BeforeTryingMethodExec();
-        }
-
-        private void ModifySqlConnectionAttributesIfApplies()
-        {
-            if (UseSqlConnectionModifiers && SqlUtils.SqlConnectionAttributes != null)
-            {
-                SqlConnection sqlConnection = this.GetSqlConnection();
-                if (sqlConnection != null)
-                    sqlConnection.AttachSqlConnectionAttribs();
-            }
         }
 
         #endregion Base class overrides
@@ -104,15 +82,6 @@ namespace Aspectacular
         /// </summary>
         /// <returns></returns>
         public abstract int CommitChanges();
-
-        /// <summary>
-        /// Override in subclasses if they talk to SQL Server, to improve SQL command/query performance.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual SqlConnection GetSqlConnection()
-        {
-            return null;
-        }
 
         #region Utility Methods
 

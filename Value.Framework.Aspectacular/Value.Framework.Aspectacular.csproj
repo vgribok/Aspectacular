@@ -51,6 +51,7 @@
     <Compile Include="Aspects\LinqToSqlAspect.cs" />
     <Compile Include="Aspects\RequiredAspectAttribute.cs" />
     <Compile Include="Aspects\SimpleStockAspects.cs" />
+    <Compile Include="Aspects\SqlConnectionAttributesAspect.cs" />
     <Compile Include="Aspects\SqlExecutionPlanAspect.cs" />
     <Compile Include="CallLog.cs" />
     <Compile Include="DalInterceptor.cs" />

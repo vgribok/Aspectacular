@@ -29,28 +29,31 @@ namespace Aspectacular
         /// Adds SQL Server command attributes which improves query performance.
         /// </summary>
         /// <param name="sqlConn"></param>
-        public static void AttachSqlConnectionAttribs(this SqlConnection sqlConn)
+        public static void AttachSqlConnectionAttribs(this SqlConnection sqlConn, Action<SqlConnection> optionalPostProcessingFunc = null)
         {
-            if (sqlConn != null)
-                sqlConn.StateChange += new StateChangeEventHandler(OnSqlConnectionOpen);
-        }
-
-        public static void OnSqlConnectionOpen(object sender, StateChangeEventArgs e)
-        {
-            if (SqlConnectionAttributes == null)
+            if (sqlConn == null)
                 return;
 
-            if (e.CurrentState != ConnectionState.Open)
-                return;
-
-            SqlConnection sqlConn = (SqlConnection)sender;
-
-            using (SqlCommand cmd = sqlConn.CreateCommand())
+            sqlConn.StateChange += (sender, e) =>
             {
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = SqlConnectionAttributes;
-                cmd.ExecuteNonQuery();
-            }
+                if (SqlConnectionAttributes == null)
+                    return;
+
+                if (e.CurrentState != ConnectionState.Open)
+                    return;
+
+                SqlConnection sqlConnection = (SqlConnection)sender;
+
+                using (SqlCommand cmd = sqlConnection.CreateCommand())
+                {
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = SqlConnectionAttributes;
+                    cmd.ExecuteNonQuery();
+                }
+
+                if (optionalPostProcessingFunc != null)
+                    optionalPostProcessingFunc(sqlConnection);
+            };
         }
     }
 }
