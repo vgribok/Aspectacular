@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace Aspectacular
 {
+    /// <summary>
+    /// A class that implements this interface is
+    /// all that's needed to create enable caching via 
+    /// </summary>
     public interface ICacheProvider
     {
         void Set(string key, object val);
@@ -28,7 +32,8 @@ namespace Aspectacular
         
         public bool ValueFoundInCache { get; private set; }
 
-        public CacheAspect(TCacher cacheProvider)
+        [Obsolete("Use CacheFactory.CreateCacheAspect() instead.")]
+        protected internal CacheAspect(TCacher cacheProvider)
         {
             if (cacheProvider == null)
                 throw new ArgumentNullException("cacheProvider");
@@ -99,6 +104,23 @@ namespace Aspectacular
         protected string BuildMethodCacheKeyVerySlowly()
         {
             return this.Proxy.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
+        }
+    }
+
+    public static class CacheFactory
+    {
+        /// <summary>
+        /// Instantiates new CacheAspect for a given cache provider.
+        /// </summary>
+        /// <param name="cacheProvider"></param>
+        /// <returns></returns>
+        public static CacheAspect<ICacheProvider> CreateCacheAspect(this ICacheProvider cacheProvider)
+        {
+            if (cacheProvider == null)
+                throw new ArgumentNullException("cacheProvider");
+
+            var cacheAspect = new CacheAspect<ICacheProvider>(cacheProvider);
+            return cacheAspect;
         }
     }
 }

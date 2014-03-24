@@ -8,8 +8,9 @@ using System.Web;
 namespace Aspectacular
 {
     /// <summary>
-    /// Caches data for the duration of the request processing.
-    /// Should be used together with 
+    /// Caches data for the duration of the HTTP request processing.
+    /// Should be used together with [InvariantReturn] attribute 
+    /// applied to methods and classes whose results can be cached.
     /// </summary>
     /// <remarks>
     /// No explicit cleanup/invalidation is required as cached data 
@@ -67,16 +68,6 @@ namespace Aspectacular
         public static RequestCache Get()
         {
             return requestCacher;
-        }
-    }
-
-    /// <summary>
-    /// An aspect caching invariant intercepted function's returned values in the Request.Items[] collection.
-    /// </summary>
-    public class RequestCacheAspect : CacheAspect<RequestCache>
-    {
-        public RequestCacheAspect() : base(RequestCache.Get())
-        {
         }
     }
 }
