@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Aspectacular
 {
     /// <summary>
-    /// If your EF context class (DbContext or ObjectContext) is interfacing with SQL Server,
+    /// If your context class (TableAdapter, DbContext or ObjectContext) is interfacing with SQL Server,
     /// then you may improve performance of the queries by implementing this interface.
     /// </summary>
     public interface ISqlServerConnectionProvider

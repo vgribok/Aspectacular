@@ -49,6 +49,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Addresses.cs" />
+    <Compile Include="Ado.net\AwDataSet.cs">
+      <DependentUpon>AwDataSet.xsd</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Ado.net\AwDataSet.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AwDataSet.xsd</DependentUpon>
+    </Compile>
     <Compile Include="Customers.cs" />
     <Compile Include="DbCtx\Address.cs">
       <DependentUpon>AdventureWorksLT2008R2.tt</DependentUpon>
@@ -111,9 +120,25 @@
       <DependentUpon>AdventureWorksLT2008R2.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
     <Compile Include="Runtime.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Ado.net\AwDataSet.xsc">
+      <DependentUpon>AwDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="Ado.net\AwDataSet.xsd">
+      <SubType>Designer</SubType>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>AwDataSet.Designer.cs</LastGenOutput>
+    </None>
+    <None Include="Ado.net\AwDataSet.xss">
+      <DependentUpon>AwDataSet.xsd</DependentUpon>
+    </None>
     <None Include="App.Config" />
     <EntityDeploy Include="DbCtx\AdventureWorksLT2008R2.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
@@ -133,6 +158,10 @@
       <LastGenOutput>AdventureWorksLT2008R2.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -148,6 +177,10 @@
     <ProjectReference Include="..\Value.Framework.Aspectacular\Value.Framework.Aspectacular.csproj">
       <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
       <Name>Value.Framework.Aspectacular</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vlad.Framework.Core\Value.Framework.Core.csproj">
+      <Project>{07e5da8b-6018-427b-9ecd-9c39ac691036}</Project>
+      <Name>Value.Framework.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
