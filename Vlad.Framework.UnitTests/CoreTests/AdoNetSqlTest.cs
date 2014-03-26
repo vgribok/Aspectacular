@@ -21,7 +21,7 @@ namespace Aspectacular.Test.CoreTests
 
         protected static AllocateRunDisposeProxy<ProductCategoryTableAdapter> TblAdapterProxy
         {
-            get { return new AllocateRunDisposeProxy<ProductCategoryTableAdapter>(AspectacularTest.TestAspects); }
+            get { return AOP.GetProxy<ProductCategoryTableAdapter>(AspectacularTest.TestAspects); }
         }
 
         #region Additional test attributes
