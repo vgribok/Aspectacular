@@ -12,10 +12,6 @@ namespace Aspectacular.Test.CoreTests
     [TestClass]
     public class DateTImeExtTest
     {
-        public DateTImeExtTest()
-        {
-        }
-
         /// <summary>
         ///Gets or sets the test context which provides
         ///information about and functionality for the current test run.
@@ -43,7 +39,6 @@ namespace Aspectacular.Test.CoreTests
         // public void MyTestCleanup() { }
         //
         #endregion
-
 
         [TestMethod]
         public void TestQuarterCalc()
