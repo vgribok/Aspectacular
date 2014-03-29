@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Aspectacular
 {
@@ -50,6 +51,26 @@ namespace Aspectacular
                 return SleepResult.Aborted;
 
             return SleepResult.Completed;
+        }
+
+        /// <summary>
+        /// Waits until async task is completed.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        public static T Complete<T>(this Task<T> task)
+        {
+            return task.Result;
+        }
+
+        /// <summary>
+        /// Waits until async void function is completed.
+        /// </summary>
+        /// <param name="task"></param>
+        public static void Complete(this Task task)
+        {
+            task.Wait(-1);
         }
     }
 }
