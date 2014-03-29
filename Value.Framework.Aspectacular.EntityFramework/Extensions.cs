@@ -91,6 +91,39 @@ namespace Aspectacular
         }
 
         /// <summary>
+        /// Adds new entity to DB context.
+        /// SaveChanges() needs to be called afterwards.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="db"></param>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        public static TEntity AddEntity<TEntity>(this DbContext db, TEntity entity) where TEntity : class
+        {
+            if (entity != null)
+                db.AddEntities(entity);
+
+            return entity;
+        }
+
+        /// <summary>
+        /// Adds multiple new entities of the same type to DB context.
+        /// SaveChanges() needs to be called afterwards.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="db"></param>
+        /// <param name="entities"></param>
+        public static void AddEntities<TEntity>(this DbContext db, params TEntity[] entities) where TEntity : class
+        {
+            if (db == null)
+                throw new ArgumentNullException("db");
+
+            DbSet<TEntity> table = db.Set<TEntity>();
+
+            entities.ForEach(entity => table.Add(entity));
+        }
+
+        /// <summary>
         /// Marks entity as Deleted.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
