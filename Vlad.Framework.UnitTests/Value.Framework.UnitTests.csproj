@@ -68,6 +68,7 @@
     <Compile Include="AspectacularTest\LinqTests.cs" />
     <Compile Include="AspectacularTest\RetryAspectsTest.cs" />
     <Compile Include="CoreTests\AdoNetSqlTest.cs" />
+    <Compile Include="CoreTests\CollectionsTest.cs" />
     <Compile Include="CoreTests\DateTImeExtTest.cs" />
     <Compile Include="CoreTests\DynamicPropertyReaderTest.cs" />
     <Compile Include="CoreTests\EmailHelpersTest.cs" />

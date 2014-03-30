@@ -245,8 +245,188 @@ namespace Aspectacular
 
             return val;
         }
+
+        /// <summary>
+        /// Compares two sets, Current and New one. New set determines the end state. 
+        /// Result of this method is two sets: items to be deleted from the old set 
+        /// and items to be added to the current set in order to make up new one.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="currentSet"></param>
+        /// <param name="newSet"></param>
+        /// <param name="equalityChecker"></param>
+        /// <returns></returns>
+        public static SetComparisonResult<T> CompareSets<T>(this IEnumerable<T> currentSet, IEnumerable<T> newSet, Func<T, T, bool> equalityChecker)
+        {
+            var retVal = new SetComparisonResult<T>();
+
+            currentSet = currentSet ?? new T[0];
+
+            if (newSet == null)
+            {
+                retVal.ToBeAdded = new T[0];
+                retVal.ToBeDeleted = currentSet;
+            }
+            else
+            {
+                IEqualityComparer<T> icomparer = ToIEqualityComparer(equalityChecker);
+                retVal.ToBeAdded = newSet.Where(newItem => !currentSet.Contains(newItem, icomparer));
+                retVal.ToBeDeleted = currentSet.Where(existing => !newSet.Contains(existing, icomparer));
+            }
+
+            return retVal;
+        }
+
+        /// <summary>
+        /// Compares two sets, Current and New one. New set determines the end state. 
+        /// Result of this method is two sets: items to be deleted from the old set 
+        /// and items to be added to the current set in order to make up new one.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="currentSet"></param>
+        /// <param name="newSet"></param>
+        /// <returns></returns>
+        public static SetComparisonResult<T> CompareSets<T>(this IEnumerable<T> currentSet, IEnumerable<T> newSet) where T : IEquatable<T>
+        {
+            return CompareSets<T>(currentSet, newSet, AreEqualEquitable);
+        }
+
+        /// <summary>
+        /// Returns true if either both sets contain same elements, or both are empty.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="set1"></param>
+        /// <param name="set2"></param>
+        /// <param name="equalityChecker"></param>
+        /// <returns></returns>
+        public static bool HaveSameElements<T>(this IEnumerable<T> set1, IEnumerable<T> set2, Func<T, T, bool> equalityChecker)
+        {
+            if(equalityChecker == null)
+                throw new ArgumentNullException("equalityChecker");
+
+            if (set1 == null && set2 == null)
+                return true;
+
+            set1 = set1 ?? new T[0]; // I dare anyone to say I don't appreciate JavaScript :-).
+            set2 = set2 ?? new T[0];
+
+            var enumerator1 = set1.GetEnumerator();
+            var enumerator2 = set2.GetEnumerator();
+
+            bool next1, next2;
+            do
+            {
+                next1 = enumerator1.MoveNext();
+                next2 = enumerator2.MoveNext();
+
+                if (next1 != next2)
+                    return false;
+
+                if (!next1)
+                    return true;
+
+                if (!equalityChecker(enumerator1.Current, enumerator2.Current))
+                    return false;
+
+            } while (true);
+        }
+
+        /// <summary>
+        /// Returns true if either both sets contain same elements, or both are empty.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="set1"></param>
+        /// <param name="set2"></param>
+        /// <returns></returns>
+        public static bool HaveSameElements<T>(this IEnumerable<T> set1, IEnumerable<T> set2) where T : IEquatable<T>
+        {
+            return HaveSameElements<T>(set1, set2, AreEqualEquitable);
+        }
+
+        public static bool AreEqualEquitable<T>(this T x, T y) where T : IEquatable<T>
+        {
+            var def = default(T);
+
+            if (def.Equals(x) && def.Equals(y))
+                // both are possible null
+                return true;
+
+            if (def.Equals(x)) // x is possible null, when y is not null.
+                return y.Equals(x);
+
+            // neither is null
+            return x.Equals(y);
+        }
+
+        /// <summary>
+        /// It stinks to implement IEqualityComparer for each entity.
+        /// This allows for supplying comparer closure instead.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="equalityChecker"></param>
+        /// <returns></returns>
+        public static IEqualityComparer<T> ToIEqualityComparer<T>(Func<T, T, bool> equalityChecker)
+        {
+            return new SimpleComparer<T>(equalityChecker);
+        }
+
+        /// <summary>
+        /// Returns IEqualityComparer implementation for IEquatable types, like int, string, DateTime, etc.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEqualityComparer<T> GetIEqualityComparer<T>() where T : IEquatable<T>
+        {
+            return new SimpleComparer<T>(AreEqualEquitable);
+        }
     }
 
+    /// <summary>
+    /// Converter of Func[T, T, bool] to IEqualityComparer[T].
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class SimpleComparer<T> : IEqualityComparer<T>
+    {
+        protected readonly Func<T, T, bool> equalityChecker;
+
+        public SimpleComparer(Func<T, T, bool> equalityChecker)
+        {
+            if (equalityChecker == null)
+                throw new ArgumentNullException("equalityChecker");
+
+            this.equalityChecker = equalityChecker;
+        }
+
+        public bool Equals(T x, T y)
+        {
+            return this.equalityChecker(x, y);
+        }
+
+        public int GetHashCode(T obj)
+        {
+            return obj == null ? 0 : obj.GetHashCode();
+        }
+    }
+
+    /// <summary>
+    /// Result of comparing two sets: New and Current.
+    /// After comparison, items present in New but missing in Current, 
+    /// will be added to the ToBeAdded collection, 
+    /// and items present in Current but missing in New, will be added to ToBeDeleted collection
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class SetComparisonResult<T>
+    {
+        public IEnumerable<T> ToBeAdded { get; set; }
+        public IEnumerable<T> ToBeDeleted { get; set; }
+    }
+
+    /// <summary>
+    /// A convenience class representing a pair of arbitrary values.
+    /// Works with KeyValuePair via implicit conversion.
+    /// </summary>
+    /// <typeparam name="T1"></typeparam>
+    /// <typeparam name="T2"></typeparam>
     public class Pair<T1, T2>
     {
         public readonly T1 First;
