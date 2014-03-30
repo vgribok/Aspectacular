@@ -101,7 +101,7 @@ namespace Aspectacular
         public static TEntity AddEntity<TEntity>(this DbContext db, TEntity entity) where TEntity : class
         {
             if (entity != null)
-                db.AddEntities(entity);
+                db.AddEntities(new TEntity[] { entity });
 
             return entity;
         }
@@ -113,7 +113,7 @@ namespace Aspectacular
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="db"></param>
         /// <param name="entities"></param>
-        public static void AddEntities<TEntity>(this DbContext db, params TEntity[] entities) where TEntity : class
+        public static void AddEntities<TEntity>(this DbContext db, IEnumerable<TEntity> entities) where TEntity : class
         {
             if (db == null)
                 throw new ArgumentNullException("db");
