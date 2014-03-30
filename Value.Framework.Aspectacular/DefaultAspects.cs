@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -110,8 +111,16 @@ namespace Aspectacular
 
         public static DefaultAspectsConfigSection LoadConfigSection()
         {
-            DefaultAspectsConfigSection config = (DefaultAspectsConfigSection)ConfigurationManager.GetSection("defaultAspects");
-            return config;
+            try
+            {
+                DefaultAspectsConfigSection config = (DefaultAspectsConfigSection)ConfigurationManager.GetSection("defaultAspects");
+                return config;
+            }
+            catch (System.Configuration.ConfigurationException)
+            {
+                // <defaultAspects> section missing in the .config file leads to this exception.
+                return null;
+            }
         }
 
         /// <summary>
