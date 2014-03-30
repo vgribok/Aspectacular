@@ -208,7 +208,7 @@ namespace Aspectacular
         {
             this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
 
-            int skipCount = CalcSkip(pageIndex, pageIndex);
+            int skipCount = CalcSkip(pageIndex, pageSize);
 
             this.Invoke(linqQueryExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
@@ -227,7 +227,7 @@ namespace Aspectacular
         {
             this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
 
-            int skipCount = CalcSkip(pageIndex, pageIndex);
+            int skipCount = CalcSkip(pageIndex, pageSize);
 
             this.Invoke(sequenceExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
