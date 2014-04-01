@@ -253,6 +253,35 @@ namespace Aspectacular
             return defaultValue;
         }
 
+        /// <summary>
+        /// Parses string and returns null if parsing failed.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static Guid? ParseGuid(this string str)
+        {
+            Guid val;
+            if (Guid.TryParse(str, out val))
+                return val;
+
+            return null;
+        }
+
+        /// <summary>
+        /// Parses string and returns default value if parsing failed.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static Guid Parse(this string str, Guid defaultValue)
+        {
+            Guid val;
+            if (Guid.TryParse(str, out val))
+                return val;
+
+            return defaultValue;
+        }
+
         #endregion Value type parsing
 
         #region Improved upper/lower case conversion methods
