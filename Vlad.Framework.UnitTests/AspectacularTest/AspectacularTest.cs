@@ -43,7 +43,7 @@ namespace Aspectacular.Test
             {
                 return new Aspect[] 
                 {
-                    new TraceOutputAspect(/* EntryType.Error | EntryType.Warning */)
+                    new TraceOutputAspect(EntryType.Error | EntryType.Warning | EntryType.Info /*, "Main exception" , writeAllEntriesIfKeyFound: true */)
                 };
             }
         }

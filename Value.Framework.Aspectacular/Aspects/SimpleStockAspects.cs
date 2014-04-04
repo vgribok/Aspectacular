@@ -48,60 +48,52 @@ namespace Aspectacular
     /// <summary>
     /// Writes log to the Debug output at the end of the lifecycle of the call.
     /// </summary>
-    public class DebugOutputAspect : Aspect
+    public class DebugOutputAspect : LogOutputAspectBase
     {
-        public readonly EntryType entryTypeFilter;
-        public readonly string key;
-
         public DebugOutputAspect()
             : this(EntryType.Error | EntryType.Warning | EntryType.Info)
         {
         }
 
-        public DebugOutputAspect(EntryType typeOfEntriesToOutput, string optionalKey = null)
+        public DebugOutputAspect(EntryType typeOfEntriesToOutput, string optionalKey = null, bool writeAllEntriesIfKeyFound = false)
+            : this(typeOfEntriesToOutput, writeAllEntriesIfKeyFound, optionalKey)
         {
-            this.entryTypeFilter = typeOfEntriesToOutput;
-            this.key = optionalKey;
         }
 
-        protected virtual IEnumerable<string> GetTextEntries(List<CallLogEntry> entries)
+        public DebugOutputAspect(EntryType typeOfEntriesToOutput, bool writeAllEntriesIfKeyFound, params string[] optionalKeys)
+            : base(typeOfEntriesToOutput, writeAllEntriesIfKeyFound, optionalKeys)
         {
-            var q = from entry in entries
-                    where (entry.What & this.entryTypeFilter) != 0 && (this.key == null || entry.Key == this.key)
-                    select entry.ToString();
-
-            return q;
         }
 
-        public override void Step_7_AfterEverythingSaidAndDone()
+        protected override void Output(string output)
         {
-            string output = this.GetLogText(this.GetTextEntries);
-
-            if (!output.IsBlank())
-                Debug.WriteLine(output);
+            Debug.WriteLine(output);
         }
     }
 
     /// <summary>
     /// Writes log to the Trace output at the end of the lifecycle of the call.
     /// </summary>
-    public class TraceOutputAspect : DebugOutputAspect
+    public class TraceOutputAspect : LogOutputAspectBase
     {
-        public TraceOutputAspect(EntryType typeOfEntriesToOutput, string optionalKey = null)
-            : base(typeOfEntriesToOutput, optionalKey)
+        public TraceOutputAspect()
+            : this(EntryType.Error | EntryType.Warning | EntryType.Info)
         {
         }
 
-        public TraceOutputAspect() : base()
+        public TraceOutputAspect(EntryType typeOfEntriesToOutput, string optionalKey = null, bool writeAllEntriesIfKeyFound = false)
+            : this(typeOfEntriesToOutput, writeAllEntriesIfKeyFound, optionalKey)
         {
         }
 
-        public override void Step_7_AfterEverythingSaidAndDone()
+        public TraceOutputAspect(EntryType typeOfEntriesToOutput, bool writeAllEntriesIfKeyFound, params string[] optionalKeys)
+            : base(typeOfEntriesToOutput, writeAllEntriesIfKeyFound, optionalKeys)
         {
-            string output = this.GetLogText(this.GetTextEntries);
+        }
 
-            if (!output.IsBlank())
-                Trace.WriteLine(output);
+        protected override void Output(string output)
+        {
+            Trace.WriteLine(output);
         }
     }
 }

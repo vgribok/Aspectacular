@@ -285,5 +285,14 @@ namespace Aspectacular
         {
             return (valueToCheck & flag) != 0;
         }
+
+        public static bool IsFlagOn(this Enum valueToCheck, Enum flag)
+        {
+            return ((int)(object)valueToCheck & (int)(object)flag) == (int)(object)flag;
+        }
+        public static bool IsAnyFlagOn(this Enum valueToCheck, Enum flag)
+        {
+            return ((int)(object)valueToCheck & (int)(object)flag) != 0;
+        }
     }
 }
