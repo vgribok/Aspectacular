@@ -6,6 +6,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace Aspectacular
 {
@@ -277,22 +279,87 @@ namespace Aspectacular
             return val.Value.Equals(default(T)) ? (T?)null : val;
         }
 
+        /// <summary>
+        /// Returns true if all bits of the flag value are present.
+        /// </summary>
+        /// <param name="valueToCheck"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
         public static bool IsFlagOn(this int valueToCheck, int flag)
         {
             return (valueToCheck & flag) == flag;
         }
+
+        /// <summary>
+        /// Returns true if any bits of the flag value are present.
+        /// </summary>
+        /// <param name="valueToCheck"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
         public static bool IsAnyFlagOn(this int valueToCheck, int flag)
         {
             return (valueToCheck & flag) != 0;
         }
 
+        /// <summary>
+        /// Returns true if all bits of the flag value are present.
+        /// </summary>
+        /// <param name="valueToCheck"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
         public static bool IsFlagOn(this Enum valueToCheck, Enum flag)
         {
             return ((int)(object)valueToCheck & (int)(object)flag) == (int)(object)flag;
         }
+        
+        /// <summary>
+        /// Returns true if any bits of the flag value are present.
+        /// </summary>
+        /// <param name="valueToCheck"></param>
+        /// <param name="flag"></param>
+        /// <returns></returns>
         public static bool IsAnyFlagOn(this Enum valueToCheck, Enum flag)
         {
             return ((int)(object)valueToCheck & (int)(object)flag) != 0;
+        }
+
+        /// <summary>
+        /// Serializes object to XML
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        public static string ToXml(this object obj, StringBuilder sb = null, string defaultNamespace = null, XmlWriterSettings settings = null)
+        {
+            if (obj == null)
+                return null;
+
+            if (obj is string)
+                throw new ArgumentException("Cannot convert string to XML.");
+
+            //if(!obj.GetType().IsSerializable)
+            //    throw new ArgumentException("Object must be serializable in order to be converted to XML.");
+
+            if (settings == null)
+                settings = new XmlWriterSettings
+                {
+                    Indent = true,
+                    IndentChars = "\t",
+                    Encoding = ASCIIEncoding.UTF8,
+                    OmitXmlDeclaration = true,
+                };
+
+            XmlSerializer ser = new XmlSerializer(obj.GetType(), defaultNamespace);
+            
+            if(sb == null)
+                sb = new StringBuilder();
+            
+            using (var writer = XmlWriter.Create(sb, settings))
+            {
+                ser.Serialize(writer, obj);
+            }
+
+            string xml = sb.ToString();
+            return xml;
         }
     }
 }
