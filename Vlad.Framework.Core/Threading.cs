@@ -54,23 +54,37 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Waits until async task is completed.
+        /// Waits until async task is completed. 
+        /// Throws TimeoutException if timeout exceeded.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="task"></param>
+        /// <param name="waitTimeoutMillisec">-1 is indefinite timeout</param>
         /// <returns></returns>
-        public static T Complete<T>(this Task<T> task)
+        /// <remarks>
+        /// Please note that if timeout exceeded, the task is not aborted by this method.
+        /// </remarks>
+        public static T Complete<T>(this Task<T> task, int waitTimeoutMillisec = -1)
         {
+            if (!task.Wait(waitTimeoutMillisec))
+                throw new TimeoutException("\"{0}\" timed out after {1:#,#0} milliseconds.".SmartFormat(task, waitTimeoutMillisec));
+
             return task.Result;
         }
 
         /// <summary>
         /// Waits until async void function is completed.
+        /// Throws TimeoutException if timeout exceeded.
         /// </summary>
         /// <param name="task"></param>
-        public static void Complete(this Task task)
+        /// <param name="waitTimeoutMillisec">-1 is indefinite timeout</param>
+        /// <remarks>
+        /// Please note that if timeout exceeded, the task is not aborted by this method.
+        /// </remarks>
+        public static void Complete(this Task task, int waitTimeoutMillisec = -1)
         {
-            task.Wait(-1);
+            if (!task.Wait(waitTimeoutMillisec))
+                throw new TimeoutException("\"{0}\" timed out after {1:#,#0} milliseconds.".SmartFormat(task, waitTimeoutMillisec));
         }
     }
 }
