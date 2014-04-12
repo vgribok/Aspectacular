@@ -156,7 +156,7 @@ namespace Aspectacular.Test
         {
             Assert.IsNull(Proxy.CurrentLog);
 
-            int intParm = 456;
+            const int intParm = 456;
             this.IntProp = intParm;
             string refString = DateTime.Now.Ticks.ToString();
             bool outBool = false;

@@ -12,10 +12,6 @@ namespace Aspectacular.Test.CoreTests
     [TestClass]
     public class RelativeTimeRangeTest
     {
-        public RelativeTimeRangeTest()
-        {
-        }
-
         /// <summary>
         ///Gets or sets the test context which provides
         ///information about and functionality for the current test run.

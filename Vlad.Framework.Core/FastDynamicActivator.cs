@@ -12,7 +12,6 @@ namespace Aspectacular
     /// <summary>
     /// Fast dynamic object instantiator.
     /// </summary>
-    /// <param name="classType"></param>
     /// <param name="args"></param>
     /// <returns></returns>
     public delegate object FastObjectActivator(params object[] args);
@@ -28,7 +27,7 @@ namespace Aspectacular
         /// Dynamic object activator that runs much faster than Reflection-based Activator.CreateInstance().
         /// </summary>
         /// <param name="classType"></param>
-        /// <param name="args"></param>
+        /// <param name="constructorArgTypes"></param>
         /// <returns></returns>
         public static FastObjectActivator GetFastActivator(this Type classType, params Type[] constructorArgTypes)
         {
@@ -59,7 +58,7 @@ namespace Aspectacular
         /// Returns delegate of a constructor for a given type, which runs much faster than Reflection-based Activator.CreateInstance().
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="args"></param>
+        /// <param name="constructorArgTypes"></param>
         /// <returns></returns>
         public static Func<object[], T> GetFastActivator<T>(params Type[] constructorArgTypes)
         {
@@ -67,7 +66,7 @@ namespace Aspectacular
             if (rawActivator == null)
                 return null;
 
-            Func<object[], T> activator = (parms) => (T)rawActivator(typeof(T), parms);
+            Func<object[], T> activator = parms => (T)rawActivator(typeof(T), parms);
             return activator;
         }
 
@@ -114,8 +113,6 @@ namespace Aspectacular
             if (classType == null)
                 throw new ArgumentNullException("classType");
 
-            List<ConstructorInfo> ctors = new List<ConstructorInfo>();
-
             foreach (ConstructorInfo ctorInfo in classType.GetConstructors())
             {
                 if (!ctorInfo.IsPublic)
@@ -161,13 +158,12 @@ namespace Aspectacular
             if (ctorInfo == null)
                 throw new ArgumentNullException("ctorInfo");
 
-            Type classType = ctorInfo.DeclaringType;
             ParameterInfo[] paramsInfo = ctorInfo.GetParameters();
 
             //create a single param of type object[]
             ParameterExpression constructorArgsExp = Expression.Parameter(typeof(object[]), "args");
 
-            UnaryExpression[] argsExp = new UnaryExpression[paramsInfo.Length];
+            Expression[] argsExp = new Expression[paramsInfo.Length];
 
             //pick each arg from the params array 
             //and create a typed expression of them

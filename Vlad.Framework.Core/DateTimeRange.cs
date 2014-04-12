@@ -18,7 +18,7 @@ namespace Aspectacular
 
 
     [Flags]
-    public enum TimeUnits : int
+    public enum TimeUnits
     {
         UtcUnit = 0x10, // Time Unit that is better suited for UTC time ranges (like PAST xxx units). Typically, hours, minutes and seconds.
         Second = UtcUnit + 1,
@@ -37,7 +37,7 @@ namespace Aspectacular
     }
 
     [Flags]
-    public enum TimespanQualifiers : int
+    public enum TimespanQualifiers
     {
         UtcTimespan = 0x10,
         Past = UtcTimespan + 1,
@@ -67,15 +67,15 @@ namespace Aspectacular
         public readonly ulong UnitCount;
 
         /// <summary>
+        /// 
         /// </summary>
-        /// <param name="Direction"></param>
-        /// <param name="Unit"></param>
+        /// <param name="direction"></param>
+        /// <param name="unit"></param>
         /// <param name="unitCount"></param>
-        /// <param name="referenceMoment"></param>
         public RelativeTimeSpan(TimespanQualifiers direction, TimeUnits unit, ulong unitCount = 1)
         {
             if (unitCount == 0)
-                throw new ArgumentOutOfRangeException("span value must be 1 or greater.");
+                throw new ArgumentOutOfRangeException("unitCount value must be 1 or greater.");
 
             if(!direction.IsCompatibleWith(unit))
                 throw new ArgumentException("Time direction \"{0}\" cannot be used with the unit type \"{1}\".".SmartFormat(direction, unit));
@@ -159,7 +159,7 @@ namespace Aspectacular
         /// Quarter 1..4 also is repeated within a year, so Quarter's parent is also year.
         /// Same goes for Week number 1..52.
         /// </summary>
-        /// <param name="Unit"></param>
+        /// <param name="unit"></param>
         /// <returns></returns>
         public static TimeUnits? CalculationParent(this TimeUnits unit)
         {

@@ -29,6 +29,7 @@ namespace Aspectacular
         /// Adds SQL Server command attributes which improves query performance.
         /// </summary>
         /// <param name="sqlConn"></param>
+        /// <param name="optionalPostProcessingFunc"></param>
         public static void AttachSqlConnectionAttribs(this SqlConnection sqlConn, Action<SqlConnection> optionalPostProcessingFunc = null)
         {
             if (sqlConn == null)

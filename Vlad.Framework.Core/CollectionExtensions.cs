@@ -20,6 +20,8 @@ namespace Aspectacular
             if (collection == null)
                 return true;
 
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            // ReSharper disable once UnusedVariable
             foreach (object first in collection)
                 return false;
 
@@ -33,16 +35,12 @@ namespace Aspectacular
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <returns></returns>
-        public static List<T> ReverseOrder<T>(this IEnumerable<T> collection)
+        public static IEnumerable<T> ReverseOrder<T>(this IEnumerable<T> collection)
         {
             if (collection == null)
                 return null;
 
-            List<T> backwards = new List<T>();
-            foreach (T elem in collection)
-                backwards.Insert(0, elem);
-
-            return backwards;
+            return collection.Reverse();
         }
 
         /// <summary>
@@ -63,7 +61,6 @@ namespace Aspectacular
         /// <summary>
         /// Lambda-style foreach loop.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <param name="func"></param>
         public static void ForEach(this IEnumerable collection, Action<object> func)
@@ -128,20 +125,17 @@ namespace Aspectacular
 
         public static IEnumerable ToEnumerable(this IQueryable query)
         {
-            foreach (object elem in query)
-                yield return elem;
+            return Enumerable.Cast<object>(query);
         }
 
         /// <summary>
         /// More convenient form of Union().
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="leftCollection"></param>
-        /// <param name="rightCollection"></param>
         /// <returns></returns>
         public static IEnumerable<T> More<T>(this IEnumerable<T> addToCollection, params T[] items)
         {
-            return SmartUnion<T>(addToCollection, items);
+            return SmartUnion(addToCollection, items);
         }
 
         /// <summary>
@@ -169,7 +163,7 @@ namespace Aspectacular
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <param name="entityPropertyName">Property by which collection will be ordered.</param>
-        /// <param name="order"></param>
+        /// <param name="orderAscending"></param>
         /// <returns></returns>
         public static IEnumerable<T> OrderByProperty<T>(this IEnumerable<T> collection, string entityPropertyName, bool orderAscending = true)
         {
@@ -185,7 +179,7 @@ namespace Aspectacular
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <param name="entityFieldName">Class field by which collection will be ordered.</param>
-        /// <param name="order"></param>
+        /// <param name="orderAscending"></param>
         /// <returns></returns>
         public static IEnumerable<T> OrderByField<T>(this IEnumerable<T> collection, string entityFieldName, bool orderAscending = true)
         {
@@ -288,7 +282,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static SetComparisonResult<T> CompareSets<T>(this IEnumerable<T> currentSet, IEnumerable<T> newSet) where T : IEquatable<T>
         {
-            return CompareSets<T>(currentSet, newSet, AreEqualEquitable);
+            return CompareSets(currentSet, newSet, AreEqualEquitable);
         }
 
         /// <summary>
@@ -340,7 +334,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static bool HaveSameElements<T>(this IEnumerable<T> set1, IEnumerable<T> set2) where T : IEquatable<T>
         {
-            return HaveSameElements<T>(set1, set2, AreEqualEquitable);
+            return HaveSameElements(set1, set2, AreEqualEquitable);
         }
 
         public static bool AreEqualEquitable<T>(this T x, T y) where T : IEquatable<T>
@@ -404,7 +398,7 @@ namespace Aspectacular
 
         public int GetHashCode(T obj)
         {
-            return obj == null ? 0 : obj.GetHashCode();
+            return !typeof(T).IsValueType && (object)obj == null ? 0 : obj.GetHashCode();
         }
     }
 

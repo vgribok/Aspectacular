@@ -62,7 +62,7 @@ namespace Aspectacular
             this.ExecuteMainSequence(() =>
             {
                 this.InvokeActualInterceptedMethod(() => retVal = blDelegate.Invoke(this.AugmentedClassInstance));
-                this.CallReturnValuePostProcessor<TOut>(retValPostProcessor, retVal);
+                this.CallReturnValuePostProcessor(retValPostProcessor, retVal);
             });
 
             return retVal;
@@ -158,7 +158,7 @@ namespace Aspectacular
 
             this.Invoke(linqQueryExpression, query => 
                 {
-                    query.ToEnumerable().ForEach(record => records.Add(record));
+                    query.ToEnumerable().ForEach(records.Add);
                     return records;
                 });
 
@@ -177,7 +177,7 @@ namespace Aspectacular
 
             this.Invoke(sequenceExpression, sequence =>
             {
-                sequence.ForEach(record => records.Add(record));
+                sequence.ForEach(records.Add);
                 return records;
             });
 
@@ -368,7 +368,7 @@ namespace Aspectacular
         public static TOut Invoke<TOut>(IEnumerable<Aspect> aspects, Expression<Func<TOut>> interceptedCallExpression)
         {
             var context = new Proxy(null, aspects);
-            TOut retVal = context.Invoke<TOut>(interceptedCallExpression);
+            TOut retVal = context.Invoke(interceptedCallExpression);
             return retVal;
         }
 
@@ -380,7 +380,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static TOut Invoke<TOut>(Expression<Func<TOut>> interceptedCallExpression)
         {
-            return Invoke<TOut>(aspects: null, interceptedCallExpression: interceptedCallExpression);
+            return Invoke(aspects: null, interceptedCallExpression: interceptedCallExpression);
         }
 
         /// <summary>
@@ -411,6 +411,7 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TInstance"></typeparam>
         /// <param name="instance"></param>
+        /// <param name="aspects"></param>
         /// <returns></returns>
         public static InstanceProxy<TInstance> GetProxy<TInstance>(this TInstance instance, IEnumerable<Aspect> aspects = null)
             where TInstance : class

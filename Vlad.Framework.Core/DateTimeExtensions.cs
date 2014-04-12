@@ -118,7 +118,7 @@ namespace Aspectacular
         public static long ToSortableLongDateTime(this DateTime dt, bool includeMilliseconds = false)
         {
             long multiplier = includeMilliseconds ? 1000000000 : 1000000;
-            long result = (long)ToSortableIntDate(dt) * multiplier + ToSortableLongTime(dt, includeMilliseconds);
+            long result = ToSortableIntDate(dt) * multiplier + ToSortableLongTime(dt, includeMilliseconds);
 
             return result;
         }
@@ -131,10 +131,10 @@ namespace Aspectacular
         /// <returns></returns>
         public static DateTime FromSortableIntDateTime(this long sortableDateTime, DateTimeKind dtKind = DateTimeKind.Unspecified)
         {
-            byte digitsInDateOnly = 4 + 2 + 2; 
+            const byte digitsInDateOnly = 4 + 2 + 2; 
             byte totalDigits = (byte)((int)Math.Log10(sortableDateTime) + 1);
             byte timePartDigits = (byte)(totalDigits - digitsInDateOnly);
-            int timePartOrder = (int)MathExtensions.Pow(10, timePartDigits);
+            int timePartOrder = (int)10.Pow(timePartDigits);
 
             int sortableDate = (int)(sortableDateTime / timePartOrder); // YYYYMMDD
             int day = sortableDate % 100;

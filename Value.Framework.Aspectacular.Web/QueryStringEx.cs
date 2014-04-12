@@ -14,7 +14,7 @@ namespace Aspectacular
         /// Changes query string of current http request by adding or replacing query string parameter value
         /// in the way that avoids creating duplicates.
         /// </summary>
-        /// <param name="qs"></param>
+        /// <param name="request"></param>
         /// <param name="paramName"></param>
         /// <param name="paramValueFormat"></param>
         /// <param name="args"></param>

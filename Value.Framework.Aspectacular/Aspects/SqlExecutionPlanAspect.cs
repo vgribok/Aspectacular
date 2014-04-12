@@ -32,7 +32,7 @@ namespace Aspectacular
         /// Aspect that log SQL Execution plan of a SqlCommand.
         /// </summary>
         /// <param name="cmdFetcher">Optional SqlCommand factory. If not specified, intercepted object should be SqlCommand.</param>
-        /// <param name="formatXmlOrText">Specifies output format of the execution plan text: plain text or XML.</param>
+        /// <param name="trueText_falseXml">Specifies output format of the execution plan text: plain text or XML.</param>
         public SqlCmdExecutionPlanAspect(Func<object, SqlCommand> cmdFetcher = null, bool trueText_falseXml = false)
         {
             this.cmdRetriever = cmdFetcher ?? (obj => obj as SqlCommand);
@@ -83,7 +83,7 @@ namespace Aspectacular
                 this.ProcessExecutionPlan(executionPlan);
 
             SqlCommand showplan_off_cmd = new SqlCommand("set showplan_{0} off".SmartFormat(outputFormat), this.command.Connection);
-            showplanCmd.ExecuteNonQuery();
+            showplan_off_cmd.ExecuteNonQuery();
         }
 
         /// <summary>

@@ -45,7 +45,7 @@ namespace Aspectacular
             ISqlServerMultiConnectionProvider sqlConnMultiConProvider = (this.Proxy.AugmentedClassInstance as ISqlServerMultiConnectionProvider) ?? (this.Proxy as ISqlServerMultiConnectionProvider);
             if (sqlConnMultiConProvider != null)
             {
-                sqlConnMultiConProvider.SqlConnectionAttributeApplicator = (sqlConProv) => this.AttachSqlAttributes(sqlConProv);
+                sqlConnMultiConProvider.SqlConnectionAttributeApplicator = this.AttachSqlAttributes;
             }
         }
 

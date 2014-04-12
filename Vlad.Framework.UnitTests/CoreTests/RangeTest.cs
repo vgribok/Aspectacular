@@ -57,7 +57,7 @@ namespace Aspectacular.Test.CoreTests
             Assert.IsFalse(stringRange.Contains("aa"));
             Assert.IsFalse(stringRange.Contains("zz"));
 
-            var intRange = RangeFactory.CreateRange<int>(1, null);
+            var intRange = RangeFactory.CreateValueRange<int>(1, null);
             actual = intRange.ToString();
             Assert.AreEqual("{ 1 : NULL }", actual);
             Assert.IsTrue(intRange.Contains(2));

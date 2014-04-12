@@ -78,7 +78,7 @@ namespace Aspectacular
                 this.ValHash = null;
             else
             {
-                byte[] stringBytes = System.Text.ASCIIEncoding.Unicode.GetBytes(val.ToString());
+                byte[] stringBytes = System.Text.Encoding.Unicode.GetBytes(val.ToString());
                 long crc = ComputeCRC(stringBytes);
                 this.ValHash = string.Format("{0:X}-{1:X}", val.GetHashCode(), crc);
             }
@@ -86,10 +86,11 @@ namespace Aspectacular
 
         public static long ComputeCRC(byte[] val)
         {
-            long crc;
             long q;
             byte c;
-            crc = 0;
+            long crc = 0;
+
+            // ReSharper disable once ForCanBeConvertedToForeach
             for (int i = 0; i < val.Length; i++)
             {
                 c = val[i];
@@ -224,7 +225,7 @@ namespace Aspectacular
             return this.ToString(ParamValueOutputOptions.NoValue);
         }
 
-        public string ToString(ParamValueOutputOptions options = ParamValueOutputOptions.NoValue)
+        public string ToString(ParamValueOutputOptions options)
         {
             string paramStrValue = null;
 
@@ -241,6 +242,7 @@ namespace Aspectacular
         /// Be sure to use this function only if all alternative are exhausted. 
         /// It's double-slow: it compiles expression tree and make reflection-based dynamic call.
         /// </summary>
+        /// <param name="augmentedObject"></param>
         /// <param name="expression"></param>
         /// <returns></returns>
         public static object VerySlowlyCompileAndInvoke(object augmentedObject, Expression expression)
@@ -279,7 +281,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static string FormatParamValue(Type type, object val, bool trueUI_falseInternal)
         {
-            if (type.Equals(typeof(void)))
+            if (type == typeof(void))
                 return string.Empty;
 
             if (val == null)
@@ -290,7 +292,8 @@ namespace Aspectacular
 
             if (val is string)
                 return string.Format("\"{0}\"", val);
-            else if (val is char)
+            
+            if (val is char)
                 return string.Format("'{0}'", val);
 
             string strVal = val.ToString();
@@ -487,9 +490,7 @@ namespace Aspectacular
         /// <returns></returns>
         public TAttribute GetMethodOrClassAttribute<TAttribute>() where TAttribute : System.Attribute
         {
-            TAttribute attrib = this.GetMethodAttribute<TAttribute>();
-            if (attrib == null)
-                attrib = this.GetClassAttribute<TAttribute>();
+            TAttribute attrib = this.GetMethodAttribute<TAttribute>() ?? this.GetClassAttribute<TAttribute>();
 
             return attrib;
         }

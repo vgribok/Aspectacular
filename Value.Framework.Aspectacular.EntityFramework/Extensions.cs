@@ -20,7 +20,8 @@ namespace Aspectacular
         /// <param name="db">EF ObjectContext</param>
         /// <param name="entity">Entity with key specified to attach or find loaded entity with the same key.</param>
         /// <returns></returns>
-        public static TEntity GetOrAttach<TEntity>(this ObjectContext db, TEntity entity) where TEntity : class, IEntityWithKey
+        public static TEntity GetOrAttach<TEntity>(this ObjectContext db, TEntity entity) 
+            where TEntity : class, IEntityWithKey
         {
             if (entity == null)
                 return null;
@@ -54,7 +55,7 @@ namespace Aspectacular
         public static TEntity GetOrAttach<TEntity>(this DbContext db, TEntity entity, Func<TEntity, object> entityKeyRetriever) where TEntity : class
         {
             if (entity == null)
-                return entity;
+                return null;
 
             if (db == null)
                 throw new ArgumentNullException("db");
@@ -68,7 +69,7 @@ namespace Aspectacular
 
             DbSet<TEntity> table = db.Set<TEntity>();
 
-            TEntity existing = table.Local.Where(loadedEnt => key.Equals(entityKeyRetriever(loadedEnt))).FirstOrDefault();
+            TEntity existing = table.Local.FirstOrDefault(loadedEnt => key.Equals(entityKeyRetriever(loadedEnt)));
 
             if (existing != null)
                 return existing;
@@ -87,7 +88,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static TEntity GetOrAttach<TEntity>(this DbContext db, TEntity entity) where TEntity : class, IDbEntityKey
         {
-            return db.GetOrAttach<TEntity>(entity, ent => ent.DbContextEntityKey);
+            return db.GetOrAttach(entity, ent => ent.DbContextEntityKey);
         }
 
         /// <summary>
@@ -101,7 +102,7 @@ namespace Aspectacular
         public static TEntity AddEntity<TEntity>(this DbContext db, TEntity entity) where TEntity : class
         {
             if (entity != null)
-                db.AddEntities(new TEntity[] { entity });
+                db.AddEntities(new[] { entity });
 
             return entity;
         }

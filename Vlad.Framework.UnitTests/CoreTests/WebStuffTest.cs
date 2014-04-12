@@ -17,10 +17,6 @@ namespace Aspectacular.Test
     [TestClass]
     public class WebStuffTest
     {
-        public WebStuffTest()
-        {
-        }
-
         /// <summary>
         ///Gets or sets the test context which provides
         ///information about and functionality for the current test run.

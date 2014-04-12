@@ -21,6 +21,7 @@ namespace Aspectacular
         {
         }
 
+        // ReSharper disable ValueParameterNotUsed
         public string Message { get { return this.exception.Message; } set { } }
 
         public string StackTrace { get { return this.exception.StackTrace; } set { } }
@@ -28,6 +29,7 @@ namespace Aspectacular
         public string Source { get { return this.exception.Source; } set { } }
 
         public string HelpLink { get { return this.exception.HelpLink; } set { } }
+        // ReSharper restore ValueParameterNotUsed
     }
 
     public static class ExceptionExtensions
@@ -70,7 +72,6 @@ namespace Aspectacular
         /// No inner exception information included.
         /// </summary>
         /// <param name="ex"></param>
-        /// <param name="separator"></param>
         /// <returns></returns>
         public static string FullInfo(this Exception ex)
         {
@@ -93,9 +94,9 @@ namespace Aspectacular
 
             separator = "\r\n{0}\r\n".SmartFormat(separator);
 
-            Func<Exception, IEnumerable<Exception>> iterator = innerFirst ? new Func<Exception, IEnumerable<Exception>>(AllExceptions) : new Func<Exception, IEnumerable<Exception>>(AllExceptionsBack);
+            Func<Exception, IEnumerable<Exception>> iterator = innerFirst ? AllExceptions : new Func<Exception, IEnumerable<Exception>>(AllExceptionsBack);
 
-            NonEmptyString retVal = string.Join(separator, iterator(ex).Select(e => converter(e)));
+            NonEmptyString retVal = string.Join(separator, iterator(ex).Select(converter));
             return retVal;
         }
 

@@ -28,7 +28,7 @@ namespace Aspectacular
         public DtcTransactionAspect(TransactionScopeOption transationScope, IsolationLevel isolationLevel = IsolationLevel.ReadUncommitted, TimeSpan waitTimeout = new TimeSpan())
         {
             this.transationScope = transationScope;
-            this.options = new TransactionOptions() { IsolationLevel = isolationLevel, Timeout = waitTimeout };
+            this.options = new TransactionOptions { IsolationLevel = isolationLevel, Timeout = waitTimeout };
         }
 
         public override void Step_2_BeforeTryingMethodExec()

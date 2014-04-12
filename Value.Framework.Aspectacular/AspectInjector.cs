@@ -22,8 +22,8 @@ namespace Aspectacular
         protected Delegate interceptedMethod;
         protected readonly List<IAspect> aspects = new List<IAspect>();
 
-        private Func<object> instanceResolverFunc;
-        private Action<object> instanceCleanerFunc;
+        private readonly Func<object> instanceResolverFunc;
+        private readonly Action<object> instanceCleanerFunc;
         private volatile bool isUsed = false;
 
         private static Stack<Proxy> ProxyStack { get { return proxyStack.Value; } }
@@ -183,7 +183,7 @@ namespace Aspectacular
             if (this.AugmentedClassInstance == null)
                 throw new Exception("Instance for AOP augmentation needs to be specified before intercepted method can be called.");
 
-            if(this.AugmentedClassInstance is IAspect)
+            if(this.AugmentedClassInstance is Aspect)
                 throw new Exception("Aspects should not be used as AOP-augmented instance. Perhaps you are mistakenly using AOP.GetProxy() for a static method call? If so, use AOP.Invoke() instead of AOP.GetProxy().");
 
             if (this.AugmentedClassInstance is ICallLogger)
@@ -265,7 +265,13 @@ namespace Aspectacular
         {
             this.LogInformation("**** Finished call with ID = {0} ****\r\n", this.CallID);
 
-            this.CallAspectsBackwards(aspect => { aspect.Step_7_AfterEverythingSaidAndDone(); aspect.Proxy = null; });
+            this.CallAspectsBackwards(aspect =>
+            {
+                aspect.Step_7_AfterEverythingSaidAndDone();
+
+                if (aspect is Aspect)
+                    (aspect as Aspect).Proxy = null;
+            });
         }
 
 
@@ -314,7 +320,7 @@ namespace Aspectacular
                         }else
                         {
                             // Retry loop
-                            for (this.AttemptsMade = 1; true; this.AttemptsMade++)
+                            for (this.AttemptsMade = 1 ; ; this.AttemptsMade++)
                             {
                                 try
                                 {
@@ -396,12 +402,12 @@ namespace Aspectacular
         {
             IEnumerable<RequiredAspectAttribute> requiredAspAttribs = this.InterceptedCallMetaData.GetMethodOrClassAttributes<RequiredAspectAttribute>();
 
-            requiredAspAttribs.ForEach(requiredAspAttrib => this.EnsureRequiredAspect(requiredAspAttrib));
+            requiredAspAttribs.ForEach(this.EnsureRequiredAspect);
         }
 
         private void EnsureRequiredAspect(RequiredAspectAttribute requiredAspAttrib)
         {
-            bool hasAspect = this.aspects.Where(asp => asp.GetType() == requiredAspAttrib.AspectClassType).Any();
+            bool hasAspect = this.aspects.Any(asp => asp.GetType() == requiredAspAttrib.AspectClassType);
             if (hasAspect)
                 return;
 
@@ -419,14 +425,14 @@ namespace Aspectacular
             this.AddAspect(missingAspect, requiredAspAttrib.InstantiateIfMissing == WhenRequiredAspectIsMissing.InstantiateAndAppend);
         }
 
-        private void CallAspects(Action<Aspect> cutPointHandler)
+        private void CallAspects(Action<IAspect> cutPointHandler)
         {
             if (cutPointHandler == null)
                 return;
 
             this.StopAspectCallChain = false;
 
-            foreach (Aspect aspect in this.aspects)
+            foreach (IAspect aspect in this.aspects)
             {
                 cutPointHandler.Invoke(aspect);
 
@@ -435,14 +441,14 @@ namespace Aspectacular
             }
         }
 
-        private void CallAspectsBackwards(Action<Aspect> cutPointHandler)
+        private void CallAspectsBackwards(Action<IAspect> cutPointHandler)
         {
             if (cutPointHandler == null)
                 return;
 
             this.StopAspectCallChain = false;
 
-            foreach (Aspect aspect in this.aspects.ReverseOrder())
+            foreach (IAspect aspect in this.aspects.ReverseOrder())
             {
                 cutPointHandler(aspect);
 
@@ -490,7 +496,7 @@ namespace Aspectacular
             this.ExecuteMainSequence(() =>
             {
                 this.InvokeActualInterceptedMethod(() => retVal = blDelegate.Invoke());
-                this.CallReturnValuePostProcessor<TOut>(retValPostProcessor, retVal);
+                this.CallReturnValuePostProcessor(retValPostProcessor, retVal);
             });
 
             return retVal;
@@ -505,7 +511,7 @@ namespace Aspectacular
             Action blDelegate = interceptedCallExpression.Compile();
             this.InitMethodMetadata(interceptedCallExpression, blDelegate);
 
-            this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(() => blDelegate.Invoke()));
+            this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(blDelegate.Invoke));
         }
 
         /// <summary>

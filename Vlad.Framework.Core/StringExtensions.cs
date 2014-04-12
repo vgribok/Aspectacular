@@ -58,7 +58,7 @@ namespace Aspectacular
         public static TEnum Parse<TEnum>(this string str, TEnum defaultValue) where TEnum : struct
         {
             TEnum val;
-            if (Enum.TryParse<TEnum>(str, out val))
+            if (Enum.TryParse(str, out val))
                 return val;
 
             return defaultValue;
@@ -73,7 +73,7 @@ namespace Aspectacular
         public static TEnum? Parse<TEnum>(this string str) where TEnum : struct
         {
             TEnum val;
-            if (Enum.TryParse<TEnum>(str, out val))
+            if (Enum.TryParse(str, out val))
                 return val;
 
             return null;

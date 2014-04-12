@@ -20,6 +20,11 @@ namespace Aspectacular
     /// <summary>
     /// Interface to be inherited by augmented objects that want to be their own aspects.
     /// </summary>
+    /// <remarks>
+    /// It's a little weird notion, but an intercepted object can be its own aspect.
+    /// If intercepted object implements this interface, it will be placed in the
+    /// collection of aspects during the call. It won't have direct access to the proxy though.
+    /// </remarks>
     public interface IAspect
     {
         void Step_1_BeforeResolvingInstance();
@@ -50,10 +55,10 @@ namespace Aspectacular
 
         static Aspect()
         {
-            AppDomain.CurrentDomain.DomainUnload += new EventHandler((domainRaw, evt) => ApplicationExiting.Set());
+#pragma warning disable 618
+            AppDomain.CurrentDomain.DomainUnload += (domainRaw, evt) => ApplicationExiting.Set();
+#pragma warning restore 618
         }
-
-        public Aspect() { }
 
         /// <summary>
         /// Called for non-static methods only.
@@ -157,7 +162,6 @@ namespace Aspectacular
         /// <summary>
         /// Shortcut for logging information entries.
         /// </summary>
-        /// <param name="optionalKey"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
         protected void LogInformation(string format, params object[] args)

@@ -15,7 +15,7 @@ namespace Aspectacular
     }
 
     [Flags]
-    public enum EntryType : int
+    public enum EntryType
     {
         /// <summary>
         /// Error
@@ -141,7 +141,6 @@ namespace Aspectacular
         /// <summary>
         /// Adds log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
         /// <param name="entryType"></param>
         /// <param name="category"></param>
         /// <param name="format"></param>
@@ -154,7 +153,6 @@ namespace Aspectacular
         /// <summary>
         /// Adds information log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
@@ -166,7 +164,6 @@ namespace Aspectacular
         /// <summary>
         /// Logs a piece of data as a log entry with key.
         /// </summary>
-        /// <param name="interceptedClass"></param>
         /// <param name="key"></param>
         /// <param name="val"></param>
         public void LogInformationData(string key, object val)
@@ -177,7 +174,6 @@ namespace Aspectacular
         /// <summary>
         /// Adds information log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
         public void LogInformation(string format, params object[] args)
@@ -188,7 +184,6 @@ namespace Aspectacular
         /// <summary>
         /// Adds error log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
@@ -200,7 +195,6 @@ namespace Aspectacular
         /// <summary>
         /// Adds error log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
         public void LogError(string format, params object[] args)
@@ -211,7 +205,6 @@ namespace Aspectacular
         /// <summary>
         /// Adds warning log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
@@ -223,7 +216,6 @@ namespace Aspectacular
         /// <summary>
         /// Adds warning log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
         public void LogWarning(string format, params object[] args)
@@ -242,7 +234,7 @@ namespace Aspectacular
         /// <summary>
         /// Adds log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
+        /// <param name="methodLogger"></param>
         /// <param name="entryType"></param>
         /// <param name="category"></param>
         /// <param name="format"></param>
@@ -275,7 +267,7 @@ namespace Aspectacular
         /// <summary>
         /// Adds information log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
+        /// <param name="methodLogger"></param>
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
@@ -299,7 +291,7 @@ namespace Aspectacular
         /// <summary>
         /// Logs a piece of data as a log entry with key.
         /// </summary>
-        /// <param name="interceptedClass"></param>
+        /// <param name="methodLogger"></param>
         /// <param name="key"></param>
         /// <param name="val"></param>
         public static void LogInformationData(this IMethodLogProvider methodLogger, string key, object val)
@@ -321,7 +313,7 @@ namespace Aspectacular
         /// <summary>
         /// Adds information log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
+        /// <param name="methodLogger"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
         public static void LogInformation(this IMethodLogProvider methodLogger, string format, params object[] args)
@@ -343,7 +335,7 @@ namespace Aspectacular
         /// <summary>
         /// Adds error log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
+        /// <param name="methodLogger"></param>
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
@@ -367,7 +359,7 @@ namespace Aspectacular
         /// <summary>
         /// Adds error log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
+        /// <param name="methodLogger"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
         public static void LogError(this IMethodLogProvider methodLogger, string format, params object[] args)
@@ -389,7 +381,7 @@ namespace Aspectacular
         /// <summary>
         /// Adds warning log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
+        /// <param name="methodLogger"></param>
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
@@ -413,7 +405,7 @@ namespace Aspectacular
         /// <summary>
         /// Adds warning log entry to AOP Proxy log in a way that makes it possible for aspect classes to access it for storing, sorting, grouping, etc.
         /// </summary>
-        /// <param name="interceptedClass"></param>
+        /// <param name="methodLogger"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
         public static void LogWarning(this IMethodLogProvider methodLogger, string format, params object[] args)

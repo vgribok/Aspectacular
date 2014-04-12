@@ -50,12 +50,15 @@ namespace Aspectacular
         /// </summary>
         /// <param name="delimiteParamString"></param>
         /// <param name="paramKey"></param>
+        /// <param name="defaultValue"></param>
         /// <returns></returns>
         public static string GetParameterValue(string delimiteParamString, string paramKey, string defaultValue = null)
         {
-            DbConnectionStringBuilder paramStringParse = new DbConnectionStringBuilder();
-            paramStringParse.ConnectionString = delimiteParamString;
-            
+            DbConnectionStringBuilder paramStringParse = new DbConnectionStringBuilder
+            {
+                ConnectionString = delimiteParamString
+            };
+
             object val;
             if (!paramStringParse.TryGetValue(paramKey, out val))
                 return defaultValue;
@@ -147,7 +150,7 @@ namespace Aspectacular
 
                     try
                     {
-                        string[] constructorArgs = parms.ToArray();
+                        object[] constructorArgs = parms.Cast<object>().ToArray();
 
                         Func<object> rawActivator = aspectType.GetFastActivatorWithEmbeddedArgs(constructorArgs);
                         Func<Aspect> activator = () => (Aspect)rawActivator();

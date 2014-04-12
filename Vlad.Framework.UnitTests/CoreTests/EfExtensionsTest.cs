@@ -12,7 +12,7 @@ namespace Aspectacular.Test
     {
         public static Customer OrhpanCust
         {
-            get { return new Customer() { CustomerID = LinqTests.customerIdWithManyAddresses }; }
+            get { return new Customer { CustomerID = LinqTests.customerIdWithManyAddresses }; }
         }
 
         [TestMethod]

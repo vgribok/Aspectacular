@@ -74,7 +74,7 @@ namespace Aspectacular.Test
 
         public SomeTestDisposable(bool isOpened)
         {
-            this.IsOpened = IsOpened;
+            this.IsOpened = isOpened;
         }
 
         void Open()

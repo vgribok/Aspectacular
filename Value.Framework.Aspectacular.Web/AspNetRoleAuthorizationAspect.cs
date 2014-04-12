@@ -24,7 +24,7 @@ namespace Aspectacular
         /// Marks methods and classes as requiring current user to the member of one or more ASP.NET security roles.
         /// </summary>
         /// <param name="trueDemandAny_falseDemandAll">If true, user must me a member of *at least one* role. If false, user must be a member of *all* roles.</param>
-        /// <param name="DemandedRoles">Collection of roles in order to authorize access to a class or method called using AOP proxy.</param>
+        /// <param name="demandedRoles">Collection of roles in order to authorize access to a class or method called using AOP proxy.</param>
         public DemandAspNetRoleAttribute(bool trueDemandAny_falseDemandAll, params string[] demandedRoles)
             : base(trueDemandAny_falseDemandAll, demandedRoles)
         {
@@ -34,7 +34,7 @@ namespace Aspectacular
         /// Marks methods and classes as requiring current user to the member of one or more ASP.NET security roles.
         /// User must be a member of at least one demanded role in order to be authorized.
         /// </summary>
-        /// <param name="DemandedRoles"></param>
+        /// <param name="demandedRoles"></param>
         public DemandAspNetRoleAttribute(params string[] demandedRoles)
             : this(trueDemandAny_falseDemandAll: true, demandedRoles: demandedRoles)
         {
@@ -63,9 +63,10 @@ namespace Aspectacular
             {
                 HttpContext.Current.Response.StatusCode = (int)System.Net.HttpStatusCode.Forbidden;
             }
+            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
-                // No biggy if status code has already be written, we can skip this.
+                // No biggy if status code has already been written, we can skip this.
             }
 
             base.ThrowAuthorizationException(errorMsg);

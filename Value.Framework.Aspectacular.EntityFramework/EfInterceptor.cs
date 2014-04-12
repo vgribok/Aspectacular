@@ -122,6 +122,7 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="aspects"></param>
+        /// <param name="lazyLoadingEnabled"></param>
         /// <returns></returns>
         public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(IEnumerable<Aspect> aspects = null, bool lazyLoadingEnabled = true)
             where TDbContext : DbContext, new()
@@ -135,6 +136,7 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TObjectContext"></typeparam>
         /// <param name="aspects"></param>
+        /// <param name="lazyLoadingEnabled"></param>
         /// <returns></returns>
         public static ObjectContextSingleCallProxy<TObjectContext> GetOcProxy<TObjectContext>(IEnumerable<Aspect> aspects = null, bool lazyLoadingEnabled = true)
             where TObjectContext : ObjectContext, new()

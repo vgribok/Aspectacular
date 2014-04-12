@@ -11,7 +11,6 @@ namespace Aspectacular
     /// intercepted method's returned value or exception require retry.
     /// </summary>
     /// <param name="aopProxy">AOP Proxy providing access to intercepted method's returned value or invocation exception.</param>
-    /// <param name="returnedValueOrException">Exception if intercepted call failed, or returned value of the intercepted method (null for void methods). </param>
     /// <returns>True to retry, false not to retry.</returns>
     public delegate bool RetryDeciderDelegate(Proxy aopProxy);
 
@@ -31,7 +30,7 @@ namespace Aspectacular
         /// If not specified, only failed calls (when exception is thrown) would be retried.
         /// Either return value or an Exception is passed 
         /// </summary>
-        private RetryDeciderDelegate OptionalRetryDecider;
+        private readonly RetryDeciderDelegate OptionalRetryDecider;
 
         /// <summary>
         /// 
@@ -77,7 +76,7 @@ namespace Aspectacular
                 this.BeforeFirstRetry();
             }
 
-            object logData = this.Proxy.MethodExecutionException == null ? this.Proxy.ReturnedValue : this.Proxy.MethodExecutionException;
+            object logData = this.Proxy.MethodExecutionException ?? this.Proxy.ReturnedValue;
             this.LogInformationData("Retry Cause", logData);
 
             if (this.MillisecDelayBetweenRetries > 0)

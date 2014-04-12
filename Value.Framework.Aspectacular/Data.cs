@@ -61,10 +61,6 @@ namespace Aspectacular
     {
         private readonly Dictionary<Type, Lazy<IDisposable>> dataStores = new Dictionary<Type, Lazy<IDisposable>>();
 
-        protected DalManager()
-        {
-        }
-
         protected void AddDataStoreInitializer<TDataStore>()
             where TDataStore : class, IDisposable, new()
         {
@@ -166,7 +162,7 @@ namespace Aspectacular
         where TStore1 : class, IDisposable, new()
         where TStore2 : class, IDisposable, new()
     {
-        public TwoDataStoreManager() : base()
+        protected TwoDataStoreManager() : base()
         {
             this.AddDataStoreInitializer<TStore1>();
             this.AddDataStoreInitializer<TStore2>();
@@ -178,7 +174,7 @@ namespace Aspectacular
         where TStore2 : class, IDisposable, new()
         where TStore3 : class, IDisposable, new()
     {
-        public ThreeDataStoreManager()
+        protected ThreeDataStoreManager()
             : base()
         {
             this.AddDataStoreInitializer<TStore1>();
@@ -193,7 +189,7 @@ namespace Aspectacular
         where TStore3 : class, IDisposable, new()
         where TStore4 : class, IDisposable, new()
     {
-        public FourDataStoreManager()
+        protected FourDataStoreManager()
             : base()
         {
             this.AddDataStoreInitializer<TStore1>();

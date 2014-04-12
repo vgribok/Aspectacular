@@ -30,7 +30,7 @@ namespace Aspectacular
 
         static Threading()
         {
-            AppDomain.CurrentDomain.DomainUnload += new EventHandler((domainRaw, evt) => ApplicationExiting.Set());
+            AppDomain.CurrentDomain.DomainUnload += (domainRaw, evt) => ApplicationExiting.Set();
         }
 
         /// <summary>

@@ -16,10 +16,6 @@ namespace Aspectacular.Test
         private DateTime? testStart;
         private uint iteration = 0;
 
-        public RetryAspectsTest()
-        {
-        }
-
         /// <summary>
         ///Gets or sets the test context which provides
         ///information about and functionality for the current test run.
@@ -114,6 +110,7 @@ namespace Aspectacular.Test
         /// Will be failing for a given period of time since test start.
         /// </summary>
         /// <param name="millisec"></param>
+        /// <param name="throwExceptionOnFailure"></param>
         /// <returns></returns>
         private object SimulateFailureFor(uint millisec, bool throwExceptionOnFailure = true)
         {
@@ -125,8 +122,8 @@ namespace Aspectacular.Test
             {
                 if (throwExceptionOnFailure)
                     throw new Exception("Simulated time failure");
-                else
-                    return null;
+                
+                return null;
             }
 
             return now;
@@ -146,8 +143,8 @@ namespace Aspectacular.Test
             {
                 if (throwExceptionOnFailure)
                     throw new Exception("Simulated count failure");
-                else
-                    return null;
+                
+                return null;
             }
 
             return DateTime.UtcNow;

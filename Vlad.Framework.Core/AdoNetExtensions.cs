@@ -246,7 +246,7 @@ namespace Aspectacular
         /// <param name="adoFldVal"></param>
         /// <param name="defaultVal">Value to be used when source is DbNull/null</param>
         /// <returns></returns>
-        public static TVal FromAdoTo<TVal>(this object adoFldVal, TVal defaultVal = default(TVal)) where TVal : struct
+        public static TVal FromAdoTo<TVal>(this object adoFldVal, TVal defaultVal) where TVal : struct
         {
             if (adoFldVal == null || adoFldVal == DBNull.Value)
                 return defaultVal;

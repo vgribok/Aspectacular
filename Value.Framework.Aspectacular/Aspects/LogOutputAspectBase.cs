@@ -22,10 +22,10 @@ namespace Aspectacular
         /// Initializes log output base class
         /// </summary>
         /// <param name="typeOfEntriesToOutput">Desired combination of EntryType to filter items to be collected for outputting.</param>
-        /// <param name="optionalKeys">Optional item keys to output or to decide whether log collection needs to be written to output. All items are written if not specified.</param>
         /// <param name="writeAllEntriesIfKeyFound">If true and optionalKey is specified, the entire log collection is written if key is found in the collection.
         /// If false and optionalKey is specified, only log items with the key will be written.</param>
-        public LogOutputAspectBase(EntryType typeOfEntriesToOutput, bool writeAllEntriesIfKeyFound, IEnumerable<string> optionalKey)
+        /// <param name="optionalKey">Optional item keys to output or to decide whether log collection needs to be written to output. All items are written if not specified.</param>
+        protected LogOutputAspectBase(EntryType typeOfEntriesToOutput, bool writeAllEntriesIfKeyFound, IEnumerable<string> optionalKey)
         {
             this.keys = optionalKey == null ? new string[0] : optionalKey.Where(key => !key.IsBlank()).ToArray();
 
@@ -47,7 +47,7 @@ namespace Aspectacular
 
             if (this.writeAllEntriesIfKeyFound && this.keys.Length != 0)
             {
-                bool keyFound = entries.Where(entry => this.keys.Contains(entry.Key)).Any();
+                bool keyFound = entries.Any(entry => this.keys.Contains(entry.Key));
                 if (!keyFound)
                     filtered = new CallLogEntry[0];
                 else

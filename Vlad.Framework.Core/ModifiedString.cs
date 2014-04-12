@@ -191,7 +191,7 @@ namespace Aspectacular
     public class NonNullString : StringWithConstraints
     {
         public NonNullString()
-            : base(str => str == null ? string.Empty : str)
+            : base(str => str ?? string.Empty)
         {
         }
 
@@ -218,10 +218,10 @@ namespace Aspectacular
         public readonly int MaxLen;
         public readonly NonNullString Ellipsis = string.Empty;
 
-        public TruncatedString(string str, uint maxLength, string optionalEllipsis = "...")
+        protected TruncatedString(string str, uint maxLength, string optionalEllipsis = "...")
             : base(ss => ss)
         {
-            this.massager = (s) => this.Massage(s);
+            this.massager = this.Massage;
             this.MaxLen = (int)maxLength;
             this.Ellipsis = optionalEllipsis;
 

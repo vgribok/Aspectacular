@@ -26,7 +26,7 @@ namespace Aspectacular
     /// Please note that CacheAspect will not attempt to invalidate the cache - it's a responsibility of the ICacheProvider implementation.
     /// </remarks>
     public class CacheAspect<TCacher> : Aspect
-        where TCacher : ICacheProvider
+        where TCacher : class, ICacheProvider
     {
         protected TCacher Cache { get; private set; }
         
@@ -119,6 +119,7 @@ namespace Aspectacular
             if (cacheProvider == null)
                 throw new ArgumentNullException("cacheProvider");
 
+            // ReSharper disable once CSharpWarnings::CS0618
             var cacheAspect = new CacheAspect<ICacheProvider>(cacheProvider);
             return cacheAspect;
         }

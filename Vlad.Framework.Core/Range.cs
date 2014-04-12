@@ -53,7 +53,7 @@ namespace Aspectacular
         {
         }
 
-        public RangeBase(object start, object end)
+        protected RangeBase(object start, object end)
         {
             this.start = start;
             this.end = end;
@@ -149,6 +149,7 @@ namespace Aspectacular
             return "{{ {0} : {1} }}".SmartFormat(startStr, endStr);
         }
 
+        // ReSharper disable once UnusedParameter.Local
         protected RangeBase(SerializationInfo info, StreamingContext ctxt)
         {
             this.start = info.GetValue("Start", typeof(T));
@@ -179,6 +180,7 @@ namespace Aspectacular
         {
         }
     
+        // ReSharper disable once UnusedMember.Local
         private Range(SerializationInfo info, StreamingContext ctxt)
             : base(info, ctxt)
         {
@@ -197,11 +199,12 @@ namespace Aspectacular
         }
 
         public ValueRange(T? start, T? end)
-            : base(start == null ? (object)null : (object)start.Value, end == null ? (object)null : (object)end.Value)
+            : base(start == null ? null : (object)start.Value, end == null ? null : (object)end.Value)
         {
         }
 
 
+        // ReSharper disable once UnusedParameter.Local
         protected ValueRange(SerializationInfo info, StreamingContext ctxt)
         {
             this.start = info.GetValue("Start", typeof(T?));
@@ -306,8 +309,10 @@ namespace Aspectacular
         {
             get
             {
-                DateTimeKind? startKind = this.HasStart ? this.Start.Value.Kind : (DateTimeKind?)null;
+                // ReSharper disable PossibleInvalidOperationException
+                DateTimeKind? startKind = this.HasStart ? Start.Value.Kind : (DateTimeKind?)null;
                 DateTimeKind? endKind = this.HasEnd ? this.End.Value.Kind : (DateTimeKind?)null;
+                // ReSharper restore PossibleInvalidOperationException
 
                 if (startKind == null && endKind == null)
                     return DateTimeKind.Unspecified;
@@ -326,8 +331,10 @@ namespace Aspectacular
             if (this.Kind == DateTimeKind.Utc)
                 return this;
 
+            // ReSharper disable PossibleInvalidOperationException
             DateTime? newStart = this.HasStart ? this.Start.Value.ToUniversalTime() : (DateTime?)null;
             DateTime? newEnd = this.HasEnd ? this.End.Value.ToUniversalTime() : (DateTime?)null;
+            // ReSharper restore PossibleInvalidOperationException
 
             return new DateRange(newStart, newEnd);
         }
@@ -337,8 +344,10 @@ namespace Aspectacular
             if (this.Kind == DateTimeKind.Local)
                 return this;
 
+            // ReSharper disable PossibleInvalidOperationException
             DateTime? newStart = this.HasStart ? this.Start.Value.ToLocalTime() : (DateTime?)null;
             DateTime? newEnd = this.HasEnd ? this.End.Value.ToLocalTime() : (DateTime?)null;
+            // ReSharper restore PossibleInvalidOperationException
 
             return new DateRange(newStart, newEnd);
         }

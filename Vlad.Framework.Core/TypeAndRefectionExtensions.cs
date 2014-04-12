@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -21,21 +22,21 @@ namespace Aspectacular
     {
         private static readonly string[][] simpleParmTypeNames = 
         {
-            new string[] { "Void", "void" },
-            new string[] { "String", "string" },
-            new string[] { "Byte", "byte" },
-            new string[] { "SByte", "sbyte" },
-            new string[] { "Int16", "short" },
-            new string[] { "UInt16", "ushort" },
-            new string[] { "Int32", "int" },
-            new string[] { "UInt32", "uint" },
-            new string[] { "Int64", "long" },
-            new string[] { "UInt64", "ulong" },
-            new string[] { "Boolean", "bool" },
-            new string[] { "Decimal", "decimal" },
-            new string[] { "Double", "double" },
-            new string[] { "Single", "float" },
-            new string[] { "Char", "char" },
+            new[] { "Void", "void" },
+            new[] { "String", "string" },
+            new[] { "Byte", "byte" },
+            new[] { "SByte", "sbyte" },
+            new[] { "Int16", "short" },
+            new[] { "UInt16", "ushort" },
+            new[] { "Int32", "int" },
+            new[] { "UInt32", "uint" },
+            new[] { "Int64", "long" },
+            new[] { "UInt64", "ulong" },
+            new[] { "Boolean", "bool" },
+            new[] { "Decimal", "decimal" },
+            new[] { "Double", "double" },
+            new[] { "Single", "float" },
+            new[] { "Char", "char" },
         };
 
         private static readonly Dictionary<string, string> stdTypeCSharpNames = new Dictionary<string, string>();
@@ -99,7 +100,7 @@ namespace Aspectacular
                 Type underlyingType = type.GetGenericArguments()[0];
                 return string.Format("{0}?", TypeToCSharpString(underlyingType));
             }
-            string baseName = typeName.Substring(0, typeName.IndexOf("`"));
+            string baseName = typeName.Substring(0, typeName.IndexOf("`", StringComparison.InvariantCulture));
             string generic = string.Join(", ", type.GetGenericArguments().Select(paramType => TypeToCSharpString(paramType, fullyQualified)));
             string fullName = string.Format("{0}<{1}>", baseName, generic);
             return fullName;
@@ -276,7 +277,7 @@ namespace Aspectacular
             if (val == null)
                 return val;
 
-            return val.Value.Equals(default(T)) ? (T?)null : val;
+            return val.Value.Equals(default(T)) ? null : val;
         }
 
         /// <summary>
@@ -327,8 +328,10 @@ namespace Aspectacular
         /// Serializes object to XML
         /// </summary>
         /// <param name="obj"></param>
+        /// <param name="defaultNamespace"></param>
+        /// <param name="settings"></param>
         /// <returns></returns>
-        public static string ToXml(this object obj, StringBuilder sb = null, string defaultNamespace = null, XmlWriterSettings settings = null)
+        public static string ToXml(this object obj, string defaultNamespace = null, XmlWriterSettings settings = null)
         {
             if (obj == null)
                 return null;
@@ -344,14 +347,13 @@ namespace Aspectacular
                 {
                     Indent = true,
                     IndentChars = "\t",
-                    Encoding = ASCIIEncoding.UTF8,
+                    Encoding = Encoding.UTF8,
                     OmitXmlDeclaration = true,
                 };
 
             XmlSerializer ser = new XmlSerializer(obj.GetType(), defaultNamespace);
-            
-            if(sb == null)
-                sb = new StringBuilder();
+
+            StringBuilder sb = new StringBuilder();
             
             using (var writer = XmlWriter.Create(sb, settings))
             {

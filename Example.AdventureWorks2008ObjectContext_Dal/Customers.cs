@@ -29,9 +29,9 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
             return q;
         }
 
-        public void Bogus(int customerID)
-        {
-            this.ToString();
-        }
+        //public void Bogus(int customerID)
+        //{
+        //    this.ToString();
+        //}
     }
 }

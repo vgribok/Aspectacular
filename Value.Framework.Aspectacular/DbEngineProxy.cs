@@ -16,7 +16,7 @@ namespace Aspectacular
     public abstract class DbEngineProxy<TDbEngine> : AllocateRunDisposeProxy<TDbEngine>, IEfCallInterceptor, IStorageCommandRunner<TDbEngine>
         where TDbEngine : class, IDisposable, new()
     {
-        public DbEngineProxy(IEnumerable<Aspect> aspects)
+        protected DbEngineProxy(IEnumerable<Aspect> aspects)
             : base(aspects)
         {
         }
@@ -26,7 +26,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="aspects"></param>
-        public DbEngineProxy(TDbEngine dbContext, IEnumerable<Aspect> aspects)
+        protected DbEngineProxy(TDbEngine dbContext, IEnumerable<Aspect> aspects)
             : base(dbContext, aspects)
         {
         }

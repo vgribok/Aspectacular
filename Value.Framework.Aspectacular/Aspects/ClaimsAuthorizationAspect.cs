@@ -42,7 +42,7 @@ namespace Aspectacular
             if (authorizedClaims == null)
                 return false;
 
-            int authorizedClaimCount = authorizedClaims.Where(claim => this.DemandedClaims.Contains(claim)).Count();
+            int authorizedClaimCount = authorizedClaims.Count(claim => this.DemandedClaims.Contains(claim));
 
             if (this.DemandAny)
                 return authorizedClaimCount > 0;
@@ -77,7 +77,7 @@ namespace Aspectacular
 
             this.claimsIdentityType = claimsIdentityType;
 
-            this.identity = new Lazy<ClaimsIdentity>(() => ClaimsPrincipal.Current == null ? null : ClaimsPrincipal.Current.Identities.Where(id => id.GetType() == this.claimsIdentityType).SingleOrDefault());
+            this.identity = new Lazy<ClaimsIdentity>(() => ClaimsPrincipal.Current == null ? null : ClaimsPrincipal.Current.Identities.SingleOrDefault(id => id.GetType() == this.claimsIdentityType));
         }
 
         public override IIdentity Identity
@@ -123,13 +123,13 @@ namespace Aspectacular
         {
             AuthorizationDemandAttribute claimDemandAttrib = this.Proxy.InterceptedCallMetaData.GetMethodOrClassAttribute<AuthorizationDemandAttribute>();
 
+            if (claimDemandAttrib == null)
+                return;
+
             this.LogInformationWithKey("Demanded claims/roles", "{0}: {1}",
                                     claimDemandAttrib.DemandAny ? "ANY" : "ALL",
                                     string.Join(", ", claimDemandAttrib.DemandedClaims)
                                     );
-
-            if (claimDemandAttrib == null)
-                return;
 
             if (claimDemandAttrib.IsAuthorized())
                 return;
