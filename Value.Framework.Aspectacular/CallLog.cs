@@ -136,6 +136,20 @@ namespace Aspectacular
             return text;
         }
 
+        /// <summary>
+        /// Returns the worst type of entry found in the log entry collection.
+        /// For example, if only Info entries are there, then Info will be returned,
+        /// but if both Error and Info entries are present, Error will be returned.
+        /// </summary>
+        public EntryType WorstEntryType
+        {
+            get
+            {
+                EntryType worstCase = (EntryType)this.callLog.Min(entry => (int)entry.What);
+                return worstCase;
+            }
+        }
+
         #region Logging methods for the proxy
 
         /// <summary>
