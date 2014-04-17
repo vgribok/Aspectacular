@@ -52,10 +52,11 @@ namespace Aspectacular
         IMethodLogProvider AopLogger { get; set; }
     }
 
+    [Serializable]
     public class CallLogEntry
     {
         public LogEntryOriginator Who { get; internal set; }
-        public Type OptionalAspectType { get; internal set; }
+        public string OptionalAspectType { get; internal set; }
 
         public EntryType What { get; internal set; }
 
@@ -67,7 +68,7 @@ namespace Aspectacular
         {
             string entryAsText = string.Format("[{0}][{1}] [{2}] = \"{3}\"", 
                     this.What,
-                    this.Who == LogEntryOriginator.Aspect ? "Aspect:" + this.OptionalAspectType.FormatCSharp() : this.Who.ToString(),
+                    this.Who == LogEntryOriginator.Aspect ? "Aspect:" + this.OptionalAspectType : this.Who.ToString(),
                     this.Key.IsBlank() ? "MESSAGE" : this.Key,
                     this.Message ?? "[NULL]"
                     );
@@ -110,7 +111,7 @@ namespace Aspectacular
                 Who = who, 
                 Key = category, What = entryType, 
                 Message = format.SmartFormat(args),
-                OptionalAspectType = optionalAspectType,
+                OptionalAspectType = optionalAspectType == null ? null : optionalAspectType.FormatCSharp(fullyQualified:true),
             };
 
             this.callLog.Add(entry);
@@ -238,6 +239,51 @@ namespace Aspectacular
         }
         
         #endregion Logging methods for the proxy
+
+        #region Hierarchical views of the log entry collection
+
+        public IDictionary<string, IList<CallLogEntry>> KeyEntryLogHierarchy
+        {
+            get
+            {
+                IDictionary<string, IList<CallLogEntry>> dictionary = new Dictionary<string, IList<CallLogEntry>>();
+
+                foreach (CallLogEntry entry in this.callLog)
+                {
+                    IList<CallLogEntry> entries;
+                    string key = entry.Key ?? "[null]";
+                    if (!dictionary.TryGetValue(key, out entries))
+                    {
+                        entries = new List<CallLogEntry>();
+                        dictionary.Add(key, entries);
+                    }
+                    entries.Add(entry);
+                }
+                return dictionary;
+            }
+        }
+
+        public IDictionary<EntryType, IList<CallLogEntry>> EntryLogHierarchy
+        {
+            get
+            {
+                IDictionary<EntryType, IList<CallLogEntry>> dictionary = new Dictionary<EntryType, IList<CallLogEntry>>();
+
+                foreach (CallLogEntry entry in this.callLog)
+                {
+                    IList<CallLogEntry> entries;
+                    if (!dictionary.TryGetValue(entry.What, out entries))
+                    {
+                        entries = new List<CallLogEntry>();
+                        dictionary.Add(entry.What, entries);
+                    }
+                    entries.Add(entry);
+                }
+                return dictionary;
+            }
+        }
+
+        #endregion Hierarchical views of the log entry collection
     }
 
     /// <summary>
