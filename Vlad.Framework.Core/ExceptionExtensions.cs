@@ -29,6 +29,13 @@ namespace Aspectacular
         public string Source { get { return this.exception.Source; } set { } }
 
         public string HelpLink { get { return this.exception.HelpLink; } set { } }
+
+        public string TypeString 
+        {
+            get { return this.exception.GetType().FormatCSharp(fullyQualified: true); }
+            set { }
+        }
+
         // ReSharper restore ValueParameterNotUsed
     }
 
