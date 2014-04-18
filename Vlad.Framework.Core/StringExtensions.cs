@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -397,6 +398,55 @@ namespace Aspectacular
                 sb.Append(str);
 
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Returns str's part to the left of separator, or null is separator not found.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
+        public static string LeftOf(this string str, string separator)
+        {
+            if (string.IsNullOrEmpty(separator))
+                return str;
+
+            if (string.IsNullOrEmpty(str))
+                return null;
+
+            int sepIndex = str.IndexOf(separator, StringComparison.InvariantCulture);
+            if (sepIndex < 0)
+                return null;
+
+            return str.Substring(0, sepIndex);
+        }
+
+        /// <summary>
+        /// Returns str's part to the right of the last instance of separator, or null is separator not found.
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="separator"></param>
+        /// <returns></returns>
+        public static string RightOf(this string str, string separator)
+        {
+            if (string.IsNullOrEmpty(separator))
+                return str;
+
+            if (string.IsNullOrEmpty(str))
+                return null;
+
+            int sepIndex = str.LastIndexOf(separator, StringComparison.InvariantCulture);
+            if (sepIndex < 0)
+                return null;
+
+            sepIndex++;
+            if (sepIndex > str.Length)
+                return null;
+
+            if (sepIndex == str.Length)
+                return string.Empty;
+
+            return str.Substring(sepIndex);
         }
     }
 }

@@ -129,5 +129,30 @@ namespace Aspectacular.CoreTests
             //Assert.AreEqual(te.IntRange, te2.IntRange);
             Assert.AreEqual(te.StringRange, te2.StringRange);
         }
+
+        [TestMethod]
+        public void TestStringLeftAndRight()
+        {
+            string actual = "@".RightOf("@");
+            Assert.AreEqual("", actual);
+
+            actual = "12@34".RightOf("@");
+            Assert.AreEqual("34", actual);
+
+            actual = (null as string).RightOf("@");
+            Assert.AreEqual(null, actual);
+
+            actual = "@".RightOf("+");
+            Assert.AreEqual(null, actual);
+
+            actual = "@".LeftOf("@");
+            Assert.AreEqual("", actual);
+
+            actual = "12@34".LeftOf("@");
+            Assert.AreEqual("12", actual);
+
+            actual = "@".LeftOf("+");
+            Assert.AreEqual(null, actual);
+        }
     }
 }
