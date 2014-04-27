@@ -143,6 +143,11 @@ namespace Aspectacular
     public static class EmailHelper
     {
         /// <summary>
+        /// Optional SMTP client factory that can add non-configuration credentials, etc.
+        /// </summary>
+        public static Func<SmtpClient> SmtpClientFactory = null;
+
+        /// <summary>
         /// Sends SMTP email using .config file settings.
         /// </summary>
         /// <param name="isBodyHtml"></param>
@@ -176,8 +181,14 @@ namespace Aspectacular
             message.Body = body;
             message.IsBodyHtml = isBodyHtml;
 
-            SmtpClient smtpClient = new SmtpClient(); // { Timeout = 10 * 1000 };
-            smtpClient.Send(message);
+            SmtpClient smtpClient = EmailHelper.SmtpClientFactory == null ? null : EmailHelper.SmtpClientFactory();
+            if (smtpClient == null)
+                smtpClient = new SmtpClient();
+
+            using (smtpClient)
+            {
+                smtpClient.Send(message);
+            }
         }
 
         /// <summary>
