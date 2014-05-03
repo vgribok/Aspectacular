@@ -59,4 +59,20 @@ namespace Aspectacular
             this.transaction = null;
         }
     }
+
+    /// <summary>
+    /// Shortcut attribute applied to methods to mark them as requiring DTC transaction aspect.
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    public class RequiredDtcTransactionAspectAttribute : RequiredAspectAttribute
+    {
+        public RequiredDtcTransactionAspectAttribute(
+            TransactionScopeOption transationScope = TransactionScopeOption.Required,
+            IsolationLevel isolationLevel = IsolationLevel.ReadUncommitted, int timeoutMillisecond = -1
+            )
+            : base(typeof(DtcTransactionAspect), WhenRequiredAspectIsMissing.InstantiateAndAppend, transationScope, isolationLevel,
+                    timeoutMillisecond < 1 ? new TimeSpan() : new TimeSpan(0, 0, 0, 0, timeoutMillisecond))
+        {
+        }
+    }
 }

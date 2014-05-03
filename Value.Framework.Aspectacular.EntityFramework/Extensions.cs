@@ -118,8 +118,6 @@ namespace Aspectacular
             return db.LoadEntityByKey(entity, ent => ent.DbContextEntityKey);
         }
 
-        #region DbContext Add Entity Methods
-
         /// <summary>
         /// Adds new entity to DB context.
         /// SaveChanges() needs to be called afterwards.
@@ -152,9 +150,6 @@ namespace Aspectacular
 
             entities.ForEach(entity => table.Add(entity));
         }
-
-        #endregion DbContext Add Entity Methods
-
 
         /// <summary>
         /// Marks entity as Deleted.
