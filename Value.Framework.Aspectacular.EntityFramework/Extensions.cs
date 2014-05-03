@@ -49,8 +49,8 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="db">EF DbContext</param>
-        /// <param name="entity">Entity with only a key specified</param>
-        /// <param name="entityKeyRetriever">Method returning entity field (or collection of fields) that make up entity key.</param>
+        /// <param name="entity">Entity with only a key specified. Something like: "new EntityClass { ID = 5 }"</param>
+        /// <param name="entityKeyRetriever">Method returning entity field (or collection of fields) that make up entity key. Something like "record => record.ID"</param>
         /// <returns></returns>
         public static TEntity GetOrAttach<TEntity>(this DbContext db, TEntity entity, Func<TEntity, object> entityKeyRetriever) where TEntity : class
         {
@@ -60,20 +60,12 @@ namespace Aspectacular
             if (db == null)
                 throw new ArgumentNullException("db");
 
-            if (entityKeyRetriever == null)
-                throw new ArgumentNullException("entityKeyRetriever");
-
-            object key = entityKeyRetriever(entity);
-            if (key == null)
-                throw new ArgumentException("Entity must have a non-null key field or collection of fields.");
-
-            DbSet<TEntity> table = db.Set<TEntity>();
-
-            TEntity existing = table.Local.FirstOrDefault(loadedEnt => key.Equals(entityKeyRetriever(loadedEnt)));
+            TEntity existing = db.LoadEntityByKey(entity, entityKeyRetriever);
 
             if (existing != null)
                 return existing;
 
+            DbSet<TEntity> table = db.Set<TEntity>();
             table.Attach(entity);
             return entity;
         }
@@ -90,6 +82,43 @@ namespace Aspectacular
         {
             return db.GetOrAttach(entity, ent => ent.DbContextEntityKey);
         }
+
+        /// <summary>
+        /// Loads and returns entity with a given key.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="db">Entity Framework DbContext.</param>
+        /// <param name="entity">Entity with only a key specified. Something like: "new EntityClass { ID = 5 }"</param>
+        /// <param name="entityKeyRetriever">Method returning entity field (or collection of fields) that make up entity key. Something like "record => record.ID"</param>
+        /// <returns></returns>
+        public static TEntity LoadEntityByKey<TEntity>(this DbContext db, TEntity entity, Func<TEntity, object> entityKeyRetriever) where TEntity : class
+        {
+            if (entityKeyRetriever == null)
+                throw new ArgumentNullException("entityKeyRetriever");
+
+            object key = entityKeyRetriever(entity);
+            if (key == null)
+                throw new ArgumentException("Entity must have a non-null key field or collection of fields.");
+
+            DbSet<TEntity> table = db.Set<TEntity>();
+            TEntity existing = table.Local.FirstOrDefault(loadedEnt => key.Equals(entityKeyRetriever(loadedEnt)));
+            return existing;
+        }
+
+        /// <summary>
+        /// Loads and returns entity with a given key.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="db">Entity Framework DbContext.</param>
+        /// <param name="entity">Entity with only a key specified. Something like: "new EntityClass { ID = 5 }"</param>
+        /// <returns></returns>
+        public static TEntity LoadEntityByKey<TEntity>(this DbContext db, TEntity entity)
+            where TEntity : class, IDbEntityKey
+        {
+            return db.LoadEntityByKey(entity, ent => ent.DbContextEntityKey);
+        }
+
+        #region DbContext Add Entity Methods
 
         /// <summary>
         /// Adds new entity to DB context.
@@ -123,6 +152,9 @@ namespace Aspectacular
 
             entities.ForEach(entity => table.Add(entity));
         }
+
+        #endregion DbContext Add Entity Methods
+
 
         /// <summary>
         /// Marks entity as Deleted.
