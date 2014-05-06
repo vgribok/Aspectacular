@@ -53,7 +53,7 @@ namespace Aspectacular
         /// <typeparam name="TDispClass"></typeparam>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static AllocateRunDisposeProxy<TDispClass> GetProxy<TDispClass>(IEnumerable<Aspect> aspects)
+        public static AllocateRunDisposeProxy<TDispClass> GetProxy<TDispClass>(IEnumerable<Aspect> aspects = null)
             where TDispClass : class, IDisposable, new()
         {
             var proxy = new AllocateRunDisposeProxy<TDispClass>(aspects);
