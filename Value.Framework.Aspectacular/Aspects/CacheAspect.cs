@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// A class that implements this interface is
-    /// all that's needed to create enable caching via 
+    /// Implementing this minimal-dependency interface is
+    /// all that's needed to enable caching via CacheAspect.
     /// </summary>
     public interface ICacheProvider
     {
@@ -107,6 +108,69 @@ namespace Aspectacular
         }
     }
 
+    /// <summary>
+    /// A class fronting .NET Framework's mediocre ObjectCache
+    /// with Aspectacular-friendly ICacheProvider implementation.
+    /// </summary>
+    public class ObjectCacheFacade : ICacheProvider
+    {
+        protected readonly ObjectCache objectCache;
+        protected readonly CacheItemPolicy cacheTemplatePolicy;
+        protected readonly string regionName;
+
+        /// <param name="cache"></param>
+        /// <param name="cachePolicyTemplate">Template from which all items will get their CacheItemPolicy cloned.</param>
+        /// <param name="regionName"></param>
+        protected internal ObjectCacheFacade(ObjectCache cache, CacheItemPolicy cachePolicyTemplate, string regionName = null)
+        {
+            if(cache == null)
+                throw new ArgumentNullException("cache");
+
+            if(cacheTemplatePolicy == null)
+                throw new ArgumentNullException("cacheTemplatePolicy");
+
+            this.objectCache = cache;
+            this.cacheTemplatePolicy = cacheTemplatePolicy;
+            this.regionName = regionName;
+        }
+
+        protected CacheItemPolicy ClonePolicy()
+        {
+            var clonePolicy = new CacheItemPolicy
+            {
+                 AbsoluteExpiration = this.cacheTemplatePolicy.AbsoluteExpiration,
+                 Priority = this.cacheTemplatePolicy.Priority,
+                 RemovedCallback = this.cacheTemplatePolicy.RemovedCallback,
+                 SlidingExpiration = this.cacheTemplatePolicy.SlidingExpiration,
+                 UpdateCallback = this.cacheTemplatePolicy.UpdateCallback,
+            };
+
+            this.cacheTemplatePolicy.ChangeMonitors.ForEach(clonePolicy.ChangeMonitors.Add);
+
+            return clonePolicy;
+        }
+
+        public void Set(string key, object val)
+        {
+            this.objectCache.Add(key, val, this.ClonePolicy(), this.regionName);
+        }
+
+        public bool TryGet(string key, out object val)
+        {
+            // It really stinks that MS folks who designed ObjectCache didn't think of "bool TryGetValue(key, out val)" pattern
+            // so this thing could be done in one search instead of two. Terrible!
+
+            if (!this.objectCache.Contains(key, this.regionName))
+            {
+                val = null;
+                return false;
+            }
+
+            val = this.objectCache.Get(key, this.regionName);
+            return true;
+        }
+    }
+
     public static class CacheFactory
     {
         /// <summary>
@@ -122,6 +186,32 @@ namespace Aspectacular
             // ReSharper disable once CSharpWarnings::CS0618
             var cacheAspect = new CacheAspect<ICacheProvider>(cacheProvider);
             return cacheAspect;
+        }
+
+        /// <summary>
+        /// Augments .NET Framework ObjectCache and its descendants into 
+        /// Aspectacular-friendly cache provider compatible with the CacheAspect.
+        /// </summary>
+        /// <param name="cache"></param>
+        /// <param name="cachePolicyTemplate">.NET Framework object driving cached item expiration.</param>
+        /// <param name="regionName"></param>
+        /// <returns></returns>
+        public static ObjectCacheFacade CreateCacheProvider(this ObjectCache cache, CacheItemPolicy cachePolicyTemplate, string regionName = null)
+        {
+            var ocp = new ObjectCacheFacade(cache, cachePolicyTemplate, regionName);
+            return ocp;
+        }
+
+        /// <summary>
+        /// A shortcut method marrying .NET Framework's ObjectCache to CacheAspect.
+        /// </summary>
+        /// <param name="cache"></param>
+        /// <param name="cachePolicyTemplate">.NET Framework object driving cached item expiration.</param>
+        /// <param name="regionName"></param>
+        /// <returns></returns>
+        public static CacheAspect<ICacheProvider> CreateCacheAspect(this ObjectCache cache, CacheItemPolicy cachePolicyTemplate, string regionName = null)
+        {
+            return cache.CreateCacheProvider(cachePolicyTemplate, regionName).CreateCacheAspect();
         }
     }
 }

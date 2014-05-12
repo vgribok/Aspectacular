@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdoNetExtensions.cs" />
+    <Compile Include="Caching.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="DateTimeRange.cs" />
