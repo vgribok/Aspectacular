@@ -70,12 +70,18 @@ namespace Aspectacular
         private TDataStore CreateDataStoreInstance<TDataStore>()
             where TDataStore : class, IDisposable, new()
         {
-            var db = new TDataStore();
+            var db = this.Instantiate<TDataStore>();
             
             if (this.SqlConnectionAttributeApplicator != null)
                 this.SqlConnectionAttributeApplicator(db as ISqlServerConnectionProvider);
 
             return db;
+        }
+
+        public virtual TDataStore Instantiate<TDataStore>()
+            where TDataStore : class, IDisposable, new()
+        {
+            return new TDataStore();
         }
 
         protected bool IsStoreInitialized<TDataStore>()
