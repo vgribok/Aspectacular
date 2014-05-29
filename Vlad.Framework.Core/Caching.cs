@@ -59,7 +59,9 @@ namespace Aspectacular
             if (cacheable == null)
                 throw new ArgumentNullException("cacheable");
 
+#pragma warning disable 618
             return cacheable.Value;
+#pragma warning restore 618
         }
 
         /// <summary>

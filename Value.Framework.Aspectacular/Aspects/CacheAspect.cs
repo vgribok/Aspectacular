@@ -130,7 +130,7 @@ namespace Aspectacular
                 throw new ArgumentNullException("cacheTemplatePolicy");
 
             this.objectCache = cache;
-            this.cacheTemplatePolicy = cacheTemplatePolicy;
+            this.cacheTemplatePolicy = cachePolicyTemplate;
             this.regionName = regionName;
         }
 
@@ -183,8 +183,10 @@ namespace Aspectacular
             if (cacheProvider == null)
                 throw new ArgumentNullException("cacheProvider");
 
+#pragma warning disable 618
             // ReSharper disable once CSharpWarnings::CS0618
             var cacheAspect = new CacheAspect<ICacheProvider>(cacheProvider);
+#pragma warning restore 618
             return cacheAspect;
         }
 
