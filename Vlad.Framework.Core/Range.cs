@@ -78,6 +78,15 @@ namespace Aspectacular
             get { return this.end != null; }
         }
 
+        /// <summary>
+        /// Returns true if either Start or End are not specified.
+        /// </summary>
+        [XmlIgnore]
+        public bool IsOpenEnded
+        {
+            get { return !this.HasStart || !this.HasEnd; }
+        }
+
         public override bool Equals(object obj)
         {
             RangeBase<T> other = obj as RangeBase<T>;
@@ -121,6 +130,14 @@ namespace Aspectacular
             }
 
             return true;
+        }
+
+        public override int GetHashCode()
+        {
+            int hash1 = this.start == null ? 0 : this.start.GetHashCode();
+            int hash2 = this.end == null ? 0 : this.end.GetHashCode();
+            int hash = hash1 ^ hash2;
+            return hash;
         }
 
         /// <summary>
@@ -283,12 +300,52 @@ namespace Aspectacular
     }
 
     /// <summary>
+    /// Class representing a range between moment-in-time.
+    /// </summary>
+    public class DateRange2 : ValueRange<DateTimeOffset>
+    {
+        public DateRange2()
+            : this((DateTimeOffset?)null, (DateTimeOffset?)null)
+        {
+        }
+
+        //public DateRange2(DateTime? start, DateTime? end)
+        //    : this(start == null ? (DateTimeOffset?)null : start.Value,
+        //            end == null ? (DateTimeOffset?)null : end.Value)
+        //{
+        //}
+
+        public DateRange2(DateTimeOffset? start, DateTimeOffset? end)
+            : base(start, end)
+        {
+        }
+
+        protected DateRange2(SerializationInfo info, StreamingContext ctxt)
+            : base(info, ctxt)
+        {
+        }
+
+        /// <summary>
+        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
+        /// </summary>
+        [XmlIgnore]
+        public TimeSpan? Span
+        {
+            get
+            {
+                return this.IsOpenEnded ? (TimeSpan?)null : this.End.Value - this.Start.Value;
+            }
+        }
+    }
+
+    /// <summary>
     /// Class representing a range of date/time values.
     /// </summary>
+    //[Obsolete("Use DateRange2 instead, if possible, together with DateTimeOffset instead of DateTime.")]
     public class DateRange : ValueRange<DateTime>
     {
         public DateRange()
-            : this(null, null)
+            : this((DateTime?)null, (DateTime?)null)
         {
         }
 
@@ -323,6 +380,18 @@ namespace Aspectacular
                     return startKind.Value;
 
                 return startKind.Value == endKind.Value ? startKind.Value : DateTimeKind.Unspecified;
+            }
+        }
+
+        /// <summary>
+        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
+        /// </summary>
+        [XmlIgnore]
+        public TimeSpan? Span
+        {
+            get
+            {
+                return this.IsOpenEnded ? (TimeSpan?)null : this.End.Value - this.Start.Value;
             }
         }
 
