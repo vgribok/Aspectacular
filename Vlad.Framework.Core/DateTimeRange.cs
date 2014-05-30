@@ -16,7 +16,6 @@ namespace Aspectacular
      * 
      */
 
-
     [Flags]
     public enum TimeUnits
     {
@@ -88,7 +87,18 @@ namespace Aspectacular
             this.Direction = direction;
         }
 
-        public DateRange GetDateTimeRange(DateTime? referenceMoment = null)
+        public DateRange GetTimeValueRange(DateTime? referenceMoment = null)
+        {
+            if (this.Unit.HasFlag(TimeUnits.UtcUnit))
+                throw new InvalidOperationException("Use GetTimeMomentRange() to get a range between two moments int time.");
+
+#pragma warning disable 618
+            return this.GetDateTimeRange(referenceMoment);
+#pragma warning restore 618
+        }
+
+        [Obsolete("Use either GetTimeValueRange() or GetTimeMomentRange() instead.")]
+        public DateRange GetDateTimeRange(DateTime? referenceMoment)
         {
             DateTime refMoment = referenceMoment == null || referenceMoment.Value == default(DateTime) ? 
                         (this.Unit.GetKind() == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now) 
@@ -128,6 +138,34 @@ namespace Aspectacular
             }
 
             DateRange range = new DateRange(start, end);
+            return range;
+        }
+
+        public TimeMomentRange GetTimeMomentRange(DateTimeOffset? referenceMoment = null)
+        {
+            if (!this.Unit.HasFlag(TimeUnits.UtcUnit))
+                throw new InvalidOperationException("Use GetDateTimeRange() to get a range between two time values.");
+
+            DateTime? refMoment = referenceMoment == null ? (DateTime?)null : referenceMoment.Value.UtcDateTime;
+#pragma warning disable 618
+            DateRange derange = this.GetDateTimeRange(refMoment);
+#pragma warning restore 618
+
+            DateTimeOffset? starto, endo;
+
+            if (referenceMoment == null)
+            {
+                starto = derange.HasStart ? derange.Start.Value : (DateTimeOffset?)null;
+                endo = derange.HasEnd ? derange.End.Value : (DateTimeOffset?)null;
+            }else
+            {
+                TimeSpan utcOffset = referenceMoment.Value.Offset;
+
+                starto = derange.HasStart ? new DateTimeOffset(derange.Start.Value, utcOffset) : (DateTimeOffset?)null;
+                endo = derange.HasEnd ? new DateTimeOffset(derange.End.Value, utcOffset) : (DateTimeOffset?)null;
+            }
+
+            TimeMomentRange range = new TimeMomentRange(starto, endo);
             return range;
         }
     }

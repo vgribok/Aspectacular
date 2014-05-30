@@ -300,27 +300,21 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Class representing a range between moment-in-time.
+    /// Class representing a range between two moments in time.
     /// </summary>
-    public class DateRange2 : ValueRange<DateTimeOffset>
+    public class TimeMomentRange : ValueRange<DateTimeOffset>
     {
-        public DateRange2()
+        public TimeMomentRange()
             : this((DateTimeOffset?)null, (DateTimeOffset?)null)
         {
         }
 
-        //public DateRange2(DateTime? start, DateTime? end)
-        //    : this(start == null ? (DateTimeOffset?)null : start.Value,
-        //            end == null ? (DateTimeOffset?)null : end.Value)
-        //{
-        //}
-
-        public DateRange2(DateTimeOffset? start, DateTimeOffset? end)
+        public TimeMomentRange(DateTimeOffset? start, DateTimeOffset? end)
             : base(start, end)
         {
         }
 
-        protected DateRange2(SerializationInfo info, StreamingContext ctxt)
+        protected TimeMomentRange(SerializationInfo info, StreamingContext ctxt)
             : base(info, ctxt)
         {
         }
@@ -362,6 +356,7 @@ namespace Aspectacular
         /// <summary>
         /// Returns, whether date range is UTC, Local, or unspecified.
         /// </summary>
+        [XmlIgnore]
         public DateTimeKind Kind
         {
             get
@@ -380,18 +375,6 @@ namespace Aspectacular
                     return startKind.Value;
 
                 return startKind.Value == endKind.Value ? startKind.Value : DateTimeKind.Unspecified;
-            }
-        }
-
-        /// <summary>
-        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
-        /// </summary>
-        [XmlIgnore]
-        public TimeSpan? Span
-        {
-            get
-            {
-                return this.IsOpenEnded ? (TimeSpan?)null : this.End.Value - this.Start.Value;
             }
         }
 

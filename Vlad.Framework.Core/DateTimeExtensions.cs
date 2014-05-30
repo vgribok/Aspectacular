@@ -62,6 +62,16 @@ namespace Aspectacular
             return new DateTime(dt.Ticks - 1, dt.Kind);
         }
 
+        /// <summary>
+        /// Returns true if DateTimeOffset represents UTC time.
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public static bool IsUtc(this DateTimeOffset dto)
+        {
+            return dto.Offset.Ticks == 0;
+        }
+
         #region Sortable DateTime Integer Conversion
 
         /// <summary>
