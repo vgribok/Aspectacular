@@ -322,12 +322,20 @@ namespace Aspectacular
         /// <summary>
         /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
         /// </summary>
+        public static implicit operator TimeSpan?(TimeMomentRange range)
+        {
+            return range.IsOpenEnded ? (TimeSpan?)null : range.End.Value - range.Start.Value;
+        }
+
+        /// <summary>
+        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
+        /// </summary>
         [XmlIgnore]
         public TimeSpan? Span
         {
             get
             {
-                return this.IsOpenEnded ? (TimeSpan?)null : this.End.Value - this.Start.Value;
+                return this;
             }
         }
     }
