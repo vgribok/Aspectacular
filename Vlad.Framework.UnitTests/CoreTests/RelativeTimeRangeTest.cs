@@ -55,6 +55,13 @@ namespace Aspectacular.Test.CoreTests
             DateTime dt = (new DateTime(2013, 12, 31, 0, 0, 0, DateTimeKind.Local)).EndOf(TimeUnits.Day);
             Assert.AreEqual(999, dt.Millisecond);
 
+            DateRange dtr = TimeUnits.Month.Current();
+            DateTime now = DateTime.Now;
+            DateTime expectedStart = now.StartOf(TimeUnits.Month);
+            DateTime expectedEnd = now.EndOf(TimeUnits.Month);
+            Assert.AreEqual(expectedStart, dtr.Start.Value);
+            Assert.AreEqual(expectedEnd, dtr.End.Value);
+
             string dtStr = dt.ToString();
             Assert.AreEqual("12/31/2013 11:59:59 PM", dtStr);
 

@@ -17,52 +17,87 @@ namespace Aspectacular
      */
 
     [Flags]
+    public enum TimelineFlags
+    {
+        /// <summary>
+        /// Marks timeline elements that can have only one time unit.
+        /// For example, current
+        /// </summary>
+        AllowsOnlySingleUnit  = 0x1000,
+        
+        /// <summary>
+        /// Modifier that includes
+        /// </summary>
+        IncludeEntireCurrentOrSpecified  = 0x0001,
+
+        IncludeNowOrSpecified = 0x4000,
+
+        /// <summary>
+        /// Time unit or timeline element represents moment in time rather than date/time value.
+        /// </summary>
+        MomentInTime        = 0x2000,
+    }
+
     public enum TimeUnits
     {
-        UtcUnit = 0x10, // Time Unit that is better suited for UTC time ranges (like PAST xxx units). Typically, hours, minutes and seconds.
-        Second = UtcUnit + 1,
-        Minute = UtcUnit + 2,
-        Hour = UtcUnit + 3,
-        Eternity = UtcUnit + 4, // Open-ended past or future
+        Second = TimelineFlags.MomentInTime + 1,
+        Minute,
+        Hour,
+        Eternity, // Open-ended past or future
 
-        LocalTimeUnit = 0x100, // Time units that is better suited for Local (day-based) time ranges.
-        Day = LocalTimeUnit + 1,
-        Week = LocalTimeUnit + 2, 
-        Month = LocalTimeUnit + 3, 
-        Quarter = LocalTimeUnit + 4, 
-        Year = LocalTimeUnit + 5, 
-        Decade = LocalTimeUnit + 6, 
-        Century = LocalTimeUnit + 7,
+        Day = 1,
+        Week, 
+        Month, 
+        Quarter, 
+        Year, 
+        Decade, 
+        Century,
     }
 
     [Flags]
-    public enum TimespanQualifiers
+    public enum Timeline
     {
-        UtcTimespan = 0x10,
-        Past = UtcTimespan + 1,
-        Future = UtcTimespan + 2,
-
-        LocalTimeSpan = 0x100, 
-        AllowsOnlySingle = 0x1000,
+        /// <summary>
+        /// Current/specified day, hour, year, second, month, etc.
+        /// </summary>
+        EntireCurrentOrSpecified = TimelineFlags.AllowsOnlySingleUnit + TimelineFlags.IncludeEntireCurrentOrSpecified,
 
         /// <summary>
-        /// To date/till now. For example, year to date, hour till now.
+        /// Before current one.
+        /// Example: if now is September, then 3 x PreviousExcludingCurrent will return a span encompassing June, July and August.
         /// </summary>
-        ToDate = LocalTimeSpan + UtcTimespan + AllowsOnlySingle + 0,
+        PreviousExcludingCurrent = 2,
 
-        CurrentOrSpecified = LocalTimeSpan + AllowsOnlySingle + 0,
-        Previous = LocalTimeSpan + 1,
-        Next = LocalTimeSpan + 2,
+        /// <summary>
+        /// Example: if now is September 15, then 3 x Past will return a span encompassing entire July, August and September up to Sept 15th.
+        /// </summary>
+        Past = PreviousExcludingCurrent | TimelineFlags.IncludeNowOrSpecified,
+
+        /// <summary>
+        /// Month-to-date, year-to-date, day-till-now.
+        /// </summary>
+        ToDateOrTillSpecified = Past | TimelineFlags.AllowsOnlySingleUnit,
+
+        /// <summary>
+        /// The one after current
+        /// Example: if now is September, then 3 x NextExcludingCurrent will return a span encompassing October, November and December.
+        /// </summary>
+        NextExcludingCurrent = 4,
+
+        /// <summary>
+        /// Example: if now is September 15, then 3 x Future will return a span encompassing Sept after 15th, October and entire November.
+        /// </summary>
+        Future = NextExcludingCurrent | TimelineFlags.IncludeNowOrSpecified,
     }
 
     /// <summary>
     /// More intuitive time range specification, than start date - end date type of date/time range.
-    /// For example, "Previous 3 quarters", "Current week", "Past 48 hours".
+    /// For example, "PreviousExcludingCurrent 3 quarters", "Current week", "Past 48 hours".
     /// </summary>
     public class RelativeTimeSpan
     {
         public readonly TimeUnits Unit;
-        public readonly TimespanQualifiers Direction;
+        public readonly Timeline Direction;
         public readonly ulong UnitCount;
 
         /// <summary>
@@ -71,15 +106,12 @@ namespace Aspectacular
         /// <param name="direction"></param>
         /// <param name="unit"></param>
         /// <param name="unitCount"></param>
-        public RelativeTimeSpan(TimespanQualifiers direction, TimeUnits unit, ulong unitCount = 1)
+        public RelativeTimeSpan(Timeline direction, TimeUnits unit, ulong unitCount = 1)
         {
             if (unitCount == 0)
                 throw new ArgumentOutOfRangeException("unitCount value must be 1 or greater.");
 
-            if(!direction.IsCompatibleWith(unit))
-                throw new ArgumentException("Time direction \"{0}\" cannot be used with the unit type \"{1}\".".SmartFormat(direction, unit));
-
-            if(direction.HasFlag(TimespanQualifiers.AllowsOnlySingle) && unitCount > 1)
+            if(((int)direction & (int)TimelineFlags.AllowsOnlySingleUnit) != 0 && unitCount > 1)
                 throw new ArgumentException("Time direction \"{0}\" can only be used with unitCount=1.".SmartFormat(direction));
 
             this.UnitCount = unitCount;
@@ -89,9 +121,6 @@ namespace Aspectacular
 
         public DateRange GetTimeValueRange(DateTime? referenceMoment = null)
         {
-            if (this.Unit.HasFlag(TimeUnits.UtcUnit))
-                throw new InvalidOperationException("Use GetTimeMomentRange() to get a range between two moments int time.");
-
 #pragma warning disable 618
             return this.GetDateTimeRange(referenceMoment);
 #pragma warning restore 618
@@ -100,38 +129,34 @@ namespace Aspectacular
         [Obsolete("Use either GetTimeValueRange() or GetTimeMomentRange() instead.")]
         public DateRange GetDateTimeRange(DateTime? referenceMoment)
         {
-            DateTime refMoment = referenceMoment == null || referenceMoment.Value == default(DateTime) ? 
-                        (this.Unit.GetKind() == DateTimeKind.Utc ? DateTime.UtcNow : DateTime.Now) 
-                        : referenceMoment.Value;
+            DateTime refMoment = referenceMoment.IsNullOrDefault() ? (this.Unit.IsMomentInTime() ? DateTime.UtcNow : DateTime.Now) : referenceMoment.Value;
 
             DateTime? start = null, end = null;
 
             switch(this.Direction)
             {
-                case TimespanQualifiers.CurrentOrSpecified:
+                case Timeline.EntireCurrentOrSpecified:
                     start = refMoment.StartOf(this.Unit);
                     end = refMoment.EndOf(this.Unit);
                     break;
-                case TimespanQualifiers.ToDate:
+                case Timeline.ToDateOrTillSpecified:
                     start = refMoment.StartOf(this.Unit);
                     end = refMoment; // refMoment.EndOf(TimeUnits.Day);
                     break;
-                case TimespanQualifiers.Past:
-                    Debug.Assert(this.Unit.HasFlag(TimeUnits.UtcUnit));
+                case Timeline.Past:
                     end = refMoment;
                     start = this.Unit == TimeUnits.Eternity ? (DateTime?)null : end.Value.Add(-(int)this.UnitCount, this.Unit);
                     break;
-                case TimespanQualifiers.Future:
-                    Debug.Assert(this.Unit.HasFlag(TimeUnits.UtcUnit));
+                case Timeline.Future:
                     start = refMoment;
                     end = this.Unit == TimeUnits.Eternity ? (DateTime?)null : start.Value.Add((int)this.UnitCount, this.Unit);
                     break;
-                case TimespanQualifiers.Previous:
+                case Timeline.PreviousExcludingCurrent:
                     end = refMoment.StartOf(this.Unit);
                     start = end.Value.Add(-(int)this.UnitCount, this.Unit);
                     end = end.Value.PreviousMoment();
                     break;
-                case TimespanQualifiers.Next:
+                case Timeline.NextExcludingCurrent:
                     start = refMoment.StartOf(this.Unit).Add(1, this.Unit);
                     end = start.Value.Add((int)this.UnitCount, this.Unit);
                     break;
@@ -143,9 +168,6 @@ namespace Aspectacular
 
         public TimeMomentRange GetTimeMomentRange(DateTimeOffset? referenceMoment = null)
         {
-            if (!this.Unit.HasFlag(TimeUnits.UtcUnit))
-                throw new InvalidOperationException("Use GetDateTimeRange() to get a range between two time values.");
-
             DateTime? refMoment = referenceMoment == null ? (DateTime?)null : referenceMoment.Value.UtcDateTime;
 #pragma warning disable 618
             DateRange derange = this.GetDateTimeRange(refMoment);
@@ -172,22 +194,9 @@ namespace Aspectacular
 
     public static class RelativeTimeSpanExtensions
     {
-        public static DateTimeKind GetKind(this TimeUnits unit)
+        public static bool IsMomentInTime(this TimeUnits unit)
         {
-            if ((unit & TimeUnits.UtcUnit) != 0)
-                return DateTimeKind.Utc;
-            if ((unit & TimeUnits.LocalTimeUnit) != 0)
-                return DateTimeKind.Local;
-
-            return DateTimeKind.Unspecified;
-        }
-
-        public static bool IsCompatibleWith(this TimespanQualifiers direction, TimeUnits unit)
-        {
-            int directionFlags = (int)(direction & (TimespanQualifiers.UtcTimespan | TimespanQualifiers.LocalTimeSpan));
-            int unitFlags = (int)(unit & (TimeUnits.UtcUnit | TimeUnits.LocalTimeUnit));
-
-            return (directionFlags & unitFlags) != 0;
+            return ((int)unit & (int)TimelineFlags.MomentInTime) != 0;
         }
 
         /// <summary>
@@ -325,42 +334,42 @@ namespace Aspectacular
 
         public static DateRange Current(this TimeUnits unit, DateTime? referenceMoment = null)
         {
-            var span = new RelativeTimeSpan(TimespanQualifiers.CurrentOrSpecified, unit);
+            var span = new RelativeTimeSpan(Timeline.EntireCurrentOrSpecified, unit);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
         public static DateRange ToDate(this TimeUnits unit, DateTime? referenceMoment = null)
         {
-            var span = new RelativeTimeSpan(TimespanQualifiers.ToDate, unit);
+            var span = new RelativeTimeSpan(Timeline.ToDateOrTillSpecified, unit);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
         public static DateRange Past(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
         {
-            var span = new RelativeTimeSpan(TimespanQualifiers.Past, unit, unitCount);
+            var span = new RelativeTimeSpan(Timeline.Past, unit, unitCount);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
         public static DateRange Future(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
         {
-            var span = new RelativeTimeSpan(TimespanQualifiers.Future, unit, unitCount);
+            var span = new RelativeTimeSpan(Timeline.Future, unit, unitCount);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
         public static DateRange Previous(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
         {
-            var span = new RelativeTimeSpan(TimespanQualifiers.Previous, unit, unitCount);
+            var span = new RelativeTimeSpan(Timeline.PreviousExcludingCurrent, unit, unitCount);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
         public static DateRange Next(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
         {
-            var span = new RelativeTimeSpan(TimespanQualifiers.Next, unit, unitCount);
+            var span = new RelativeTimeSpan(Timeline.NextExcludingCurrent, unit, unitCount);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
