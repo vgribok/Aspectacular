@@ -411,6 +411,26 @@ namespace Aspectacular
             return new DateRange(newStart, newEnd);
         }
 
+        /// <summary>
+        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
+        /// </summary>
+        public static implicit operator TimeSpan?(DateRange range)
+        {
+            return range.IsOpenEnded ? (TimeSpan?)null : range.End.Value - range.Start.Value;
+        }
+
+        /// <summary>
+        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
+        /// </summary>
+        [XmlIgnore]
+        public TimeSpan? Span
+        {
+            get
+            {
+                return this;
+            }
+        }
+
         //public static DateRange operator +(DateRange range, TimeSpan unitCount)
         //{
         //    DateTime? newStart = range.HasStart ? range.Start.Value + unitCount : (DateTime?)null;

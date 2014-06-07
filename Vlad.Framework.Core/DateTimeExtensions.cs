@@ -20,6 +20,15 @@ namespace Aspectacular
         {
             return (dt.Month - 1) / 3 + 1;
         }
+        /// <summary>
+        /// Returns quarter number 1..4
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static int Quarter(this DateTimeOffset dt)
+        {
+            return (dt.Month - 1) / 3 + 1;
+        }
 
         /// <summary>
         /// Returns ISO-8601 week number in the year.
@@ -30,6 +39,18 @@ namespace Aspectacular
         public static int WeekOfYear(this DateTime dt, CalendarWeekRule whatIsFirstWeek = CalendarWeekRule.FirstFourDayWeek)
         {
             int week = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dt, whatIsFirstWeek, CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek);
+            return week;
+        }
+
+        /// <summary>
+        /// Returns ISO-8601 week number in the year.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="whatIsFirstWeek">Tells whether the first week can be a) any incomplete week, b) a week with 4 days or more, or c) full week only.</param>
+        /// <returns></returns>
+        public static int WeekOfYear(this DateTimeOffset dt, CalendarWeekRule whatIsFirstWeek = CalendarWeekRule.FirstFourDayWeek)
+        {
+            int week = CultureInfo.CurrentCulture.Calendar.GetWeekOfYear(dt.DateTime, whatIsFirstWeek, CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek);
             return week;
         }
 
@@ -53,13 +74,48 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Subtracts 1 tick from the give time.
+        /// DateTimeOffset loop functional implementation.
+        /// Continues calling stepFunc while searchFunc keeps returning true:
+        ///     while (!searchFunc(dt))
+        ///         dt = stepFunc(dt);
+        ///     return dt;
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="stopCondFunc"></param>
+        /// <param name="stepFunc"></param>
+        /// <returns></returns>
+        public static DateTimeOffset GoTo(this DateTimeOffset dt, Func<DateTimeOffset, bool> stopCondFunc, Func<DateTimeOffset, DateTimeOffset> stepFunc)
+        {
+            while (!stopCondFunc(dt))
+                dt = stepFunc(dt);
+
+            return dt;
+        }
+
+        /// <summary>
+        /// Subtracts 1 tick from the given time.
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
         public static DateTime PreviousMoment(this DateTime dt)
         {
             return new DateTime(dt.Ticks - 1, dt.Kind);
+        }
+
+        /// <summary>
+        /// Subtracts 1 tick from the given time.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        public static DateTimeOffset PreviousMoment(this DateTimeOffset dt)
+        {
+            return new DateTimeOffset(dt.DateTime.PreviousMoment(), dt.Offset);
+        }
+
+        public static DateTime ToDateTime(this DateTimeOffset dto, DateTimeKind kind)
+        {
+            DateTime dt = new DateTime(dto.DateTime.Ticks, kind);
+            return dt;
         }
 
         /// <summary>

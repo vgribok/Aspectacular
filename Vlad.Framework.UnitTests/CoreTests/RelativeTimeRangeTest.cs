@@ -50,12 +50,12 @@ namespace Aspectacular.Test.CoreTests
         }
 
         [TestMethod]
-        public void TestTimeUnitStart()
+        public void TestDateTimeStart()
         {
             DateTime dt = (new DateTime(2013, 12, 31, 0, 0, 0, DateTimeKind.Local)).EndOf(TimeUnits.Day);
             Assert.AreEqual(999, dt.Millisecond);
 
-            DateRange dtr = TimeUnits.Month.Current();
+            DateRange dtr = TimeUnits.Month.Current((DateTime?)null);
             DateTime now = DateTime.Now;
             DateTime expectedStart = now.StartOf(TimeUnits.Month);
             DateTime expectedEnd = now.EndOf(TimeUnits.Month);
@@ -123,6 +123,74 @@ namespace Aspectacular.Test.CoreTests
             Assert.AreEqual("12/31/2013 11:59:59 PM", actual.ToString());
             Assert.AreEqual(0, actual.Millisecond);
             Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
+        }
+
+        [TestMethod]
+        public void TestTimeMomentStart()
+        {
+            TimeSpan localOffset = new TimeSpan(-5, 0, 0);
+
+            DateTimeOffset dt = (new DateTimeOffset(2013, 12, 31, 0, 0, 0, localOffset)).EndOf(TimeUnits.Day);
+            Assert.AreEqual(999, dt.Millisecond);
+
+            TimeMomentRange dtr = TimeUnits.Month.Current();
+            DateTimeOffset now = DateTimeOffset.Now;
+            DateTimeOffset expectedStart = now.StartOf(TimeUnits.Month);
+            DateTimeOffset expectedEnd = now.EndOf(TimeUnits.Month);
+            Assert.AreEqual(expectedStart, dtr.Start.Value);
+            Assert.AreEqual(expectedEnd, dtr.End.Value);
+
+            string dtStr = dt.ToString();
+            Assert.AreEqual("12/31/2013 11:59:59 PM -05:00", dtStr);
+
+            DateTimeOffset actual = dt.StartOf(TimeUnits.Century);
+            Assert.AreEqual("1/1/2000 12:00:00 AM -05:00", actual.ToString());
+
+            actual = dt.StartOf(TimeUnits.Decade);
+            Assert.AreEqual("1/1/2010 12:00:00 AM -05:00", actual.ToString());
+
+            actual = dt.StartOf(TimeUnits.Year);
+            Assert.AreEqual("1/1/2013 12:00:00 AM -05:00", actual.ToString());
+
+            actual = dt.StartOf(TimeUnits.Quarter);
+            Assert.AreEqual("10/1/2013 12:00:00 AM -05:00", actual.ToString());
+
+            for (int month = 1; month <= 12; month++)
+            {
+                DateTimeOffset qtrTest = new DateTimeOffset(2013, month, 5, 0, 0, 0, localOffset);
+                int actualMonth = qtrTest.StartOf(TimeUnits.Quarter).Month;
+
+                if (qtrTest.Month >= 1 && qtrTest.Month <= 3)
+                    Assert.AreEqual(1, actualMonth);
+                else if (qtrTest.Month >= 4 && qtrTest.Month <= 6)
+                    Assert.AreEqual(4, actualMonth);
+                else if (qtrTest.Month >= 7 && qtrTest.Month <= 9)
+                    Assert.AreEqual(7, actualMonth);
+                else if (qtrTest.Month >= 10 && qtrTest.Month <= 12)
+                    Assert.AreEqual(10, actualMonth);
+            }
+
+            actual = dt.StartOf(TimeUnits.Week);
+            Assert.AreEqual(CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek, actual.DayOfWeek);
+            Assert.AreEqual("12/29/2013 12:00:00 AM -05:00", actual.ToString());
+
+            actual = dt.StartOf(TimeUnits.Month);
+            Assert.AreEqual("12/1/2013 12:00:00 AM -05:00", actual.ToString());
+
+            actual = dt.StartOf(TimeUnits.Day);
+            Assert.AreEqual("12/31/2013 12:00:00 AM -05:00", actual.ToString());
+
+            dt = (new DateTimeOffset(2013, 12, 31, 0, 0, 0, localOffset)).EndOf(TimeUnits.Day);
+
+            actual = dt.StartOf(TimeUnits.Hour);
+            Assert.AreEqual("12/31/2013 11:00:00 PM -05:00", actual.ToString());
+
+            actual = dt.StartOf(TimeUnits.Minute);
+            Assert.AreEqual("12/31/2013 11:59:00 PM -05:00", actual.ToString());
+
+            actual = dt.StartOf(TimeUnits.Second);
+            Assert.AreEqual("12/31/2013 11:59:59 PM -05:00", actual.ToString());
+            Assert.AreEqual(0, actual.Millisecond);
         }
     }
 }

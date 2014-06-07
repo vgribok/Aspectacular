@@ -119,14 +119,6 @@ namespace Aspectacular
             this.Direction = direction;
         }
 
-        public DateRange GetTimeValueRange(DateTime? referenceMoment = null)
-        {
-#pragma warning disable 618
-            return this.GetDateTimeRange(referenceMoment);
-#pragma warning restore 618
-        }
-
-        [Obsolete("Use either GetTimeValueRange() or GetTimeMomentRange() instead.")]
         public DateRange GetDateTimeRange(DateTime? referenceMoment)
         {
             DateTime refMoment = referenceMoment.IsNullOrDefault() ? (this.Unit.IsMomentInTime() ? DateTime.UtcNow : DateTime.Now) : referenceMoment.Value;
@@ -241,26 +233,35 @@ namespace Aspectacular
         {
             DateTimeKind dtKind = dt.Kind == DateTimeKind.Unspecified ? DateTimeKind.Local : dt.Kind;
 
+            DateTimeOffset startDto = new DateTimeOffset(dt);
+            startDto = startDto.StartOf(unit);
+
+            DateTime start = startDto.ToDateTime(dt.Kind);
+            return start;
+        }
+
+        public static DateTimeOffset StartOf(this DateTimeOffset dt, TimeUnits unit)
+        {
             switch (unit)
             {
                 case TimeUnits.Century:
                     {
                         int year = dt.Year / 100 * 100;
-                        return new DateTime(year, 1, 1, 0, 0, 0, dtKind);
+                        return new DateTimeOffset(year, 1, 1, 0, 0, 0, dt.Offset);
                     }
                 case TimeUnits.Decade:
                     {
                         int year = dt.Year / 10 * 10;
-                        return new DateTime(year, 1, 1, 0, 0, 0, dtKind);
+                        return new DateTimeOffset(year, 1, 1, 0, 0, 0, dt.Offset);
                     }
                 case TimeUnits.Year:
                     {
-                        return new DateTime(dt.Year, 1, 1, 0, 0, 0, dtKind);
+                        return new DateTimeOffset(dt.Year, 1, 1, 0, 0, 0, dt.Offset);
                     }
                 case TimeUnits.Quarter:
                     {
                         int month = (dt.Quarter() - 1) * 3 + 1;
-                        return new DateTime(dt.Year, month, 1, 0, 0, 0, dtKind);
+                        return new DateTimeOffset(dt.Year, month, 1, 0, 0, 0, dt.Offset);
                     }
                 case TimeUnits.Week:
                     {
@@ -270,23 +271,23 @@ namespace Aspectacular
                     }
                 case TimeUnits.Month:
                     {
-                        return new DateTime(dt.Year, dt.Month, 1, 0, 0, 0, dtKind);
+                        return new DateTimeOffset(dt.Year, dt.Month, 1, 0, 0, 0, dt.Offset);
                     }
                 case TimeUnits.Day:
                     {
-                        return new DateTime(dt.Year, dt.Month, dt.Day, 0, 0, 0, dtKind);
+                        return new DateTimeOffset(dt.Year, dt.Month, dt.Day, 0, 0, 0, dt.Offset);
                     }
                 case TimeUnits.Hour:
                     {
-                        return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, 0, 0, dtKind);
+                        return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, 0, 0, dt.Offset);
                     }
                 case TimeUnits.Minute:
                     {
-                        return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, 0, dtKind);
+                        return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, 0, dt.Offset);
                     }
                 case TimeUnits.Second:
                     {
-                        return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dtKind);
+                        return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Offset);
                     }
             }
 
@@ -294,6 +295,13 @@ namespace Aspectacular
         }
 
         public static DateTime Add(this DateTime dt, int count, TimeUnits unit)
+        {
+            DateTimeOffset dto = new DateTimeOffset(dt);
+            DateTime dtResult = dto.Add(count, unit).ToDateTime(dt.Kind);
+            return dtResult;
+        }
+
+        public static DateTimeOffset Add(this DateTimeOffset dt, int count, TimeUnits unit)
         {
             switch (unit)
             {
@@ -324,50 +332,164 @@ namespace Aspectacular
 
         public static DateTime EndOf(this DateTime dt, TimeUnits unit)
         {
-            DateTime start = dt.StartOf(unit);
-            DateTime next = start.Add(1, unit);
-            DateTime end = next.PreviousMoment();
+            DateTime dtResult = new DateTimeOffset(dt).EndOf(unit).ToDateTime(dt.Kind); 
+            return dtResult;
+        }
+
+        public static DateTimeOffset EndOf(this DateTimeOffset dt, TimeUnits unit)
+        {
+            DateTimeOffset start = dt.StartOf(unit);
+            DateTimeOffset next = start.Add(1, unit);
+            DateTimeOffset end = next.PreviousMoment();
             return end;
         }
 
+        #region TimeMomentRange factory methods
+
+        public static TimeMomentRange Current(this TimeUnits unit, DateTimeOffset? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(Timeline.EntireCurrentOrSpecified, unit);
+            TimeMomentRange range = span.GetTimeMomentRange(referenceMoment);
+            return range;
+        }
+
+        public static TimeMomentRange ToDate(this TimeUnits unit, DateTimeOffset? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(Timeline.ToDateOrTillSpecified, unit);
+            TimeMomentRange range = span.GetTimeMomentRange(referenceMoment);
+            return range;
+        }
+
+        public static TimeMomentRange Past(this TimeUnits unit, ulong unitCount = 1, DateTimeOffset? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(Timeline.Past, unit, unitCount);
+            TimeMomentRange range = span.GetTimeMomentRange(referenceMoment);
+            return range;
+        }
+
+        public static TimeMomentRange Future(this TimeUnits unit, ulong unitCount = 1, DateTimeOffset? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(Timeline.Future, unit, unitCount);
+            TimeMomentRange range = span.GetTimeMomentRange(referenceMoment);
+            return range;
+        }
+
+        public static TimeMomentRange Previous(this TimeUnits unit, ulong unitCount = 1, DateTimeOffset? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(Timeline.PreviousExcludingCurrent, unit, unitCount);
+            TimeMomentRange range = span.GetTimeMomentRange(referenceMoment);
+            return range;
+        }
+
+        public static TimeMomentRange Next(this TimeUnits unit, ulong unitCount = 1, DateTimeOffset? referenceMoment = null)
+        {
+            var span = new RelativeTimeSpan(Timeline.NextExcludingCurrent, unit, unitCount);
+            TimeMomentRange range = span.GetTimeMomentRange(referenceMoment);
+            return range;
+        }
+
+
+
+        public static TimeMomentRange RangeCurrent(this DateTimeOffset dt, TimeUnits unit)
+        {
+            return unit.Current(dt);
+        }
+
+        public static TimeMomentRange RangeCurrent(this DateTimeOffset? dt, TimeUnits unit)
+        {
+            return unit.Current(dt);
+        }
+
+        public static TimeMomentRange RangeToDate(this DateTimeOffset dt, TimeUnits unit)
+        {
+            return unit.ToDate(dt);
+        }
+
+        public static TimeMomentRange RangeToDate(this DateTimeOffset? dt, TimeUnits unit)
+        {
+            return unit.ToDate(dt);
+        }
+
+        public static TimeMomentRange RangePast(this DateTimeOffset dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Past(unitCount, dt);
+        }
+
+        public static TimeMomentRange RangePast(this DateTimeOffset? dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Past(unitCount, dt);
+        }
+
+        public static TimeMomentRange RangeFuture(this DateTimeOffset dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Future(unitCount, dt);
+        }
+
+        public static TimeMomentRange RangeFuture(this DateTimeOffset? dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Future(unitCount, dt);
+        }
+
+        public static TimeMomentRange RangePrevious(this DateTimeOffset dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Previous(unitCount, dt);
+        }
+
+        public static TimeMomentRange RangePrevious(this DateTimeOffset? dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Previous(unitCount, dt);
+        }
+
+        public static TimeMomentRange RangeNext(this DateTimeOffset dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Next(unitCount, dt);
+        }
+
+        public static TimeMomentRange RangeNext(this DateTimeOffset? dt, ulong unitCount, TimeUnits unit)
+        {
+            return unit.Next(unitCount, dt);
+        }
+
+        #endregion TimeMomentRange factory methods
+
         #region DateRanage factory methods
 
-        public static DateRange Current(this TimeUnits unit, DateTime? referenceMoment = null)
+        public static DateRange Current(this TimeUnits unit, DateTime? referenceMoment)
         {
             var span = new RelativeTimeSpan(Timeline.EntireCurrentOrSpecified, unit);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
-        public static DateRange ToDate(this TimeUnits unit, DateTime? referenceMoment = null)
+        public static DateRange ToDate(this TimeUnits unit, DateTime? referenceMoment)
         {
             var span = new RelativeTimeSpan(Timeline.ToDateOrTillSpecified, unit);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
-        public static DateRange Past(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
+        public static DateRange Past(this TimeUnits unit, ulong unitCount, DateTime? referenceMoment)
         {
             var span = new RelativeTimeSpan(Timeline.Past, unit, unitCount);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
-        public static DateRange Future(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
+        public static DateRange Future(this TimeUnits unit, ulong unitCount, DateTime? referenceMoment)
         {
             var span = new RelativeTimeSpan(Timeline.Future, unit, unitCount);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
-        public static DateRange Previous(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
+        public static DateRange Previous(this TimeUnits unit, ulong unitCount, DateTime? referenceMoment)
         {
             var span = new RelativeTimeSpan(Timeline.PreviousExcludingCurrent, unit, unitCount);
             DateRange range = span.GetDateTimeRange(referenceMoment);
             return range;
         }
 
-        public static DateRange Next(this TimeUnits unit, ulong unitCount = 1, DateTime? referenceMoment = null)
+        public static DateRange Next(this TimeUnits unit, ulong unitCount, DateTime? referenceMoment)
         {
             var span = new RelativeTimeSpan(Timeline.NextExcludingCurrent, unit, unitCount);
             DateRange range = span.GetDateTimeRange(referenceMoment);
