@@ -335,7 +335,6 @@ namespace Aspectacular
     /// <summary>
     /// Class representing a range of date/time values.
     /// </summary>
-    //[Obsolete("Use DateRange2 instead, if possible, together with DateTimeOffset instead of DateTime.")]
     public class DateRange : ValueRange<DateTime>
     {
         public DateRange()
