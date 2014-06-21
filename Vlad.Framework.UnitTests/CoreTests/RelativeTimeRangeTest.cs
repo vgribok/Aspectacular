@@ -46,7 +46,7 @@ namespace Aspectacular.Test.CoreTests
             // Previous September
             DateTime localNow = new DateTime(2013, 9, 5); //DateTime.Now;
             DateRange range = TimeUnits.Month.Current(localNow.Add(-1, TimeUnits.Year));
-            Assert.AreEqual(DateTimeKind.Local, range.Kind);
+            Assert.AreEqual(DateTimeKind.Unspecified, range.Kind);
         }
 
         [TestMethod]

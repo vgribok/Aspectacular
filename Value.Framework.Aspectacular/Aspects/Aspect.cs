@@ -246,6 +246,22 @@ namespace Aspectacular
             return this.Proxy.GetLogText(lineSeparator, entrySelector);
         }
 
+        /// <summary>
+        /// Returns the worst type of entry found in the log entry collection.
+        /// For example, if only Info entries are there, then Info will be returned,
+        /// but if both Error and Info entries are present, Error will be returned.
+        /// </summary>
+        public EntryType? WorstEntryType
+        {
+            get { return this.Proxy.WorstEntryType; }
+        }
+        /// <summary>
+        /// Returns bitwise mix of all entry types in the log entry collection
+        /// </summary>
+        public EntryType? PresentEntryTypes
+        {
+            get { return this.Proxy.PresentEntryTypes; }
+        }
         #endregion Logging methods
 
         /// <summary>
