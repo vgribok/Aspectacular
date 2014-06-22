@@ -8,6 +8,9 @@ using System.Web.Configuration;
 
 namespace Aspectacular
 {
+    /// <summary>
+    /// Outputs AOP call log records to ASP.NET Trace context.
+    /// </summary>
     public class AspNetTraceAspect : LogOutputAspectBase
     {
         public AspNetTraceAspect()
