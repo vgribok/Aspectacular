@@ -44,18 +44,18 @@ namespace Aspectacular
     /// Smart class can be used a substitute for "string emailAddress;".
     /// Has implicit conversion operators from and to string and thus can be used in method parameters for email addresses.
     /// </summary>
-    public class EmailAddress : StringWithConstraints
+    public sealed class EmailAddress : StringWithConstraints
     {
         /// <summary>
         /// Global email address format check regular expression pattern.
         /// I suspect it will be continually improved and updated.
         /// </summary>
-        public static readonly string emailCheckRegexPattern = @"(?<UserBeforeAt> (?<UserBeforePlus> [^@\+]{2,} )  (?: \+ (?<UserAfterPlusFilter> [^@]{1,} )){0,1}  ) @  (?<Domain> (?<DomainMain>.{2,})  \. (?<DomainSuffix> \w{2,6}) )".Replace(" ", string.Empty);
+        public static readonly string EmailCheckRegexPattern = @"(?<UserBeforeAt> (?<UserBeforePlus> [^@\+]{2,} )  (?: \+ (?<UserAfterPlusFilter> [^@]{1,} )){0,1}  ) @  (?<Domain> (?<DomainMain>.{2,})  \. (?<DomainSuffix> \w{2,6}) )".Replace(" ", string.Empty);
 
         /// <summary>
         /// Global email address format check regular expression.
         /// </summary>
-        public static Regex emailFormatRegex = new Regex(emailCheckRegexPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        public static Regex EmailFormatRegex = new Regex(EmailCheckRegexPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
         public Match Match { get; protected set; }
 
@@ -134,7 +134,7 @@ namespace Aspectacular
             if (emailAddress == null)
                 emailAddress = string.Empty;
 
-            return emailFormatRegex.Match(emailAddress.Trim());
+            return EmailFormatRegex.Match(emailAddress.Trim());
         }
         
         #endregion Utility methods
@@ -201,7 +201,7 @@ namespace Aspectacular
             if (emailAddress == null)
                 return false;
 
-            return EmailAddress.emailFormatRegex.IsMatch(emailAddress);
+            return EmailAddress.EmailFormatRegex.IsMatch(emailAddress);
         }
 
         /// <summary>

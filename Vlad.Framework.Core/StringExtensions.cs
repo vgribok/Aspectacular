@@ -371,6 +371,7 @@ namespace Aspectacular
             if (ellipsis.String.Length > maxLen)
                 ellipsis = (string)null;
 
+// ReSharper disable once PossibleNullReferenceException
             string truncated = str.Substring(0, (int)maxLen - ellipsis.String.Length);
             truncated = string.Format("{0}{1}", truncated, ellipsis);
 

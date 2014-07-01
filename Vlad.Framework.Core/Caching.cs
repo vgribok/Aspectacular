@@ -22,6 +22,7 @@ namespace Aspectacular
             this.slowLoader = slowLoader;
             this.isThreadSafe = isThreadSafe;
 
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             this.Expire();
         }
 

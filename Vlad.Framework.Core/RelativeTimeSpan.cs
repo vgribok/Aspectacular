@@ -236,7 +236,7 @@ namespace Aspectacular
             DateTimeOffset startDto = new DateTimeOffset(dt);
             startDto = startDto.StartOf(unit);
 
-            DateTime start = startDto.ToDateTime(dt.Kind);
+            DateTime start = startDto.ToDateTime(dtKind);
             return start;
         }
 

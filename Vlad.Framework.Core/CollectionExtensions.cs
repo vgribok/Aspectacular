@@ -264,8 +264,9 @@ namespace Aspectacular
             else
             {
                 IEqualityComparer<T> icomparer = ToIEqualityComparer(equalityChecker);
-                retVal.ToBeAdded = newSet.Where(newItem => !currentSet.Contains(newItem, icomparer));
-                retVal.ToBeDeleted = currentSet.Where(existing => !newSet.Contains(existing, icomparer));
+                IList<T> newSetList = newSet.ToList();
+                retVal.ToBeAdded = newSetList.Where(newItem => !currentSet.Contains(newItem, icomparer));
+                retVal.ToBeDeleted = currentSet.Where(existing => !newSetList.Contains(existing, icomparer));
             }
 
             return retVal;

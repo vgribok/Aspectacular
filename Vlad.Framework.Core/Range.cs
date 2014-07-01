@@ -93,6 +93,7 @@ namespace Aspectacular
             if (other != null)
                 return this.Equals(other);
 
+            // ReSharper disable once BaseObjectEqualsIsObjectEquals
             return base.Equals(obj);
         }
 
@@ -134,8 +135,10 @@ namespace Aspectacular
 
         public override int GetHashCode()
         {
+// ReSharper disable NonReadonlyFieldInGetHashCode
             int hash1 = this.start == null ? 0 : this.start.GetHashCode();
             int hash2 = this.end == null ? 0 : this.end.GetHashCode();
+// ReSharper restore NonReadonlyFieldInGetHashCode
             int hash = hash1 ^ hash2;
             return hash;
         }
@@ -233,14 +236,14 @@ namespace Aspectacular
         public new T? Start
         {
             get { return this.start == null ? (T?)null : (T)this.start; }
-            set { base.start = value; this.CheckOrder(); }
+            set { this.start = value; this.CheckOrder(); }
         }
 
         //[XmlIgnore]
         public new T? End
         {
             get { return this.end == null ? (T?)null : (T)this.end; }
-            set { base.end = value; this.CheckOrder(); }
+            set { this.end = value; this.CheckOrder(); }
         }
     }
 
@@ -305,7 +308,9 @@ namespace Aspectacular
     public class TimeMomentRange : ValueRange<DateTimeOffset>
     {
         public TimeMomentRange()
+// ReSharper disable RedundantCast
             : this((DateTimeOffset?)null, (DateTimeOffset?)null)
+// ReSharper restore RedundantCast
         {
         }
 
@@ -346,7 +351,9 @@ namespace Aspectacular
     public class DateRange : ValueRange<DateTime>
     {
         public DateRange()
+// ReSharper disable RedundantCast
             : this((DateTime?)null, (DateTime?)null)
+// ReSharper restore RedundantCast
         {
         }
 

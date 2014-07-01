@@ -10,7 +10,7 @@ namespace Aspectacular
     [XmlRoot("Exception")]
     public class ExceptionDto
     {
-        private readonly Exception exception = null;
+        private readonly Exception exception;
 
         public ExceptionDto(Exception ex)
         {
@@ -62,6 +62,7 @@ namespace Aspectacular
             return ex.AllExceptionsBack().Reverse();
         }
 
+        // ReSharper disable once InconsistentNaming
         public const string defaultItemSeparator = "--------------------------------------------------------";
 
         /// <summary>

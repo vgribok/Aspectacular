@@ -275,6 +275,7 @@ namespace Aspectacular
         public static T? NullIfDefault<T>(this T? val) where T : struct
         {
             if (val == null)
+// ReSharper disable once ExpressionIsAlwaysNull
                 return val;
 
             return val.Value.Equals(default(T)) ? null : val;

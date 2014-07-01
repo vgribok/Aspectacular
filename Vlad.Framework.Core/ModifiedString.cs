@@ -39,7 +39,7 @@ namespace Aspectacular
                 return strRaw == null || ms.String == null;
 
             string str = strRaw == null ? null : ms.String;
-            return str == obj.ToStringEx(null);
+            return str == obj.ToStringEx(nullObjString: null);
         }
 
         public static bool operator !=(StringWithConstraints ms, object obj)
@@ -77,6 +77,7 @@ namespace Aspectacular
             if (this.String == null)
                 return other == null ? 0 : int.MinValue;
 
+// ReSharper disable once StringCompareToIsCultureSpecific
             return this.String.CompareTo(other);
         }
 
@@ -131,6 +132,7 @@ namespace Aspectacular
         public NonEmptyString(string str)
             : this()
         {
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             this.String = str;
         }
 
@@ -154,6 +156,7 @@ namespace Aspectacular
         public NonEmptyTrimmedString(string str)
             : this()
         {
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             this.String = str;
         }
 
@@ -176,6 +179,7 @@ namespace Aspectacular
         public TrimmedString(string str)
             : this()
         {
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             this.String = str;
         }
 
@@ -198,6 +202,7 @@ namespace Aspectacular
         public NonNullString(string str)
             : this()
         {
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             this.String = str;
         }
 
@@ -225,6 +230,7 @@ namespace Aspectacular
             this.MaxLen = (int)maxLength;
             this.Ellipsis = optionalEllipsis;
 
+            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
             this.String = str;
         }
 
