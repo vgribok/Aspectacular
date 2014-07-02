@@ -20,7 +20,7 @@ namespace Aspectacular.Test
 
         public TestContext TestContext { get; set; }
 
-        public const int customerIdWithManyAddresses = 29503;
+        public const int CustomerIdWithManyAddresses = 29503;
 
         public static IEnumerable<Aspect> TestAspects
         {
@@ -52,7 +52,7 @@ namespace Aspectacular.Test
             using (var db = new AdventureWorksLT2008R2Entities())
             {
                 db.Configuration.LazyLoadingEnabled = false;
-                addresses = db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList();
+                addresses = db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses).ToList();
             }
             Assert.IsTrue(2 == addresses.Count);
 
@@ -60,14 +60,14 @@ namespace Aspectacular.Test
             
             // Example 1: where AOP creates instance of AdventureWorksLT2008R2Entities, runs the DAL method, 
             // and disposes AdventureWorksLT2008R2Entities instance - all in one shot.
-            addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
+            addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
             Assert.IsTrue(2 == addresses.Count);
 
             // Example 2: with simple AOP proxied call for existing instance of DbContext.
             using (var db = new AdventureWorksLT2008R2Entities())
             {
                 db.Configuration.LazyLoadingEnabled = false;
-                addresses = db.GetDbProxy(TestAspects).List(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
+                addresses = db.GetDbProxy(TestAspects).List(inst => inst.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
             }
             Assert.IsTrue(2 == addresses.Count);
         }
@@ -85,16 +85,16 @@ namespace Aspectacular.Test
         //    Assert.IsTrue(2 == addresses2.Count);
         //}
 
-        internal static IList<Address> GetQueryCustomerAddressesByCustomerID()
+        internal static IList<Address> GetQueryCustomerAddressesByCustomerId()
         {
-            var addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses));
+            var addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
             return addresses;
         }
 
         [TestMethod]
         public void TestAnonymousQuery()
         {
-            List<object> countryStateBityRecords = AwDal.List(db => db.QueryUserCoutryStateCity(customerIdWithManyAddresses));
+            List<object> countryStateBityRecords = AwDal.List(db => db.QueryUserCoutryStateCity(CustomerIdWithManyAddresses));
 
             foreach (var record in countryStateBityRecords)
                 this.TestContext.WriteLine("{0}", record);

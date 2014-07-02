@@ -54,6 +54,7 @@ namespace Aspectacular.Test.CoreTests
             stringEmail = parsedEmail;
             Assert.IsNull(stringEmail);
 
+// ReSharper disable HeuristicUnreachableCode
             parsedEmail = null as string;
             Assert.IsFalse(parsedEmail.IsValid);
             stringEmail = parsedEmail;
@@ -72,6 +73,7 @@ namespace Aspectacular.Test.CoreTests
             Assert.AreEqual("dom1.domain-ha.it", parsedEmail[EmailAddressParts.Domain]);
             Assert.AreEqual("dom1.domain-ha", parsedEmail[EmailAddressParts.DomainMain]);
             Assert.AreEqual("it", parsedEmail[EmailAddressParts.DomainSuffix]);
+// ReSharper restore HeuristicUnreachableCode
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Collections.Generic;
 using System.Net.Mail;
@@ -15,7 +16,7 @@ namespace Aspectacular.Test
     {
         #region Aspect Initialization
 
-        public static readonly StupidSimpleInProcCache testInProcCache = new StupidSimpleInProcCache();
+        public static readonly StupidSimpleInProcCache TestInProcCache = new StupidSimpleInProcCache();
 
         static AspectacularTest()
         {
@@ -23,7 +24,7 @@ namespace Aspectacular.Test
             {
                 var defaultAspects = new Aspect[]
                     {
-                            testInProcCache.CreateCacheAspect(),
+                            TestInProcCache.CreateCacheAspect(),
                             new LinqToSqlAspect(),
                             new ReturnValueLoggerAspect(),
                             new SlowFullMethodSignatureAspect(),
@@ -78,22 +79,22 @@ namespace Aspectacular.Test
         {
             int intParm = 456;
             this.IntProp = intParm;
-            string refString = DateTime.Now.Ticks.ToString();
+            string refString1 = DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture);
             bool outBool = false;
-            SomeTestClass obj = new SomeTestClass();
+            SomeTestClass obj1 = new SomeTestClass();
 
             // Example of calling static void method.
-            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, obj, ref refString, out outBool));
+            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, obj1, ref refString1, out outBool));
             Assert.IsTrue(outBool);
 
             System.Threading.Thread.Sleep(100);
 
             intParm = 12456;
             IntProp = intParm;
-            refString = DateTime.Now.Ticks.ToString();
-            obj = new SomeTestClass(new DateTime(1999, 5, 3));
+            string refString2 = DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture);
+            SomeTestClass obj2 = new SomeTestClass(new DateTime(1999, 5, 3));
             
-            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, obj, ref refString, out outBool));
+            AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, obj2, ref refString2, out outBool));
             Assert.IsTrue(outBool);
         }
 
@@ -105,8 +106,8 @@ namespace Aspectacular.Test
             
             // Example of improper calling instance method returning string, by using a non-method-call operator.
             string actual = someCls.GetProxy(TestAspects).Invoke(instance => instance.GetDateString("whatevs") + "123");
-            
-            actual.ToString();
+// ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+            actual.ToString(CultureInfo.InvariantCulture);
         }
 
         [TestMethod]
@@ -114,8 +115,7 @@ namespace Aspectacular.Test
         public void TestInterceptedException()
         {
             var someCls = new SomeTestClass(new DateTime(2010, 2, 5));
-            
-            bool neverGetHere = someCls.GetProxy(TestAspects).Invoke(instance => instance.ThrowFailure());
+            someCls.GetProxy(TestAspects).Invoke(instance => instance.ThrowFailure());
         }
 
         [TestMethod]
@@ -158,7 +158,7 @@ namespace Aspectacular.Test
 
             const int intParm = 456;
             this.IntProp = intParm;
-            string refString = DateTime.Now.Ticks.ToString();
+            string refString = DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture);
             bool outBool = false;
             SomeTestClass obj = new SomeTestClass();
 

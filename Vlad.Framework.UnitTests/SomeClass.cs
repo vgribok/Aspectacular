@@ -11,7 +11,7 @@ namespace Aspectacular.Test
 {
     public class SomeTestClass
     {
-        public DateTime dt = DateTime.UtcNow;
+        private DateTime dt = DateTime.UtcNow;
 
         public SomeTestClass()
         {
@@ -44,6 +44,9 @@ namespace Aspectacular.Test
 
         public void DoNothing(string bogus)
         {
+// ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+// ReSharper disable once RedundantToStringCall
+// ReSharper disable once SpecifyACultureInStringConversionExplicitly
             bogus.ToString();
         }
 

@@ -60,7 +60,7 @@ namespace Aspectacular
             foreach (var paramInfo in this.Proxy.InterceptedCallMetaData.Params)
             {
                 this.LogInformationWithKey("Parameter \"{0}\"".SmartFormat(paramInfo.Name),
-                        "Type: [{0}], Value: [{1}]", paramInfo.Type.FormatCSharp(), paramInfo.FormatSlowEvaluatingValue(trueUI_falseInternal: false));
+                        "Type: [{0}], Value: [{1}]", paramInfo.Type.FormatCSharp(), paramInfo.FormatSlowEvaluatingValue(trueUi_falseInternal: false));
             }
         }
 

@@ -40,7 +40,7 @@ namespace Aspectacular
     {
         public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
         {
-            string returnResultFormatted = this.Proxy.InterceptedCallMetaData.FormatReturnResult(this.Proxy.ReturnedValue, trueUI_falseInternal: false);
+            string returnResultFormatted = this.Proxy.InterceptedCallMetaData.FormatReturnResult(this.Proxy.ReturnedValue, trueUi_falseInternal: false);
             this.LogInformationData("Returned value", returnResultFormatted);
         }
     }

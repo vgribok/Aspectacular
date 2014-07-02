@@ -35,6 +35,7 @@ namespace Aspectacular
         }
     }
 
+// ReSharper disable once InconsistentNaming
     public static partial class AOP
     {
         /// <summary>

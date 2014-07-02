@@ -76,6 +76,7 @@ namespace Aspectacular
 
         protected override object GetElementKey(ConfigurationElement element)
         {
+// ReSharper disable once PossibleNullReferenceException
             return (element as DefaultAspect).Type;
         }
     }

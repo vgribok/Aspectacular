@@ -56,6 +56,7 @@ namespace Aspectacular
         /// Value to be presented to the user.
         /// Use sparingly as first evaluation of every value is very slow (Expression.Compile() + Reflection.Invoke()-slow).
         /// </summary>
+// ReSharper disable once InconsistentNaming
         SlowUIValue, 
         
         /// <summary>
@@ -70,20 +71,21 @@ namespace Aspectacular
     /// </summary>
     internal class SecretValueHash
     {
-        internal readonly string ValHash;
+        internal readonly string valHash;
 
         public SecretValueHash(object val)
         {
             if (val == null)
-                this.ValHash = null;
+                this.valHash = null;
             else
             {
                 byte[] stringBytes = System.Text.Encoding.Unicode.GetBytes(val.ToString());
                 long crc = ComputeCRC(stringBytes);
-                this.ValHash = string.Format("{0:X}-{1:X}", val.GetHashCode(), crc);
+                this.valHash = string.Format("{0:X}-{1:X}", val.GetHashCode(), crc);
             }
         }
 
+// ReSharper disable once InconsistentNaming
         public static long ComputeCRC(byte[] val)
         {
             long q;
@@ -104,12 +106,12 @@ namespace Aspectacular
 
         public override string ToString()
         {
-            return this.ValHash;
+            return this.valHash;
         }
 
         public override int GetHashCode()
         {
-            return this.ValHash.GetHashCode();
+            return this.valHash.GetHashCode();
         }
     }
 
@@ -205,11 +207,11 @@ namespace Aspectacular
 
         #endregion Attribute access members
 
-        public string FormatSlowEvaluatingValue(bool trueUI_falseInternal)
+        public string FormatSlowEvaluatingValue(bool trueUi_falseInternal)
         {
             object val = this.SlowEvaluatingValueLoader;
 
-            return FormatParamValue(this.Type, val, trueUI_falseInternal);
+            return FormatParamValue(this.Type, val, trueUi_falseInternal);
         }
 
         public bool ValueIsSecret
@@ -277,9 +279,9 @@ namespace Aspectacular
         /// </summary>
         /// <param name="type"></param>
         /// <param name="val">For secret values please pass "new SecretValueHash(someValue)"</param>
-        /// <param name="trueUI_falseInternal"></param>
+        /// <param name="trueUi_falseInternal"></param>
         /// <returns></returns>
-        public static string FormatParamValue(Type type, object val, bool trueUI_falseInternal)
+        public static string FormatParamValue(Type type, object val, bool trueUi_falseInternal)
         {
             if (type == typeof(void))
                 return string.Empty;
@@ -287,7 +289,7 @@ namespace Aspectacular
             if (val == null)
                 return "[null]";
 
-            if (trueUI_falseInternal && val is SecretValueHash)
+            if (trueUi_falseInternal && val is SecretValueHash)
                 return "[secret]";
 
             if (val is string)
@@ -298,7 +300,7 @@ namespace Aspectacular
 
             string strVal = val.ToString();
             if (strVal == type.ToString())
-                return trueUI_falseInternal ? "[no string value]" : string.Format("HASH:{0:X}", val.GetHashCode());
+                return trueUi_falseInternal ? "[no string value]" : string.Format("HASH:{0:X}", val.GetHashCode());
 
             return type.IsSimpleCSharpType() ? strVal : string.Format("[{0}]", strVal);
         }
@@ -504,10 +506,12 @@ namespace Aspectacular
         public IEnumerable<TAttribute> GetMethodOrClassAttributes<TAttribute>() where TAttribute : System.Attribute
         {
             IEnumerable<TAttribute> attribs = this.GetMethodAttributes<TAttribute>();
+// ReSharper disable PossibleMultipleEnumeration
             if (attribs.IsNullOrEmpty())
                 attribs = this.GetClassAttributes<TAttribute>();
 
             return attribs;
+// ReSharper restore PossibleMultipleEnumeration
         }
 
         /// <summary>
@@ -549,14 +553,14 @@ namespace Aspectacular
             return string.Join(", ", this.Params.Select(pinfo => pinfo.ToString(valueOutputOptions)));
         }
 
-        public string FormatReturnResult(object returnedResult, bool trueUI_falseInternal)
+        public string FormatReturnResult(object returnedResult, bool trueUi_falseInternal)
         {
             if (this.IsReturnValueSecret)
                 returnedResult = new SecretValueHash(returnedResult);
 
             Type retType = returnedResult == null ? this.MethodReturnType : returnedResult.GetType();
 
-            string returnValueStr = InterceptedMethodParamMetadata.FormatParamValue(retType, returnedResult, trueUI_falseInternal);
+            string returnValueStr = InterceptedMethodParamMetadata.FormatParamValue(retType, returnedResult, trueUi_falseInternal);
             return returnValueStr;
         }
     }

@@ -17,6 +17,7 @@ namespace Aspectacular
         /// IQueryable converted to T-SQL, when used with EntityFramework,
         /// or expression trace when used not with EntityFramework.
         /// </summary>
+// ReSharper disable once InconsistentNaming
         public string SQLorTrace { get; protected set; }
 
         public override void Step_3_BeforeMassagingReturnedResult()

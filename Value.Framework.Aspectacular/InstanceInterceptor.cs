@@ -356,6 +356,7 @@ namespace Aspectacular
     /// <summary>
     /// Extensions and static convenience methods for intercepted method calls.
     /// </summary>
+// ReSharper disable once InconsistentNaming
     public static partial class AOP
     {
         /// <summary>

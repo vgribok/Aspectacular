@@ -35,6 +35,7 @@ namespace Aspectacular
             {
                 TEntity loadedEntity = (TEntity)entry.Entity;
                 if (entry.State == System.Data.EntityState.Detached)
+// ReSharper disable once AssignNullToNotNullAttribute
                     db.Attach(loadedEntity);
                 return loadedEntity;
             }

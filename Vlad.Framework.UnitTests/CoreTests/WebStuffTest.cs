@@ -52,11 +52,10 @@ namespace Aspectacular.Test
             string json = nullObj.ToJsonString();
             Assert.AreEqual("null", json);
 
-            json.ToString();
             nullObj = json.FromJsonString<string>();
             Assert.AreEqual(null, nullObj);
 
-            IList<Address> addresses = LinqTests.GetQueryCustomerAddressesByCustomerID();
+            IList<Address> addresses = LinqTests.GetQueryCustomerAddressesByCustomerId();
             json = AOP.Invoke(AspectacularTest.TestAspects, () => addresses.ToJsonString());
 
             Address[] deserializedAddresses = json.FromJsonString<Address[]>();

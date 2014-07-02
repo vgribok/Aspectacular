@@ -57,6 +57,7 @@ namespace Aspectacular
         /// <summary>
         /// Unique ID of the call.
         /// </summary>
+// ReSharper disable once InconsistentNaming
         public readonly Guid CallID = Guid.NewGuid();
 
         /// <summary>
@@ -536,16 +537,16 @@ namespace Aspectacular
         /// <summary>
         /// Returns string representation of method's return value;
         /// </summary>
-        /// <param name="trueUI_falseInternal"></param>
+        /// <param name="trueUi_falseInternal"></param>
         /// <returns></returns>
-        public string FormateReturnValue(bool trueUI_falseInternal)
+        public string FormateReturnValue(bool trueUi_falseInternal)
         {
             this.RequirePostExecutionPhase();
 
             string retValStr = InterceptedMethodParamMetadata.FormatParamValue(
                                     this.InterceptedCallMetaData.MethodReturnType, 
                                     this.GetReturnValueInternal(this.InterceptedCallMetaData.IsReturnValueSecret), 
-                                    trueUI_falseInternal);
+                                    trueUi_falseInternal);
             return retValStr;
         }
 

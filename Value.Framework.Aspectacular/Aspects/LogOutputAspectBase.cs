@@ -14,9 +14,11 @@ namespace Aspectacular
     /// </summary>
     public abstract class LogOutputAspectBase : Aspect
     {
+// ReSharper disable InconsistentNaming
         public readonly EntryType entryTypeFilter;
         public readonly string[] keys;
         public readonly bool writeAllEntriesIfKeyFound;
+// ReSharper restore InconsistentNaming
 
         /// <summary>
         /// Initializes log output base class

@@ -39,6 +39,7 @@ namespace Aspectacular
             this.TrueText_FalseXml = trueText_falseXml;
         }
 
+// ReSharper disable once InconsistentNaming
         public bool TrueText_FalseXml { get; set; }
 
         public override void Step_2_BeforeTryingMethodExec()

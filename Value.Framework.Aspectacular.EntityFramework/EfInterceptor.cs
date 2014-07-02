@@ -115,6 +115,7 @@ namespace Aspectacular
     /// <summary>
     /// Factory class for supplying Entity Framework AOP proxies.
     /// </summary>
+// ReSharper disable once InconsistentNaming
     public static partial class EfAOP
     {
         /// <summary>

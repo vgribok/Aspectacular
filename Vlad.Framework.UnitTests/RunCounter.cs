@@ -67,6 +67,7 @@ namespace Aspectacular.Test
             var start = DateTime.UtcNow;
 
             tasks.ForEach(task => task.Start());
+// ReSharper disable once CoVariantArrayConversion
             Task.WaitAll(tasks);
 
             long ranMillisec = (long)(DateTime.UtcNow - start).TotalMilliseconds;

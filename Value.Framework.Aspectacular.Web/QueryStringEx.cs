@@ -61,6 +61,7 @@ namespace Aspectacular
             for (int i = 0; i < qs.Count; i++)
             {
                 string key = qs.GetKey(i);
+// ReSharper disable once AssignNullToNotNullAttribute
                 string val = string.Join("&", qs.GetValues(i));
                 string pair = key == null ? val : string.Format("{0}={1}", HttpUtility.UrlEncode(qs.GetKey(i)), HttpUtility.UrlEncode(qs[i]));
 

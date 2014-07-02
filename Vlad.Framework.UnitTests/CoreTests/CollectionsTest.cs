@@ -42,6 +42,7 @@ namespace Aspectacular.Test.CoreTests
         [TestMethod]
         public void SetCompareTest()
         {
+// ReSharper disable ExpressionIsAlwaysNull
             int[] currentSet = { 1, 2, 3, 4 };
             int[] newSet = { 3, 4, 5, 6 };
             int[] nullSet = null;
@@ -59,6 +60,7 @@ namespace Aspectacular.Test.CoreTests
             result = currentSet.CompareSets(nullSet);
             Assert.IsTrue(nullSet.HaveSameElements(result.ToBeAdded));
             Assert.IsTrue(currentSet.HaveSameElements(result.ToBeDeleted));
+// ReSharper restore ExpressionIsAlwaysNull
         }
     }
 }

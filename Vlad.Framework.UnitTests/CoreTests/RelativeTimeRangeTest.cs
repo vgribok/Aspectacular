@@ -62,23 +62,23 @@ namespace Aspectacular.Test.CoreTests
             Assert.AreEqual(expectedStart, dtr.Start.Value);
             Assert.AreEqual(expectedEnd, dtr.End.Value);
 
-            string dtStr = dt.ToString();
-            Assert.AreEqual("12/31/2013 11:59:59 PM", dtStr);
+            string dtStr = dt.ToString(CultureInfo.InvariantCulture);
+            Assert.AreEqual("12/31/2013 23:59:59", dtStr);
 
             DateTime actual = dt.StartOf(TimeUnits.Century);
-            Assert.AreEqual("1/1/2000 12:00:00 AM", actual.ToString());
+            Assert.AreEqual("01/01/2000 00:00:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Local, actual.Kind);
 
             actual = dt.StartOf(TimeUnits.Decade);
-            Assert.AreEqual("1/1/2010 12:00:00 AM", actual.ToString());
+            Assert.AreEqual("01/01/2010 00:00:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Local, actual.Kind);
 
             actual = dt.StartOf(TimeUnits.Year);
-            Assert.AreEqual("1/1/2013 12:00:00 AM", actual.ToString());
+            Assert.AreEqual("01/01/2013 00:00:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Local, actual.Kind);
 
             actual = dt.StartOf(TimeUnits.Quarter);
-            Assert.AreEqual("10/1/2013 12:00:00 AM", actual.ToString());
+            Assert.AreEqual("10/01/2013 00:00:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Local, actual.Kind);
 
             for (int month = 1; month <= 12; month++)
@@ -98,29 +98,29 @@ namespace Aspectacular.Test.CoreTests
 
             actual = dt.StartOf(TimeUnits.Week);
             Assert.AreEqual(CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek, actual.DayOfWeek);
-            Assert.AreEqual("12/29/2013 12:00:00 AM", actual.ToString());
+            Assert.AreEqual("12/29/2013 00:00:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Local, actual.Kind);
 
             actual = dt.StartOf(TimeUnits.Month);
-            Assert.AreEqual("12/1/2013 12:00:00 AM", actual.ToString());
+            Assert.AreEqual("12/01/2013 00:00:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Local, actual.Kind);
 
             actual = dt.StartOf(TimeUnits.Day);
-            Assert.AreEqual("12/31/2013 12:00:00 AM", actual.ToString());
+            Assert.AreEqual("12/31/2013 00:00:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Local, actual.Kind);
 
             dt = (new DateTime(2013, 12, 31, 0, 0, 0, DateTimeKind.Utc)).EndOf(TimeUnits.Day);
 
             actual = dt.StartOf(TimeUnits.Hour);
-            Assert.AreEqual("12/31/2013 11:00:00 PM", actual.ToString());
+            Assert.AreEqual("12/31/2013 23:00:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
 
             actual = dt.StartOf(TimeUnits.Minute);
-            Assert.AreEqual("12/31/2013 11:59:00 PM", actual.ToString());
+            Assert.AreEqual("12/31/2013 23:59:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
 
             actual = dt.StartOf(TimeUnits.Second);
-            Assert.AreEqual("12/31/2013 11:59:59 PM", actual.ToString());
+            Assert.AreEqual("12/31/2013 23:59:59", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(0, actual.Millisecond);
             Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
         }

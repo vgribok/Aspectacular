@@ -30,6 +30,7 @@ namespace Aspectacular
         /// If not specified, only failed calls (when exception is thrown) would be retried.
         /// Either return value or an Exception is passed 
         /// </summary>
+// ReSharper disable once InconsistentNaming
         private readonly RetryDeciderDelegate OptionalRetryDecider;
 
         /// <summary>

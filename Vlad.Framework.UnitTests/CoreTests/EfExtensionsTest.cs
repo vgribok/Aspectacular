@@ -12,7 +12,7 @@ namespace Aspectacular.Test
     {
         public static Customer OrhpanCust
         {
-            get { return new Customer { CustomerID = LinqTests.customerIdWithManyAddresses }; }
+            get { return new Customer { CustomerID = LinqTests.CustomerIdWithManyAddresses }; }
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace Aspectacular.Test
             {
                 dbc.Configuration.LazyLoadingEnabled = false;
 
-                cust = dbc.GetProxy(LinqTests.TestAspects).Single(db => db.QueryCustomerByID(LinqTests.customerIdWithManyAddresses));
+                cust = dbc.GetProxy(LinqTests.TestAspects).Single(db => db.QueryCustomerByID(LinqTests.CustomerIdWithManyAddresses));
                 cust2 = dbc.GetProxy(LinqTests.TestAspects).Invoke(db => db.GetOrAttach(OrhpanCust));
             }
             Assert.IsNotNull(cust2.EmailAddress);

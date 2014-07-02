@@ -86,6 +86,7 @@ namespace Aspectacular
     /// </summary>
     public class CallLifetimeLog
     {
+// ReSharper disable once InconsistentNaming
         public readonly List<CallLogEntry> callLog = new List<CallLogEntry>();
 
         internal void AddLogEntry(LogEntryOriginator who, EntryType entryType, string category, string format, params object[] args)
@@ -164,7 +165,7 @@ namespace Aspectacular
                 if (this.callLog.Count == 0)
                     return null;
 
-                IEnumerable<EntryType> presentTypes = this.callLog.Select(entry => entry.What).Distinct();
+                List<EntryType> presentTypes = this.callLog.Select(entry => entry.What).Distinct().ToList();
                 EntryType allTypes = presentTypes.First();
                 presentTypes.ForEach(entryType => allTypes |= entryType);
                 return allTypes;

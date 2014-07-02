@@ -47,21 +47,26 @@ namespace Aspectacular.Test
         [TestMethod]
         public void SuccessAfterRetryTest()
         {
+#pragma warning disable 219
             this.iteration = 0;
             Aspect retryAspect = new RetryCountAspect(retryCount: 3);
             DateTime dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureNTimes(2, true));
 
             this.testStart = DateTime.UtcNow;
             retryAspect = new RetryTimeAspect(keepTryingForMilliseconds: 300, millisecDelayBetweenRetries: 100);
+// ReSharper disable once RedundantAssignment
             dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureFor(200, true));
 
             this.iteration = 0;
             retryAspect = new RetryCountAspect(3, 50, proxy => proxy.ReturnedValue == null);
+// ReSharper disable once RedundantAssignment
             dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureNTimes(2, false));
 
             this.testStart = DateTime.UtcNow;
             retryAspect = new RetryTimeAspect(keepTryingForMilliseconds: 300, millisecDelayBetweenRetries: 100, optionalRetryDecider: proxy => proxy.ReturnedValue == null);
+// ReSharper disable once RedundantAssignment
             dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureFor(200, false));
+#pragma warning restore 219
         }
 
         [TestMethod]
