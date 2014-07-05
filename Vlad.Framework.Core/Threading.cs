@@ -122,5 +122,65 @@ namespace Aspectacular
             else
                 localTcs.TrySetResult(null);
         }
+
+        public static int WaitAny(this IEnumerable<Task> tasks, out Task completedTask, int waitTimeoutMillisec = -1, CancellationToken? cancellationToken = null)
+        {
+            Task[] taskArray = tasks.ToArray();
+
+            int index = Task.WaitAny(taskArray, waitTimeoutMillisec, cancellationToken ?? CancellationToken.None);
+            completedTask = index < 0 || index >= taskArray.Length ? null : taskArray[index];
+
+            return index;
+        }
+
+        public static int WaitAny(out Task completedTask, params Task[] tasks)
+        {
+            return tasks.WaitAny(out completedTask);
+        }
+
+        /// <summary>
+        /// Waits for either the task completion, or arrival of the stop signal.
+        /// If stop signal was raised, default(T)/null will be returned.
+        /// Otherwise, task result till be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="waitExitSignal"></param>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        public static T WaitUntilStopped<T>(this WaitHandle waitExitSignal, Task<T> task)
+        {
+            Task completedTask;
+            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), task);
+            return index == 1 ? ((Task<T>) completedTask).Result : default(T);
+        }
+
+        /// <summary>
+        /// Returns true if task was completed, false if exit signal was raised.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="waitExitSignal"></param>
+        /// <param name="task"></param>
+        /// <returns></returns>
+        public static bool WaitUntilStopped<T>(this WaitHandle waitExitSignal, Task task)
+        {
+            Task completedTask;
+            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), task);
+            return index == 1;
+        }
+
+        /// <summary>
+        /// Returns null if stop signal was raised. 
+        /// Otherwise returns task that was completed.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="waitExitSignal"></param>
+        /// <param name="tasks"></param>
+        /// <returns></returns>
+        public static Task WaitUntilStopped<T>(this WaitHandle waitExitSignal, params Task[] tasks)
+        {
+            Task completedTask;
+            WaitAny(out completedTask, tasks);
+            return completedTask;
+        }
     }
 }
