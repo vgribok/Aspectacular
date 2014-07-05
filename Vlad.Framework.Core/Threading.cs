@@ -86,5 +86,41 @@ namespace Aspectacular
             if (!task.Wait(waitTimeoutMillisec))
                 throw new TimeoutException("\"{0}\" timed out after {1:#,#0} milliseconds.".SmartFormat(task, waitTimeoutMillisec));
         }
+
+        /// <summary>
+        /// Converts multiple WaitHandles to the collection of Task objects.
+        /// </summary>
+        /// <param name="handles"></param>
+        /// <param name="waitTimeoutMillisec"></param>
+        /// <returns></returns>
+        public static IEnumerable<Task> AsTasks(this IEnumerable<WaitHandle> handles, int waitTimeoutMillisec = -1)
+        {
+            return handles.Select(handle => handle.AsTask(waitTimeoutMillisec));
+        }
+
+        /// <summary>
+        /// Converts WaitHandle to Task.
+        /// Idea glanced from http://stackoverflow.com/a/18766131.
+        /// </summary>
+        /// <param name="handle"></param>
+        /// <param name="waitTimeoutMillisec"></param>
+        /// <returns></returns>
+        public static Task AsTask(this WaitHandle handle, int waitTimeoutMillisec = -1)
+        {
+            var tcs = new TaskCompletionSource<object>();
+            RegisteredWaitHandle registration = ThreadPool.RegisterWaitForSingleObject(handle, WaitHandleWaiter, tcs, waitTimeoutMillisec, executeOnlyOnce: true);
+            //tcs.Task.ContinueWith((hkw, state) => ((RegisteredWaitHandle)state).Unregister(null), registration, TaskScheduler.Default);
+            tcs.Task.ContinueWith(_ => registration.Unregister(null), TaskScheduler.Default);
+            return tcs.Task;
+        }
+
+        private static void WaitHandleWaiter(object state, bool timedOut)
+        {
+            var localTcs = (TaskCompletionSource<object>)state;
+            if (timedOut)
+                localTcs.TrySetCanceled();
+            else
+                localTcs.TrySetResult(null);
+        }
     }
 }
