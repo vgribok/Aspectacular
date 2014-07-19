@@ -1,7 +1,12 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿#region License Info Header
 
-using Aspectacular;
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.CoreTests
 {
@@ -84,7 +89,8 @@ namespace Aspectacular.CoreTests
             ts = new TestTruncatedString("Very long string", 10);
             Assert.AreEqual(ts, "Very lo...");
 
-            String255 s255 = "By eliminating unnecessary casts, implicit conversions can improve source code readability. However, because implicit conversions do not require programmers to explicitly cast from one type to the other, care must be taken to prevent unexpected results. In general, implicit conversion operators should never throw exceptions and never lose information so that they can be used safely without the programmer's awareness. If a conversion operator cannot meet those criteria, it should be marked explicit. For more information, see Using Conversion Operators.";
+            String255 s255 =
+                "By eliminating unnecessary casts, implicit conversions can improve source code readability. However, because implicit conversions do not require programmers to explicitly cast from one type to the other, care must be taken to prevent unexpected results. In general, implicit conversion operators should never throw exceptions and never lose information so that they can be used safely without the programmer's awareness. If a conversion operator cannot meet those criteria, it should be marked explicit. For more information, see Using Conversion Operators.";
             string actual = s255;
             Assert.AreEqual(255, actual.Length);
         }
@@ -115,12 +121,12 @@ namespace Aspectacular.CoreTests
         {
             TestEntity te = new TestEntity
             {
-                 Count = 23,
-                  Date = DateTime.Now,
-                   Text = " Any Text ",
-                   FancyString = " Fancy Text ",
-                 //IntRange = new ValueRange<int>(-3, 5),
-                 StringRange = new Range<string>(null, "xyz"),
+                Count = 23,
+                Date = DateTime.Now,
+                Text = " Any Text ",
+                FancyString = " Fancy Text ",
+                //IntRange = new ValueRange<int>(-3, 5),
+                StringRange = new Range<string>(null, "xyz"),
             };
 
             string json = te.ToJsonString();

@@ -1,23 +1,28 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.Test.CoreTests
 {
     /// <summary>
-    /// Summary description for DynamicPropertyReaderTest
+    ///     Summary description for DynamicPropertyReaderTest
     /// </summary>
     [TestClass]
     public class DynamicPropertyReaderTest
     {
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
+        /// </summary>
         public TestContext TestContext { get; set; }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -37,6 +42,7 @@ namespace Aspectacular.Test.CoreTests
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         [TestMethod]
@@ -46,8 +52,8 @@ namespace Aspectacular.Test.CoreTests
 
             const int secondsToRun = 1;
 
-            long runsPerSec = RunCounter.SpinPerSec(secondsToRun * 1000, () => testString.GetPropertyValue<int>("Length"));
-            long actualRunsPerSec = (long)((double)runsPerSec / (double)secondsToRun);
+            long runsPerSec = RunCounter.SpinPerSec(secondsToRun*1000, () => testString.GetPropertyValue<int>("Length"));
+            long actualRunsPerSec = (long)(runsPerSec/(double)secondsToRun);
             long expectedBaseLine = 2450000;
 
             this.TestContext.WriteLine("Ran dynamic property accessor {0:#,#0} per second, expected {1:#,#0}.", actualRunsPerSec, expectedBaseLine);

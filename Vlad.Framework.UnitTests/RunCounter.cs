@@ -1,18 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-
-using Aspectacular;
 
 namespace Aspectacular.Test
 {
     public static class RunCounter
     {
         /// <summary>
-        /// Counts how many time certain function was executed in a given time span.
+        ///     Counts how many time certain function was executed in a given time span.
         /// </summary>
         /// <param name="millisecondsToRun"></param>
         /// <param name="funcToTest"></param>
@@ -28,7 +31,7 @@ namespace Aspectacular.Test
                 funcToTest();
                 count++;
                 elapsed = (long)(DateTime.UtcNow - start).TotalMilliseconds;
-            } while (elapsed < millisecondsToRun);
+            } while(elapsed < millisecondsToRun);
 
             Debug.WriteLine("Ran \"{0}\" {1:#,#} times in {2:#,#} milliseconds.", funcToTest, count, millisecondsToRun);
 
@@ -36,7 +39,7 @@ namespace Aspectacular.Test
         }
 
         /// <summary>
-        /// Runs a function for given time span, and return average runs per second.
+        ///     Runs a function for given time span, and return average runs per second.
         /// </summary>
         /// <param name="millisecondsToRun"></param>
         /// <param name="funcToTest"></param>
@@ -44,13 +47,13 @@ namespace Aspectacular.Test
         public static long SpinPerSec(long millisecondsToRun, Action funcToTest)
         {
             long count = Spin(millisecondsToRun, funcToTest);
-            long runsPerSec = count / (millisecondsToRun / 1000);
+            long runsPerSec = count/(millisecondsToRun/1000);
             return runsPerSec;
         }
 
         /// <summary>
-        /// Runs given function in parallel on multiple tasks.
-        /// Number of tasks spawned matches number of logical processors.
+        ///     Runs given function in parallel on multiple tasks.
+        ///     Number of tasks spawned matches number of logical processors.
         /// </summary>
         /// <param name="millisecondsToRun"></param>
         /// <param name="funcToTest"></param>
@@ -59,12 +62,12 @@ namespace Aspectacular.Test
         {
             Task<long>[] tasks = new Task<long>[Environment.ProcessorCount];
 
-            for (int i = 0; i < Environment.ProcessorCount; i++)
+            for(int i = 0; i < Environment.ProcessorCount; i++)
             {
                 tasks[i] = new Task<long>(() => Spin(millisecondsToRun, funcToTest));
             }
 
-            var start = DateTime.UtcNow;
+            DateTime start = DateTime.UtcNow;
 
             tasks.ForEach(task => task.Start());
 // ReSharper disable once CoVariantArrayConversion
@@ -79,8 +82,8 @@ namespace Aspectacular.Test
         }
 
         /// <summary>
-        /// Runs a function for given time span, and return average runs per second.
-        /// Number of tasks spawned matches number of logical processors.
+        ///     Runs a function for given time span, and return average runs per second.
+        ///     Number of tasks spawned matches number of logical processors.
         /// </summary>
         /// <param name="millisecondsToRun"></param>
         /// <param name="funcToTest"></param>
@@ -88,7 +91,7 @@ namespace Aspectacular.Test
         public static long SpinParallelPerSec(long millisecondsToRun, Action funcToTest)
         {
             long count = SpinParallel(millisecondsToRun, funcToTest);
-            long runsPerSec = count / (millisecondsToRun / 1000);
+            long runsPerSec = count/(millisecondsToRun/1000);
             return runsPerSec;
         }
     }

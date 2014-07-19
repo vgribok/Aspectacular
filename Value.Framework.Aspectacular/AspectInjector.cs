@@ -1,133 +1,144 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Main base class encapsulating call interception and aspect injection logic.
+    ///     Main base class encapsulating call interception and aspect injection logic.
     /// </summary>
     public class Proxy : CallLifetimeLog, IMethodLogProvider
     {
         #region Limited fields and properties
 
-        private readonly static ThreadLocal<Stack<Proxy>> proxyStack = new ThreadLocal<Stack<Proxy>>(() => new Stack<Proxy>());
+        private static readonly ThreadLocal<Stack<Proxy>> proxyStack = new ThreadLocal<Stack<Proxy>>(() => new Stack<Proxy>());
 
         protected Delegate interceptedMethod;
         protected readonly List<IAspect> aspects = new List<IAspect>();
 
         private readonly Func<object> instanceResolverFunc;
         private readonly Action<object> instanceCleanerFunc;
-        private volatile bool isUsed = false;
+        private volatile bool isUsed;
 
-        private static Stack<Proxy> ProxyStack { get { return proxyStack.Value; } }
+        private static Stack<Proxy> ProxyStack
+        {
+            get { return proxyStack.Value; }
+        }
 
         #endregion Limited fields and properties
 
         #region Public fields and properties
+
         /// <summary>
-        /// Instance of an object whose methods are intercepted.
-        /// Null when static methods are intercepted.
-        /// Can be an derived from IAspect of object wants to be its own 
+        ///     Instance of an object whose methods are intercepted.
+        ///     Null when static methods are intercepted.
+        ///     Can be an derived from IAspect of object wants to be its own
         /// </summary>
         public object AugmentedClassInstance { get; protected set; }
 
         /// <summary>
-        /// Enables AOP logging by intercepted *static* methods.
+        ///     Enables AOP logging by intercepted *static* methods.
         /// </summary>
-        public static IMethodLogProvider CurrentLog 
-        { 
-            get 
+        public static IMethodLogProvider CurrentLog
+        {
+            get
             {
                 Proxy currentProxy = ProxyStack.Any() ? ProxyStack.Peek() : null;
 
-                if (currentProxy != null && !currentProxy.InterceptedCallMetaData.IsStaticMethod)
+                if(currentProxy != null && !currentProxy.InterceptedCallMetaData.IsStaticMethod)
                     currentProxy = null; // Proxy.CurrentLog cannot be used when instance (non-static) is intercepted.
 
                 return currentProxy;
-            } 
+            }
         }
 
         /// <summary>
-        /// Unique ID of the call.
+        ///     Unique ID of the call.
         /// </summary>
 // ReSharper disable once InconsistentNaming
         public readonly Guid CallID = Guid.NewGuid();
 
         /// <summary>
-        /// Value returned by the intercepted method, if method call has succeeded.
+        ///     Value returned by the intercepted method, if method call has succeeded.
         /// </summary>
         public object ReturnedValue { get; internal set; }
 
         /// <summary>
-        /// An exception thrown either by the intercepted method, if method failed, or by preceding aspects.
+        ///     An exception thrown either by the intercepted method, if method failed, or by preceding aspects.
         /// </summary>
         public Exception MethodExecutionException { get; set; }
 
         /// <summary>
-        /// Extensive information about method, its name, attributes, parameter names and value, etc.
+        ///     Extensive information about method, its name, attributes, parameter names and value, etc.
         /// </summary>
         public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
 
         /// <summary>
-        /// Number of attempts made to call intercepted method.
-        /// Starts with 1.
+        ///     Number of attempts made to call intercepted method.
+        ///     Starts with 1.
         /// </summary>
         public byte AttemptsMade { get; private set; }
 
         /// <summary>
-        /// Must be set by an aspect to indicate that failed intercepted call must be retried again.
+        ///     Must be set by an aspect to indicate that failed intercepted call must be retried again.
         /// </summary>
         /// <remarks>
-        /// Aspects should set this flag to true after encountering specific exceptions.
+        ///     Aspects should set this flag to true after encountering specific exceptions.
         /// </remarks>
         public bool ShouldRetryCall { get; set; }
-        
+
         /// <summary>
-        /// Can be set by an aspect to indicate that result was set from cache.
+        ///     Can be set by an aspect to indicate that result was set from cache.
         /// </summary>
         public bool CancelInterceptedMethodCall { get; internal set; }
 
         /// <summary>
-        /// Aspects may set this to true to break break aspect call sequence
+        ///     Aspects may set this to true to break break aspect call sequence
         /// </summary>
         public bool StopAspectCallChain { get; set; }
 
         /// <summary>
-        /// Ensures that method of a 3rd party class, called using this proxy instance will be treated
-        /// as call-invariant, which makes such method potentially cacheable.
+        ///     Ensures that method of a 3rd party class, called using this proxy instance will be treated
+        ///     as call-invariant, which makes such method potentially cacheable.
         /// </summary>
         /// <remarks>
-        /// Call-invariance means that when the same method is called for two or more
-        /// instances (or on the same class for static methods) at the same time,
-        /// they will return same data.
-        /// This flag only affects classes and methods that don't have InvariantReturnAttribute applied.
-        /// This flag should be used only for classes whose source code cannot be modified
-        /// by adding InvariantReturnAttribute to it, like .NET framework and other binary .NET components.
+        ///     Call-invariance means that when the same method is called for two or more
+        ///     instances (or on the same class for static methods) at the same time,
+        ///     they will return same data.
+        ///     This flag only affects classes and methods that don't have InvariantReturnAttribute applied.
+        ///     This flag should be used only for classes whose source code cannot be modified
+        ///     by adding InvariantReturnAttribute to it, like .NET framework and other binary .NET components.
         /// </remarks>
         public bool ForceCallInvariance { get; set; }
 
         /// <summary>
-        /// Returns true if an attempt of executing intercepted method was made 
-        /// and it ended with an exception thrown by method, by return result post-processor, 
-        /// or aspects running right after intercepted method call.
+        ///     Returns true if an attempt of executing intercepted method was made
+        ///     and it ended with an exception thrown by method, by return result post-processor,
+        ///     or aspects running right after intercepted method call.
         /// </summary>
-        public bool InterceptedMedthodCallFailed { get { return this.MethodExecutionException != null; } }
+        public bool InterceptedMedthodCallFailed
+        {
+            get { return this.MethodExecutionException != null; }
+        }
 
         /// <summary>
-        /// Determines returned data cache-ability.
-        /// Returns true if this method will return same data if called at the same time
-        /// on two or more class instances (or on the same type for static methods).
+        ///     Determines returned data cache-ability.
+        ///     Returns true if this method will return same data if called at the same time
+        ///     on two or more class instances (or on the same type for static methods).
         /// </summary>
         /// <remarks>
-        /// Aspects implementing caching must examine this property before caching data.
-        /// Mark classes and methods with InvariantReturnAttribute to mark them as cacheable or not.
+        ///     Aspects implementing caching must examine this property before caching data.
+        ///     Mark classes and methods with InvariantReturnAttribute to mark them as cacheable or not.
         /// </remarks>
         public bool CanCacheReturnedResult
         {
@@ -135,8 +146,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Is set to false until an attempt to call intercepted method was made,
-        /// and is true after the method call attempt.
+        ///     Is set to false until an attempt to call intercepted method was made,
+        ///     and is true after the method call attempt.
         /// </summary>
         public bool MethodWasCalled { get; protected set; }
 
@@ -160,7 +171,7 @@ namespace Aspectacular
         }
 
         public Proxy(Func<object> instanceFactory, IEnumerable<Aspect> aspects)
-            : this(instanceFactory, optionalInstanceCleaner: null, aspects: aspects)
+            : this(instanceFactory, null, aspects)
         {
         }
 
@@ -174,28 +185,28 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Not called for intercepted static methods
+        ///     Not called for intercepted static methods
         /// </summary>
         protected virtual void ResolveClassInstance()
         {
             this.Step_1_BeforeResolvingInstance();
             this.AugmentedClassInstance = this.instanceResolverFunc();
 
-            if (this.AugmentedClassInstance == null)
+            if(this.AugmentedClassInstance == null)
                 throw new Exception("Instance for AOP augmentation needs to be specified before intercepted method can be called.");
 
             if(this.AugmentedClassInstance is Aspect)
                 throw new Exception("Aspects should not be used as AOP-augmented instance. Perhaps you are mistakenly using AOP.GetProxy() for a static method call? If so, use AOP.Invoke() instead of AOP.GetProxy().");
 
-            if (this.AugmentedClassInstance is ICallLogger)
+            if(this.AugmentedClassInstance is ICallLogger)
                 (this.AugmentedClassInstance as ICallLogger).AopLogger = this;
 
             // Augmented object can be interception context aware.
-            if (this.AugmentedClassInstance is IInterceptionContext)
+            if(this.AugmentedClassInstance is IInterceptionContext)
                 ((IInterceptionContext)this.AugmentedClassInstance).Proxy = this;
 
             // Augmented object can be aspect for its own method interceptions.
-            if (this.AugmentedClassInstance is IAspect)
+            if(this.AugmentedClassInstance is IAspect)
                 this.aspects.Add(this.AugmentedClassInstance as IAspect);
 
             this.LogInformationData("Type of resolved instance", this.AugmentedClassInstance.GetType().FormatCSharp());
@@ -222,7 +233,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// May be called multiple times for the same instance if call retry is enabled.
+        ///     May be called multiple times for the same instance if call retry is enabled.
         /// </summary>
         protected virtual void Step_4_Optional_AfterCatchingMethodExecException()
         {
@@ -230,7 +241,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// May be called multiple times due to retries.
+        ///     May be called multiple times due to retries.
         /// </summary>
         protected virtual void Step_4_Optional_AfterSuccessfulCallCompletion()
         {
@@ -241,11 +252,11 @@ namespace Aspectacular
         {
             this.LogInformationData("Call outcome", this.InterceptedMedthodCallFailed ? "failure" : "success");
 
-            if (this.InterceptedMedthodCallFailed)
+            if(this.InterceptedMedthodCallFailed)
             {
                 this.LogErrorWithKey("Main exception", this.MethodExecutionException.ToStringEx());
                 this.LogErrorWithKey("Failed method", this.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue));
-            }else
+            } else
             {
                 this.LogInformationData("Final returned result type", this.ReturnedValue == null ? "NULL" : this.ReturnedValue.GetType().FormatCSharp());
                 //    // This can be slow if amount of data returned is large.
@@ -270,21 +281,20 @@ namespace Aspectacular
             {
                 aspect.Step_7_AfterEverythingSaidAndDone();
 
-                if (aspect is Aspect)
+                if(aspect is Aspect)
                     (aspect as Aspect).Proxy = null;
             });
         }
 
-
         #endregion Steps in sequence
 
         /// <summary>
-        /// Method call wrapper that calls aspects and the intercepted method.
+        ///     Method call wrapper that calls aspects and the intercepted method.
         /// </summary>
         /// <param name="actualMethodInvokerClosure">Intercepted method call wrapped in an interceptor's closure.</param>
         protected void ExecuteMainSequence(Action actualMethodInvokerClosure)
         {
-            if (this.isUsed)
+            if(this.isUsed)
                 throw new Exception("Same instance of the call interceptor cannot be used more than once.");
 
             this.isUsed = true;
@@ -296,10 +306,10 @@ namespace Aspectacular
             try
             {
 #if DEBUG
-                if (Proxy.ProxyStack.Any())
-                    Debug.Assert(Proxy.ProxyStack.Peek() != this);
+                if(ProxyStack.Any())
+                    Debug.Assert(ProxyStack.Peek() != this);
 #endif
-                Proxy.ProxyStack.Push(this);
+                ProxyStack.Push(this);
 
                 try
                 {
@@ -311,42 +321,44 @@ namespace Aspectacular
 
                     try
                     {
-                        if (this.CancelInterceptedMethodCall)
-                        {   // Returned result came from cache.
-                            if (this.InterceptedMedthodCallFailed)
-                            {   // Return cached exception.
+                        if(this.CancelInterceptedMethodCall)
+                        {
+                            // Returned result came from cache.
+                            if(this.InterceptedMedthodCallFailed)
+                            {
+                                // Return cached exception.
                                 this.Step_4_Optional_AfterCatchingMethodExecException();
                                 throw this.MethodExecutionException;
                             }
-                        }else
+                        } else
                         {
                             // Retry loop
-                            for (this.AttemptsMade = 1 ; ; this.AttemptsMade++)
+                            for(this.AttemptsMade = 1;; this.AttemptsMade++)
                             {
                                 try
                                 {
                                     actualMethodInvokerClosure.Invoke(); // Step 3 (post-call returned result massaging) is called inside this closure.
-                                    
+
                                     this.Step_4_Optional_AfterSuccessfulCallCompletion();
 
-                                    if (this.ShouldRetryCall)
+                                    if(this.ShouldRetryCall)
                                         this.ShouldRetryCall = false;
                                     else
                                         break; // success - break retry loop.
                                 }
-                                catch (Exception ex)
+                                catch(Exception ex)
                                 {
                                     this.MethodExecutionException = ex;
                                     this.Step_4_Optional_AfterCatchingMethodExecException();
 
-                                    if (this.ShouldRetryCall)
+                                    if(this.ShouldRetryCall)
                                     {
                                         this.MethodExecutionException = null;
                                         this.ShouldRetryCall = false;
-                                    }else
+                                    } else
                                     {
                                         // No more call attempts - break the retry loop.
-                                        if (ex == this.MethodExecutionException)
+                                        if(ex == this.MethodExecutionException)
                                             throw;
 
                                         throw this.MethodExecutionException;
@@ -363,7 +375,7 @@ namespace Aspectacular
                 finally
                 {
                     // Cleanup phase.
-                    if (this.instanceCleanerFunc != null)
+                    if(this.instanceCleanerFunc != null)
                     {
                         try
                         {
@@ -372,7 +384,7 @@ namespace Aspectacular
                         }
                         finally
                         {
-                            if (this.AugmentedClassInstance is IInterceptionContext)
+                            if(this.AugmentedClassInstance is IInterceptionContext)
                                 (this.AugmentedClassInstance as IInterceptionContext).Proxy = null;
                         }
                     }
@@ -382,7 +394,7 @@ namespace Aspectacular
             }
             finally
             {
-                Proxy top = Proxy.ProxyStack.Pop();
+                Proxy top = ProxyStack.Pop();
                 Debug.Assert(top == this);
             }
         }
@@ -393,7 +405,7 @@ namespace Aspectacular
         {
             aspect.Proxy = this;
 
-            if (trueAppend_falseInsertFirst)
+            if(trueAppend_falseInsertFirst)
                 this.aspects.Add(aspect);
             else
                 this.aspects.Insert(0, aspect);
@@ -409,16 +421,16 @@ namespace Aspectacular
         private void EnsureRequiredAspect(RequiredAspectAttribute requiredAspAttrib)
         {
             bool hasAspect = this.aspects.Any(asp => asp.GetType() == requiredAspAttrib.AspectClassType);
-            if (hasAspect)
+            if(hasAspect)
                 return;
 
-            if (requiredAspAttrib.InstantiateIfMissing == WhenRequiredAspectIsMissing.DontInstantiate)
+            if(requiredAspAttrib.InstantiateIfMissing == WhenRequiredAspectIsMissing.DontInstantiate)
             {
                 throw new Exception("Aspect {0} is required by \"{1}\", but is not in the caller's aspect collection.".SmartFormat(
-                                                            requiredAspAttrib.AspectClassType.FormatCSharp(),
-                                                            this.InterceptedCallMetaData.GetMethodSignature()
-                                                        )
-                                   );
+                    requiredAspAttrib.AspectClassType.FormatCSharp(),
+                    this.InterceptedCallMetaData.GetMethodSignature()
+                    )
+                    );
             }
 
             Aspect missingAspect = requiredAspAttrib.InstantiateAspect();
@@ -428,32 +440,32 @@ namespace Aspectacular
 
         private void CallAspects(Action<IAspect> cutPointHandler)
         {
-            if (cutPointHandler == null)
+            if(cutPointHandler == null)
                 return;
 
             this.StopAspectCallChain = false;
 
-            foreach (IAspect aspect in this.aspects)
+            foreach(IAspect aspect in this.aspects)
             {
                 cutPointHandler.Invoke(aspect);
 
-                if (this.StopAspectCallChain)
+                if(this.StopAspectCallChain)
                     break;
             }
         }
 
         private void CallAspectsBackwards(Action<IAspect> cutPointHandler)
         {
-            if (cutPointHandler == null)
+            if(cutPointHandler == null)
                 return;
 
             this.StopAspectCallChain = false;
 
-            foreach (IAspect aspect in this.aspects.ReverseOrder())
+            foreach(IAspect aspect in this.aspects.ReverseOrder())
             {
                 cutPointHandler(aspect);
 
-                if (this.StopAspectCallChain)
+                if(this.StopAspectCallChain)
                     break;
             }
         }
@@ -470,21 +482,21 @@ namespace Aspectacular
 
             this.Step_3_BeforeMassagingReturnedResult();
 
-            if (retValPostProcessor != null && this.ReturnedValue != null)
+            if(retValPostProcessor != null && this.ReturnedValue != null)
                 this.ReturnedValue = retValPostProcessor(retVal);
         }
 
         #endregion Utility methods
 
         /// <summary>
-        /// Executes/intercepts *static* function with TOut return result.
+        ///     Executes/intercepts *static* function with TOut return result.
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="interceptedCallExpression"></param>
         /// <param name="retValPostProcessor">
-        /// Delegate called immediately after callExpression function was executed. 
-        /// Allows additional massaging of the returned value. Useful when LINQ suffix functions, like ToList(), Single(), etc. 
-        /// need to be called in alloc/invoke/dispose pattern.
+        ///     Delegate called immediately after callExpression function was executed.
+        ///     Allows additional massaging of the returned value. Useful when LINQ suffix functions, like ToList(), Single(), etc.
+        ///     need to be called in alloc/invoke/dispose pattern.
         /// </param>
         /// <returns></returns>
         public TOut Invoke<TOut>(Expression<Func<TOut>> interceptedCallExpression, Func<TOut, object> retValPostProcessor = null)
@@ -504,7 +516,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Executes/intercepts *static* function with no return value.
+        ///     Executes/intercepts *static* function with no return value.
         /// </summary>
         /// <param name="interceptedCallExpression"></param>
         public void Invoke(Expression<Action> interceptedCallExpression)
@@ -516,8 +528,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns cache key and function returned value.
-        /// It's slow as parameters get evaluated via Expression.Compile() and reflection Invoke().
+        ///     Returns cache key and function returned value.
+        ///     It's slow as parameters get evaluated via Expression.Compile() and reflection Invoke().
         /// </summary>
         /// <param name="cacheKey">Key that uniquely identifies method and its parameter values.</param>
         /// <returns></returns>
@@ -530,12 +542,12 @@ namespace Aspectacular
 
             cacheKey = this.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
 
-            object retVal = this.GetReturnValueInternal(makeSecret: false);
+            object retVal = this.GetReturnValueInternal(false);
             return retVal;
         }
 
         /// <summary>
-        /// Returns string representation of method's return value;
+        ///     Returns string representation of method's return value;
         /// </summary>
         /// <param name="trueUi_falseInternal"></param>
         /// <returns></returns>
@@ -544,18 +556,18 @@ namespace Aspectacular
             this.RequirePostExecutionPhase();
 
             string retValStr = InterceptedMethodParamMetadata.FormatParamValue(
-                                    this.InterceptedCallMetaData.MethodReturnType, 
-                                    this.GetReturnValueInternal(this.InterceptedCallMetaData.IsReturnValueSecret), 
-                                    trueUi_falseInternal);
+                this.InterceptedCallMetaData.MethodReturnType,
+                this.GetReturnValueInternal(this.InterceptedCallMetaData.IsReturnValueSecret),
+                trueUi_falseInternal);
             return retValStr;
         }
 
         #region Utility methods
 
         /// <summary>
-        /// Returns exception object for failed calls,
-        /// string.Empty for void return types, 
-        /// and actual returned result for successful non-void calls.
+        ///     Returns exception object for failed calls,
+        ///     string.Empty for void return types,
+        ///     and actual returned result for successful non-void calls.
         /// </summary>
         /// <returns></returns>
         private object GetReturnValueInternal(bool makeSecret)
@@ -564,16 +576,16 @@ namespace Aspectacular
 
             object retVal;
 
-            if (this.InterceptedMedthodCallFailed)
+            if(this.InterceptedMedthodCallFailed)
                 retVal = this.MethodExecutionException;
             else
             {
-                if (this.InterceptedCallMetaData.IsStaticMethod)
+                if(this.InterceptedCallMetaData.IsStaticMethod)
                     retVal = string.Empty;
                 else
                 {
                     retVal = this.ReturnedValue;
-                    if (makeSecret)
+                    if(makeSecret)
                         retVal = new SecretValueHash(retVal);
                 }
             }
@@ -581,11 +593,11 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Ensures that proxy is in the post-execution state.
+        ///     Ensures that proxy is in the post-execution state.
         /// </summary>
         private void RequirePostExecutionPhase()
         {
-            if (!this.MethodWasCalled)
+            if(!this.MethodWasCalled)
                 throw new Exception("Method returned value for caching is not available until after method was called.");
         }
 

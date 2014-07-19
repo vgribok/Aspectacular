@@ -1,23 +1,29 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.Test.CoreTests
 {
     /// <summary>
-    /// Summary description for ExceptionExtTest
+    ///     Summary description for ExceptionExtTest
     /// </summary>
     [TestClass]
     public class ExceptionExtTest
     {
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
+        /// </summary>
         public TestContext TestContext { get; set; }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -37,6 +43,7 @@ namespace Aspectacular.Test.CoreTests
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         [TestMethod]
@@ -51,7 +58,7 @@ namespace Aspectacular.Test.CoreTests
             {
                 throw new NotImplementedException("Inner exception");
             }
-            catch (Exception exInner)
+            catch(Exception exInner)
             {
                 actual = exInner.ConsolidatedStack();
                 Assert.IsTrue(actual.Length > 0);
@@ -61,20 +68,18 @@ namespace Aspectacular.Test.CoreTests
                 {
                     throw new Exception("Outer", exInner);
                 }
-                catch (Exception outer)
+                catch(Exception outer)
                 {
                     actual = outer.ConsolidatedStack();
                     Assert.IsTrue(actual.Contains(ExceptionExtensions.defaultItemSeparator));
-                    
+
                     actual = outer.ConsolidatedInfo();
                     Assert.IsTrue(actual.Contains(ExceptionExtensions.defaultItemSeparator));
 
-                    actual = outer.Consolidate(separator: "", innerFirst: true, 
-                        converter: ex => ex.ToSerializable().ToXml());
+                    actual = outer.Consolidate("", true, ex => ex.ToSerializable().ToXml());
                     this.TestContext.WriteLine(actual);
 
-                    actual = outer.Consolidate(separator: "", innerFirst: true,
-                        converter: ex => ex.ToSerializable().ToJsonString());
+                    actual = outer.Consolidate("", true, ex => ex.ToSerializable().ToJsonString());
                     this.TestContext.WriteLine("{0}", actual);
                 }
             }

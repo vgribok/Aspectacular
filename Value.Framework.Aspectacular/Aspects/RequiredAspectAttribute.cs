@@ -1,27 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     public enum WhenRequiredAspectIsMissing
     {
         /// <summary>
-        /// Tells to check existing aspect collection only, and tail if aspect is not found there.
+        ///     Tells to check existing aspect collection only, and tail if aspect is not found there.
         /// </summary>
         DontInstantiate = 0,
 
         /// <summary>
-        /// Tells to instantiate aspect if it's not found in the aspect collection,
-        /// and append it to the end of the aspect collection.
+        ///     Tells to instantiate aspect if it's not found in the aspect collection,
+        ///     and append it to the end of the aspect collection.
         /// </summary>
         InstantiateAndAppend,
 
         /// <summary>
-        /// Tells to instantiate aspect if it's not found in the aspect collection,
-        /// and insert it to at the beginning of the aspect collection.
+        ///     Tells to instantiate aspect if it's not found in the aspect collection,
+        ///     and insert it to at the beginning of the aspect collection.
         /// </summary>
         InstantiateAndAddFirst,
     }
@@ -32,33 +36,35 @@ namespace Aspectacular
         protected readonly Func<Aspect> activator = null;
 
         /// <summary>
-        /// Use to ensure certain aspect is used when method is intercepted.
+        ///     Use to ensure certain aspect is used when method is intercepted.
         /// </summary>
         /// <param name="aspectType"></param>
         /// <param name="missingAspectOption"></param>
         /// <param name="constructorArgs"></param>
         public RequiredAspectAttribute(Type aspectType, WhenRequiredAspectIsMissing missingAspectOption, params object[] constructorArgs)
         {
-            if (aspectType == null)
+            if(aspectType == null)
                 throw new ArgumentNullException("aspectType");
 
-            if (!aspectType.IsSubclassOf(typeof(Aspect)))
+            if(!aspectType.IsSubclassOf(typeof(Aspect)))
                 throw new ArgumentException("aspectType must be a subclass of the Aspect class.");
 
             this.AspectClassType = aspectType;
 
-            if (missingAspectOption != WhenRequiredAspectIsMissing.DontInstantiate)
-            {   // Need to instantiate missing aspect
+            if(missingAspectOption != WhenRequiredAspectIsMissing.DontInstantiate)
+            {
+                // Need to instantiate missing aspect
                 Func<object> rawActivator = aspectType.GetFastActivatorWithEmbeddedArgs(constructorArgs);
-                if (rawActivator != null)
+                if(rawActivator != null)
                 {
                     this.activator = () => (Aspect)rawActivator();
-                }else
-                {   // No activator found
+                } else
+                {
+                    // No activator found
                     string strErrorMsg = "Unable to find {0}({1}) constructor necessary to instantiate required missing aspect {0}."
-                                            .SmartFormat(aspectType.FormatCSharp(),
-                                                    string.Join(", ", constructorArgs.Select(arg => arg == null ? "[ANY]" : arg.GetType().FormatCSharp()))
-                                             );
+                        .SmartFormat(aspectType.FormatCSharp(),
+                            string.Join(", ", constructorArgs.Select(arg => arg == null ? "[ANY]" : arg.GetType().FormatCSharp()))
+                        );
 
                     throw new ArgumentException(strErrorMsg, "aspectType");
                 }
@@ -73,10 +79,7 @@ namespace Aspectacular
 
         protected bool CanCreateAspectInstance
         {
-            get
-            {
-                return this.activator != null;
-            }
+            get { return this.activator != null; }
         }
 
         public Aspect InstantiateAspect()

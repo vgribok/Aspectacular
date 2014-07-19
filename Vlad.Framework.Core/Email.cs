@@ -1,8 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Linq;
 using System.Net.Mail;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Aspectacular
@@ -10,50 +15,51 @@ namespace Aspectacular
     public enum EmailAddressParts
     {
         /// <summary>
-        /// In john.doe+junk@domain.com, it's "john.doe+junk"
+        ///     In john.doe+junk@domain.com, it's "john.doe+junk"
         /// </summary>
         UserBeforeAt,
 
         /// <summary>
-        /// In john.doe+spam@domain.com, it's "john.doe"
+        ///     In john.doe+spam@domain.com, it's "john.doe"
         /// </summary>
         UserBeforePlus,
 
         /// <summary>
-        /// In john.doe+spam@domain.com, it's "spam"
+        ///     In john.doe+spam@domain.com, it's "spam"
         /// </summary>
         UserAfterPlusFilter,
 
         /// <summary>
-        /// In john.doe+spam@first.domain.com, it's "first.domain.com"
+        ///     In john.doe+spam@first.domain.com, it's "first.domain.com"
         /// </summary>
         Domain,
 
         /// <summary>
-        /// In john.doe+spam@first.domain.com, it's "first.domain"
+        ///     In john.doe+spam@first.domain.com, it's "first.domain"
         /// </summary>
         DomainMain,
 
         /// <summary>
-        /// In john.doe+spam@first.domain.com, it's "com"
+        ///     In john.doe+spam@first.domain.com, it's "com"
         /// </summary>
         DomainSuffix,
     }
 
     /// <summary>
-    /// Smart class can be used a substitute for "string emailAddress;".
-    /// Has implicit conversion operators from and to string and thus can be used in method parameters for email addresses.
+    ///     Smart class can be used a substitute for "string emailAddress;".
+    ///     Has implicit conversion operators from and to string and thus can be used in method parameters for email addresses.
     /// </summary>
     public sealed class EmailAddress : StringWithConstraints
     {
         /// <summary>
-        /// Global email address format check regular expression pattern.
-        /// I suspect it will be continually improved and updated.
+        ///     Global email address format check regular expression pattern.
+        ///     I suspect it will be continually improved and updated.
         /// </summary>
-        public static readonly string EmailCheckRegexPattern = @"(?<UserBeforeAt> (?<UserBeforePlus> [^@\+]{2,} )  (?: \+ (?<UserAfterPlusFilter> [^@]{1,} )){0,1}  ) @  (?<Domain> (?<DomainMain>.{2,})  \. (?<DomainSuffix> \w{2,6}) )".Replace(" ", string.Empty);
+        public static readonly string EmailCheckRegexPattern =
+            @"(?<UserBeforeAt> (?<UserBeforePlus> [^@\+]{2,} )  (?: \+ (?<UserAfterPlusFilter> [^@]{1,} )){0,1}  ) @  (?<Domain> (?<DomainMain>.{2,})  \. (?<DomainSuffix> \w{2,6}) )".Replace(" ", string.Empty);
 
         /// <summary>
-        /// Global email address format check regular expression.
+        ///     Global email address format check regular expression.
         /// </summary>
         public static Regex EmailFormatRegex = new Regex(EmailCheckRegexPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
@@ -70,18 +76,12 @@ namespace Aspectacular
 
         public override string String
         {
-            get
-            {
-                return this.FullAddress;
-            }
-            set
-            {
-                this.Match = ParseEmailAddress(value);
-            }
+            get { return this.FullAddress; }
+            set { this.Match = ParseEmailAddress(value); }
         }
 
         /// <summary>
-        /// Returns true if parsed string was valid email address.
+        ///     Returns true if parsed string was valid email address.
         /// </summary>
         public bool IsValid
         {
@@ -94,22 +94,19 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns null if parsed string was not of the valid email format.
-        /// Otherwise return a part of an email address.
+        ///     Returns null if parsed string was not of the valid email format.
+        ///     Otherwise return a part of an email address.
         /// </summary>
         /// <param name="part"></param>
         /// <returns></returns>
         public string this[EmailAddressParts part]
         {
-            get
-            {
-                return this.Match.GetGroupValue(part.ToString());
-            }
+            get { return this.Match.GetGroupValue(part.ToString()); }
         }
 
         /// <summary>
-        /// Returns full email address by rebuilding it from parsed parts.
-        /// Returns null if parsed string was not in the valid email format.
+        ///     Returns full email address by rebuilding it from parsed parts.
+        ///     Returns null if parsed string was not in the valid email format.
         /// </summary>
         public string FullAddress
         {
@@ -117,10 +114,10 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns email address without "+whatever" part.
-        /// For example, if source email address string was "johndoe+spam@doamin.com",
-        /// this property will return "johndoe@doamin.com".
-        /// Returns null if parsed string was not in the valid email format.
+        ///     Returns email address without "+whatever" part.
+        ///     For example, if source email address string was "johndoe+spam@doamin.com",
+        ///     this property will return "johndoe@doamin.com".
+        ///     Returns null if parsed string was not in the valid email format.
         /// </summary>
         public string AddressWithoutFilter
         {
@@ -131,24 +128,24 @@ namespace Aspectacular
 
         public static Match ParseEmailAddress(string emailAddress)
         {
-            if (emailAddress == null)
+            if(emailAddress == null)
                 emailAddress = string.Empty;
 
             return EmailFormatRegex.Match(emailAddress.Trim());
         }
-        
+
         #endregion Utility methods
     }
 
     public static class EmailHelper
     {
         /// <summary>
-        /// Optional SMTP client factory that can add non-configuration credentials, etc.
+        ///     Optional SMTP client factory that can add non-configuration credentials, etc.
         /// </summary>
         public static Func<SmtpClient> SmtpClientFactory = null;
 
         /// <summary>
-        /// Sends SMTP email using .config file settings.
+        ///     Sends SMTP email using .config file settings.
         /// </summary>
         /// <param name="isBodyHtml"></param>
         /// <param name="optioanlFromAddress">If null, .config from address value is used.</param>
@@ -158,21 +155,21 @@ namespace Aspectacular
         /// <param name="toAddresses"></param>
         public static void SendSmtpEmail(bool isBodyHtml, NonEmptyString optioanlFromAddress, NonEmptyString optionalReplyToAddress, string subject, string body, params string[] toAddresses)
         {
-            if (toAddresses != null)
+            if(toAddresses != null)
                 toAddresses = toAddresses.Where(addr => !addr.IsBlank()).ToArray();
 
-            if (toAddresses.IsNullOrEmpty())
+            if(toAddresses.IsNullOrEmpty())
                 throw new Exception("\"To\" address must be specified");
 
-            if (subject.IsBlank() && body.IsBlank())
+            if(subject.IsBlank() && body.IsBlank())
                 throw new Exception("Both subject and message body cannot be blank.");
 
             MailMessage message = new MailMessage();
 
-            if (optioanlFromAddress != null)
+            if(optioanlFromAddress != null)
                 message.From = new MailAddress(optioanlFromAddress);
 
-            if (optionalReplyToAddress != null)
+            if(optionalReplyToAddress != null)
                 message.ReplyToList.Add(new MailAddress(optionalReplyToAddress));
 
             toAddresses.ForEach(toAddr => message.To.Add(new MailAddress(toAddr)));
@@ -181,31 +178,31 @@ namespace Aspectacular
             message.Body = body;
             message.IsBodyHtml = isBodyHtml;
 
-            SmtpClient smtpClient = EmailHelper.SmtpClientFactory == null ? null : EmailHelper.SmtpClientFactory();
-            if (smtpClient == null)
+            SmtpClient smtpClient = SmtpClientFactory == null ? null : SmtpClientFactory();
+            if(smtpClient == null)
                 smtpClient = new SmtpClient();
 
-            using (smtpClient)
+            using(smtpClient)
             {
                 smtpClient.Send(message);
             }
         }
 
         /// <summary>
-        /// Returns true if text matches email address regular expression pattern.
+        ///     Returns true if text matches email address regular expression pattern.
         /// </summary>
         /// <param name="emailAddress"></param>
         /// <returns></returns>
         public static bool IsValidEmailFormat(this string emailAddress)
         {
-            if (emailAddress == null)
+            if(emailAddress == null)
                 return false;
 
             return EmailAddress.EmailFormatRegex.IsMatch(emailAddress);
         }
 
         /// <summary>
-        /// Same as EmailAddress, but handles null gracefully. Returns false if email is null.
+        ///     Same as EmailAddress, but handles null gracefully. Returns false if email is null.
         /// </summary>
         /// <param name="email"></param>
         /// <returns></returns>

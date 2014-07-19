@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using System.Web;
-using System.Web.Configuration;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Outputs AOP call log records to ASP.NET Trace context.
+    ///     Outputs AOP call log records to ASP.NET Trace context.
     /// </summary>
     public class AspNetTraceAspect : LogOutputAspectBase
     {
@@ -32,12 +33,12 @@ namespace Aspectacular
 
         protected override void Output(string output)
         {
-            if (HttpContext.Current == null)
+            if(HttpContext.Current == null)
                 return;
 
             EntryType? worstCase = this.WorstEntryType;
 
-            if (worstCase == null)
+            if(worstCase == null)
                 return;
 
             if(worstCase.Value == EntryType.Info)

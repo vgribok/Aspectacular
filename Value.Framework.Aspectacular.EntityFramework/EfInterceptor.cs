@@ -1,24 +1,25 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Data.Objects;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Alloc/invoke/dispose convenience class for EF DbContext subclasses.
+    ///     Alloc/invoke/dispose convenience class for EF DbContext subclasses.
     /// </summary>
     /// <typeparam name="TDbContext"></typeparam>
     public class DbContextSingleCallProxy<TDbContext> : DbEngineProxy<TDbContext>, ISqlServerConnectionProvider
-            where TDbContext : DbContext, new()
+        where TDbContext : DbContext, new()
     {
-        private readonly bool? lazyLoading = null;
+        private readonly bool? lazyLoading;
 
         public DbContextSingleCallProxy(IEnumerable<Aspect> aspects, bool lazyLoadingEnabled = true)
             : base(aspects)
@@ -27,7 +28,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
+        ///     A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="aspects"></param>
@@ -38,7 +39,7 @@ namespace Aspectacular
 
         protected override void Step_2_BeforeTryingMethodExec()
         {
-            if (this.lazyLoading != null)
+            if(this.lazyLoading != null)
                 this.AugmentedClassInstance.Configuration.LazyLoadingEnabled = this.lazyLoading.Value;
 
             base.Step_2_BeforeTryingMethodExec();
@@ -50,26 +51,23 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Implements ISqlServerConnectionProvider.
-        /// Returns SqlConnection, if Context is for SQL Server.
+        ///     Implements ISqlServerConnectionProvider.
+        ///     Returns SqlConnection, if Context is for SQL Server.
         /// </summary>
         public SqlConnection SqlConnection
         {
-            get 
-            {
-                return this.AugmentedClassInstance.GetSqlConnection();
-            }
+            get { return this.AugmentedClassInstance.GetSqlConnection(); }
         }
     }
 
     /// <summary>
-    /// Alloc/invoke/dispose convenience class for EF ObjectContext subclasses.
+    ///     Alloc/invoke/dispose convenience class for EF ObjectContext subclasses.
     /// </summary>
     /// <typeparam name="TObjectContext"></typeparam>
     public class ObjectContextSingleCallProxy<TObjectContext> : DbEngineProxy<TObjectContext>, ISqlServerConnectionProvider
-            where TObjectContext : ObjectContext, new()
+        where TObjectContext : ObjectContext, new()
     {
-        private readonly bool? lazyLoading = null;
+        private readonly bool? lazyLoading;
 
         public ObjectContextSingleCallProxy(IEnumerable<Aspect> aspects, bool lazyLoadingEnabled = true)
             : base(aspects)
@@ -78,7 +76,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
+        ///     A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
         /// </summary>
         /// <param name="ocContext"></param>
         /// <param name="aspects"></param>
@@ -89,7 +87,7 @@ namespace Aspectacular
 
         protected override void Step_2_BeforeTryingMethodExec()
         {
-            if (this.lazyLoading != null)
+            if(this.lazyLoading != null)
                 this.AugmentedClassInstance.ContextOptions.LazyLoadingEnabled = this.lazyLoading.Value;
 
             base.Step_2_BeforeTryingMethodExec();
@@ -101,25 +99,22 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Implements ISqlServerConnectionProvider.
+        ///     Implements ISqlServerConnectionProvider.
         /// </summary>
         public SqlConnection SqlConnection
         {
-            get 
-            {
-                return this.AugmentedClassInstance.GetSqlConnection();
-            }
+            get { return this.AugmentedClassInstance.GetSqlConnection(); }
         }
     }
 
     /// <summary>
-    /// Factory class for supplying Entity Framework AOP proxies.
+    ///     Factory class for supplying Entity Framework AOP proxies.
     /// </summary>
 // ReSharper disable once InconsistentNaming
-    public static partial class EfAOP
+    public static class EfAOP
     {
         /// <summary>
-        /// Returns AOP proxy for EF DbContext class that will instantiate DbContext and after usage calls DbContext.Dispose()
+        ///     Returns AOP proxy for EF DbContext class that will instantiate DbContext and after usage calls DbContext.Dispose()
         /// </summary>
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="aspects"></param>
@@ -133,7 +128,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns AOP proxy for EF ObjectContext class
+        ///     Returns AOP proxy for EF ObjectContext class
         /// </summary>
         /// <typeparam name="TObjectContext"></typeparam>
         /// <param name="aspects"></param>
@@ -147,12 +142,12 @@ namespace Aspectacular
         }
     }
 
-    public static partial class EfAopExts
+    public static class EfAopExts
     {
         /// <summary>
-        /// Returns InstanceProxy[TDbContext] for DbContext instance that already exist.
-        /// Returned proxy won't call DbContext.Dispose() after method invocation.
-        /// Supports ExecuteCommand() method.
+        ///     Returns InstanceProxy[TDbContext] for DbContext instance that already exist.
+        ///     Returned proxy won't call DbContext.Dispose() after method invocation.
+        ///     Supports ExecuteCommand() method.
         /// </summary>
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="dbExistingContext"></param>
@@ -166,9 +161,9 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns InstanceProxy[TObjectContext] for ObjectContext instance that already exist.
-        /// Returned proxy won't call ObjectContext.Dispose() after method invocation.
-        /// Supports ExecuteCommand() method.
+        ///     Returns InstanceProxy[TObjectContext] for ObjectContext instance that already exist.
+        ///     Returned proxy won't call ObjectContext.Dispose() after method invocation.
+        ///     Supports ExecuteCommand() method.
         /// </summary>
         /// <typeparam name="TObjectContext"></typeparam>
         /// <param name="existingOcContext"></param>

@@ -1,29 +1,30 @@
-﻿using System;
-using System.Text;
-using System.Linq;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using System.Collections.Generic;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Aspectacular;
-
 using Example.AdventureWorks2008ObjectContext_Dal.DbCtx;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.Test
 {
     /// <summary>
-    /// Summary description for WebStuffTest
+    ///     Summary description for WebStuffTest
     /// </summary>
     [TestClass]
     public class WebStuffTest
     {
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
+        /// </summary>
         public TestContext TestContext { get; set; }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -43,6 +44,7 @@ namespace Aspectacular.Test
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         [TestMethod]
@@ -59,7 +61,7 @@ namespace Aspectacular.Test
             json = AOP.Invoke(AspectacularTest.TestAspects, () => addresses.ToJsonString());
 
             Address[] deserializedAddresses = json.FromJsonString<Address[]>();
-            
+
             Assert.AreEqual(addresses.Count, deserializedAddresses.Length);
             deserializedAddresses.For((addr, i) => Assert.AreEqual(addr[i].ToJsonString(), deserializedAddresses[i].ToJsonString()));
 

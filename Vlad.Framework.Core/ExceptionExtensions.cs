@@ -1,7 +1,13 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace Aspectacular
@@ -22,17 +28,33 @@ namespace Aspectacular
         }
 
         // ReSharper disable ValueParameterNotUsed
-        public string Message { get { return this.exception.Message; } set { } }
-
-        public string StackTrace { get { return this.exception.StackTrace; } set { } }
-
-        public string Source { get { return this.exception.Source; } set { } }
-
-        public string HelpLink { get { return this.exception.HelpLink; } set { } }
-
-        public string TypeString 
+        public string Message
         {
-            get { return this.exception.GetType().FormatCSharp(fullyQualified: true); }
+            get { return this.exception.Message; }
+            set { }
+        }
+
+        public string StackTrace
+        {
+            get { return this.exception.StackTrace; }
+            set { }
+        }
+
+        public string Source
+        {
+            get { return this.exception.Source; }
+            set { }
+        }
+
+        public string HelpLink
+        {
+            get { return this.exception.HelpLink; }
+            set { }
+        }
+
+        public string TypeString
+        {
+            get { return this.exception.GetType().FormatCSharp(true); }
             set { }
         }
 
@@ -42,18 +64,18 @@ namespace Aspectacular
     public static class ExceptionExtensions
     {
         /// <summary>
-        /// Returns all exceptions in the chain starting from the outermost.
+        ///     Returns all exceptions in the chain starting from the outermost.
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
         public static IEnumerable<Exception> AllExceptionsBack(this Exception ex)
         {
-            for (; ex != null; ex = ex.InnerException)
+            for(; ex != null; ex = ex.InnerException)
                 yield return ex;
         }
 
         /// <summary>
-        /// Returns all exceptions in the chain starting from the innermost.
+        ///     Returns all exceptions in the chain starting from the innermost.
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
@@ -66,7 +88,7 @@ namespace Aspectacular
         public const string defaultItemSeparator = "--------------------------------------------------------";
 
         /// <summary>
-        /// Returns string with the information of exception type and message.
+        ///     Returns string with the information of exception type and message.
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
@@ -76,8 +98,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns string containing exception type, message and stack trace.
-        /// No inner exception information included.
+        ///     Returns string containing exception type, message and stack trace.
+        ///     No inner exception information included.
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>
@@ -88,7 +110,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Joins text information from the chain of exceptions including inner ones.
+        ///     Joins text information from the chain of exceptions including inner ones.
         /// </summary>
         /// <param name="ex"></param>
         /// <param name="separator"></param>
@@ -97,7 +119,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static string Consolidate(this Exception ex, string separator, bool innerFirst, Func<Exception, string> converter)
         {
-            if (separator == null)
+            if(separator == null)
                 separator = defaultItemSeparator;
 
             separator = "\r\n{0}\r\n".SmartFormat(separator);
@@ -109,8 +131,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns all messages in the exception chain (main + inner exceptions),
-        /// starting from the innermost one.
+        ///     Returns all messages in the exception chain (main + inner exceptions),
+        ///     starting from the innermost one.
         /// </summary>
         /// <param name="ex"></param>
         /// <param name="separator"></param>
@@ -122,8 +144,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns all stack traces in the exception chain (main + inner exceptions),
-        /// starting from the innermost one.
+        ///     Returns all stack traces in the exception chain (main + inner exceptions),
+        ///     starting from the innermost one.
         /// </summary>
         /// <param name="ex"></param>
         /// <param name="separator"></param>
@@ -135,8 +157,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns exception information (messages + stack traces) in the exception chain (main + inner exceptions),
-        /// starting from the innermost one.
+        ///     Returns exception information (messages + stack traces) in the exception chain (main + inner exceptions),
+        ///     starting from the innermost one.
         /// </summary>
         /// <param name="ex"></param>
         /// <param name="separator"></param>
@@ -148,7 +170,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns Exception-like object that can serialized to XML, JSON, etc.
+        ///     Returns Exception-like object that can serialized to XML, JSON, etc.
         /// </summary>
         /// <param name="ex"></param>
         /// <returns></returns>

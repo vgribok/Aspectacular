@@ -1,9 +1,12 @@
-﻿using System;
-using System.Linq;
+﻿#region License Info Header
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Aspectacular;
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using Example.AdventureWorks2008ObjectContext_Dal.DbCtx;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.Test
 {
@@ -12,7 +15,7 @@ namespace Aspectacular.Test
     {
         public static Customer OrhpanCust
         {
-            get { return new Customer { CustomerID = LinqTests.CustomerIdWithManyAddresses }; }
+            get { return new Customer {CustomerID = LinqTests.CustomerIdWithManyAddresses}; }
         }
 
         [TestMethod]
@@ -29,7 +32,7 @@ namespace Aspectacular.Test
 
 
             Customer cust2;
-            using (var dbc = new AdventureWorksLT2008R2Entities())
+            using(var dbc = new AdventureWorksLT2008R2Entities())
             {
                 dbc.Configuration.LazyLoadingEnabled = false;
 

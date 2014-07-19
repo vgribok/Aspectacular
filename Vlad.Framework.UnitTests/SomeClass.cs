@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region License Info Header
 
-using Aspectacular;
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
+using System.Collections.Generic;
 
 namespace Aspectacular.Test
 {
     public class SomeTestClass
     {
-        private DateTime dt = DateTime.UtcNow;
+        private readonly DateTime dt = DateTime.UtcNow;
 
         public SomeTestClass()
         {
@@ -80,15 +81,15 @@ namespace Aspectacular.Test
             this.IsOpened = isOpened;
         }
 
-        void Open()
+        private void Open()
         {
-            if (!this.IsOpened.HasValue || !this.IsOpened.Value)
+            if(!this.IsOpened.HasValue || !this.IsOpened.Value)
                 this.IsOpened = true;
         }
 
-        void Close()
+        private void Close()
         {
-            if (this.IsOpened.HasValue && this.IsOpened.Value)
+            if(this.IsOpened.HasValue && this.IsOpened.Value)
                 this.IsOpened = false;
         }
 

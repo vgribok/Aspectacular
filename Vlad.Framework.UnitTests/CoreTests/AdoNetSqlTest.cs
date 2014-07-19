@@ -1,22 +1,26 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
+﻿#region License Info Header
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using Example.AdventureWorks2008ObjectContext_Dal.Ado.net;
 using Example.AdventureWorks2008ObjectContext_Dal.Ado.net.AwDataSetTableAdapters;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.Test.CoreTests
 {
     /// <summary>
-    /// Summary description for AdoNetSqlTest
+    ///     Summary description for AdoNetSqlTest
     /// </summary>
     [TestClass]
     public class AdoNetSqlTest
     {
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
+        /// </summary>
         public TestContext TestContext { get; set; }
 
         protected static AllocateRunDisposeProxy<ProductCategoryTableAdapter> TblAdapterProxy
@@ -25,6 +29,7 @@ namespace Aspectacular.Test.CoreTests
         }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -44,12 +49,13 @@ namespace Aspectacular.Test.CoreTests
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         [TestMethod]
         public void ProductCategoryTableAdapterTest()
         {
-            var data = TblAdapterProxy.Invoke(db => db.GetCategoriesByNameLike("road"));
+            AwDataSet.ProductCategoryDataTable data = TblAdapterProxy.Invoke(db => db.GetCategoriesByNameLike("road"));
             Assert.AreEqual(2, data.Rows.Count);
         }
     }

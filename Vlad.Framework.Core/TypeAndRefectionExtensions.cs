@@ -1,12 +1,16 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -14,36 +18,38 @@ namespace Aspectacular
 {
     public enum ParamDirectionEnum
     {
-        In = 1, Out, RefInOut
+        In = 1,
+        Out,
+        RefInOut
     }
 
 
     public static class TypeAndRefectionExtensions
     {
-        private static readonly string[][] simpleParmTypeNames = 
+        private static readonly string[][] simpleParmTypeNames =
         {
-            new[] { "Void", "void" },
-            new[] { "String", "string" },
-            new[] { "Byte", "byte" },
-            new[] { "SByte", "sbyte" },
-            new[] { "Int16", "short" },
-            new[] { "UInt16", "ushort" },
-            new[] { "Int32", "int" },
-            new[] { "UInt32", "uint" },
-            new[] { "Int64", "long" },
-            new[] { "UInt64", "ulong" },
-            new[] { "Boolean", "bool" },
-            new[] { "Decimal", "decimal" },
-            new[] { "Double", "double" },
-            new[] { "Single", "float" },
-            new[] { "Char", "char" },
+            new[] {"Void", "void"},
+            new[] {"String", "string"},
+            new[] {"Byte", "byte"},
+            new[] {"SByte", "sbyte"},
+            new[] {"Int16", "short"},
+            new[] {"UInt16", "ushort"},
+            new[] {"Int32", "int"},
+            new[] {"UInt32", "uint"},
+            new[] {"Int64", "long"},
+            new[] {"UInt64", "ulong"},
+            new[] {"Boolean", "bool"},
+            new[] {"Decimal", "decimal"},
+            new[] {"Double", "double"},
+            new[] {"Single", "float"},
+            new[] {"Char", "char"},
         };
 
         private static readonly Dictionary<string, string> stdTypeCSharpNames = new Dictionary<string, string>();
 
         static TypeAndRefectionExtensions()
         {
-            foreach (string[] pair in simpleParmTypeNames)
+            foreach(string[] pair in simpleParmTypeNames)
                 stdTypeCSharpNames.Add(pair[0], pair[1]);
         }
 
@@ -60,8 +66,8 @@ namespace Aspectacular
         #region Type extensions
 
         /// <summary>
-        /// Returns true if type is one of the following:
-        /// void, string, byte, sbyte, short, ushort, int, uint, long, ulong, bool, decimal, double, float, char
+        ///     Returns true if type is one of the following:
+        ///     void, string, byte, sbyte, short, ushort, int, uint, long, ulong, bool, decimal, double, float, char
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
@@ -72,7 +78,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns type name formatted according to C# language. Properly supports generics.
+        ///     Returns type name formatted according to C# language. Properly supports generics.
         /// </summary>
         /// <param name="type"></param>
         /// <param name="fullyQualified"></param>
@@ -82,7 +88,7 @@ namespace Aspectacular
             string typeName = TypeToCSharpString(type, fullyQualified);
 
             string stdName;
-            if (stdTypeCSharpNames.TryGetValue(typeName, out stdName))
+            if(stdTypeCSharpNames.TryGetValue(typeName, out stdName))
                 typeName = stdName;
 
             return typeName;
@@ -92,10 +98,10 @@ namespace Aspectacular
         {
             string typeName = (fullyQualified ? type.FullName : type.Name).TrimEnd('&');
 
-            if (!type.IsGenericType)
+            if(!type.IsGenericType)
                 return typeName;
 
-            if (type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if(type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 Type underlyingType = type.GetGenericArguments()[0];
                 return string.Format("{0}?", TypeToCSharpString(underlyingType));
@@ -110,14 +116,14 @@ namespace Aspectacular
         {
             bool isRef = parmInfo.ParameterType.Name.EndsWith("&");
 
-            if (isRef)
+            if(isRef)
                 return parmInfo.IsOut ? ParamDirectionEnum.Out : ParamDirectionEnum.RefInOut;
 
             return ParamDirectionEnum.In;
         }
 
         /// <summary>
-        /// Returns type name formatted according to C# language. Properly supports generics.
+        ///     Returns type name formatted according to C# language. Properly supports generics.
         /// </summary>
         /// <param name="parmInfo"></param>
         /// <param name="fullyQualified"></param>
@@ -143,7 +149,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Very slow! Evaluates expression by turning it into a function expression, compiling it, and then calling using Reflection.
+        ///     Very slow! Evaluates expression by turning it into a function expression, compiling it, and then calling using
+        ///     Reflection.
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
@@ -153,17 +160,17 @@ namespace Aspectacular
             // The performance loss double-whammy is expression compilation plus reflection invocation.
             LambdaExpression lx = Expression.Lambda(expression);
             Delegate caller = lx.Compile(); // Slowness #1 - compilation is slow.
-            var val = caller.DynamicInvoke();  // Slowness # 2 - dynamic (Reflection) invocation. 
+            object val = caller.DynamicInvoke(); // Slowness # 2 - dynamic (Reflection) invocation. 
             return val;
         }
 
         /// <summary>
-        /// Returns true if classType is derived from interface TInterface
+        ///     Returns true if classType is derived from interface TInterface
         /// </summary>
         /// <typeparam name="TInterface"></typeparam>
         /// <param name="classType"></param>
         /// <returns></returns>
-        public static bool IsDerivedFromInterface<TInterface>(this Type classType) 
+        public static bool IsDerivedFromInterface<TInterface>(this Type classType)
             where TInterface : class
         {
             Type interfaceType = typeof(TInterface);
@@ -176,11 +183,11 @@ namespace Aspectacular
 
         public static object GetPropertyValue(this Type type, string propertyName, object instance)
         {
-            if (instance != null && instance.GetType() != type)
+            if(instance != null && instance.GetType() != type)
                 throw new Exception("Type mismatch between type and instance.GetType().");
 
             PropertyInfo propInfo = type.GetProperty(propertyName);
-            if (propInfo == null)
+            if(propInfo == null)
                 throw new Exception("Type \"{0}\" has no \"{1}\" property.".SmartFormat(type.FormatCSharp(), propertyName));
 
             object val = propInfo.GetValue(instance, null);
@@ -188,8 +195,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns value of an instance property.
-        /// Uses reflection, somewhat slow.
+        ///     Returns value of an instance property.
+        ///     Uses reflection, somewhat slow.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="instance"></param>
@@ -197,7 +204,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static T GetPropertyValue<T>(this object instance, string propertyName)
         {
-            if (instance == null)
+            if(instance == null)
                 throw new ArgumentNullException("instance");
 
             object val = GetPropertyValue(instance.GetType(), propertyName, instance);
@@ -205,8 +212,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns value of a static property.
-        /// Uses reflection, somewhat slow.
+        ///     Returns value of a static property.
+        ///     Uses reflection, somewhat slow.
         /// </summary>
         /// <typeparam name="T">Type of returned value.</typeparam>
         /// <param name="type"></param>
@@ -214,18 +221,18 @@ namespace Aspectacular
         /// <returns></returns>
         public static T GetPropertyValue<T>(this Type type, string propertyName)
         {
-            object val = GetPropertyValue(type, propertyName, instance: null);
+            object val = GetPropertyValue(type, propertyName, null);
             return (T)val;
         }
 
 
         public static object GetMemberFieldValue(this Type type, string fieldName, object instance)
         {
-            if (instance != null && instance.GetType() != type)
+            if(instance != null && instance.GetType() != type)
                 throw new Exception("Type mismatch between type and instance.GetType().");
 
             FieldInfo fieldInfo = type.GetField(fieldName);
-            if (fieldInfo == null)
+            if(fieldInfo == null)
                 throw new Exception("Type \"{0}\" has no \"{1}\" field.".SmartFormat(type.FormatCSharp(), fieldName));
 
             object val = fieldInfo.GetValue(instance);
@@ -233,8 +240,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns value of an instance field.
-        /// Uses reflection, somewhat slow.
+        ///     Returns value of an instance field.
+        ///     Uses reflection, somewhat slow.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="instance"></param>
@@ -242,7 +249,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static T GetMemberFieldValue<T>(this object instance, string fieldName)
         {
-            if (instance == null)
+            if(instance == null)
                 throw new ArgumentNullException("instance");
 
             object val = GetMemberFieldValue(instance.GetType(), fieldName, instance);
@@ -250,8 +257,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns value of a static field.
-        /// Uses reflection, somewhat slow.
+        ///     Returns value of a static field.
+        ///     Uses reflection, somewhat slow.
         /// </summary>
         /// <typeparam name="T">Type of returned value.</typeparam>
         /// <param name="type"></param>
@@ -259,22 +266,22 @@ namespace Aspectacular
         /// <returns></returns>
         public static T GetMemberFieldValue<T>(this Type type, string fieldName)
         {
-            object val = GetMemberFieldValue(type, fieldName, instance: null);
+            object val = GetMemberFieldValue(type, fieldName, null);
             return (T)val;
         }
 
         #endregion Type extensions
 
         /// <summary>
-        /// Converts default value of T to T? with no value.
-        /// If value is not default, returns value itself.
+        ///     Converts default value of T to T? with no value.
+        ///     If value is not default, returns value itself.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="val"></param>
         /// <returns></returns>
         public static T? NullIfDefault<T>(this T? val) where T : struct
         {
-            if (val == null)
+            if(val == null)
 // ReSharper disable once ExpressionIsAlwaysNull
                 return val;
 
@@ -282,7 +289,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if all bits of the flag value are present.
+        ///     Returns true if all bits of the flag value are present.
         /// </summary>
         /// <param name="valueToCheck"></param>
         /// <param name="flag"></param>
@@ -293,7 +300,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if any bits of the flag value are present.
+        ///     Returns true if any bits of the flag value are present.
         /// </summary>
         /// <param name="valueToCheck"></param>
         /// <param name="flag"></param>
@@ -304,7 +311,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if all bits of the flag value are present.
+        ///     Returns true if all bits of the flag value are present.
         /// </summary>
         /// <param name="valueToCheck"></param>
         /// <param name="flag"></param>
@@ -313,9 +320,9 @@ namespace Aspectacular
         {
             return ((int)(object)valueToCheck & (int)(object)flag) == (int)(object)flag;
         }
-        
+
         /// <summary>
-        /// Returns true if any bits of the flag value are present.
+        ///     Returns true if any bits of the flag value are present.
         /// </summary>
         /// <param name="valueToCheck"></param>
         /// <param name="flag"></param>
@@ -326,7 +333,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Serializes object to XML
+        ///     Serializes object to XML
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="defaultNamespace"></param>
@@ -334,16 +341,16 @@ namespace Aspectacular
         /// <returns></returns>
         public static string ToXml(this object obj, string defaultNamespace = null, XmlWriterSettings settings = null)
         {
-            if (obj == null)
+            if(obj == null)
                 return null;
 
-            if (obj is string)
+            if(obj is string)
                 throw new ArgumentException("Cannot convert string to XML.");
 
             //if(!obj.GetType().IsSerializable)
             //    throw new ArgumentException("Object must be serializable in order to be converted to XML.");
 
-            if (settings == null)
+            if(settings == null)
                 settings = new XmlWriterSettings
                 {
                     Indent = true,
@@ -355,8 +362,8 @@ namespace Aspectacular
             XmlSerializer ser = new XmlSerializer(obj.GetType(), defaultNamespace);
 
             StringBuilder sb = new StringBuilder();
-            
-            using (var writer = XmlWriter.Create(sb, settings))
+
+            using(XmlWriter writer = XmlWriter.Create(sb, settings))
             {
                 ser.Serialize(writer, obj);
             }

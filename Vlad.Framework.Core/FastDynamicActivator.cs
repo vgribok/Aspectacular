@@ -1,30 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Fast dynamic object instantiator.
+    ///     Fast dynamic object instantiator.
     /// </summary>
     /// <param name="args"></param>
     /// <returns></returns>
     public delegate object FastObjectActivator(params object[] args);
 
     /// <summary>
-    /// A much faster alternative to slow Activator.CreateInstance().
+    ///     A much faster alternative to slow Activator.CreateInstance().
     /// </summary>
     public static class FastDynamicActivator
     {
         private static readonly ConcurrentDictionary<ConstructorInfo, FastObjectActivator> cachedActivators = new ConcurrentDictionary<ConstructorInfo, FastObjectActivator>();
 
         /// <summary>
-        /// Dynamic object activator that runs much faster than Reflection-based Activator.CreateInstance().
+        ///     Dynamic object activator that runs much faster than Reflection-based Activator.CreateInstance().
         /// </summary>
         /// <param name="classType"></param>
         /// <param name="constructorArgTypes"></param>
@@ -39,7 +44,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns delegate that creates an instance of a given type with the packaged set of constructor arguments passed as constructorArgs parameters.
+        ///     Returns delegate that creates an instance of a given type with the packaged set of constructor arguments passed as
+        ///     constructorArgs parameters.
         /// </summary>
         /// <param name="classType"></param>
         /// <param name="constructorArgs"></param>
@@ -47,7 +53,7 @@ namespace Aspectacular
         public static Func<object> GetFastActivatorWithEmbeddedArgs(this Type classType, params object[] constructorArgs)
         {
             FastObjectActivator rawActivator = GetFastActivator(classType, constructorArgs.ArgsToArgTypes());
-            if (rawActivator == null)
+            if(rawActivator == null)
                 return null;
 
             Func<object> activator = () => rawActivator(constructorArgs);
@@ -55,7 +61,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns delegate of a constructor for a given type, which runs much faster than Reflection-based Activator.CreateInstance().
+        ///     Returns delegate of a constructor for a given type, which runs much faster than Reflection-based
+        ///     Activator.CreateInstance().
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="constructorArgTypes"></param>
@@ -63,7 +70,7 @@ namespace Aspectacular
         public static Func<object[], T> GetFastActivator<T>(params Type[] constructorArgTypes)
         {
             FastObjectActivator rawActivator = typeof(T).GetFastActivator(constructorArgTypes);
-            if (rawActivator == null)
+            if(rawActivator == null)
                 return null;
 
             Func<object[], T> activator = parms => (T)rawActivator(typeof(T), parms);
@@ -71,7 +78,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns delegate that creates an instance of a given type with the packaged set of constructor arguments passed as constructorArgs parameters.
+        ///     Returns delegate that creates an instance of a given type with the packaged set of constructor arguments passed as
+        ///     constructorArgs parameters.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="constructorArgs"></param>
@@ -79,7 +87,7 @@ namespace Aspectacular
         public static Func<T> GetFastActivatorWithEmbeddedArgs<T>(params object[] constructorArgs)
         {
             FastObjectActivator rawActivator = GetFastActivator(typeof(T), constructorArgs.ArgsToArgTypes());
-            if (rawActivator == null)
+            if(rawActivator == null)
                 return null;
 
             Func<T> activator = () => (T)rawActivator(constructorArgs);
@@ -89,7 +97,7 @@ namespace Aspectacular
         public static FastObjectActivator GetActivatorForConstructor(this ConstructorInfo ctorInfo)
         {
             FastObjectActivator activator;
-            if (!cachedActivators.TryGetValue(ctorInfo, out activator))
+            if(!cachedActivators.TryGetValue(ctorInfo, out activator))
             {
                 activator = CompileActivator(ctorInfo);
                 cachedActivators[ctorInfo] = activator;
@@ -99,7 +107,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns collection of types for a collection of objects.
+        ///     Returns collection of types for a collection of objects.
         /// </summary>
         /// <param name="args"></param>
         /// <returns></returns>
@@ -110,28 +118,28 @@ namespace Aspectacular
 
         private static ConstructorInfo FindConstructorByParams(Type classType, Type[] constructorArgTypes)
         {
-            if (classType == null)
+            if(classType == null)
                 throw new ArgumentNullException("classType");
 
-            foreach (ConstructorInfo ctorInfo in classType.GetConstructors())
+            foreach(ConstructorInfo ctorInfo in classType.GetConstructors())
             {
-                if (!ctorInfo.IsPublic)
+                if(!ctorInfo.IsPublic)
                     continue;
 
                 ParameterInfo[] parms = ctorInfo.GetParameters();
-                if (parms.Length != constructorArgTypes.Length)
+                if(parms.Length != constructorArgTypes.Length)
                     continue;
 
-                if (constructorArgTypes.Length == 0)
+                if(constructorArgTypes.Length == 0)
                     return ctorInfo;
 
                 bool sameType = true;
 
-                for (int i = 0; sameType && i < constructorArgTypes.Length; i++)
+                for(int i = 0; sameType && i < constructorArgTypes.Length; i++)
                 {
                     Type paramType = parms[i].ParameterType;
 
-                    if (constructorArgTypes[i] == null)
+                    if(constructorArgTypes[i] == null)
                         sameType = paramType.IsClass;
                     else
                     {
@@ -140,7 +148,7 @@ namespace Aspectacular
                     }
                 }
 
-                if (sameType)
+                if(sameType)
                     return ctorInfo;
             }
 
@@ -148,14 +156,14 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Improved version of the activator compiler glanced at
-        /// http://rogeralsing.com/2008/02/28/linq-expressions-creating-objects/
+        ///     Improved version of the activator compiler glanced at
+        ///     http://rogeralsing.com/2008/02/28/linq-expressions-creating-objects/
         /// </summary>
         /// <param name="ctorInfo"></param>
         /// <returns></returns>
         private static FastObjectActivator CompileActivator(this ConstructorInfo ctorInfo)
         {
-            if (ctorInfo == null)
+            if(ctorInfo == null)
                 throw new ArgumentNullException("ctorInfo");
 
             ParameterInfo[] paramsInfo = ctorInfo.GetParameters();
@@ -167,7 +175,7 @@ namespace Aspectacular
 
             //pick each arg from the params array 
             //and create a typed expression of them
-            for (int i = 0; i < paramsInfo.Length; i++)
+            for(int i = 0; i < paramsInfo.Length; i++)
             {
                 Expression index = Expression.Constant(i);
                 Type paramType = paramsInfo[i].ParameterType;

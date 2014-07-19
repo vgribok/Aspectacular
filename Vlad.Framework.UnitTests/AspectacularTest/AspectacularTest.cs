@@ -1,13 +1,16 @@
-﻿using System;
-using System.Diagnostics;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Collections.Generic;
-using System.Net.Mail;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Aspectacular;
-using Aspectacular.Test;
 
 namespace Aspectacular.Test
 {
@@ -23,14 +26,14 @@ namespace Aspectacular.Test
             Aspect.DefaultAspectFactory = () =>
             {
                 var defaultAspects = new Aspect[]
-                    {
-                            TestInProcCache.CreateCacheAspect(),
-                            new LinqToSqlAspect(),
-                            new ReturnValueLoggerAspect(),
-                            new SlowFullMethodSignatureAspect(),
-                            new SqlConnectionAttributesAspect(),
-                            //new SqlCmdExecutionPlanAspect(),
-                    };
+                {
+                    TestInProcCache.CreateCacheAspect(),
+                    new LinqToSqlAspect(),
+                    new ReturnValueLoggerAspect(),
+                    new SlowFullMethodSignatureAspect(),
+                    new SqlConnectionAttributesAspect(),
+                    //new SqlCmdExecutionPlanAspect(),
+                };
 
                 return defaultAspects;
             };
@@ -42,7 +45,7 @@ namespace Aspectacular.Test
         {
             get
             {
-                return new Aspect[] 
+                return new Aspect[]
                 {
                     new TraceOutputAspect(EntryType.Error | EntryType.Warning | EntryType.Info /*, "Main exception" , writeAllEntriesIfKeyFound: true */)
                 };
@@ -63,12 +66,12 @@ namespace Aspectacular.Test
 
             // Example of the most common use case: calling instance GetDateString() method returning string.
             string actual = dal.GetProxy(TestAspects).Invoke(instance => instance.GetDateString("whatevs"));
-            
+
             Assert.AreEqual("whatevs 2/5/2010 12:00:00 AM", actual);
 
             // Example of instantiating an IDisposable class, calling its instance method returning string, and disposing of class instance.
             actual = AOP.GetProxy<SomeTestDisposable>(TestAspects).Invoke(dispInstance => dispInstance.Echo("some text"));
-            
+
             Assert.AreEqual("some text", actual);
         }
 
@@ -87,13 +90,13 @@ namespace Aspectacular.Test
             AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, obj1, ref refString1, out outBool));
             Assert.IsTrue(outBool);
 
-            System.Threading.Thread.Sleep(100);
+            Thread.Sleep(100);
 
             intParm = 12456;
             IntProp = intParm;
             string refString2 = DateTime.Now.Ticks.ToString(CultureInfo.InvariantCulture);
             SomeTestClass obj2 = new SomeTestClass(new DateTime(1999, 5, 3));
-            
+
             AOP.Invoke(TestAspects, () => SomeTestClass.MiscParmsStatic(this.IntProp, obj2, ref refString2, out outBool));
             Assert.IsTrue(outBool);
         }
@@ -103,7 +106,7 @@ namespace Aspectacular.Test
         public void TestNonMethodExpressionInterceptionFailure()
         {
             var someCls = new SomeTestClass();
-            
+
             // Example of improper calling instance method returning string, by using a non-method-call operator.
             string actual = someCls.GetProxy(TestAspects).Invoke(instance => instance.GetDateString("whatevs") + "123");
 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed

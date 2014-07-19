@@ -1,12 +1,16 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
@@ -20,34 +24,34 @@ namespace Aspectacular
 
         protected InstanceProxy(Func<TInstance> instanceFactory, Action<TInstance> instanceCleaner, IEnumerable<Aspect> aspects)
             : base(instanceFactory,
-                   inst =>
-                   {
-                       if (instanceCleaner != null)
-                           instanceCleaner((TInstance)inst);
-                   },
-                   aspects)
+                inst =>
+                {
+                    if(instanceCleaner != null)
+                        instanceCleaner((TInstance)inst);
+                },
+                aspects)
         {
         }
 
         public InstanceProxy(Func<TInstance> instanceFactory, IEnumerable<Aspect> aspects)
-            : this(instanceFactory, instanceCleaner: null, aspects: aspects)
+            : this(instanceFactory, null, aspects)
         {
         }
 
         public InstanceProxy(TInstance instance, IEnumerable<Aspect> aspects)
-            : this(() => instance, instanceCleaner: null, aspects: aspects)
+            : this(() => instance, null, aspects)
         {
         }
 
         /// <summary>
-        /// Executes/intercepts *instance* function with TOut return value.
+        ///     Executes/intercepts *instance* function with TOut return value.
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="interceptedCallExpression"></param>
         /// <param name="retValPostProcessor">
-        /// Delegate called immediately after callExpression function was executed. 
-        /// Allows additional massaging of the returned value. Useful when LINQ suffix functions, like ToList(), Single(), etc. 
-        /// need to be called in alloc/invoke/dispose pattern.
+        ///     Delegate called immediately after callExpression function was executed.
+        ///     Allows additional massaging of the returned value. Useful when LINQ suffix functions, like ToList(), Single(), etc.
+        ///     need to be called in alloc/invoke/dispose pattern.
         /// </param>
         /// <returns></returns>
         public TOut Invoke<TOut>(Expression<Func<TInstance, TOut>> interceptedCallExpression, Func<TOut, object> retValPostProcessor = null)
@@ -69,7 +73,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Executes/intercepts *instance* function with no return value.
+        ///     Executes/intercepts *instance* function with no return value.
         /// </summary>
         /// <param name="interceptedCallExpression"></param>
         public void Invoke(Expression<Action<TInstance>> interceptedCallExpression)
@@ -91,7 +95,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Triggers query execution by appending ToList() to IQueryable, if returned result is not IList already.
+        ///     Triggers query execution by appending ToList() to IQueryable, if returned result is not IList already.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
@@ -105,7 +109,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Appends ToList() to IEnumerable, if returned result is not IList already.
+        ///     Appends ToList() to IEnumerable, if returned result is not IList already.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
@@ -119,7 +123,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Triggers query execution by appending ToList() to IQueryable, and returns List.
+        ///     Triggers query execution by appending ToList() to IQueryable, and returns List.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
@@ -133,7 +137,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Appends ToList() to IEnumerable.
+        ///     Appends ToList() to IEnumerable.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
@@ -147,7 +151,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Executes IQuerable that returns anonymous type.
+        ///     Executes IQuerable that returns anonymous type.
         /// </summary>
         /// <param name="linqQueryExpression"></param>
         /// <returns></returns>
@@ -156,17 +160,17 @@ namespace Aspectacular
             this.LogLinqModifierName("List(Expression<Func<TInstance, IQueryable>> linqQueryExpression)");
             List<object> records = new List<object>();
 
-            this.Invoke(linqQueryExpression, query => 
-                {
-                    query.ToEnumerable().ForEach(records.Add);
-                    return records;
-                });
+            this.Invoke(linqQueryExpression, query =>
+            {
+                query.ToEnumerable().ForEach(records.Add);
+                return records;
+            });
 
             return records;
         }
 
         /// <summary>
-        /// Executes IEnumerable that returns anonymous type.
+        ///     Executes IEnumerable that returns anonymous type.
         /// </summary>
         /// <param name="sequenceExpression"></param>
         /// <returns></returns>
@@ -187,17 +191,17 @@ namespace Aspectacular
 
         private static int CalcSkip(int pageIndex, int pageSize)
         {
-            if (pageIndex < 0)
+            if(pageIndex < 0)
                 throw new ArgumentException("pageIndex parameter cannot be negative.");
-            if (pageSize < 1)
+            if(pageSize < 1)
                 throw new ArgumentException("pageSize parameter must be greater than 0.");
 
-            return pageIndex * pageSize;
+            return pageIndex*pageSize;
         }
 
         /// <summary>
-        /// Modifies "Select" query to bring only one page of data instead of an entire result set.
-        /// Executes modified query and returns a collection of records corresponding to the given page.
+        ///     Modifies "Select" query to bring only one page of data instead of an entire result set.
+        ///     Executes modified query and returns a collection of records corresponding to the given page.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="pageIndex">0-based data page index.</param>
@@ -216,7 +220,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Filters in on-page subset of the collection.
+        ///     Filters in on-page subset of the collection.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="pageIndex">0-based data page index.</param>
@@ -235,7 +239,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Adds FirstOrDefault() to IQueryable return result.
+        ///     Adds FirstOrDefault() to IQueryable return result.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
@@ -249,7 +253,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Adds FirstOrDefault() to IEnumerable return result.
+        ///     Adds FirstOrDefault() to IEnumerable return result.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
@@ -263,7 +267,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Executes anonymous IQueryable and return first object or null.
+        ///     Executes anonymous IQueryable and return first object or null.
         /// </summary>
         /// <param name="linqQueryExpression"></param>
         /// <returns></returns>
@@ -275,7 +279,7 @@ namespace Aspectacular
 
             this.Invoke(linqQueryExpression, query =>
             {
-                foreach (object record in query)
+                foreach(object record in query)
                 {
                     entity = record;
                     return record;
@@ -287,7 +291,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns first anonymous object from IEnumerable, or null.
+        ///     Returns first anonymous object from IEnumerable, or null.
         /// </summary>
         /// <param name="sequenceExpression"></param>
         /// <returns></returns>
@@ -299,7 +303,7 @@ namespace Aspectacular
 
             this.Invoke(sequenceExpression, sequence =>
             {
-                foreach (object record in sequence)
+                foreach(object record in sequence)
                 {
                     entity = record;
                     return record;
@@ -311,7 +315,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Adds Exists() to IQueryable return result.
+        ///     Adds Exists() to IQueryable return result.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
@@ -324,7 +328,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Adds Any() to IEnumerable return result.
+        ///     Adds Any() to IEnumerable return result.
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
@@ -354,13 +358,13 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Extensions and static convenience methods for intercepted method calls.
+    ///     Extensions and static convenience methods for intercepted method calls.
     /// </summary>
 // ReSharper disable once InconsistentNaming
     public static partial class AOP
     {
         /// <summary>
-        /// Executes/intercepts *static* function with TOut return result.
+        ///     Executes/intercepts *static* function with TOut return result.
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="aspects"></param>
@@ -374,18 +378,18 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Executes/intercepts *static* function with TOut return result, using only default (.config) aspects.
+        ///     Executes/intercepts *static* function with TOut return result, using only default (.config) aspects.
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="interceptedCallExpression"></param>
         /// <returns></returns>
         public static TOut Invoke<TOut>(Expression<Func<TOut>> interceptedCallExpression)
         {
-            return Invoke(aspects: null, interceptedCallExpression: interceptedCallExpression);
+            return Invoke(null, interceptedCallExpression);
         }
 
         /// <summary>
-        /// Executes/intercepts *static* function with no return result.
+        ///     Executes/intercepts *static* function with no return result.
         /// </summary>
         /// <param name="aspects"></param>
         /// <param name="interceptedCallExpression"></param>
@@ -396,19 +400,20 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Executes/intercepts *static* function with no return result, using only default (.config) aspects.
+        ///     Executes/intercepts *static* function with no return result, using only default (.config) aspects.
         /// </summary>
         /// <param name="interceptedCallExpression"></param>
         public static void Invoke(Expression<Action> interceptedCallExpression)
         {
-            Invoke(aspects: null, interceptedCallExpression: interceptedCallExpression);
+            Invoke(null, interceptedCallExpression);
         }
     }
 
     public static partial class AopExsts
     {
         /// <summary>
-        /// Retrieves AOP-augmented proxy, with specified set of aspects attached, for any given object referenced by instance parameter.
+        ///     Retrieves AOP-augmented proxy, with specified set of aspects attached, for any given object referenced by instance
+        ///     parameter.
         /// </summary>
         /// <typeparam name="TInstance"></typeparam>
         /// <param name="instance"></param>

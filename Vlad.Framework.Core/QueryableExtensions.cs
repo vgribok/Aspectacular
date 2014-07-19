@@ -1,23 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     public static class QueryableExtensions
     {
         /// <summary>
-        /// More efficient version of Any() when applied to Entity Framework. 
+        ///     More efficient version of Any() when applied to Entity Framework.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="queryable"></param>
         /// <param name="predicate"></param>
         /// <returns></returns>
         /// <remarks>
-        /// Lifted from http://stackoverflow.com/questions/4722541/optimizing-linq-any-call-in-entity-framework
+        ///     Lifted from http://stackoverflow.com/questions/4722541/optimizing-linq-any-call-in-entity-framework
         /// </remarks>
         public static bool Exists<T>(this IQueryable<T> queryable, Expression<Func<T, bool>> predicate)
         {
@@ -25,13 +29,13 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Better than Any() for T-SQL queries.
+        ///     Better than Any() for T-SQL queries.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="queryable"></param>
         /// <returns></returns>
         /// <remarks>
-        /// Lifted from http://stackoverflow.com/questions/4722541/optimizing-linq-any-call-in-entity-framework
+        ///     Lifted from http://stackoverflow.com/questions/4722541/optimizing-linq-any-call-in-entity-framework
         /// </remarks>
         public static bool Exists<T>(this IQueryable<T> queryable)
         {

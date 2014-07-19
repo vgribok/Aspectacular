@@ -1,14 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using System.Diagnostics;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Aspect for measuring baseline performance of this AOP framework.
+    ///     Aspect for measuring baseline performance of this AOP framework.
     /// </summary>
     internal class DoNothingPerfTestAspect : Aspect
     {
@@ -20,8 +22,8 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Retrieves method signature with parameter values.
-    /// It is very slow process, be careful.
+    ///     Retrieves method signature with parameter values.
+    ///     It is very slow process, be careful.
     /// </summary>
     public class SlowFullMethodSignatureAspect : Aspect
     {
@@ -33,20 +35,20 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Adds value returned by intercepted method as log entry.
-    /// Use with care: if returned value is a large data set, ToString() can be slow and take lots of memory.
+    ///     Adds value returned by intercepted method as log entry.
+    ///     Use with care: if returned value is a large data set, ToString() can be slow and take lots of memory.
     /// </summary>
     public class ReturnValueLoggerAspect : Aspect
     {
         public override void Step_5_FinallyAfterMethodExecution(bool interceptedCallSucceeded)
         {
-            string returnResultFormatted = this.Proxy.InterceptedCallMetaData.FormatReturnResult(this.Proxy.ReturnedValue, trueUi_falseInternal: false);
+            string returnResultFormatted = this.Proxy.InterceptedCallMetaData.FormatReturnResult(this.Proxy.ReturnedValue, false);
             this.LogInformationData("Returned value", returnResultFormatted);
         }
     }
 
     /// <summary>
-    /// Writes log to the Debug output at the end of the lifecycle of the call.
+    ///     Writes log to the Debug output at the end of the lifecycle of the call.
     /// </summary>
     public class DebugOutputAspect : LogOutputAspectBase
     {
@@ -72,7 +74,7 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Writes log to the Trace output at the end of the lifecycle of the call.
+    ///     Writes log to the Trace output at the end of the lifecycle of the call.
     /// </summary>
     public class TraceOutputAspect : LogOutputAspectBase
     {

@@ -1,40 +1,48 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Contains utility & convenience DateTime methods
+    ///     Contains utility & convenience DateTime methods
     /// </summary>
     public static class DateTimeExtensions
     {
         /// <summary>
-        /// Returns quarter number 1..4
+        ///     Returns quarter number 1..4
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
         public static int Quarter(this DateTime dt)
         {
-            return (dt.Month - 1) / 3 + 1;
+            return (dt.Month - 1)/3 + 1;
         }
+
         /// <summary>
-        /// Returns quarter number 1..4
+        ///     Returns quarter number 1..4
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
         public static int Quarter(this DateTimeOffset dt)
         {
-            return (dt.Month - 1) / 3 + 1;
+            return (dt.Month - 1)/3 + 1;
         }
 
         /// <summary>
-        /// Returns ISO-8601 week number in the year.
+        ///     Returns ISO-8601 week number in the year.
         /// </summary>
         /// <param name="dt"></param>
-        /// <param name="whatIsFirstWeek">Tells whether the first week can be a) any incomplete week, b) a week with 4 days or more, or c) full week only.</param>
+        /// <param name="whatIsFirstWeek">
+        ///     Tells whether the first week can be a) any incomplete week, b) a week with 4 days or
+        ///     more, or c) full week only.
+        /// </param>
         /// <returns></returns>
         public static int WeekOfYear(this DateTime dt, CalendarWeekRule whatIsFirstWeek = CalendarWeekRule.FirstFourDayWeek)
         {
@@ -43,10 +51,13 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns ISO-8601 week number in the year.
+        ///     Returns ISO-8601 week number in the year.
         /// </summary>
         /// <param name="dt"></param>
-        /// <param name="whatIsFirstWeek">Tells whether the first week can be a) any incomplete week, b) a week with 4 days or more, or c) full week only.</param>
+        /// <param name="whatIsFirstWeek">
+        ///     Tells whether the first week can be a) any incomplete week, b) a week with 4 days or
+        ///     more, or c) full week only.
+        /// </param>
         /// <returns></returns>
         public static int WeekOfYear(this DateTimeOffset dt, CalendarWeekRule whatIsFirstWeek = CalendarWeekRule.FirstFourDayWeek)
         {
@@ -55,10 +66,10 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// DateTime loop functional implementation.
-        /// Continues calling stepFunc while searchFunc keeps returning true:
+        ///     DateTime loop functional implementation.
+        ///     Continues calling stepFunc while searchFunc keeps returning true:
         ///     while (!searchFunc(dt))
-        ///         dt = stepFunc(dt);
+        ///     dt = stepFunc(dt);
         ///     return dt;
         /// </summary>
         /// <param name="dt"></param>
@@ -67,17 +78,17 @@ namespace Aspectacular
         /// <returns></returns>
         public static DateTime GoTo(this DateTime dt, Func<DateTime, bool> stopCondFunc, Func<DateTime, DateTime> stepFunc)
         {
-            while (!stopCondFunc(dt))
+            while(!stopCondFunc(dt))
                 dt = stepFunc(dt);
 
             return dt;
         }
 
         /// <summary>
-        /// DateTimeOffset loop functional implementation.
-        /// Continues calling stepFunc while searchFunc keeps returning true:
+        ///     DateTimeOffset loop functional implementation.
+        ///     Continues calling stepFunc while searchFunc keeps returning true:
         ///     while (!searchFunc(dt))
-        ///         dt = stepFunc(dt);
+        ///     dt = stepFunc(dt);
         ///     return dt;
         /// </summary>
         /// <param name="dt"></param>
@@ -86,14 +97,14 @@ namespace Aspectacular
         /// <returns></returns>
         public static DateTimeOffset GoTo(this DateTimeOffset dt, Func<DateTimeOffset, bool> stopCondFunc, Func<DateTimeOffset, DateTimeOffset> stepFunc)
         {
-            while (!stopCondFunc(dt))
+            while(!stopCondFunc(dt))
                 dt = stepFunc(dt);
 
             return dt;
         }
 
         /// <summary>
-        /// Subtracts 1 tick from the given time.
+        ///     Subtracts 1 tick from the given time.
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
@@ -103,7 +114,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Subtracts 1 tick from the given time.
+        ///     Subtracts 1 tick from the given time.
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
@@ -119,7 +130,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if DateTimeOffset represents UTC time.
+        ///     Returns true if DateTimeOffset represents UTC time.
         /// </summary>
         /// <param name="dto"></param>
         /// <returns></returns>
@@ -131,37 +142,37 @@ namespace Aspectacular
         #region Sortable DateTime Integer Conversion
 
         /// <summary>
-        /// Converts date part of the date time 
-        /// to integer in the YYYYMMDD format.
+        ///     Converts date part of the date time
+        ///     to integer in the YYYYMMDD format.
         /// </summary>
         /// <param name="dt"></param>
         /// <returns>Integer in the YYYYMMDD format</returns>
         public static int ToSortableIntDate(this DateTime dt)
         {
-            int retVal = (dt.Year * 100 + dt.Month) * 100 + dt.Day;
+            int retVal = (dt.Year*100 + dt.Month)*100 + dt.Day;
             return retVal;
         }
 
         /// <summary>
-        /// Returns integer in the format of HHmmss or HHmmssFFF.
-        /// Optional "FFF" is milliseconds.
+        ///     Returns integer in the format of HHmmss or HHmmssFFF.
+        ///     Optional "FFF" is milliseconds.
         /// </summary>
         /// <param name="dt"></param>
         /// <param name="includeMilliseconds"></param>
         /// <returns></returns>
         public static long ToSortableLongTime(this DateTime dt, bool includeMilliseconds = false)
         {
-            long retVal = (dt.Hour * 100 + dt.Minute) * 100 + dt.Second;
+            long retVal = (dt.Hour*100 + dt.Minute)*100 + dt.Second;
 
-            if (includeMilliseconds)
-                retVal = retVal * 1000 + dt.Millisecond;
+            if(includeMilliseconds)
+                retVal = retVal*1000 + dt.Millisecond;
 
             return retVal;
         }
 
         /// <summary>
-        /// Returns integer in the format of HHmmss or HHmmssFFF.
-        /// Optional "FFF" is milliseconds.
+        ///     Returns integer in the format of HHmmss or HHmmssFFF.
+        ///     Optional "FFF" is milliseconds.
         /// </summary>
         /// <param name="dt"></param>
         /// <param name="includeMilliseconds"></param>
@@ -169,14 +180,14 @@ namespace Aspectacular
         public static int ToSortableIntTime(this DateTime dt, bool includeMilliseconds = false)
         {
             long sortableTime = ToSortableLongTime(dt, includeMilliseconds);
-            if (sortableTime > int.MaxValue)
+            if(sortableTime > int.MaxValue)
                 throw new Exception("{0:#,#0} value exceeds maximum integer value".SmartFormat(sortableTime));
 
             return (int)sortableTime;
         }
 
         /// <summary>
-        /// Returns integer in the format of YYYYMMDDHHmmss or similar with fractional seconds.
+        ///     Returns integer in the format of YYYYMMDDHHmmss or similar with fractional seconds.
         /// </summary>
         /// <param name="dt"></param>
         /// <param name="includeMilliseconds"></param>
@@ -184,42 +195,42 @@ namespace Aspectacular
         public static long ToSortableLongDateTime(this DateTime dt, bool includeMilliseconds = false)
         {
             long multiplier = includeMilliseconds ? 1000000000 : 1000000;
-            long result = ToSortableIntDate(dt) * multiplier + ToSortableLongTime(dt, includeMilliseconds);
+            long result = ToSortableIntDate(dt)*multiplier + ToSortableLongTime(dt, includeMilliseconds);
 
             return result;
         }
 
         /// <summary>
-        /// Returns DateTime created from an integer in the YYYYMMDD, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF format.
+        ///     Returns DateTime created from an integer in the YYYYMMDD, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF format.
         /// </summary>
         /// <param name="sortableDateTime"></param>
         /// <param name="dtKind"></param>
         /// <returns></returns>
         public static DateTime FromSortableIntDateTime(this long sortableDateTime, DateTimeKind dtKind = DateTimeKind.Unspecified)
         {
-            const byte digitsInDateOnly = 4 + 2 + 2; 
+            const byte digitsInDateOnly = 4 + 2 + 2;
             byte totalDigits = (byte)((int)Math.Log10(sortableDateTime) + 1);
             byte timePartDigits = (byte)(totalDigits - digitsInDateOnly);
             int timePartOrder = (int)10.Pow(timePartDigits);
 
-            int sortableDate = (int)(sortableDateTime / timePartOrder); // YYYYMMDD
-            int day = sortableDate % 100;
+            int sortableDate = (int)(sortableDateTime/timePartOrder); // YYYYMMDD
+            int day = sortableDate%100;
             sortableDate /= 100;
-            int month = sortableDate % 100;
+            int month = sortableDate%100;
             sortableDate /= 100;
             int year = sortableDate;
 
             DateTime dt = new DateTime(year, month, day, 0, 0, 0, dtKind);
 
-            long sortableTimePart = sortableDateTime % timePartOrder; // 0, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF
-            if (sortableTimePart > 0)
+            long sortableTimePart = sortableDateTime%timePartOrder; // 0, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF
+            if(sortableTimePart > 0)
                 dt = sortableTimePart.FromSortableIntTime(dt);
 
             return dt;
         }
 
         /// <summary>
-        /// Returns DateTime created from an integer in the YYYYMMDD, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF format.
+        ///     Returns DateTime created from an integer in the YYYYMMDD, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF format.
         /// </summary>
         /// <param name="sortableDateTime"></param>
         /// <param name="dtKind"></param>
@@ -230,7 +241,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns DateTime created from an integer in the YYYYMMDD, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF format.
+        ///     Returns DateTime created from an integer in the YYYYMMDD, YYYYMMDDHHmmss, or YYYYMMDDHHmmssFFF format.
         /// </summary>
         /// <param name="sortableDateTime"></param>
         /// <param name="dtKind"></param>
@@ -238,16 +249,16 @@ namespace Aspectacular
         public static DateTime? FromSortableIntDateTime(this string sortableDateTime, DateTimeKind dtKind = DateTimeKind.Unspecified)
         {
             long? sortableVal = sortableDateTime.ParseLong();
-            if (sortableVal == null)
+            if(sortableVal == null)
                 return null;
 
             return sortableVal.Value.FromSortableIntDateTime(dtKind);
         }
 
         /// <summary>
-        /// Returns time value via DateTime result
-        /// created from integer in the HHmmss or HHmmssFFF format.
-        /// Optional "FFF" is milliseconds.
+        ///     Returns time value via DateTime result
+        ///     created from integer in the HHmmss or HHmmssFFF format.
+        ///     Optional "FFF" is milliseconds.
         /// </summary>
         /// <param name="sortableDateTime"></param>
         /// <param name="datePart">Date to which time will be appended.</param>
@@ -255,20 +266,20 @@ namespace Aspectacular
         public static DateTime FromSortableIntTime(this long sortableDateTime, DateTime datePart = default(DateTime))
         {
             const int noMilliseconds = 1000000;
-            bool hasMilliseconds = sortableDateTime > noMilliseconds * 10;
+            bool hasMilliseconds = sortableDateTime > noMilliseconds*10;
 
             int milliseconds = 0;
 
-            if (hasMilliseconds)
+            if(hasMilliseconds)
             {
-                milliseconds = (int)(sortableDateTime % 1000);
+                milliseconds = (int)(sortableDateTime%1000);
                 sortableDateTime /= 1000;
             }
 
-            int seconds = (int)sortableDateTime % 100;
+            int seconds = (int)sortableDateTime%100;
             sortableDateTime /= 100;
 
-            int minutes = (int)sortableDateTime % 100;
+            int minutes = (int)sortableDateTime%100;
             sortableDateTime /= 100;
 
             int hours = (int)sortableDateTime;
@@ -278,9 +289,9 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns time value via DateTime result
-        /// created from integer in the HHmmss or HHmmssFFF format.
-        /// Optional "FFF" is milliseconds.
+        ///     Returns time value via DateTime result
+        ///     created from integer in the HHmmss or HHmmssFFF format.
+        ///     Optional "FFF" is milliseconds.
         /// </summary>
         /// <param name="sortableDateTime"></param>
         /// <param name="datePart">Date to which time will be appended.</param>
@@ -291,9 +302,9 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns time value via DateTime result
-        /// created from integer in the HHmmss or HHmmssFFF format.
-        /// Optional "FFF" is milliseconds.
+        ///     Returns time value via DateTime result
+        ///     created from integer in the HHmmss or HHmmssFFF format.
+        ///     Optional "FFF" is milliseconds.
         /// </summary>
         /// <param name="sortableDateTime"></param>
         /// <param name="datePart">Date to which time will be appended.</param>
@@ -301,7 +312,7 @@ namespace Aspectacular
         public static DateTime? FromSortableIntTime(this string sortableDateTime, DateTime datePart = default(DateTime))
         {
             long? sortableVal = sortableDateTime.ParseLong();
-            if (sortableVal == null)
+            if(sortableVal == null)
                 return null;
 
             return sortableVal.Value.FromSortableIntTime(datePart);
@@ -313,7 +324,7 @@ namespace Aspectacular
     public static class MathExtensions
     {
         /// <summary>
-        /// Fast calculation of x power of n for integers.
+        ///     Fast calculation of x power of n for integers.
         /// </summary>
         /// <param name="x"></param>
         /// <param name="power"></param>

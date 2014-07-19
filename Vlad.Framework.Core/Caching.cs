@@ -1,14 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Similar to Lazy[T], allows explicit flushing of loaded value to repeat slow loading/initialization.
-    /// Caches values in-process, in-memory.
+    ///     Similar to Lazy[T], allows explicit flushing of loaded value to repeat slow loading/initialization.
+    ///     Caches values in-process, in-memory.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class Cacheable<T>
@@ -27,8 +30,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Flushes cached value, setting stage for re-loading/initialization
-        /// of the value next time it's requested.
+        ///     Flushes cached value, setting stage for re-loading/initialization
+        ///     of the value next time it's requested.
         /// </summary>
         public virtual void Expire()
         {
@@ -36,18 +39,18 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Flushes cached value, setting stage for re-loading/initialization
-        /// of the value next time it's requested.
+        ///     Flushes cached value, setting stage for re-loading/initialization
+        ///     of the value next time it's requested.
         /// </summary>
         public void Reset()
         {
-            if (this.lazy == null || this.lazy.IsValueCreated)
+            if(this.lazy == null || this.lazy.IsValueCreated)
                 this.lazy = new Lazy<T>(this.slowLoader, this.isThreadSafe);
         }
 
         /// <summary>
-        /// Returns cached value.
-        /// Loads it first if value was not loaded before or was expired.
+        ///     Returns cached value.
+        ///     Loads it first if value was not loaded before or was expired.
         /// </summary>
         [Obsolete("Use implicit conversion operator instead.")]
         public virtual T Value
@@ -57,7 +60,7 @@ namespace Aspectacular
 
         public static implicit operator T(Cacheable<T> cacheable)
         {
-            if (cacheable == null)
+            if(cacheable == null)
                 throw new ArgumentNullException("cacheable");
 
 #pragma warning disable 618
@@ -66,7 +69,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if value was has already been loaded.
+        ///     Returns true if value was has already been loaded.
         /// </summary>
         public bool IsValueLoaded
         {
@@ -75,9 +78,9 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Similar to Lazy[T], allows explicit flushing of loaded value to repeat slow loading/initialization.
-    /// Caches values in-process, in-memory.
-    /// Loaded value expires automatically in a given amount of time.
+    ///     Similar to Lazy[T], allows explicit flushing of loaded value to repeat slow loading/initialization.
+    ///     Caches values in-process, in-memory.
+    ///     Loaded value expires automatically in a given amount of time.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class AutoExpireCacheable<T> : Cacheable<T>
@@ -88,22 +91,22 @@ namespace Aspectacular
         public AutoExpireCacheable(Func<T> slowLoader, uint expireInMillisec, bool isThreadSafe = false)
             : base(slowLoader, isThreadSafe)
         {
-            if (expireInMillisec == 0)
+            if(expireInMillisec == 0)
                 throw new ArgumentOutOfRangeException("expireInMillisec must be greater than 0.");
 
             this.expireInMillisec = (int)expireInMillisec;
         }
 
         /// <summary>
-        /// Returns cached value.
-        /// Loads it first if value was not loaded before or was expired.
+        ///     Returns cached value.
+        ///     Loads it first if value was not loaded before or was expired.
         /// </summary>
         [Obsolete("Use implicit conversion operator instead.")]
         public override T Value
         {
             get
             {
-                if (this.IsValueLoaded && this.Expired)
+                if(this.IsValueLoaded && this.Expired)
                     this.Expire();
 
                 T val = base.Value; // Give slow loader a chance to throw an exception here.
@@ -114,7 +117,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if value has expired.
+        ///     Returns true if value has expired.
         /// </summary>
         public bool Expired
         {
@@ -122,8 +125,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns UTC time when value was slow-loaded.
-        /// If IsValueLoaded is false, return blank/default DateTime.
+        ///     Returns UTC time when value was slow-loaded.
+        ///     If IsValueLoaded is false, return blank/default DateTime.
         /// </summary>
         public DateTime LoadedAtUtc
         {

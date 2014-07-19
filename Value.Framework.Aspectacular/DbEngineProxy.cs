@@ -1,16 +1,18 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Base class for proxies dealing with EF, ADO.NET and other connection-based data access engines.
+    ///     Base class for proxies dealing with EF, ADO.NET and other connection-based data access engines.
     /// </summary>
     /// <typeparam name="TDbEngine"></typeparam>
     public abstract class DbEngineProxy<TDbEngine> : AllocateRunDisposeProxy<TDbEngine>, IEfCallInterceptor, IStorageCommandRunner<TDbEngine>
@@ -22,7 +24,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
+        ///     A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="aspects"></param>
@@ -47,8 +49,8 @@ namespace Aspectacular
 
         public int SaveChanges()
         {
-            if (this.AugmentedClassInstance == null) // SaveChanges() called directly, like db.GetDbProxy().SaveChanges();
-                return this.ExecuteCommand(db => DbEngineProxy<TDbEngine>.SaveChangesDirect());
+            if(this.AugmentedClassInstance == null) // SaveChanges() called directly, like db.GetDbProxy().SaveChanges();
+                return this.ExecuteCommand(db => SaveChangesDirect());
 
             this.SaveChangeReturnValue = this.CommitChanges();
 
@@ -65,7 +67,7 @@ namespace Aspectacular
         #region Implementation of IStorageCommandRunner
 
         /// <summary>
-        /// Command that returns no value except for int returned by underlying DB engine.
+        ///     Command that returns no value except for int returned by underlying DB engine.
         /// </summary>
         /// <param name="callExpression"></param>
         /// <returns></returns>
@@ -78,7 +80,7 @@ namespace Aspectacular
         #endregion IStorageCommandRunner
 
         /// <summary>
-        /// Subclasses' implementation of CommitChanges() should call DbContext.SaveChanges().
+        ///     Subclasses' implementation of CommitChanges() should call DbContext.SaveChanges().
         /// </summary>
         /// <returns></returns>
         public abstract int CommitChanges();
@@ -86,7 +88,7 @@ namespace Aspectacular
         #region Utility Methods
 
         /// <summary>
-        /// Do-nothing method that facilitates calling db.GetDbProxy().SaveChanges();
+        ///     Do-nothing method that facilitates calling db.GetDbProxy().SaveChanges();
         /// </summary>
         private static void SaveChangesDirect()
         {

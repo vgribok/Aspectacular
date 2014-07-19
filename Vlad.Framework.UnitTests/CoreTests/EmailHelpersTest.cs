@@ -1,26 +1,28 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Aspectacular;
 
 namespace Aspectacular.Test.CoreTests
 {
     /// <summary>
-    /// Summary description for EmailHelpersTest
+    ///     Summary description for EmailHelpersTest
     /// </summary>
     [TestClass]
     public class EmailHelpersTest
     {
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
+        /// </summary>
         public TestContext TestContext { get; set; }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -40,6 +42,7 @@ namespace Aspectacular.Test.CoreTests
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         [TestMethod]

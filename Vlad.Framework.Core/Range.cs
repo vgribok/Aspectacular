@@ -1,46 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Xml.Serialization;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Class representing an inclusive range between two comparable objects.
+    ///     Class representing an inclusive range between two comparable objects.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class RangeBase<T> : IEquatable<RangeBase<T>>, ISerializable 
+    public abstract class RangeBase<T> : IEquatable<RangeBase<T>>, ISerializable
         where T : IComparable
     {
         protected object start = null;
         protected object end = null;
 
         /// <summary>
-        /// Range's inclusive lower bound.
+        ///     Range's inclusive lower bound.
         /// </summary>
-        public virtual T Start 
-        { 
+        public virtual T Start
+        {
             get { return (T)this.start; }
-            set { this.start = value; this.CheckOrder(); }
+            set
+            {
+                this.start = value;
+                this.CheckOrder();
+            }
         }
-        
+
         /// <summary>
-        /// Range's inclusive higher bound. 
+        ///     Range's inclusive higher bound.
         /// </summary>
-        public virtual T End 
+        public virtual T End
         {
             get { return (T)this.end; }
-            set { this.end = value; this.CheckOrder(); }
+            set
+            {
+                this.end = value;
+                this.CheckOrder();
+            }
         }
 
         protected void CheckOrder()
         {
-            if (this.start != null && this.end != null)
+            if(this.start != null && this.end != null)
             {
                 int comparisonResult = ((T)this.start).CompareTo(this.end);
-                if (comparisonResult > 0) // swap required
+                if(comparisonResult > 0) // swap required
                 {
                     object temp = this.start;
                     this.start = this.end;
@@ -61,7 +73,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns false if range is open-ended on the left.
+        ///     Returns false if range is open-ended on the left.
         /// </summary>
         [XmlIgnore]
         public virtual bool HasStart
@@ -70,7 +82,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns false if range is open-ended on the right.
+        ///     Returns false if range is open-ended on the right.
         /// </summary>
         [XmlIgnore]
         public virtual bool HasEnd
@@ -79,7 +91,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if either Start or End are not specified.
+        ///     Returns true if either Start or End are not specified.
         /// </summary>
         [XmlIgnore]
         public bool IsOpenEnded
@@ -90,7 +102,7 @@ namespace Aspectacular
         public override bool Equals(object obj)
         {
             RangeBase<T> other = obj as RangeBase<T>;
-            if (other != null)
+            if(other != null)
                 return this.Equals(other);
 
             // ReSharper disable once BaseObjectEqualsIsObjectEquals
@@ -99,34 +111,34 @@ namespace Aspectacular
 
         public bool Equals(RangeBase<T> other)
         {
-            if (other == null)
+            if(other == null)
                 return false;
 
-            if (this.HasStart != other.HasStart || this.HasEnd != other.HasEnd)
+            if(this.HasStart != other.HasStart || this.HasEnd != other.HasEnd)
                 return false;
 
             object startObj = this.Start;
 
-            if (startObj == null)
+            if(startObj == null)
             {
                 object otherStart = other.Start;
-                if (otherStart != null)
+                if(otherStart != null)
                     return false;
-            }else
+            } else
             {
-                if (!this.Start.Equals(other.Start))
+                if(!this.Start.Equals(other.Start))
                     return false;
             }
 
             object endObj = this.End;
-            if (endObj == null)
+            if(endObj == null)
             {
                 object otherEnd = other.End;
-                if (otherEnd != null)
+                if(otherEnd != null)
                     return false;
-            }else
+            } else
             {
-                if (!this.End.Equals(other.End))
+                if(!this.End.Equals(other.End))
                     return false;
             }
 
@@ -144,17 +156,17 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if given value lies within the range.
+        ///     Returns true if given value lies within the range.
         /// </summary>
         /// <param name="val"></param>
         /// <returns></returns>
         public bool Contains(T val)
         {
             bool equalOrGreaterThanStart = !this.HasStart || this.Start.CompareTo(val) <= 0;
-            if (equalOrGreaterThanStart)
+            if(equalOrGreaterThanStart)
             {
                 bool equalOrLessThanEnd = !this.HasEnd || this.End.CompareTo(val) >= 0;
-                if (equalOrLessThanEnd)
+                if(equalOrLessThanEnd)
                     return true;
             }
 
@@ -185,7 +197,7 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Range of reference types. May be used for strings.
+    ///     Range of reference types. May be used for strings.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class Range<T> : RangeBase<T>
@@ -199,7 +211,7 @@ namespace Aspectacular
             : base(start, end)
         {
         }
-    
+
         // ReSharper disable once UnusedMember.Local
         private Range(SerializationInfo info, StreamingContext ctxt)
             : base(info, ctxt)
@@ -208,7 +220,7 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Range of value types. My be used for numerical types.
+    ///     Range of value types. My be used for numerical types.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class ValueRange<T> : RangeBase<T>
@@ -236,21 +248,29 @@ namespace Aspectacular
         public new T? Start
         {
             get { return this.start == null ? (T?)null : (T)this.start; }
-            set { this.start = value; this.CheckOrder(); }
+            set
+            {
+                this.start = value;
+                this.CheckOrder();
+            }
         }
 
         //[XmlIgnore]
         public new T? End
         {
             get { return this.end == null ? (T?)null : (T)this.end; }
-            set { this.end = value; this.CheckOrder(); }
+            set
+            {
+                this.end = value;
+                this.CheckOrder();
+            }
         }
     }
 
     public static class RangeFactory
     {
         /// <summary>
-        /// Factory method for simplified instantiation of Range class.
+        ///     Factory method for simplified instantiation of Range class.
         /// </summary>
         /// <typeparam name="T">Reference type, like string.</typeparam>
         /// <param name="start"></param>
@@ -263,7 +283,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Factory method for simplified instantiation of Range class.
+        ///     Factory method for simplified instantiation of Range class.
         /// </summary>
         /// <typeparam name="T">value type, like int, decimal, etc.</typeparam>
         /// <param name="start"></param>
@@ -277,7 +297,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Factory method for simplified instantiation of Range class.
+        ///     Factory method for simplified instantiation of Range class.
         /// </summary>
         /// <typeparam name="T">value type, like int, decimal, etc.</typeparam>
         /// <param name="start"></param>
@@ -291,7 +311,7 @@ namespace Aspectacular
 
 
         /// <summary>
-        /// Factory method for simplified instantiation of Range class.
+        ///     Factory method for simplified instantiation of Range class.
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
@@ -303,7 +323,7 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Class representing a range between two moments in time.
+    ///     Class representing a range between two moments in time.
     /// </summary>
     public class TimeMomentRange : ValueRange<DateTimeOffset>
     {
@@ -325,7 +345,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
+        ///     Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
         /// </summary>
         public static implicit operator TimeSpan?(TimeMomentRange range)
         {
@@ -333,20 +353,17 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
+        ///     Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
         /// </summary>
         [XmlIgnore]
         public TimeSpan? Span
         {
-            get
-            {
-                return this;
-            }
+            get { return this; }
         }
     }
 
     /// <summary>
-    /// Class representing a range of date/time values.
+    ///     Class representing a range of date/time values.
     /// </summary>
     public class DateRange : ValueRange<DateTime>
     {
@@ -368,7 +385,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns, whether date range is UTC, Local, or unspecified.
+        ///     Returns, whether date range is UTC, Local, or unspecified.
         /// </summary>
         [XmlIgnore]
         public DateTimeKind Kind
@@ -380,12 +397,12 @@ namespace Aspectacular
                 DateTimeKind? endKind = this.HasEnd ? this.End.Value.Kind : (DateTimeKind?)null;
                 // ReSharper restore PossibleInvalidOperationException
 
-                if (startKind == null && endKind == null)
+                if(startKind == null && endKind == null)
                     return DateTimeKind.Unspecified;
 
-                if (startKind == null)
+                if(startKind == null)
                     return endKind.Value;
-                if (endKind == null)
+                if(endKind == null)
                     return startKind.Value;
 
                 return startKind.Value == endKind.Value ? startKind.Value : DateTimeKind.Unspecified;
@@ -394,7 +411,7 @@ namespace Aspectacular
 
         public DateRange ToUtc()
         {
-            if (this.Kind == DateTimeKind.Utc)
+            if(this.Kind == DateTimeKind.Utc)
                 return this;
 
             // ReSharper disable PossibleInvalidOperationException
@@ -407,7 +424,7 @@ namespace Aspectacular
 
         public DateRange ToLocal()
         {
-            if (this.Kind == DateTimeKind.Local)
+            if(this.Kind == DateTimeKind.Local)
                 return this;
 
             // ReSharper disable PossibleInvalidOperationException
@@ -419,7 +436,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
+        ///     Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
         /// </summary>
         public static implicit operator TimeSpan?(DateRange range)
         {
@@ -427,15 +444,12 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
+        ///     Returns null if range is open-ended (Start or End is null). Otherwise returns TimeSpan.
         /// </summary>
         [XmlIgnore]
         public TimeSpan? Span
         {
-            get
-            {
-                return this;
-            }
+            get { return this; }
         }
 
         //public static DateRange operator +(DateRange range, TimeSpan unitCount)

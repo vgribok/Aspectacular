@@ -1,14 +1,15 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Data.Entity;
-using System.Diagnostics;
-using System.Collections;
-
+using Example.AdventureWorks2008ObjectContext_Dal.DbCtx;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Aspectacular;
-using Example.AdventureWorks2008ObjectContext_Dal.DbCtx;
 //using ObjCtx = Example.AdventureWorks2008ObjectContext_Dal.ObjCtx;
 
 namespace Aspectacular.Test
@@ -30,12 +31,12 @@ namespace Aspectacular.Test
         #endregion Initialization
 
         /// <summary>
-        /// A factory for getting AOP-augmented proxy to access AdventureWorksLT2008R2Entities instance members
-        /// in allocate/invoke/dispose pattern.
+        ///     A factory for getting AOP-augmented proxy to access AdventureWorksLT2008R2Entities instance members
+        ///     in allocate/invoke/dispose pattern.
         /// </summary>
         public static DbContextSingleCallProxy<AdventureWorksLT2008R2Entities> AwDal
         {
-            get { return EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>(TestAspects, lazyLoadingEnabled: false); }
+            get { return EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>(TestAspects, false); }
         }
 
         //public static ObjectContextSingleCallProxy<ObjCtx.AdventureWorksLT2008R2EntitiesObjCtx> AwDalOcx
@@ -49,7 +50,7 @@ namespace Aspectacular.Test
             IList<Address> addresses;
 
             // Regular EF call without AOP:
-            using (var db = new AdventureWorksLT2008R2Entities())
+            using(var db = new AdventureWorksLT2008R2Entities())
             {
                 db.Configuration.LazyLoadingEnabled = false;
                 addresses = db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses).ToList();
@@ -57,14 +58,14 @@ namespace Aspectacular.Test
             Assert.IsTrue(2 == addresses.Count);
 
             // Now same with LINQ-friendly AOP shortcuts:
-            
+
             // Example 1: where AOP creates instance of AdventureWorksLT2008R2Entities, runs the DAL method, 
             // and disposes AdventureWorksLT2008R2Entities instance - all in one shot.
             addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
             Assert.IsTrue(2 == addresses.Count);
 
             // Example 2: with simple AOP proxied call for existing instance of DbContext.
-            using (var db = new AdventureWorksLT2008R2Entities())
+            using(var db = new AdventureWorksLT2008R2Entities())
             {
                 db.Configuration.LazyLoadingEnabled = false;
                 addresses = db.GetDbProxy(TestAspects).List(inst => inst.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
@@ -87,7 +88,7 @@ namespace Aspectacular.Test
 
         internal static IList<Address> GetQueryCustomerAddressesByCustomerId()
         {
-            var addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
+            IList<Address> addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
             return addresses;
         }
 
@@ -96,7 +97,7 @@ namespace Aspectacular.Test
         {
             List<object> countryStateBityRecords = AwDal.List(db => db.QueryUserCoutryStateCity(CustomerIdWithManyAddresses));
 
-            foreach (var record in countryStateBityRecords)
+            foreach(object record in countryStateBityRecords)
                 this.TestContext.WriteLine("{0}", record);
         }
 
@@ -108,12 +109,12 @@ namespace Aspectacular.Test
             const string anotherEmail = "VH.andrew2@adventure-works.com";
             string replacementEmail;
 
-            using (var dbc = new AdventureWorksLT2008R2Entities())
+            using(var dbc = new AdventureWorksLT2008R2Entities())
             {
                 dbc.Configuration.LazyLoadingEnabled = false;
 
                 mrAndrewCencini = dbc.GetDbProxy(TestAspects).Single(db => db.QueryCustomerByID(163));
-                
+
                 replacementEmail = mrAndrewCencini.EmailAddress == originalEmail ? anotherEmail : originalEmail;
                 mrAndrewCencini.EmailAddress = replacementEmail;
 
@@ -132,7 +133,7 @@ namespace Aspectacular.Test
         [TestMethod]
         public void TestOrderByPropertyName()
         {
-            string[] strs = { "Very long", "Short" };
+            string[] strs = {"Very long", "Short"};
 
             Assert.AreEqual(strs[0].Length, strs[0].GetPropertyValue<int>("Length"));
 

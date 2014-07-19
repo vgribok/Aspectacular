@@ -1,18 +1,20 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Alloc/invoke/dispose convenience class for DalManager subclasses.
+    ///     Alloc/invoke/dispose convenience class for DalManager subclasses.
     /// </summary>
     /// <typeparam name="TMultiStoreMgr"></typeparam>
     public class DalSingleCallProxy<TMultiStoreMgr> : DbEngineProxy<TMultiStoreMgr>
-            where TMultiStoreMgr : DalManager, new()
+        where TMultiStoreMgr : DalManager, new()
     {
         public DalSingleCallProxy(IEnumerable<Aspect> aspects)
             : base(aspects)
@@ -20,7 +22,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
+        ///     A pass-through Proxy constructor that creates Proxy which won't clean up instance after method invocation.
         /// </summary>
         /// <param name="instance"></param>
         /// <param name="aspects"></param>
@@ -39,7 +41,7 @@ namespace Aspectacular
     public static partial class AOP
     {
         /// <summary>
-        /// Returns AOP proxy for a multi-data store DAL object.
+        ///     Returns AOP proxy for a multi-data store DAL object.
         /// </summary>
         /// <typeparam name="TMultiStoreMgr"></typeparam>
         /// <param name="aspects"></param>
@@ -55,9 +57,9 @@ namespace Aspectacular
     public static partial class AopExsts
     {
         /// <summary>
-        /// Returns InstanceProxy[TMultiStoreMgr] for DalManager instance that already exist.
-        /// Returned proxy won't call DalManager.Dispose() after method invocation.
-        /// Supports ExecuteCommand() method.
+        ///     Returns InstanceProxy[TMultiStoreMgr] for DalManager instance that already exist.
+        ///     Returned proxy won't call DalManager.Dispose() after method invocation.
+        ///     Supports ExecuteCommand() method.
         /// </summary>
         /// <typeparam name="TMultiStoreMgr"></typeparam>
         /// <param name="existingInstance"></param>

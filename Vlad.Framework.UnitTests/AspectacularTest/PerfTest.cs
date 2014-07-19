@@ -1,11 +1,14 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Aspectacular;
-
 using Example.AdventureWorks2008ObjectContext_Dal.DbCtx;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.Test
 {
@@ -14,8 +17,8 @@ namespace Aspectacular.Test
     {
         public TestContext TestContext { get; set; }
 
-        public const int MillisecToRun = 2 * 1000;
-        const int customerIdWithManyAddresses = 29503;
+        public const int MillisecToRun = 2*1000;
+        private const int customerIdWithManyAddresses = 29503;
 
         public static IEnumerable<Aspect> TestAspects
         {
@@ -64,7 +67,7 @@ namespace Aspectacular.Test
             string parmStr = "bogus";
             bool parmBool = false;
             decimal parmDec = 1.0m;
-            int[] arr = { 1, 2, 3, 4, 5 };
+            int[] arr = {1, 2, 3, 4, 5};
 
             runsPerSec = RunCounter.SpinParallelPerSec(MillisecToRun, () => dal.GetProxy().Invoke(ctx => ctx.DoNothing(parmInt, parmStr, parmBool, parmDec, arr)));
             this.TestContext.WriteLine("Worst case scenario: DoNothing() INSTANCE PROXIED PARALLEL VARPARAMS got {0} cps, with expected {1} cps.", runsPerSec, baseLineMultiThreadRunsPerSec);
@@ -85,7 +88,7 @@ namespace Aspectacular.Test
             string parmStr = "bogus";
             bool parmBool = false;
             decimal parmDec = 1.0m;
-            int[] arr = { 1, 2, 3, 4, 5 };
+            int[] arr = {1, 2, 3, 4, 5};
 
             long runsPerSec;
 
@@ -105,7 +108,7 @@ namespace Aspectacular.Test
             string parmStr = "bogus";
             bool parmBool = false;
             decimal parmDec = 1.0m;
-            int[] arr = { 1, 2, 3, 4, 5 };
+            int[] arr = {1, 2, 3, 4, 5};
 
             long runsPerSec;
 
@@ -120,12 +123,12 @@ namespace Aspectacular.Test
             string parmStr = "bogus";
             bool parmBool = false;
             decimal parmDec = 1.0m;
-            int[] arr = { 1, 2, 3, 4, 5 };
+            int[] arr = {1, 2, 3, 4, 5};
 
             long runsPerSec;
 
             runsPerSec = RunCounter.SpinParallelPerSec(MillisecToRun, () => AOP.Invoke(() => SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr)));
-            
+
             this.TestContext.WriteLine("SomeTestClass.DoNothingStatic(parmInt, parmStr, parmBool, parmDec, arr) parallel perf test result: {0} calls/second.", runsPerSec);
         }
 
@@ -135,14 +138,14 @@ namespace Aspectacular.Test
         {
             long runsPerSec;
 
-            using (var db = new AdventureWorksLT2008R2Entities())
+            using(var db = new AdventureWorksLT2008R2Entities())
             {
                 db.Configuration.LazyLoadingEnabled = false;
 
 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 runsPerSec = RunCounter.SpinPerSec(MillisecToRun, () =>
-                                db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList()
-                            );
+                    db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList()
+                    );
             }
             this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) direct sequential base line test result: {0} calls/second.", runsPerSec);
         }
@@ -152,13 +155,13 @@ namespace Aspectacular.Test
         {
             long runsPerSec;
 
-            using (var db = new AdventureWorksLT2008R2Entities())
+            using(var db = new AdventureWorksLT2008R2Entities())
             {
                 db.Configuration.LazyLoadingEnabled = false;
 
-                runsPerSec = RunCounter.SpinPerSec(MillisecToRun, () => 
-                                db.GetProxy().List(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses))
-                            );
+                runsPerSec = RunCounter.SpinPerSec(MillisecToRun, () =>
+                    db.GetProxy().List(inst => inst.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses))
+                    );
             }
             this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) augmented sequential base line test result: {0} calls/second.", runsPerSec);
         }
@@ -170,15 +173,15 @@ namespace Aspectacular.Test
             long runsPerSec;
 
             runsPerSec = RunCounter.SpinPerSec(MillisecToRun, () =>
+            {
+                using(var db = new AdventureWorksLT2008R2Entities())
                 {
-                    using (var db = new AdventureWorksLT2008R2Entities())
-                    {
-                        db.Configuration.LazyLoadingEnabled = false;
+                    db.Configuration.LazyLoadingEnabled = false;
 
 // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
-                        db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList();
-                    }
-                });
+                    db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList();
+                }
+            });
 
             this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) direct parallel alloc/call/disp base line test result: {0} calls/second.", runsPerSec);
         }
@@ -189,9 +192,9 @@ namespace Aspectacular.Test
             long runsPerSec;
 
             runsPerSec = RunCounter.SpinPerSec(MillisecToRun, () =>
-                            EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>()
-                                .List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses))
-                            );
+                EfAOP.GetDbProxy<AdventureWorksLT2008R2Entities>()
+                    .List(db => db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses))
+                );
 
             this.TestContext.WriteLine("db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses) augmented parallel alloc/invoke/disp base line test result: {0} calls/second.", runsPerSec);
         }

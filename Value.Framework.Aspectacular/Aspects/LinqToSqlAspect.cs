@@ -1,21 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
 using System.Data.Objects;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Aspect allowing capturing SQL from Entity Framework queries
-    /// when intercepted method returns IQueryable/ObjectQuery result.
+    ///     Aspect allowing capturing SQL from Entity Framework queries
+    ///     when intercepted method returns IQueryable/ObjectQuery result.
     /// </summary>
     public class LinqToSqlAspect : Aspect
     {
         /// <summary>
-        /// IQueryable converted to T-SQL, when used with EntityFramework,
-        /// or expression trace when used not with EntityFramework.
+        ///     IQueryable converted to T-SQL, when used with EntityFramework,
+        ///     or expression trace when used not with EntityFramework.
         /// </summary>
 // ReSharper disable once InconsistentNaming
         public string SQLorTrace { get; protected set; }
@@ -24,12 +27,12 @@ namespace Aspectacular
         {
             ObjectQuery query = this.Proxy.ReturnedValue as ObjectQuery;
 
-            if (query != null)
+            if(query != null)
                 this.SetSql(query.ToTraceString());
             else
             {
                 IQueryable q = this.Proxy.ReturnedValue as IQueryable;
-                if (q != null)
+                if(q != null)
                     this.SetSql(q.ToString());
             }
         }

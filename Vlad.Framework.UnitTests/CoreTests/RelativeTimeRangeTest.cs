@@ -1,24 +1,30 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Globalization;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.Test.CoreTests
 {
     /// <summary>
-    /// Summary description for RelativeTimeRangeTest
+    ///     Summary description for RelativeTimeRangeTest
     /// </summary>
     [TestClass]
     public class RelativeTimeRangeTest
     {
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
+        /// </summary>
         public TestContext TestContext { get; set; }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -38,6 +44,7 @@ namespace Aspectacular.Test.CoreTests
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         [TestMethod]
@@ -55,7 +62,7 @@ namespace Aspectacular.Test.CoreTests
             DateTime dt = (new DateTime(2013, 12, 31, 0, 0, 0, DateTimeKind.Local)).EndOf(TimeUnits.Day);
             Assert.AreEqual(999, dt.Millisecond);
 
-            DateRange dtr = TimeUnits.Month.Current((DateTime?)null);
+            DateRange dtr = TimeUnits.Month.Current(null);
             DateTime now = DateTime.Now;
             DateTime expectedStart = now.StartOf(TimeUnits.Month);
             DateTime expectedEnd = now.EndOf(TimeUnits.Month);
@@ -81,18 +88,18 @@ namespace Aspectacular.Test.CoreTests
             Assert.AreEqual("10/01/2013 00:00:00", actual.ToString(CultureInfo.InvariantCulture));
             Assert.AreEqual(DateTimeKind.Local, actual.Kind);
 
-            for (int month = 1; month <= 12; month++)
+            for(int month = 1; month <= 12; month++)
             {
                 DateTime qtrTest = new DateTime(2013, month, 5);
                 int actualMonth = qtrTest.StartOf(TimeUnits.Quarter).Month;
 
-                if (qtrTest.Month >= 1 && qtrTest.Month <= 3)
+                if(qtrTest.Month >= 1 && qtrTest.Month <= 3)
                     Assert.AreEqual(1, actualMonth);
-                else if (qtrTest.Month >= 4 && qtrTest.Month <= 6)
+                else if(qtrTest.Month >= 4 && qtrTest.Month <= 6)
                     Assert.AreEqual(4, actualMonth);
-                else if (qtrTest.Month >= 7 && qtrTest.Month <= 9)
+                else if(qtrTest.Month >= 7 && qtrTest.Month <= 9)
                     Assert.AreEqual(7, actualMonth);
-                else if (qtrTest.Month >= 10 && qtrTest.Month <= 12)
+                else if(qtrTest.Month >= 10 && qtrTest.Month <= 12)
                     Assert.AreEqual(10, actualMonth);
             }
 
@@ -155,18 +162,18 @@ namespace Aspectacular.Test.CoreTests
             actual = dt.StartOf(TimeUnits.Quarter);
             Assert.AreEqual("10/1/2013 12:00:00 AM -05:00", actual.ToString());
 
-            for (int month = 1; month <= 12; month++)
+            for(int month = 1; month <= 12; month++)
             {
                 DateTimeOffset qtrTest = new DateTimeOffset(2013, month, 5, 0, 0, 0, localOffset);
                 int actualMonth = qtrTest.StartOf(TimeUnits.Quarter).Month;
 
-                if (qtrTest.Month >= 1 && qtrTest.Month <= 3)
+                if(qtrTest.Month >= 1 && qtrTest.Month <= 3)
                     Assert.AreEqual(1, actualMonth);
-                else if (qtrTest.Month >= 4 && qtrTest.Month <= 6)
+                else if(qtrTest.Month >= 4 && qtrTest.Month <= 6)
                     Assert.AreEqual(4, actualMonth);
-                else if (qtrTest.Month >= 7 && qtrTest.Month <= 9)
+                else if(qtrTest.Month >= 7 && qtrTest.Month <= 9)
                     Assert.AreEqual(7, actualMonth);
-                else if (qtrTest.Month >= 10 && qtrTest.Month <= 12)
+                else if(qtrTest.Month >= 10 && qtrTest.Month <= 12)
                     Assert.AreEqual(10, actualMonth);
             }
 

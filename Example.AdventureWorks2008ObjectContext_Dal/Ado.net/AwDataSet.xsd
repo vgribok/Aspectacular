@@ -1,66 +1,166 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema id="AwDataSet" targetNamespace="http://tempuri.org/AwDataSet.xsd" xmlns:mstns="http://tempuri.org/AwDataSet.xsd" xmlns="http://tempuri.org/AwDataSet.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified" elementFormDefault="qualified">
+
+<xs:schema id="AwDataSet" targetNamespace="http://tempuri.org/AwDataSet.xsd"
+           xmlns:mstns="http://tempuri.org/AwDataSet.xsd" xmlns="http://tempuri.org/AwDataSet.xsd"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata"
+           xmlns:msprop="urn:schemas-microsoft-com:xml-msprop" attributeFormDefault="qualified"
+           elementFormDefault="qualified">
   <xs:annotation>
     <xs:appinfo source="urn:schemas-microsoft-com:xml-msdatasource">
-      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter" GeneratorFunctionsComponentClassName="QueriesTableAdapter" Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema" UserFunctionsComponentName="QueriesTableAdapter" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
+      <DataSource DefaultConnectionIndex="0" FunctionsComponentName="QueriesTableAdapter"
+                  GeneratorFunctionsComponentClassName="QueriesTableAdapter"
+                  Modifier="AutoLayout, AnsiClass, Class, Public" SchemaSerializationMode="IncludeSchema"
+                  UserFunctionsComponentName="QueriesTableAdapter" xmlns="urn:schemas-microsoft-com:xml-msdatasource">
         <Connections>
-          <Connection AppSettingsObjectName="Settings" AppSettingsPropertyName="AdventureWorksLT2008R2AdoNetConnectionString" ConnectionStringObject="" IsAppSettingsProperty="true" Modifier="Assembly" Name="AdventureWorksLT2008R2AdoNetConnectionString (Settings)" ParameterPrefix="@" PropertyReference="ApplicationSettings.Example.AdventureWorks2008ObjectContext_Dal.Properties.Settings.GlobalReference.Default.AdventureWorksLT2008R2AdoNetConnectionString" Provider="System.Data.SqlClient" />
+          <Connection AppSettingsObjectName="Settings"
+                      AppSettingsPropertyName="AdventureWorksLT2008R2AdoNetConnectionString" ConnectionStringObject=""
+                      IsAppSettingsProperty="true" Modifier="Assembly"
+                      Name="AdventureWorksLT2008R2AdoNetConnectionString (Settings)" ParameterPrefix="@"
+                      PropertyReference="ApplicationSettings.Example.AdventureWorks2008ObjectContext_Dal.Properties.Settings.GlobalReference.Default.AdventureWorksLT2008R2AdoNetConnectionString"
+                      Provider="System.Data.SqlClient" />
         </Connections>
         <Tables>
-          <TableAdapter BaseClass="System.ComponentModel.Component" DataAccessorModifier="AutoLayout, AnsiClass, Class, Public" DataAccessorName="ProductCategoryTableAdapter" GeneratorDataComponentClassName="ProductCategoryTableAdapter" Name="ProductCategory" UserDataComponentName="ProductCategoryTableAdapter">
+          <TableAdapter BaseClass="System.ComponentModel.Component"
+                        DataAccessorModifier="AutoLayout, AnsiClass, Class, Public"
+                        DataAccessorName="ProductCategoryTableAdapter"
+                        GeneratorDataComponentClassName="ProductCategoryTableAdapter" Name="ProductCategory"
+                        UserDataComponentName="ProductCategoryTableAdapter">
             <MainSource>
-              <DbSource ConnectionRef="AdventureWorksLT2008R2AdoNetConnectionString (Settings)" DbObjectName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DbObjectType="Table" FillMethodModifier="Public" FillMethodName="FillCategoriesByNameLike" GenerateMethods="Both" GenerateShortCommands="true" GeneratorGetMethodName="GetCategoriesByNameLike" GeneratorSourceName="FillCategoriesByNameLike" GetMethodModifier="Public" GetMethodName="GetCategoriesByNameLike" QueryType="Rowset" ScalarCallRetval="System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="true" UserGetMethodName="GetCategoriesByNameLike" UserSourceName="FillCategoriesByNameLike">
+              <DbSource ConnectionRef="AdventureWorksLT2008R2AdoNetConnectionString (Settings)"
+                        DbObjectName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DbObjectType="Table"
+                        FillMethodModifier="Public" FillMethodName="FillCategoriesByNameLike" GenerateMethods="Both"
+                        GenerateShortCommands="true" GeneratorGetMethodName="GetCategoriesByNameLike"
+                        GeneratorSourceName="FillCategoriesByNameLike" GetMethodModifier="Public"
+                        GetMethodName="GetCategoriesByNameLike" QueryType="Rowset"
+                        ScalarCallRetval="System.Object, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                        UseOptimisticConcurrency="true" UserGetMethodName="GetCategoriesByNameLike"
+                        UserSourceName="FillCategoriesByNameLike">
                 <DeleteCommand>
                   <DbCommand CommandType="Text" ModifiedByUser="false">
                     <CommandText>DELETE FROM [SalesLT].[ProductCategory] WHERE (([ProductCategoryID] = @Original_ProductCategoryID) AND ((@IsNull_ParentProductCategoryID = 1 AND [ParentProductCategoryID] IS NULL) OR ([ParentProductCategoryID] = @Original_ParentProductCategoryID)) AND ([Name] = @Original_Name) AND ([rowguid] = @Original_rowguid) AND ([ModifiedDate] = @Original_ModifiedDate))</CommandText>
                     <Parameters>
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Int32" Direction="Input" ParameterName="@Original_ProductCategoryID" Precision="0" ProviderType="Int" Scale="0" Size="0" SourceColumn="ProductCategoryID" SourceColumnNullMapping="false" SourceVersion="Original" />
-                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32" Direction="Input" ParameterName="@IsNull_ParentProductCategoryID" Precision="0" ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID" SourceColumnNullMapping="true" SourceVersion="Original" />
-                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32" Direction="Input" ParameterName="@Original_ParentProductCategoryID" Precision="0" ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID" SourceColumnNullMapping="false" SourceVersion="Original" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="String" Direction="Input" ParameterName="@Original_Name" Precision="0" ProviderType="NVarChar" Scale="0" Size="0" SourceColumn="Name" SourceColumnNullMapping="false" SourceVersion="Original" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Guid" Direction="Input" ParameterName="@Original_rowguid" Precision="0" ProviderType="UniqueIdentifier" Scale="0" Size="0" SourceColumn="rowguid" SourceColumnNullMapping="false" SourceVersion="Original" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="DateTime" Direction="Input" ParameterName="@Original_ModifiedDate" Precision="0" ProviderType="DateTime" Scale="0" Size="0" SourceColumn="ModifiedDate" SourceColumnNullMapping="false" SourceVersion="Original" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Int32"
+                                 Direction="Input" ParameterName="@Original_ProductCategoryID" Precision="0"
+                                 ProviderType="Int" Scale="0" Size="0" SourceColumn="ProductCategoryID"
+                                 SourceColumnNullMapping="false" SourceVersion="Original" />
+                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32"
+                                 Direction="Input" ParameterName="@IsNull_ParentProductCategoryID" Precision="0"
+                                 ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID"
+                                 SourceColumnNullMapping="true" SourceVersion="Original" />
+                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32"
+                                 Direction="Input" ParameterName="@Original_ParentProductCategoryID" Precision="0"
+                                 ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID"
+                                 SourceColumnNullMapping="false" SourceVersion="Original" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="String"
+                                 Direction="Input" ParameterName="@Original_Name" Precision="0" ProviderType="NVarChar"
+                                 Scale="0" Size="0" SourceColumn="Name" SourceColumnNullMapping="false"
+                                 SourceVersion="Original" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Guid"
+                                 Direction="Input" ParameterName="@Original_rowguid" Precision="0"
+                                 ProviderType="UniqueIdentifier" Scale="0" Size="0" SourceColumn="rowguid"
+                                 SourceColumnNullMapping="false" SourceVersion="Original" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="DateTime"
+                                 Direction="Input" ParameterName="@Original_ModifiedDate" Precision="0"
+                                 ProviderType="DateTime" Scale="0" Size="0" SourceColumn="ModifiedDate"
+                                 SourceColumnNullMapping="false" SourceVersion="Original" />
                     </Parameters>
                   </DbCommand>
                 </DeleteCommand>
                 <InsertCommand>
                   <DbCommand CommandType="Text" ModifiedByUser="false">
-                    <CommandText>INSERT INTO [SalesLT].[ProductCategory] ([ParentProductCategoryID], [Name], [rowguid], [ModifiedDate]) VALUES (@ParentProductCategoryID, @Name, @rowguid, @ModifiedDate);
-SELECT ProductCategoryID, ParentProductCategoryID, Name, rowguid, ModifiedDate FROM SalesLT.ProductCategory WHERE (ProductCategoryID = SCOPE_IDENTITY())</CommandText>
+                    <CommandText>
+                      INSERT INTO [SalesLT].[ProductCategory] ([ParentProductCategoryID], [Name], [rowguid], [ModifiedDate]) VALUES (@ParentProductCategoryID, @Name, @rowguid, @ModifiedDate);
+                      SELECT ProductCategoryID, ParentProductCategoryID, Name, rowguid, ModifiedDate FROM SalesLT.ProductCategory WHERE (ProductCategoryID = SCOPE_IDENTITY())
+                    </CommandText>
                     <Parameters>
-                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32" Direction="Input" ParameterName="@ParentProductCategoryID" Precision="0" ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID" SourceColumnNullMapping="false" SourceVersion="Current" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="String" Direction="Input" ParameterName="@Name" Precision="0" ProviderType="NVarChar" Scale="0" Size="0" SourceColumn="Name" SourceColumnNullMapping="false" SourceVersion="Current" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Guid" Direction="Input" ParameterName="@rowguid" Precision="0" ProviderType="UniqueIdentifier" Scale="0" Size="0" SourceColumn="rowguid" SourceColumnNullMapping="false" SourceVersion="Current" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="DateTime" Direction="Input" ParameterName="@ModifiedDate" Precision="0" ProviderType="DateTime" Scale="0" Size="0" SourceColumn="ModifiedDate" SourceColumnNullMapping="false" SourceVersion="Current" />
+                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32"
+                                 Direction="Input" ParameterName="@ParentProductCategoryID" Precision="0"
+                                 ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID"
+                                 SourceColumnNullMapping="false" SourceVersion="Current" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="String"
+                                 Direction="Input" ParameterName="@Name" Precision="0" ProviderType="NVarChar"
+                                 Scale="0" Size="0" SourceColumn="Name" SourceColumnNullMapping="false"
+                                 SourceVersion="Current" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Guid"
+                                 Direction="Input" ParameterName="@rowguid" Precision="0"
+                                 ProviderType="UniqueIdentifier" Scale="0" Size="0" SourceColumn="rowguid"
+                                 SourceColumnNullMapping="false" SourceVersion="Current" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="DateTime"
+                                 Direction="Input" ParameterName="@ModifiedDate" Precision="0" ProviderType="DateTime"
+                                 Scale="0" Size="0" SourceColumn="ModifiedDate" SourceColumnNullMapping="false"
+                                 SourceVersion="Current" />
                     </Parameters>
                   </DbCommand>
                 </InsertCommand>
                 <SelectCommand>
                   <DbCommand CommandType="Text" ModifiedByUser="true">
-                    <CommandText>SELECT        SalesLT.ProductCategory.*
-FROM            SalesLT.ProductCategory
-WHERE        (Name LIKE N'%' + @categoryName + N'%')</CommandText>
+                    <CommandText>
+                      SELECT        SalesLT.ProductCategory.*
+                      FROM            SalesLT.ProductCategory
+                      WHERE        (Name LIKE N'%' + @categoryName + N'%')
+                    </CommandText>
                     <Parameters>
-                      <Parameter AllowDbNull="false" AutogeneratedName="categoryName" ColumnName="Name" DataSourceName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DataTypeServer="Name" DbType="String" Direction="Input" ParameterName="@categoryName" Precision="0" ProviderType="NVarChar" Scale="0" Size="100" SourceColumn="Name" SourceColumnNullMapping="false" SourceVersion="Current" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="categoryName" ColumnName="Name"
+                                 DataSourceName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DataTypeServer="Name"
+                                 DbType="String" Direction="Input" ParameterName="@categoryName" Precision="0"
+                                 ProviderType="NVarChar" Scale="0" Size="100" SourceColumn="Name"
+                                 SourceColumnNullMapping="false" SourceVersion="Current" />
                     </Parameters>
                   </DbCommand>
                 </SelectCommand>
                 <UpdateCommand>
                   <DbCommand CommandType="Text" ModifiedByUser="false">
-                    <CommandText>UPDATE [SalesLT].[ProductCategory] SET [ParentProductCategoryID] = @ParentProductCategoryID, [Name] = @Name, [rowguid] = @rowguid, [ModifiedDate] = @ModifiedDate WHERE (([ProductCategoryID] = @Original_ProductCategoryID) AND ((@IsNull_ParentProductCategoryID = 1 AND [ParentProductCategoryID] IS NULL) OR ([ParentProductCategoryID] = @Original_ParentProductCategoryID)) AND ([Name] = @Original_Name) AND ([rowguid] = @Original_rowguid) AND ([ModifiedDate] = @Original_ModifiedDate));
-SELECT ProductCategoryID, ParentProductCategoryID, Name, rowguid, ModifiedDate FROM SalesLT.ProductCategory WHERE (ProductCategoryID = @ProductCategoryID)</CommandText>
+                    <CommandText>
+                      UPDATE [SalesLT].[ProductCategory] SET [ParentProductCategoryID] = @ParentProductCategoryID, [Name] = @Name, [rowguid] = @rowguid, [ModifiedDate] = @ModifiedDate WHERE (([ProductCategoryID] = @Original_ProductCategoryID) AND ((@IsNull_ParentProductCategoryID = 1 AND [ParentProductCategoryID] IS NULL) OR ([ParentProductCategoryID] = @Original_ParentProductCategoryID)) AND ([Name] = @Original_Name) AND ([rowguid] = @Original_rowguid) AND ([ModifiedDate] = @Original_ModifiedDate));
+                      SELECT ProductCategoryID, ParentProductCategoryID, Name, rowguid, ModifiedDate FROM SalesLT.ProductCategory WHERE (ProductCategoryID = @ProductCategoryID)
+                    </CommandText>
                     <Parameters>
-                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32" Direction="Input" ParameterName="@ParentProductCategoryID" Precision="0" ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID" SourceColumnNullMapping="false" SourceVersion="Current" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="String" Direction="Input" ParameterName="@Name" Precision="0" ProviderType="NVarChar" Scale="0" Size="0" SourceColumn="Name" SourceColumnNullMapping="false" SourceVersion="Current" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Guid" Direction="Input" ParameterName="@rowguid" Precision="0" ProviderType="UniqueIdentifier" Scale="0" Size="0" SourceColumn="rowguid" SourceColumnNullMapping="false" SourceVersion="Current" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="DateTime" Direction="Input" ParameterName="@ModifiedDate" Precision="0" ProviderType="DateTime" Scale="0" Size="0" SourceColumn="ModifiedDate" SourceColumnNullMapping="false" SourceVersion="Current" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Int32" Direction="Input" ParameterName="@Original_ProductCategoryID" Precision="0" ProviderType="Int" Scale="0" Size="0" SourceColumn="ProductCategoryID" SourceColumnNullMapping="false" SourceVersion="Original" />
-                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32" Direction="Input" ParameterName="@IsNull_ParentProductCategoryID" Precision="0" ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID" SourceColumnNullMapping="true" SourceVersion="Original" />
-                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32" Direction="Input" ParameterName="@Original_ParentProductCategoryID" Precision="0" ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID" SourceColumnNullMapping="false" SourceVersion="Original" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="String" Direction="Input" ParameterName="@Original_Name" Precision="0" ProviderType="NVarChar" Scale="0" Size="0" SourceColumn="Name" SourceColumnNullMapping="false" SourceVersion="Original" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Guid" Direction="Input" ParameterName="@Original_rowguid" Precision="0" ProviderType="UniqueIdentifier" Scale="0" Size="0" SourceColumn="rowguid" SourceColumnNullMapping="false" SourceVersion="Original" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="DateTime" Direction="Input" ParameterName="@Original_ModifiedDate" Precision="0" ProviderType="DateTime" Scale="0" Size="0" SourceColumn="ModifiedDate" SourceColumnNullMapping="false" SourceVersion="Original" />
-                      <Parameter AllowDbNull="false" AutogeneratedName="ProductCategoryID" ColumnName="ProductCategoryID" DataSourceName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DataTypeServer="int" DbType="Int32" Direction="Input" ParameterName="@ProductCategoryID" Precision="0" ProviderType="Int" Scale="0" Size="4" SourceColumn="ProductCategoryID" SourceColumnNullMapping="false" SourceVersion="Current" />
+                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32"
+                                 Direction="Input" ParameterName="@ParentProductCategoryID" Precision="0"
+                                 ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID"
+                                 SourceColumnNullMapping="false" SourceVersion="Current" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="String"
+                                 Direction="Input" ParameterName="@Name" Precision="0" ProviderType="NVarChar"
+                                 Scale="0" Size="0" SourceColumn="Name" SourceColumnNullMapping="false"
+                                 SourceVersion="Current" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Guid"
+                                 Direction="Input" ParameterName="@rowguid" Precision="0"
+                                 ProviderType="UniqueIdentifier" Scale="0" Size="0" SourceColumn="rowguid"
+                                 SourceColumnNullMapping="false" SourceVersion="Current" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="DateTime"
+                                 Direction="Input" ParameterName="@ModifiedDate" Precision="0" ProviderType="DateTime"
+                                 Scale="0" Size="0" SourceColumn="ModifiedDate" SourceColumnNullMapping="false"
+                                 SourceVersion="Current" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Int32"
+                                 Direction="Input" ParameterName="@Original_ProductCategoryID" Precision="0"
+                                 ProviderType="Int" Scale="0" Size="0" SourceColumn="ProductCategoryID"
+                                 SourceColumnNullMapping="false" SourceVersion="Original" />
+                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32"
+                                 Direction="Input" ParameterName="@IsNull_ParentProductCategoryID" Precision="0"
+                                 ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID"
+                                 SourceColumnNullMapping="true" SourceVersion="Original" />
+                      <Parameter AllowDbNull="true" AutogeneratedName="" DataSourceName="" DbType="Int32"
+                                 Direction="Input" ParameterName="@Original_ParentProductCategoryID" Precision="0"
+                                 ProviderType="Int" Scale="0" Size="0" SourceColumn="ParentProductCategoryID"
+                                 SourceColumnNullMapping="false" SourceVersion="Original" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="String"
+                                 Direction="Input" ParameterName="@Original_Name" Precision="0" ProviderType="NVarChar"
+                                 Scale="0" Size="0" SourceColumn="Name" SourceColumnNullMapping="false"
+                                 SourceVersion="Original" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="Guid"
+                                 Direction="Input" ParameterName="@Original_rowguid" Precision="0"
+                                 ProviderType="UniqueIdentifier" Scale="0" Size="0" SourceColumn="rowguid"
+                                 SourceColumnNullMapping="false" SourceVersion="Original" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="" DataSourceName="" DbType="DateTime"
+                                 Direction="Input" ParameterName="@Original_ModifiedDate" Precision="0"
+                                 ProviderType="DateTime" Scale="0" Size="0" SourceColumn="ModifiedDate"
+                                 SourceColumnNullMapping="false" SourceVersion="Original" />
+                      <Parameter AllowDbNull="false" AutogeneratedName="ProductCategoryID"
+                                 ColumnName="ProductCategoryID"
+                                 DataSourceName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DataTypeServer="int"
+                                 DbType="Int32" Direction="Input" ParameterName="@ProductCategoryID" Precision="0"
+                                 ProviderType="Int" Scale="0" Size="4" SourceColumn="ProductCategoryID"
+                                 SourceColumnNullMapping="false" SourceVersion="Current" />
                     </Parameters>
                   </DbCommand>
                 </UpdateCommand>
@@ -77,14 +177,26 @@ SELECT ProductCategoryID, ParentProductCategoryID, Name, rowguid, ModifiedDate F
           </TableAdapter>
         </Tables>
         <Sources>
-          <DbSource ConnectionRef="AdventureWorksLT2008R2AdoNetConnectionString (Settings)" DbObjectName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DbObjectType="Table" GenerateShortCommands="true" GeneratorSourceName="LoadCategoriesByNameLike" MethodsParameterType="CLR" Modifier="Public" Name="LoadCategoriesByNameLike" QueryType="Scalar" ScalarCallRetval="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" UseOptimisticConcurrency="true" UserGetMethodName="GetDataBy" UserSourceName="LoadCategoriesByNameLike">
+          <DbSource ConnectionRef="AdventureWorksLT2008R2AdoNetConnectionString (Settings)"
+                    DbObjectName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DbObjectType="Table"
+                    GenerateShortCommands="true" GeneratorSourceName="LoadCategoriesByNameLike"
+                    MethodsParameterType="CLR" Modifier="Public" Name="LoadCategoriesByNameLike" QueryType="Scalar"
+                    ScalarCallRetval="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                    UseOptimisticConcurrency="true" UserGetMethodName="GetDataBy"
+                    UserSourceName="LoadCategoriesByNameLike">
             <SelectCommand>
               <DbCommand CommandType="Text" ModifiedByUser="true">
-                <CommandText>SELECT        SalesLT.ProductCategory.*
-FROM            SalesLT.ProductCategory
-WHERE        (Name LIKE N'%' + @categoryName + N'%')</CommandText>
+                <CommandText>
+                  SELECT        SalesLT.ProductCategory.*
+                  FROM            SalesLT.ProductCategory
+                  WHERE        (Name LIKE N'%' + @categoryName + N'%')
+                </CommandText>
                 <Parameters>
-                  <Parameter AllowDbNull="false" AutogeneratedName="categoryName" ColumnName="Name" DataSourceName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DataTypeServer="Name" DbType="String" Direction="Input" ParameterName="@categoryName" Precision="0" ProviderType="NVarChar" Scale="0" Size="100" SourceColumn="Name" SourceColumnNullMapping="false" SourceVersion="Current" />
+                  <Parameter AllowDbNull="false" AutogeneratedName="categoryName" ColumnName="Name"
+                             DataSourceName="AdventureWorksLT2008R2.SalesLT.ProductCategory" DataTypeServer="Name"
+                             DbType="String" Direction="Input" ParameterName="@categoryName" Precision="0"
+                             ProviderType="NVarChar" Scale="0" Size="100" SourceColumn="Name"
+                             SourceColumnNullMapping="false" SourceVersion="Current" />
                 </Parameters>
               </DbCommand>
             </SelectCommand>
@@ -93,23 +205,54 @@ WHERE        (Name LIKE N'%' + @categoryName + N'%')</CommandText>
       </DataSource>
     </xs:appinfo>
   </xs:annotation>
-  <xs:element name="AwDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true" msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="AwDataSet" msprop:Generator_UserDSName="AwDataSet">
+  <xs:element name="AwDataSet" msdata:IsDataSet="true" msdata:UseCurrentLocale="true"
+              msprop:EnableTableAdapterManager="true" msprop:Generator_DataSetName="AwDataSet"
+              msprop:Generator_UserDSName="AwDataSet">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
-        <xs:element name="ProductCategory" msprop:Generator_TableClassName="ProductCategoryDataTable" msprop:Generator_TableVarName="tableProductCategory" msprop:Generator_TablePropName="ProductCategory" msprop:Generator_RowDeletingName="ProductCategoryRowDeleting" msprop:Generator_RowChangingName="ProductCategoryRowChanging" msprop:Generator_RowEvHandlerName="ProductCategoryRowChangeEventHandler" msprop:Generator_RowDeletedName="ProductCategoryRowDeleted" msprop:Generator_UserTableName="ProductCategory" msprop:Generator_RowChangedName="ProductCategoryRowChanged" msprop:Generator_RowEvArgName="ProductCategoryRowChangeEvent" msprop:Generator_RowClassName="ProductCategoryRow">
+        <xs:element name="ProductCategory" msprop:Generator_TableClassName="ProductCategoryDataTable"
+                    msprop:Generator_TableVarName="tableProductCategory"
+                    msprop:Generator_TablePropName="ProductCategory"
+                    msprop:Generator_RowDeletingName="ProductCategoryRowDeleting"
+                    msprop:Generator_RowChangingName="ProductCategoryRowChanging"
+                    msprop:Generator_RowEvHandlerName="ProductCategoryRowChangeEventHandler"
+                    msprop:Generator_RowDeletedName="ProductCategoryRowDeleted"
+                    msprop:Generator_UserTableName="ProductCategory"
+                    msprop:Generator_RowChangedName="ProductCategoryRowChanged"
+                    msprop:Generator_RowEvArgName="ProductCategoryRowChangeEvent"
+                    msprop:Generator_RowClassName="ProductCategoryRow">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="ProductCategoryID" msdata:ReadOnly="true" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="-1" msdata:AutoIncrementStep="-1" msprop:Generator_ColumnVarNameInTable="columnProductCategoryID" msprop:Generator_ColumnPropNameInRow="ProductCategoryID" msprop:Generator_ColumnPropNameInTable="ProductCategoryIDColumn" msprop:Generator_UserColumnName="ProductCategoryID" type="xs:int" />
-              <xs:element name="ParentProductCategoryID" msprop:Generator_ColumnVarNameInTable="columnParentProductCategoryID" msprop:Generator_ColumnPropNameInRow="ParentProductCategoryID" msprop:Generator_ColumnPropNameInTable="ParentProductCategoryIDColumn" msprop:Generator_UserColumnName="ParentProductCategoryID" type="xs:int" minOccurs="0" />
-              <xs:element name="Name" msprop:Generator_ColumnVarNameInTable="columnName" msprop:Generator_ColumnPropNameInRow="Name" msprop:Generator_ColumnPropNameInTable="NameColumn" msprop:Generator_UserColumnName="Name">
+              <xs:element name="ProductCategoryID" msdata:ReadOnly="true" msdata:AutoIncrement="true"
+                          msdata:AutoIncrementSeed="-1" msdata:AutoIncrementStep="-1"
+                          msprop:Generator_ColumnVarNameInTable="columnProductCategoryID"
+                          msprop:Generator_ColumnPropNameInRow="ProductCategoryID"
+                          msprop:Generator_ColumnPropNameInTable="ProductCategoryIDColumn"
+                          msprop:Generator_UserColumnName="ProductCategoryID" type="xs:int" />
+              <xs:element name="ParentProductCategoryID"
+                          msprop:Generator_ColumnVarNameInTable="columnParentProductCategoryID"
+                          msprop:Generator_ColumnPropNameInRow="ParentProductCategoryID"
+                          msprop:Generator_ColumnPropNameInTable="ParentProductCategoryIDColumn"
+                          msprop:Generator_UserColumnName="ParentProductCategoryID" type="xs:int" minOccurs="0" />
+              <xs:element name="Name" msprop:Generator_ColumnVarNameInTable="columnName"
+                          msprop:Generator_ColumnPropNameInRow="Name"
+                          msprop:Generator_ColumnPropNameInTable="NameColumn" msprop:Generator_UserColumnName="Name">
                 <xs:simpleType>
                   <xs:restriction base="xs:string">
                     <xs:maxLength value="50" />
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
-              <xs:element name="rowguid" msdata:DataType="System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" msprop:Generator_ColumnVarNameInTable="columnrowguid" msprop:Generator_ColumnPropNameInRow="rowguid" msprop:Generator_ColumnPropNameInTable="rowguidColumn" msprop:Generator_UserColumnName="rowguid" type="xs:string" />
-              <xs:element name="ModifiedDate" msprop:Generator_ColumnVarNameInTable="columnModifiedDate" msprop:Generator_ColumnPropNameInRow="ModifiedDate" msprop:Generator_ColumnPropNameInTable="ModifiedDateColumn" msprop:Generator_UserColumnName="ModifiedDate" type="xs:dateTime" />
+              <xs:element name="rowguid"
+                          msdata:DataType="System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                          msprop:Generator_ColumnVarNameInTable="columnrowguid"
+                          msprop:Generator_ColumnPropNameInRow="rowguid"
+                          msprop:Generator_ColumnPropNameInTable="rowguidColumn"
+                          msprop:Generator_UserColumnName="rowguid" type="xs:string" />
+              <xs:element name="ModifiedDate" msprop:Generator_ColumnVarNameInTable="columnModifiedDate"
+                          msprop:Generator_ColumnPropNameInRow="ModifiedDate"
+                          msprop:Generator_ColumnPropNameInTable="ModifiedDateColumn"
+                          msprop:Generator_UserColumnName="ModifiedDate" type="xs:dateTime" />
             </xs:sequence>
           </xs:complexType>
         </xs:element>
@@ -122,7 +265,15 @@ WHERE        (Name LIKE N'%' + @categoryName + N'%')</CommandText>
   </xs:element>
   <xs:annotation>
     <xs:appinfo>
-      <msdata:Relationship name="FK_ProductCategory_ProductCategory_ParentProductCategoryID_ProductCategoryID" msdata:parent="ProductCategory" msdata:child="ProductCategory" msdata:parentkey="ProductCategoryID" msdata:childkey="ParentProductCategoryID" msprop:Generator_UserChildTable="ProductCategory" msprop:Generator_ChildPropName="GetProductCategoryRows" msprop:Generator_UserRelationName="FK_ProductCategory_ProductCategory_ParentProductCategoryID_ProductCategoryID" msprop:Generator_RelationVarName="relationFK_ProductCategory_ProductCategory_ParentProductCategoryID_ProductCategoryID" msprop:Generator_UserParentTable="ProductCategory" msprop:Generator_ParentPropName="ProductCategoryRowParent" />
+      <msdata:Relationship name="FK_ProductCategory_ProductCategory_ParentProductCategoryID_ProductCategoryID"
+                           msdata:parent="ProductCategory" msdata:child="ProductCategory"
+                           msdata:parentkey="ProductCategoryID" msdata:childkey="ParentProductCategoryID"
+                           msprop:Generator_UserChildTable="ProductCategory"
+                           msprop:Generator_ChildPropName="GetProductCategoryRows"
+                           msprop:Generator_UserRelationName="FK_ProductCategory_ProductCategory_ParentProductCategoryID_ProductCategoryID"
+                           msprop:Generator_RelationVarName="relationFK_ProductCategory_ProductCategory_ParentProductCategoryID_ProductCategoryID"
+                           msprop:Generator_UserParentTable="ProductCategory"
+                           msprop:Generator_ParentPropName="ProductCategoryRowParent" />
     </xs:appinfo>
   </xs:annotation>
 </xs:schema>

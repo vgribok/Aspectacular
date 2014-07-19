@@ -1,21 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Base class for special types of Strings, with some constraints, like non-null, non-blank, trimmed, etc.
-    /// This class is easily convertible to and from System.String, and therefore its subclasses can be used as method parameters instead of some strings.
-    /// and can be compared to string and other StringWithConstraints subclasses.
+    ///     Base class for special types of Strings, with some constraints, like non-null, non-blank, trimmed, etc.
+    ///     This class is easily convertible to and from System.String, and therefore its subclasses can be used as method
+    ///     parameters instead of some strings.
+    ///     and can be compared to string and other StringWithConstraints subclasses.
     /// </summary>
     public abstract class StringWithConstraints : IComparable, IComparable<StringWithConstraints>, IComparable<string>, IEquatable<StringWithConstraints>, IEquatable<string>
     {
         private string str;
         protected Func<string, string> massager;
-        
-        public virtual string String 
+
+        public virtual string String
         {
             get { return this.str; }
             set { this.str = this.massager(value); }
@@ -35,11 +40,11 @@ namespace Aspectacular
         {
             object strRaw = ms;
 
-            if (obj == null)
+            if(obj == null)
                 return strRaw == null || ms.String == null;
 
             string str = strRaw == null ? null : ms.String;
-            return str == obj.ToStringEx(nullObjString: null);
+            return str == obj.ToStringEx(null);
         }
 
         public static bool operator !=(StringWithConstraints ms, object obj)
@@ -64,17 +69,17 @@ namespace Aspectacular
         {
             string other = null;
 
-            if (obj != null)
+            if(obj != null)
             {
-                if (obj is string)
+                if(obj is string)
                     other = (string)obj;
-                else if (obj is StringWithConstraints)
+                else if(obj is StringWithConstraints)
                     other = obj.ToString();
                 else
                     throw new Exception("Cannot compare ModifiedString to \"{0}\".".SmartFormat(obj.GetType().FormatCSharp()));
             }
 
-            if (this.String == null)
+            if(this.String == null)
                 return other == null ? 0 : int.MinValue;
 
 // ReSharper disable once StringCompareToIsCultureSpecific
@@ -120,7 +125,8 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Represents a string that is never "" or has only white spaces in it: it's either null or non-empty, non-whitespace string.
+    ///     Represents a string that is never "" or has only white spaces in it: it's either null or non-empty, non-whitespace
+    ///     string.
     /// </summary>
     public class NonEmptyString : StringWithConstraints
     {
@@ -143,8 +149,8 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Represents a string that is either null, or non-empty/non-blank string with no leading or trailing white spaces.
-    /// Empty string becomes null, non-empty strings get trimmed.
+    ///     Represents a string that is either null, or non-empty/non-blank string with no leading or trailing white spaces.
+    ///     Empty string becomes null, non-empty strings get trimmed.
     /// </summary>
     public class NonEmptyTrimmedString : StringWithConstraints
     {
@@ -167,7 +173,7 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Represents a string that never has leading or trailing whites paces.
+    ///     Represents a string that never has leading or trailing whites paces.
     /// </summary>
     public class TrimmedString : StringWithConstraints
     {
@@ -190,7 +196,7 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// String that can never be null. Null is converted into "".
+    ///     String that can never be null. Null is converted into "".
     /// </summary>
     public class NonNullString : StringWithConstraints
     {
@@ -213,8 +219,8 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Base class for strings that must not exceed certain length.
-    /// Create subclasses for biz logic-specific strings instead of using this class directly.
+    ///     Base class for strings that must not exceed certain length.
+    ///     Create subclasses for biz logic-specific strings instead of using this class directly.
     /// </summary>
     public abstract class TruncatedString : StringWithConstraints
     {
@@ -241,10 +247,7 @@ namespace Aspectacular
 
         public override string String
         {
-            get
-            {
-                return base.String;
-            }
+            get { return base.String; }
             set
             {
                 this.OriginalString = value;
@@ -254,8 +257,8 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// String that does not exceed 255 chars in length. When truncated, no ellipsis added.
-    /// This class is an example of how TruncatedString subclasses should be created.
+    ///     String that does not exceed 255 chars in length. When truncated, no ellipsis added.
+    ///     This class is an example of how TruncatedString subclasses should be created.
     /// </summary>
     public class String255 : TruncatedString
     {
@@ -264,7 +267,7 @@ namespace Aspectacular
         }
 
         public String255(string str)
-            : base(str, 255, optionalEllipsis: null)
+            : base(str, 255, null)
         {
         }
 

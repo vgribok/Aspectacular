@@ -1,10 +1,14 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Reflection;
 
 namespace Aspectacular
 {
@@ -17,109 +21,109 @@ namespace Aspectacular
 
         public static bool IsNullOrEmpty(this IEnumerable collection)
         {
-            if (collection == null)
+            if(collection == null)
                 return true;
 
             // ReSharper disable once LoopCanBeConvertedToQuery
             // ReSharper disable once UnusedVariable
-            foreach (object first in collection)
+            foreach(object first in collection)
                 return false;
 
             return true;
         }
 
         /// <summary>
-        /// Rearranges elements of the collection in the opposite order.
-        /// [A, B, C, D] becomes [D, C, B, A].
+        ///     Rearranges elements of the collection in the opposite order.
+        ///     [A, B, C, D] becomes [D, C, B, A].
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <returns></returns>
         public static IEnumerable<T> ReverseOrder<T>(this IEnumerable<T> collection)
         {
-            if (collection == null)
+            if(collection == null)
                 return null;
 
             return collection.Reverse();
         }
 
         /// <summary>
-        /// Lambda-style foreach loop.
+        ///     Lambda-style foreach loop.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <param name="func"></param>
         public static void ForEach<T>(this IEnumerable<T> collection, Action<T> func)
         {
-            if (collection == null)
+            if(collection == null)
                 return;
 
-            foreach (T elem in collection)
+            foreach(T elem in collection)
                 func(elem);
         }
 
         /// <summary>
-        /// Lambda-style foreach loop.
+        ///     Lambda-style foreach loop.
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="func"></param>
         public static void ForEach(this IEnumerable collection, Action<object> func)
         {
-            if (collection == null)
+            if(collection == null)
                 return;
 
-            foreach (object elem in collection)
+            foreach(object elem in collection)
                 func(elem);
         }
 
         /// <summary>
-        /// Lambda-style for loop
+        ///     Lambda-style for loop
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
         /// <param name="func"></param>
         public static void For<T>(this IList<T> collection, Action<IList<T>, int> func)
         {
-            if (collection == null)
+            if(collection == null)
                 return;
 
-            for (int i = 0; i < collection.Count; i++)
+            for(int i = 0; i < collection.Count; i++)
                 func(collection, i);
         }
 
         /// <summary>
-        /// Lambda-style for loop
+        ///     Lambda-style for loop
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="func"></param>
         public static void ForLoop(this IList collection, Action<IList, int> func)
         {
-            if (collection == null)
+            if(collection == null)
                 return;
 
-            for (int i = 0; i < collection.Count; i++)
+            for(int i = 0; i < collection.Count; i++)
                 func(collection, i);
         }
 
         /// <summary>
-        /// Calls [handler] given number of times and passes zero-based iteration index to it.
+        ///     Calls [handler] given number of times and passes zero-based iteration index to it.
         /// </summary>
         /// <param name="count"></param>
         /// <param name="handler"></param>
         public static void Repeat(this int count, Action<int> handler)
         {
-            for (int i = 0; i < count; i++)
+            for(int i = 0; i < count; i++)
                 handler(i);
         }
 
         /// <summary>
-        /// Calls [handler] given number of times and passes zero-based iteration index to it.
+        ///     Calls [handler] given number of times and passes zero-based iteration index to it.
         /// </summary>
         /// <param name="count"></param>
         /// <param name="handler"></param>
         public static void Repeat(this long count, Action<long> handler)
         {
-            for (long i = 0; i < count; i++)
+            for(long i = 0; i < count; i++)
                 handler(i);
         }
 
@@ -129,7 +133,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// More convenient form of Union().
+        ///     More convenient form of Union().
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -139,7 +143,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// A better version of the Union() method that won't trip up on null collections.
+        ///     A better version of the Union() method that won't trip up on null collections.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="leftCollection"></param>
@@ -147,10 +151,10 @@ namespace Aspectacular
         /// <returns></returns>
         public static IEnumerable<T> SmartUnion<T>(this IEnumerable<T> leftCollection, IEnumerable<T> rightCollection)
         {
-            if (leftCollection == null)
+            if(leftCollection == null)
                 return rightCollection;
 
-            if (rightCollection == null)
+            if(rightCollection == null)
                 return leftCollection;
 
             return leftCollection.Union(rightCollection);
@@ -158,7 +162,7 @@ namespace Aspectacular
 
 
         /// <summary>
-        /// Returns sequence of objects ordered by the value of the given property.
+        ///     Returns sequence of objects ordered by the value of the given property.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
@@ -168,13 +172,13 @@ namespace Aspectacular
         public static IEnumerable<T> OrderByProperty<T>(this IEnumerable<T> collection, string entityPropertyName, bool orderAscending = true)
         {
             IEnumerable<T> ordered = collection.OrderByMember(entityPropertyName, orderAscending,
-                                                (propName, entity) => entity.GetType().GetPropertyValue(propName, entity)
-                                            );
+                (propName, entity) => entity.GetType().GetPropertyValue(propName, entity)
+                );
             return ordered;
         }
 
         /// <summary>
-        /// Returns sequence of objects ordered by the value of the given field.
+        ///     Returns sequence of objects ordered by the value of the given field.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="collection"></param>
@@ -183,20 +187,20 @@ namespace Aspectacular
         /// <returns></returns>
         public static IEnumerable<T> OrderByField<T>(this IEnumerable<T> collection, string entityFieldName, bool orderAscending = true)
         {
-            IEnumerable<T> ordered = collection.OrderByMember(entityFieldName, orderAscending, 
-                                                (fldName, entity) => entity.GetType().GetMemberFieldValue(fldName, entity)
-                                            );
+            IEnumerable<T> ordered = collection.OrderByMember(entityFieldName, orderAscending,
+                (fldName, entity) => entity.GetType().GetMemberFieldValue(fldName, entity)
+                );
             return ordered;
         }
 
         private static IEnumerable<TEntity> OrderByMember<TEntity>(this IEnumerable<TEntity> collection, string memberName, bool orderAscending, Func<string, object, object> memberValueReader)
         {
-            if (collection == null || string.IsNullOrEmpty(memberName))
+            if(collection == null || string.IsNullOrEmpty(memberName))
                 return collection;
 
             IEnumerable<TEntity> ordered;
 
-            if (orderAscending)
+            if(orderAscending)
                 ordered = collection.OrderBy(r => memberValueReader(memberName, r));
             else
                 ordered = collection.OrderByDescending(r => memberValueReader(memberName, r));
@@ -205,7 +209,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns null if value was not found in the dictionary.
+        ///     Returns null if value was not found in the dictionary.
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TVal">Value type</typeparam>
@@ -216,14 +220,14 @@ namespace Aspectacular
             where TVal : struct
         {
             TVal val;
-            if (!dictionary.TryGetValue(key, out val))
+            if(!dictionary.TryGetValue(key, out val))
                 return null;
 
             return val;
         }
 
         /// <summary>
-        /// Returns null if value was not found in the dictionary.
+        ///     Returns null if value was not found in the dictionary.
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TVal">Reference type</typeparam>
@@ -234,16 +238,16 @@ namespace Aspectacular
             where TVal : class
         {
             TVal val;
-            if (!dictionary.TryGetValue(key, out val))
+            if(!dictionary.TryGetValue(key, out val))
                 return null;
 
             return val;
         }
 
         /// <summary>
-        /// Compares two sets, Current and New one. New set determines the end state. 
-        /// Result of this method is two sets: items to be deleted from the old set 
-        /// and items to be added to the current set in order to make up new one.
+        ///     Compares two sets, Current and New one. New set determines the end state.
+        ///     Result of this method is two sets: items to be deleted from the old set
+        ///     and items to be added to the current set in order to make up new one.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="currentSet"></param>
@@ -256,12 +260,11 @@ namespace Aspectacular
 
             currentSet = currentSet ?? new T[0];
 
-            if (newSet == null)
+            if(newSet == null)
             {
                 retVal.ToBeAdded = new T[0];
                 retVal.ToBeDeleted = currentSet;
-            }
-            else
+            } else
             {
                 IEqualityComparer<T> icomparer = ToIEqualityComparer(equalityChecker);
                 IList<T> newSetList = newSet.ToList();
@@ -273,9 +276,9 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Compares two sets, Current and New one. New set determines the end state. 
-        /// Result of this method is two sets: items to be deleted from the old set 
-        /// and items to be added to the current set in order to make up new one.
+        ///     Compares two sets, Current and New one. New set determines the end state.
+        ///     Result of this method is two sets: items to be deleted from the old set
+        ///     and items to be added to the current set in order to make up new one.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="currentSet"></param>
@@ -287,7 +290,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if either both sets contain same elements, or both are empty.
+        ///     Returns true if either both sets contain same elements, or both are empty.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="set1"></param>
@@ -299,14 +302,14 @@ namespace Aspectacular
             if(equalityChecker == null)
                 throw new ArgumentNullException("equalityChecker");
 
-            if (set1 == null && set2 == null)
+            if(set1 == null && set2 == null)
                 return true;
 
             set1 = set1 ?? new T[0]; // I dare anyone to say I don't appreciate JavaScript :-).
             set2 = set2 ?? new T[0];
 
-            var enumerator1 = set1.GetEnumerator();
-            var enumerator2 = set2.GetEnumerator();
+            IEnumerator<T> enumerator1 = set1.GetEnumerator();
+            IEnumerator<T> enumerator2 = set2.GetEnumerator();
 
             bool next1, next2;
             do
@@ -314,20 +317,19 @@ namespace Aspectacular
                 next1 = enumerator1.MoveNext();
                 next2 = enumerator2.MoveNext();
 
-                if (next1 != next2)
+                if(next1 != next2)
                     return false;
 
-                if (!next1)
+                if(!next1)
                     return true;
 
-                if (!equalityChecker(enumerator1.Current, enumerator2.Current))
+                if(!equalityChecker(enumerator1.Current, enumerator2.Current))
                     return false;
-
-            } while (true);
+            } while(true);
         }
 
         /// <summary>
-        /// Returns true if either both sets contain same elements, or both are empty.
+        ///     Returns true if either both sets contain same elements, or both are empty.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="set1"></param>
@@ -340,13 +342,13 @@ namespace Aspectacular
 
         public static bool AreEqualEquitable<T>(this T x, T y) where T : IEquatable<T>
         {
-            var def = default(T);
+            T def = default(T);
 
-            if (def.Equals(x) && def.Equals(y))
+            if(def.Equals(x) && def.Equals(y))
                 // both are possible null
                 return true;
 
-            if (def.Equals(x)) // x is possible null, when y is not null.
+            if(def.Equals(x)) // x is possible null, when y is not null.
                 return y.Equals(x);
 
             // neither is null
@@ -354,8 +356,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// It stinks to implement IEqualityComparer for each entity.
-        /// This allows for supplying comparer closure instead.
+        ///     It stinks to implement IEqualityComparer for each entity.
+        ///     This allows for supplying comparer closure instead.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="equalityChecker"></param>
@@ -366,7 +368,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns IEqualityComparer implementation for IEquatable types, like int, string, DateTime, etc.
+        ///     Returns IEqualityComparer implementation for IEquatable types, like int, string, DateTime, etc.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
@@ -377,7 +379,7 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Converter of Func[T, T, bool] to IEqualityComparer[T].
+    ///     Converter of Func[T, T, bool] to IEqualityComparer[T].
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SimpleComparer<T> : IEqualityComparer<T>
@@ -386,7 +388,7 @@ namespace Aspectacular
 
         public SimpleComparer(Func<T, T, bool> equalityChecker)
         {
-            if (equalityChecker == null)
+            if(equalityChecker == null)
                 throw new ArgumentNullException("equalityChecker");
 
             this.equalityChecker = equalityChecker;
@@ -404,10 +406,10 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Result of comparing two sets: New and Current.
-    /// After comparison, items present in New but missing in Current, 
-    /// will be added to the ToBeAdded collection, 
-    /// and items present in Current but missing in New, will be added to ToBeDeleted collection
+    ///     Result of comparing two sets: New and Current.
+    ///     After comparison, items present in New but missing in Current,
+    ///     will be added to the ToBeAdded collection,
+    ///     and items present in Current but missing in New, will be added to ToBeDeleted collection
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class SetComparisonResult<T>
@@ -417,8 +419,8 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// A convenience class representing a pair of arbitrary values.
-    /// Works with KeyValuePair via implicit conversion.
+    ///     A convenience class representing a pair of arbitrary values.
+    ///     Works with KeyValuePair via implicit conversion.
     /// </summary>
     /// <typeparam name="T1"></typeparam>
     /// <typeparam name="T2"></typeparam>

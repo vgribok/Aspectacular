@@ -1,9 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 
 namespace Aspectacular
 {
@@ -20,22 +23,22 @@ namespace Aspectacular
     public enum TimelineFlags
     {
         /// <summary>
-        /// Marks timeline elements that can have only one time unit.
-        /// For example, current
+        ///     Marks timeline elements that can have only one time unit.
+        ///     For example, current
         /// </summary>
-        AllowsOnlySingleUnit  = 0x1000,
-        
+        AllowsOnlySingleUnit = 0x1000,
+
         /// <summary>
-        /// Modifier that includes
+        ///     Modifier that includes
         /// </summary>
-        IncludeEntireCurrentOrSpecified  = 0x0001,
+        IncludeEntireCurrentOrSpecified = 0x0001,
 
         IncludeNowOrSpecified = 0x4000,
 
         /// <summary>
-        /// Time unit or timeline element represents moment in time rather than date/time value.
+        ///     Time unit or timeline element represents moment in time rather than date/time value.
         /// </summary>
-        MomentInTime        = 0x2000,
+        MomentInTime = 0x2000,
     }
 
     public enum TimeUnits
@@ -46,11 +49,11 @@ namespace Aspectacular
         Eternity, // Open-ended past or future
 
         Day = 1,
-        Week, 
-        Month, 
-        Quarter, 
-        Year, 
-        Decade, 
+        Week,
+        Month,
+        Quarter,
+        Year,
+        Decade,
         Century,
     }
 
@@ -58,41 +61,45 @@ namespace Aspectacular
     public enum Timeline
     {
         /// <summary>
-        /// Current/specified day, hour, year, second, month, etc.
+        ///     Current/specified day, hour, year, second, month, etc.
         /// </summary>
         EntireCurrentOrSpecified = TimelineFlags.AllowsOnlySingleUnit + TimelineFlags.IncludeEntireCurrentOrSpecified,
 
         /// <summary>
-        /// Before current one.
-        /// Example: if now is September, then 3 x PreviousExcludingCurrent will return a span encompassing June, July and August.
+        ///     Before current one.
+        ///     Example: if now is September, then 3 x PreviousExcludingCurrent will return a span encompassing June, July and
+        ///     August.
         /// </summary>
         PreviousExcludingCurrent = 2,
 
         /// <summary>
-        /// Example: if now is September 15, then 3 x Past will return a span encompassing entire July, August and September up to Sept 15th.
+        ///     Example: if now is September 15, then 3 x Past will return a span encompassing entire July, August and September up
+        ///     to Sept 15th.
         /// </summary>
         Past = PreviousExcludingCurrent | TimelineFlags.IncludeNowOrSpecified,
 
         /// <summary>
-        /// Month-to-date, year-to-date, day-till-now.
+        ///     Month-to-date, year-to-date, day-till-now.
         /// </summary>
         ToDateOrTillSpecified = Past | TimelineFlags.AllowsOnlySingleUnit,
 
         /// <summary>
-        /// The one after current
-        /// Example: if now is September, then 3 x NextExcludingCurrent will return a span encompassing October, November and December.
+        ///     The one after current
+        ///     Example: if now is September, then 3 x NextExcludingCurrent will return a span encompassing October, November and
+        ///     December.
         /// </summary>
         NextExcludingCurrent = 4,
 
         /// <summary>
-        /// Example: if now is September 15, then 3 x Future will return a span encompassing Sept after 15th, October and entire November.
+        ///     Example: if now is September 15, then 3 x Future will return a span encompassing Sept after 15th, October and
+        ///     entire November.
         /// </summary>
         Future = NextExcludingCurrent | TimelineFlags.IncludeNowOrSpecified,
     }
 
     /// <summary>
-    /// More intuitive time range specification, than start date - end date type of date/time range.
-    /// For example, "PreviousExcludingCurrent 3 quarters", "Current week", "Past 48 hours".
+    ///     More intuitive time range specification, than start date - end date type of date/time range.
+    ///     For example, "PreviousExcludingCurrent 3 quarters", "Current week", "Past 48 hours".
     /// </summary>
     public class RelativeTimeSpan
     {
@@ -101,14 +108,13 @@ namespace Aspectacular
         public readonly ulong UnitCount;
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="direction"></param>
         /// <param name="unit"></param>
         /// <param name="unitCount"></param>
         public RelativeTimeSpan(Timeline direction, TimeUnits unit, ulong unitCount = 1)
         {
-            if (unitCount == 0)
+            if(unitCount == 0)
                 throw new ArgumentOutOfRangeException("unitCount value must be 1 or greater.");
 
             if(((int)direction & (int)TimelineFlags.AllowsOnlySingleUnit) != 0 && unitCount > 1)
@@ -167,11 +173,11 @@ namespace Aspectacular
 
             DateTimeOffset? starto, endo;
 
-            if (referenceMoment == null)
+            if(referenceMoment == null)
             {
                 starto = derange.HasStart ? derange.Start.Value : (DateTimeOffset?)null;
                 endo = derange.HasEnd ? derange.End.Value : (DateTimeOffset?)null;
-            }else
+            } else
             {
                 TimeSpan utcOffset = referenceMoment.Value.Offset;
 
@@ -192,11 +198,11 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns higher time Unit in which the given Unit is *repeated within*.
-        /// This is not a direct hierarchy! Different types of units may have same parent.
-        /// For example, Month number 1..12 is repeated within a Year, so Month's parent is Year, not quarter.
-        /// Quarter 1..4 also is repeated within a year, so Quarter's parent is also year.
-        /// Same goes for Week number 1..52.
+        ///     Returns higher time Unit in which the given Unit is *repeated within*.
+        ///     This is not a direct hierarchy! Different types of units may have same parent.
+        ///     For example, Month number 1..12 is repeated within a Year, so Month's parent is Year, not quarter.
+        ///     Quarter 1..4 also is repeated within a year, so Quarter's parent is also year.
+        ///     Same goes for Week number 1..52.
         /// </summary>
         /// <param name="unit"></param>
         /// <returns></returns>
@@ -242,53 +248,53 @@ namespace Aspectacular
 
         public static DateTimeOffset StartOf(this DateTimeOffset dt, TimeUnits unit)
         {
-            switch (unit)
+            switch(unit)
             {
                 case TimeUnits.Century:
-                    {
-                        int year = dt.Year / 100 * 100;
-                        return new DateTimeOffset(year, 1, 1, 0, 0, 0, dt.Offset);
-                    }
+                {
+                    int year = dt.Year/100*100;
+                    return new DateTimeOffset(year, 1, 1, 0, 0, 0, dt.Offset);
+                }
                 case TimeUnits.Decade:
-                    {
-                        int year = dt.Year / 10 * 10;
-                        return new DateTimeOffset(year, 1, 1, 0, 0, 0, dt.Offset);
-                    }
+                {
+                    int year = dt.Year/10*10;
+                    return new DateTimeOffset(year, 1, 1, 0, 0, 0, dt.Offset);
+                }
                 case TimeUnits.Year:
-                    {
-                        return new DateTimeOffset(dt.Year, 1, 1, 0, 0, 0, dt.Offset);
-                    }
+                {
+                    return new DateTimeOffset(dt.Year, 1, 1, 0, 0, 0, dt.Offset);
+                }
                 case TimeUnits.Quarter:
-                    {
-                        int month = (dt.Quarter() - 1) * 3 + 1;
-                        return new DateTimeOffset(dt.Year, month, 1, 0, 0, 0, dt.Offset);
-                    }
+                {
+                    int month = (dt.Quarter() - 1)*3 + 1;
+                    return new DateTimeOffset(dt.Year, month, 1, 0, 0, 0, dt.Offset);
+                }
                 case TimeUnits.Week:
-                    {
-                        DayOfWeek weekStart = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
-                        int delta = weekStart - dt.DayOfWeek;
-                        return dt.AddDays(delta).StartOf(TimeUnits.Day);
-                    }
+                {
+                    DayOfWeek weekStart = CultureInfo.CurrentCulture.DateTimeFormat.FirstDayOfWeek;
+                    int delta = weekStart - dt.DayOfWeek;
+                    return dt.AddDays(delta).StartOf(TimeUnits.Day);
+                }
                 case TimeUnits.Month:
-                    {
-                        return new DateTimeOffset(dt.Year, dt.Month, 1, 0, 0, 0, dt.Offset);
-                    }
+                {
+                    return new DateTimeOffset(dt.Year, dt.Month, 1, 0, 0, 0, dt.Offset);
+                }
                 case TimeUnits.Day:
-                    {
-                        return new DateTimeOffset(dt.Year, dt.Month, dt.Day, 0, 0, 0, dt.Offset);
-                    }
+                {
+                    return new DateTimeOffset(dt.Year, dt.Month, dt.Day, 0, 0, 0, dt.Offset);
+                }
                 case TimeUnits.Hour:
-                    {
-                        return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, 0, 0, dt.Offset);
-                    }
+                {
+                    return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, 0, 0, dt.Offset);
+                }
                 case TimeUnits.Minute:
-                    {
-                        return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, 0, dt.Offset);
-                    }
+                {
+                    return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, 0, dt.Offset);
+                }
                 case TimeUnits.Second:
-                    {
-                        return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Offset);
-                    }
+                {
+                    return new DateTimeOffset(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, dt.Offset);
+                }
             }
 
             throw new Exception("Calculation of start of unit \"{0}\" is not implemented.".SmartFormat(unit));
@@ -303,14 +309,14 @@ namespace Aspectacular
 
         public static DateTimeOffset Add(this DateTimeOffset dt, int count, TimeUnits unit)
         {
-            switch (unit)
+            switch(unit)
             {
                 case TimeUnits.Century:
-                    return dt.AddYears(count * 100);
+                    return dt.AddYears(count*100);
                 case TimeUnits.Day:
                     return dt.AddDays(count);
                 case TimeUnits.Decade:
-                    return dt.AddYears(count * 10);
+                    return dt.AddYears(count*10);
                 case TimeUnits.Hour:
                     return dt.AddHours(count);
                 case TimeUnits.Minute:
@@ -318,11 +324,11 @@ namespace Aspectacular
                 case TimeUnits.Month:
                     return dt.AddMonths(count);
                 case TimeUnits.Quarter:
-                    return dt.AddMonths(count * 3);
+                    return dt.AddMonths(count*3);
                 case TimeUnits.Second:
                     return dt.AddSeconds(count);
                 case TimeUnits.Week:
-                    return dt.AddDays(count * 7);
+                    return dt.AddDays(count*7);
                 case TimeUnits.Year:
                     return dt.AddYears(count);
             }
@@ -332,7 +338,7 @@ namespace Aspectacular
 
         public static DateTime EndOf(this DateTime dt, TimeUnits unit)
         {
-            DateTime dtResult = new DateTimeOffset(dt).EndOf(unit).ToDateTime(dt.Kind); 
+            DateTime dtResult = new DateTimeOffset(dt).EndOf(unit).ToDateTime(dt.Kind);
             return dtResult;
         }
 
@@ -387,7 +393,6 @@ namespace Aspectacular
             TimeMomentRange range = span.GetTimeMomentRange(referenceMoment);
             return range;
         }
-
 
 
         public static TimeMomentRange RangeCurrent(this DateTimeOffset dt, TimeUnits unit)

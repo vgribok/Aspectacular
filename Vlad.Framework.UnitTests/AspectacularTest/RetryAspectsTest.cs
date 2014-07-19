@@ -1,28 +1,34 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Threading;
 
 namespace Aspectacular.Test
 {
     /// <summary>
-    /// Summary description for RetryAspectsTest
+    ///     Summary description for RetryAspectsTest
     /// </summary>
     [TestClass]
     public class RetryAspectsTest
     {
         private DateTime? testStart;
-        private uint iteration = 0;
+        private uint iteration;
 
         /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
+        ///     Gets or sets the test context which provides
+        ///     information about and functionality for the current test run.
+        /// </summary>
         public TestContext TestContext { get; set; }
 
         #region Additional test attributes
+
         //
         // You can use the following additional attributes as you write your tests:
         //
@@ -42,6 +48,7 @@ namespace Aspectacular.Test
         // [TestCleanup()]
         // public void MyTestCleanup() { }
         //
+
         #endregion
 
         [TestMethod]
@@ -49,11 +56,11 @@ namespace Aspectacular.Test
         {
 #pragma warning disable 219
             this.iteration = 0;
-            Aspect retryAspect = new RetryCountAspect(retryCount: 3);
+            Aspect retryAspect = new RetryCountAspect(3);
             DateTime dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureNTimes(2, true));
 
             this.testStart = DateTime.UtcNow;
-            retryAspect = new RetryTimeAspect(keepTryingForMilliseconds: 300, millisecDelayBetweenRetries: 100);
+            retryAspect = new RetryTimeAspect(300, 100);
 // ReSharper disable once RedundantAssignment
             dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureFor(200, true));
 
@@ -63,7 +70,7 @@ namespace Aspectacular.Test
             dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureNTimes(2, false));
 
             this.testStart = DateTime.UtcNow;
-            retryAspect = new RetryTimeAspect(keepTryingForMilliseconds: 300, millisecDelayBetweenRetries: 100, optionalRetryDecider: proxy => proxy.ReturnedValue == null);
+            retryAspect = new RetryTimeAspect(300, 100, proxy => proxy.ReturnedValue == null);
 // ReSharper disable once RedundantAssignment
             dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureFor(200, false));
 #pragma warning restore 219
@@ -74,7 +81,7 @@ namespace Aspectacular.Test
         public void PersistentFailureTest()
         {
             this.iteration = 0;
-            Aspect retryAspect = new RetryCountAspect(retryCount: 3);
+            Aspect retryAspect = new RetryCountAspect(3);
             this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureNTimes(3, true));
         }
 
@@ -83,16 +90,16 @@ namespace Aspectacular.Test
         public void AbortedRetryTest()
         {
             this.iteration = 0;
-            Aspect retryAspect = new RetryCountAspect(retryCount: 3, millisecDelayBetweenRetries: 100);
-            
+            Aspect retryAspect = new RetryCountAspect(3, 100);
+
             // A thread simulating asynchronous application exit.
-            Task asyncAbortGenerator = Task.Run(() => 
+            Task asyncAbortGenerator = Task.Run(() =>
             {
                 Thread.Sleep(100);
                 Threading.ApplicationExiting.Set();
             });
 
-            var proxy = this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect));
+            InstanceProxy<RetryAspectsTest> proxy = this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect));
 
             try
             {
@@ -112,7 +119,7 @@ namespace Aspectacular.Test
         #region Failure simulation methods
 
         /// <summary>
-        /// Will be failing for a given period of time since test start.
+        ///     Will be failing for a given period of time since test start.
         /// </summary>
         /// <param name="millisec"></param>
         /// <param name="throwExceptionOnFailure"></param>
@@ -123,11 +130,11 @@ namespace Aspectacular.Test
 
             uint elpased = (uint)(now - this.testStart.Value).TotalMilliseconds;
 
-            if (elpased <= millisec)
+            if(elpased <= millisec)
             {
-                if (throwExceptionOnFailure)
+                if(throwExceptionOnFailure)
                     throw new Exception("Simulated time failure");
-                
+
                 return null;
             }
 
@@ -135,7 +142,7 @@ namespace Aspectacular.Test
         }
 
         /// <summary>
-        /// Will be failing a few times it's called.
+        ///     Will be failing a few times it's called.
         /// </summary>
         /// <param name="timesToFail"></param>
         /// <param name="throwExceptionOnFailure"></param>
@@ -144,11 +151,11 @@ namespace Aspectacular.Test
         {
             this.iteration++;
 
-            if (this.iteration <= timesToFail)
+            if(this.iteration <= timesToFail)
             {
-                if (throwExceptionOnFailure)
+                if(throwExceptionOnFailure)
                     throw new Exception("Simulated count failure");
-                
+
                 return null;
             }
 

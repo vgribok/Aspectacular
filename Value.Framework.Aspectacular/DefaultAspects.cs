@@ -1,20 +1,24 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Common;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// An element for DefaultAspectsConfigSection collection.
+    ///     An element for DefaultAspectsConfigSection collection.
     /// </summary>
     public class DefaultAspect : ConfigurationElement
     {
-        [ConfigurationProperty("type", IsKey=true, IsRequired = true)]
+        [ConfigurationProperty("type", IsKey = true, IsRequired = true)]
         public string TypeString
         {
             get { return (string)this["type"]; }
@@ -29,24 +33,24 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Aspect type
+        ///     Aspect type
         /// </summary>
         public Type Type
         {
             get
             {
                 Type type = Type.GetType(this.TypeString);
-                if (type == null)
+                if(type == null)
                     throw new Exception("Unable to find Type \"{0}\".".SmartFormat(this.TypeString));
                 return type;
             }
         }
 
         /// <summary>
-        /// Parses semicolon-delimited parameter string,
-        /// which has same format as connection strings,
-        /// and extracts a value for given key.
-        /// Returns defaultValue if key was not found.
+        ///     Parses semicolon-delimited parameter string,
+        ///     which has same format as connection strings,
+        ///     and extracts a value for given key.
+        ///     Returns defaultValue if key was not found.
         /// </summary>
         /// <param name="delimiteParamString"></param>
         /// <param name="paramKey"></param>
@@ -60,7 +64,7 @@ namespace Aspectacular
             };
 
             object val;
-            if (!paramStringParse.TryGetValue(paramKey, out val))
+            if(!paramStringParse.TryGetValue(paramKey, out val))
                 return defaultValue;
 
             return val.ToStringEx();
@@ -82,8 +86,8 @@ namespace Aspectacular
     }
 
     /// <summary>
-    /// Custom configuration section provider 
-    /// for default aspect collection.
+    ///     Custom configuration section provider
+    ///     for default aspect collection.
     /// </summary>
     public class DefaultAspectsConfigSection : ConfigurationSection
     {
@@ -107,7 +111,7 @@ namespace Aspectacular
         }
 
         private static readonly Lazy<List<Func<Aspect>>> configAspectActivators;
-        
+
         static DefaultAspectsConfigSection()
         {
             configAspectActivators = new Lazy<List<Func<Aspect>>>(LoadDefaultAspectConfig);
@@ -120,7 +124,7 @@ namespace Aspectacular
                 DefaultAspectsConfigSection config = (DefaultAspectsConfigSection)ConfigurationManager.GetSection("defaultAspects");
                 return config;
             }
-            catch (System.Configuration.ConfigurationException)
+            catch(ConfigurationException)
             {
                 // <defaultAspects> section missing in the .config file leads to this exception.
                 return null;
@@ -128,7 +132,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Load default aspects from the .config custom section.
+        ///     Load default aspects from the .config custom section.
         /// </summary>
         /// <returns>Collection of fast aspect rawActivator delegates.</returns>
         public static List<Func<Aspect>> LoadDefaultAspectConfig()
@@ -137,16 +141,16 @@ namespace Aspectacular
 
             var initializators = new List<Func<Aspect>>();
 
-            if (config != null && !config.DefaultAspects.IsNullOrEmpty())
+            if(config != null && !config.DefaultAspects.IsNullOrEmpty())
             {
-                foreach (DefaultAspect defaultAspectInfo in config.DefaultAspects)
+                foreach(DefaultAspect defaultAspectInfo in config.DefaultAspects)
                 {
                     Type aspectType = defaultAspectInfo.Type;
                     string constructorParams = defaultAspectInfo.ConstructorParameters;
 
                     List<string> parms = new List<string>();
 
-                    if (!constructorParams.IsBlank())
+                    if(!constructorParams.IsBlank())
                         parms.Add(constructorParams);
 
                     try
@@ -157,7 +161,7 @@ namespace Aspectacular
                         Func<Aspect> activator = () => (Aspect)rawActivator();
                         initializators.Add(activator);
                     }
-                    catch (Exception ex)
+                    catch(Exception ex)
                     {
                         throw new Exception("Failed to create activators for the default set of aspects from .config file. See inner exception information.", ex);
                     }
@@ -173,7 +177,7 @@ namespace Aspectacular
             {
                 return configAspectActivators.Value.Select(activator => activator());
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 throw new Exception("Failed to instantiate a default aspect. See inner exception information.".SmartFormat(), ex);
             }

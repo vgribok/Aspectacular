@@ -1,18 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Web;
-using System.Web.UI;
 
 namespace Aspectacular
 {
     public static class RequestExtensions
     {
         /// <summary>
-        /// Converts request parameter (querystring, form field, cookie value) 
-        /// to a strongly-typed type.
+        ///     Converts request parameter (querystring, form field, cookie value)
+        ///     to a strongly-typed type.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="request"></param>
@@ -23,7 +25,7 @@ namespace Aspectacular
         {
             string key = "VH_Lazy_{0}".SmartFormat(paramName);
             Lazy<T> lazy = HttpContext.Current.Items[key] as Lazy<T>;
-            if (lazy == null)
+            if(lazy == null)
             {
                 lazy = new Lazy<T>(() => converter(request.Params[paramName]));
                 HttpContext.Current.Items[key] = lazy;
@@ -33,8 +35,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Converts request parameter (querystring, form field, cookie value) 
-        /// to a strongly-typed value.
+        ///     Converts request parameter (querystring, form field, cookie value)
+        ///     to a strongly-typed value.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="request"></param>

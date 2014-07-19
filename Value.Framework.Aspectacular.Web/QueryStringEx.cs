@@ -1,9 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections.Specialized;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace Aspectacular
@@ -11,8 +15,8 @@ namespace Aspectacular
     public static class QueryStringEx
     {
         /// <summary>
-        /// Changes query string of current http request by adding or replacing query string parameter value
-        /// in the way that avoids creating duplicates.
+        ///     Changes query string of current http request by adding or replacing query string parameter value
+        ///     in the way that avoids creating duplicates.
         /// </summary>
         /// <param name="request"></param>
         /// <param name="paramName"></param>
@@ -39,7 +43,7 @@ namespace Aspectacular
 
         private static NameValueCollection EnsureQsStored(HttpRequest request)
         {
-            if (!HttpContext.Current.Items.Contains("QueryString"))
+            if(!HttpContext.Current.Items.Contains("QueryString"))
                 HttpContext.Current.Items["QueryString"] = new NameValueCollection(request.QueryString);
 
             NameValueCollection qs = (NameValueCollection)HttpContext.Current.Items["QueryString"];
@@ -47,8 +51,8 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns modified http request querystring, starting with question mark,
-        /// or "" if not query string parameters were specified.
+        ///     Returns modified http request querystring, starting with question mark,
+        ///     or "" if not query string parameters were specified.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -58,7 +62,7 @@ namespace Aspectacular
 
             StringBuilder sb = new StringBuilder();
 
-            for (int i = 0; i < qs.Count; i++)
+            for(int i = 0; i < qs.Count; i++)
             {
                 string key = qs.GetKey(i);
 // ReSharper disable once AssignNullToNotNullAttribute
@@ -73,7 +77,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns redirect URL with modified http query string
+        ///     Returns redirect URL with modified http query string
         /// </summary>
         /// <param name="request"></param>
         /// <param name="includeHost">if true, returns url starting with "http[s]://..". If false, returns url starting with "/".</param>

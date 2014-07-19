@@ -1,41 +1,46 @@
-﻿using System;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// Apply this attribute to parameters and return values 
-    /// containing sensitive information, like password, so that
-    /// aspects act accordingly and not, say, log sensitive values.
+    ///     Apply this attribute to parameters and return values
+    ///     containing sensitive information, like password, so that
+    ///     aspects act accordingly and not, say, log sensitive values.
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter | AttributeTargets.ReturnValue, AllowMultiple = false)]
-    public class SecretParamValueAttribute : System.Attribute
+    public class SecretParamValueAttribute : Attribute
     {
     }
 
     /// <summary>
-    /// Cache-ability helper: Use it to mark classes and method that
-    /// return same data when same method is called 
-    /// using different instances at the same time.
+    ///     Cache-ability helper: Use it to mark classes and method that
+    ///     return same data when same method is called
+    ///     using different instances at the same time.
     /// </summary>
     /// <remarks>
-    /// For example, if you have instance method that return data from the database,
-    /// you may want to mark it with this attribute, because when same method is called
-    /// on different instances, the returned result will be the same (instance invariant).
-    /// However, if you call DateTime.AddYear(1) on two different instances, the result
-    /// would be different, depending what date-time each instance represents.
-    /// 
-    /// This attribute can be used for default opt-in by applying [InstanceInvariant(true)] to the whole class, 
-    /// and optional opt-out - when methods marked as [InstanceInvariant(false)].
-    /// Also, explicit opt-in can be implemented if [InstanceInvariant(true)] is applied to each individual method.
+    ///     For example, if you have instance method that return data from the database,
+    ///     you may want to mark it with this attribute, because when same method is called
+    ///     on different instances, the returned result will be the same (instance invariant).
+    ///     However, if you call DateTime.AddYear(1) on two different instances, the result
+    ///     would be different, depending what date-time each instance represents.
+    ///     This attribute can be used for default opt-in by applying [InstanceInvariant(true)] to the whole class,
+    ///     and optional opt-out - when methods marked as [InstanceInvariant(false)].
+    ///     Also, explicit opt-in can be implemented if [InstanceInvariant(true)] is applied to each individual method.
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-    public class InvariantReturnAttribute : System.Attribute
+    public class InvariantReturnAttribute : Attribute
     {
         public bool IsInstanceInvariant { get; private set; }
 
@@ -48,26 +53,26 @@ namespace Aspectacular
     public enum ParamValueOutputOptions
     {
         /// <summary>
-        /// Value not to be shown for parameter
+        ///     Value not to be shown for parameter
         /// </summary>
-        NoValue, 
-        
+        NoValue,
+
         /// <summary>
-        /// Value to be presented to the user.
-        /// Use sparingly as first evaluation of every value is very slow (Expression.Compile() + Reflection.Invoke()-slow).
+        ///     Value to be presented to the user.
+        ///     Use sparingly as first evaluation of every value is very slow (Expression.Compile() + Reflection.Invoke()-slow).
         /// </summary>
 // ReSharper disable once InconsistentNaming
-        SlowUIValue, 
-        
+        SlowUIValue,
+
         /// <summary>
-        /// Value to be used internally for method result caching.
-        /// Use sparingly as first evaluation of every value is very slow (Reflection-slow).
+        ///     Value to be used internally for method result caching.
+        ///     Use sparingly as first evaluation of every value is very slow (Reflection-slow).
         /// </summary>
         SlowInternalValue,
     }
 
     /// <summary>
-    /// Class substituting secret parameter values.
+    ///     Class substituting secret parameter values.
     /// </summary>
     internal class SecretValueHash
     {
@@ -75,11 +80,11 @@ namespace Aspectacular
 
         public SecretValueHash(object val)
         {
-            if (val == null)
+            if(val == null)
                 this.valHash = null;
             else
             {
-                byte[] stringBytes = System.Text.Encoding.Unicode.GetBytes(val.ToString());
+                byte[] stringBytes = Encoding.Unicode.GetBytes(val.ToString());
                 long crc = ComputeCRC(stringBytes);
                 this.valHash = string.Format("{0:X}-{1:X}", val.GetHashCode(), crc);
             }
@@ -93,13 +98,13 @@ namespace Aspectacular
             long crc = 0;
 
             // ReSharper disable once ForCanBeConvertedToForeach
-            for (int i = 0; i < val.Length; i++)
+            for(int i = 0; i < val.Length; i++)
             {
                 c = val[i];
                 q = (crc ^ c) & 0x0f;
-                crc = (crc >> 4) ^ (q * 0x1081);
+                crc = (crc >> 4) ^ (q*0x1081);
                 q = (crc ^ (c >> 4)) & 0xf;
-                crc = (crc >> 4) ^ (q * 0x1081);
+                crc = (crc >> 4) ^ (q*0x1081);
             }
             return crc;
         }
@@ -120,7 +125,7 @@ namespace Aspectacular
         private readonly Lazy<object> slowEvaluatingValueLoader;
 
         /// <summary>
-        /// Raw parameter metadata. Try use higher-level members of this class instead.
+        ///     Raw parameter metadata. Try use higher-level members of this class instead.
         /// </summary>
         public readonly ParameterInfo ParamReflection;
 
@@ -138,7 +143,7 @@ namespace Aspectacular
             {
                 object val = VerySlowlyCompileAndInvoke(augmentedObject, this.expression);
 
-                if (this.ValueIsSecret)
+                if(this.ValueIsSecret)
                     val = new SecretValueHash(val);
 
                 return val;
@@ -148,39 +153,37 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Function parameter name.
+        ///     Function parameter name.
         /// </summary>
-        public string Name { get; private set;  }
-        
+        public string Name { get; private set; }
+
         /// <summary>
-        /// Function parameter type.
+        ///     Function parameter type.
         /// </summary>
         public Type Type { get; private set; }
 
         /// <summary>
-        /// Parameter value retriever via slow evaluation.
-        /// 
-        /// Warning 1: getting this value is slow first time (for each parameter)! It's Expression.Compile()-and-Reflection.Invoke()-slow until value is cached.
-        /// Warning 2: getting this value evaluates an input expression until value is cached. To avoid 
-        /// unexpected behavior, parameter values should be invariant (having same outcome) no matter how many times parameters is evaluated.
+        ///     Parameter value retriever via slow evaluation.
+        ///     Warning 1: getting this value is slow first time (for each parameter)! It's
+        ///     Expression.Compile()-and-Reflection.Invoke()-slow until value is cached.
+        ///     Warning 2: getting this value evaluates an input expression until value is cached. To avoid
+        ///     unexpected behavior, parameter values should be invariant (having same outcome) no matter how many times parameters
+        ///     is evaluated.
         /// </summary>
         /// <remarks>
-        /// If your call looks like:
-        /// <code>
+        ///     If your call looks like:
+        ///     <code>
         /// obj.GetProxy(aspects).Invoke(inst => inst.Foo("hello!", CreateNewUserAndGetID("John Doe")));
         /// </code>
-        /// please note that <code>CreateNewUserAndGetID("John Doe")</code> function will be called 
-        /// not only when Foo() is called to pass the parameter, but also when this property value is retrieved.
-        /// Therefore, if intercepted inputs should be invariant. So instead of calling
-        /// <code>inst.Foo("hello!", CreateNewUserAndGetID("John Doe"))</code>, store value returned by
-        /// <code>CreateNewUserAndGetID("John Doe")</code> and pass stored value as a parameter.
+        ///     please note that <code>CreateNewUserAndGetID("John Doe")</code> function will be called
+        ///     not only when Foo() is called to pass the parameter, but also when this property value is retrieved.
+        ///     Therefore, if intercepted inputs should be invariant. So instead of calling
+        ///     <code>inst.Foo("hello!", CreateNewUserAndGetID("John Doe"))</code>, store value returned by
+        ///     <code>CreateNewUserAndGetID("John Doe")</code> and pass stored value as a parameter.
         /// </remarks>
         public object SlowEvaluatingValueLoader
         {
-            get 
-            { 
-                return this.slowEvaluatingValueLoader.Value;
-            }
+            get { return this.slowEvaluatingValueLoader.Value; }
         }
 
         public ParamDirectionEnum Direction
@@ -190,19 +193,19 @@ namespace Aspectacular
 
         #region Attribute access members
 
-        public T GetCustomAttribute<T>(bool inherit = false) where T : System.Attribute
+        public T GetCustomAttribute<T>(bool inherit = false) where T : Attribute
         {
             return this.ParamReflection.GetCustomAttribute<T>(inherit);
         }
 
-        public IEnumerable<Attribute> GetCustomAttributes<T>(bool inherit = false) where T : System.Attribute
+        public IEnumerable<Attribute> GetCustomAttributes<T>(bool inherit = false) where T : Attribute
         {
             return this.ParamReflection.GetCustomAttributes<T>(inherit);
         }
 
-        public bool HasAttribute<T>() where T : System.Attribute
+        public bool HasAttribute<T>() where T : Attribute
         {
-            return this.GetCustomAttributes<T>(inherit: false).Any();
+            return this.GetCustomAttributes<T>(false).Any();
         }
 
         #endregion Attribute access members
@@ -216,10 +219,7 @@ namespace Aspectacular
 
         public bool ValueIsSecret
         {
-            get
-            {
-                return this.HasAttribute<SecretParamValueAttribute>();
-            }
+            get { return this.HasAttribute<SecretParamValueAttribute>(); }
         }
 
         public override string ToString()
@@ -241,8 +241,8 @@ namespace Aspectacular
         #region Utility Methods
 
         /// <summary>
-        /// Be sure to use this function only if all alternative are exhausted. 
-        /// It's double-slow: it compiles expression tree and make reflection-based dynamic call.
+        ///     Be sure to use this function only if all alternative are exhausted.
+        ///     It's double-slow: it compiles expression tree and make reflection-based dynamic call.
         /// </summary>
         /// <param name="augmentedObject"></param>
         /// <param name="expression"></param>
@@ -251,7 +251,7 @@ namespace Aspectacular
         {
             object val = null;
 
-            if (expression != null)
+            if(expression != null)
             {
                 switch(expression.NodeType)
                 {
@@ -259,11 +259,11 @@ namespace Aspectacular
                         val = ((ConstantExpression)expression).Value;
                         break;
                     case ExpressionType.Parameter:
-                        {
-                            ParameterExpression pex = (ParameterExpression)expression;
-                            if(augmentedObject != null && pex.Type == augmentedObject.GetType())
-                                return augmentedObject;
-                        }
+                    {
+                        ParameterExpression pex = (ParameterExpression)expression;
+                        if(augmentedObject != null && pex.Type == augmentedObject.GetType())
+                            return augmentedObject;
+                    }
                         val = expression.EvaluateExpressionVerySlow();
                         break;
                     default:
@@ -275,7 +275,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Formats parameter/this/return value as string, 
+        ///     Formats parameter/this/return value as string,
         /// </summary>
         /// <param name="type"></param>
         /// <param name="val">For secret values please pass "new SecretValueHash(someValue)"</param>
@@ -283,23 +283,23 @@ namespace Aspectacular
         /// <returns></returns>
         public static string FormatParamValue(Type type, object val, bool trueUi_falseInternal)
         {
-            if (type == typeof(void))
+            if(type == typeof(void))
                 return string.Empty;
 
-            if (val == null)
+            if(val == null)
                 return "[null]";
 
-            if (trueUi_falseInternal && val is SecretValueHash)
+            if(trueUi_falseInternal && val is SecretValueHash)
                 return "[secret]";
 
-            if (val is string)
+            if(val is string)
                 return string.Format("\"{0}\"", val);
-            
-            if (val is char)
+
+            if(val is char)
                 return string.Format("'{0}'", val);
 
             string strVal = val.ToString();
-            if (strVal == type.ToString())
+            if(strVal == type.ToString())
                 return trueUi_falseInternal ? "[no string value]" : string.Format("HASH:{0:X}", val.GetHashCode());
 
             return type.IsSimpleCSharpType() ? strVal : string.Format("[{0}]", strVal);
@@ -307,7 +307,7 @@ namespace Aspectacular
 
         public static Expression MassageUnaryExpression(Expression paramExpression)
         {
-            if (paramExpression is UnaryExpression)
+            if(paramExpression is UnaryExpression)
                 return MassageUnaryExpression((paramExpression as UnaryExpression).Operand);
 
             return paramExpression;
@@ -325,16 +325,21 @@ namespace Aspectacular
 
 
         /// <summary>
-        /// Raw method metadata. Use this class's members instead, if possible.
+        ///     Raw method metadata. Use this class's members instead, if possible.
         /// </summary>
         public MethodInfo MethodReflectionInfo { get; private set; }
-        public IEnumerable<Attribute> MethodAttributes { get { return this.MethodReflectionInfo.GetCustomAttributes(); } }
+
+        public IEnumerable<Attribute> MethodAttributes
+        {
+            get { return this.MethodReflectionInfo.GetCustomAttributes(); }
+        }
+
         private readonly object augmentedInstance;
         public readonly List<InterceptedMethodParamMetadata> Params = new List<InterceptedMethodParamMetadata>();
 
 
         /// <summary>
-        /// Type of method's instance owner class
+        ///     Type of method's instance owner class
         /// </summary>
         public Type ClassType
         {
@@ -343,7 +348,7 @@ namespace Aspectacular
 
         public Type MethodReturnType
         {
-            get { return this.MethodReflectionInfo.ReturnType;  }
+            get { return this.MethodReflectionInfo.ReturnType; }
         }
 
         internal InterceptedMethodMetadata(object augmentedInstance, LambdaExpression callLambdaExp, bool forceClassInstanceInvariant)
@@ -352,17 +357,17 @@ namespace Aspectacular
             {
                 this.interceptedMethodExpression = (MethodCallExpression)callLambdaExp.Body;
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 string errorText = "Intercepted method expression must be a function call. \"{0}\" is invalid in this context."
-                                        .SmartFormat(callLambdaExp.Body);
+                    .SmartFormat(callLambdaExp.Body);
                 throw new ArgumentException(errorText, ex);
             }
 
             this.augmentedInstance = augmentedInstance;
             this.MethodReflectionInfo = this.interceptedMethodExpression.Method;
 
-            if (this.augmentedInstance == null && !this.MethodReflectionInfo.IsStatic)
+            if(this.augmentedInstance == null && !this.MethodReflectionInfo.IsStatic)
                 throw new Exception("Null instance specified for instance method \"{0}\". Please use obj.GetProxy().Invoke() instead of AOP.Invoke().".SmartFormat(this.GetMethodSignature(ParamValueOutputOptions.NoValue)));
 
             this.forceClassInstanceInvariant = forceClassInstanceInvariant;
@@ -375,7 +380,7 @@ namespace Aspectacular
         {
             ParameterInfo[] paramData = this.MethodReflectionInfo.GetParameters();
 
-            for (int i = 0; i < paramData.Length; i++)
+            for(int i = 0; i < paramData.Length; i++)
             {
                 Expression paramExpression = this.interceptedMethodExpression.Arguments[i];
 
@@ -386,7 +391,7 @@ namespace Aspectacular
 
         public object SlowEvaluateThisObject()
         {
-            if (this.IsStaticMethod || this.thisObjectSlowEvaluator == null)
+            if(this.IsStaticMethod || this.thisObjectSlowEvaluator == null)
                 return null;
 
             return this.thisObjectSlowEvaluator.Value;
@@ -394,29 +399,26 @@ namespace Aspectacular
 
         public bool IsStaticMethod
         {
-            get 
-            { 
-                return (this.MethodReflectionInfo.Attributes & System.Reflection.MethodAttributes.Static) != 0;
-            }
+            get { return (this.MethodReflectionInfo.Attributes & System.Reflection.MethodAttributes.Static) != 0; }
         }
 
         /// <summary>
-        /// Determines returned data cache-ability.
-        /// Returns true if this method will return same data if called at the same time
-        /// on two or more class instances (or on the same type for static methods).
+        ///     Determines returned data cache-ability.
+        ///     Returns true if this method will return same data if called at the same time
+        ///     on two or more class instances (or on the same type for static methods).
         /// </summary>
         public bool IsReturnResultInvariant
         {
             get
             {
-                if (this.HasOutOrRefParams)
+                if(this.HasOutOrRefParams)
                     // Since we can cache only single return result,
                     // methods returning multiple values via out or ref parameters 
                     // are disqualified from being cacheable.
                     return false;
 
                 InvariantReturnAttribute invarAttribute = this.GetMethodOrClassAttribute<InvariantReturnAttribute>();
-                if (invarAttribute != null)
+                if(invarAttribute != null)
                     return invarAttribute.IsInstanceInvariant;
 
                 return this.forceClassInstanceInvariant;
@@ -450,47 +452,47 @@ namespace Aspectacular
 
         #region Attribute access members
 
-        public TAttribute GetMethodAttribute<TAttribute>(bool inherit = false) where TAttribute : System.Attribute
+        public TAttribute GetMethodAttribute<TAttribute>(bool inherit = false) where TAttribute : Attribute
         {
             TAttribute attrib = this.MethodReflectionInfo.GetCustomAttribute<TAttribute>(inherit);
             return attrib;
         }
 
-        public IEnumerable<TAttribute> GetMethodAttributes<TAttribute>(bool inherit = false) where TAttribute : System.Attribute
+        public IEnumerable<TAttribute> GetMethodAttributes<TAttribute>(bool inherit = false) where TAttribute : Attribute
         {
-            IEnumerable <TAttribute> attribs = this.MethodReflectionInfo.GetCustomAttributes<TAttribute>(inherit);
+            IEnumerable<TAttribute> attribs = this.MethodReflectionInfo.GetCustomAttributes<TAttribute>(inherit);
             return attribs;
         }
 
-        public bool HasMethodAttribute<TAttribute>(bool inherit = false) where TAttribute : System.Attribute
+        public bool HasMethodAttribute<TAttribute>(bool inherit = false) where TAttribute : Attribute
         {
             return this.GetMethodAttributes<TAttribute>(inherit).Any();
         }
 
-        public TAttribute GetClassAttribute<TAttribute>(bool inherit = true) where TAttribute : System.Attribute
+        public TAttribute GetClassAttribute<TAttribute>(bool inherit = true) where TAttribute : Attribute
         {
             TAttribute attrib = this.ClassType.GetCustomAttribute<TAttribute>(inherit);
             return attrib;
         }
 
-        public IEnumerable<TAttribute> GetClassAttributes<TAttribute>(bool inherit = true) where TAttribute : System.Attribute
+        public IEnumerable<TAttribute> GetClassAttributes<TAttribute>(bool inherit = true) where TAttribute : Attribute
         {
             IEnumerable<TAttribute> attribs = this.ClassType.GetCustomAttributes<TAttribute>(inherit);
             return attribs;
         }
 
-        public bool HasClassAttribute<TAttribute>(bool inherit = true) where TAttribute : System.Attribute
+        public bool HasClassAttribute<TAttribute>(bool inherit = true) where TAttribute : Attribute
         {
             return this.GetClassAttributes<TAttribute>(inherit).Any();
         }
 
         /// <summary>
-        /// Get attribute from the method, and if not there, tries to get it from the class.
-        /// Uses default inheritance rule: "no" for method, "yes" for class.
+        ///     Get attribute from the method, and if not there, tries to get it from the class.
+        ///     Uses default inheritance rule: "no" for method, "yes" for class.
         /// </summary>
         /// <typeparam name="TAttribute"></typeparam>
         /// <returns></returns>
-        public TAttribute GetMethodOrClassAttribute<TAttribute>() where TAttribute : System.Attribute
+        public TAttribute GetMethodOrClassAttribute<TAttribute>() where TAttribute : Attribute
         {
             TAttribute attrib = this.GetMethodAttribute<TAttribute>() ?? this.GetClassAttribute<TAttribute>();
 
@@ -498,16 +500,16 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Get attributes from the method, and if not there, tries to get it from the class.
-        /// Uses default inheritance rule: "no" for method, "yes" for class.
+        ///     Get attributes from the method, and if not there, tries to get it from the class.
+        ///     Uses default inheritance rule: "no" for method, "yes" for class.
         /// </summary>
         /// <typeparam name="TAttribute"></typeparam>
         /// <returns></returns>
-        public IEnumerable<TAttribute> GetMethodOrClassAttributes<TAttribute>() where TAttribute : System.Attribute
+        public IEnumerable<TAttribute> GetMethodOrClassAttributes<TAttribute>() where TAttribute : Attribute
         {
             IEnumerable<TAttribute> attribs = this.GetMethodAttributes<TAttribute>();
 // ReSharper disable PossibleMultipleEnumeration
-            if (attribs.IsNullOrEmpty())
+            if(attribs.IsNullOrEmpty())
                 attribs = this.GetClassAttributes<TAttribute>();
 
             return attribs;
@@ -515,11 +517,11 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Returns true if given attribute is applied either to the method, or to its owner class.
+        ///     Returns true if given attribute is applied either to the method, or to its owner class.
         /// </summary>
         /// <typeparam name="TAttribute"></typeparam>
         /// <returns></returns>
-        public bool HasMethodOrClassAttribute<TAttribute>() where TAttribute : System.Attribute
+        public bool HasMethodOrClassAttribute<TAttribute>() where TAttribute : Attribute
         {
             return this.GetMethodOrClassAttributes<TAttribute>().Any();
         }
@@ -530,19 +532,19 @@ namespace Aspectacular
         {
             return string.Format("{0}{1}.{2}",
                 this.IsStaticMethod ? "static " : this.FormatThisValue(valueOutputOptions),
-                    this.ClassType.FormatCSharp(),
-                    this.MethodReflectionInfo.Name
+                this.ClassType.FormatCSharp(),
+                this.MethodReflectionInfo.Name
                 );
         }
 
         private string FormatThisValue(ParamValueOutputOptions valueOutputOptions)
         {
-            if (this.IsStaticMethod || valueOutputOptions == ParamValueOutputOptions.NoValue || this.IsReturnResultInvariant)
+            if(this.IsStaticMethod || valueOutputOptions == ParamValueOutputOptions.NoValue || this.IsReturnResultInvariant)
                 return string.Empty;
 
             object val = this.augmentedInstance;
             Type type = val == null ? null : val.GetType();
-            
+
             string thisValueStr = InterceptedMethodParamMetadata.FormatParamValue(type, val, valueOutputOptions == ParamValueOutputOptions.SlowUIValue);
 
             return string.Format("[this = {0}] ", thisValueStr);
@@ -555,7 +557,7 @@ namespace Aspectacular
 
         public string FormatReturnResult(object returnedResult, bool trueUi_falseInternal)
         {
-            if (this.IsReturnValueSecret)
+            if(this.IsReturnValueSecret)
                 returnedResult = new SecretValueHash(returnedResult);
 
             Type retType = returnedResult == null ? this.MethodReturnType : returnedResult.GetType();
