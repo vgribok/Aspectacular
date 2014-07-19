@@ -1,17 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Value.Framework.Core", "Vlad.Framework.Core\Value.Framework.Core.csproj", "{07E5DA8B-6018-427B-9ECD-9C39AC691036}"
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Core", "Vlad.Framework.Core\Aspectacular.Framework.Core.csproj", "{07E5DA8B-6018-427B-9ECD-9C39AC691036}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Value.Framework.UnitTests", "Vlad.Framework.UnitTests\Value.Framework.UnitTests.csproj", "{D080195E-560B-4A30-837D-A1239A823EC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.UnitTests", "Vlad.Framework.UnitTests\Aspectacular.Framework.UnitTests.csproj", "{D080195E-560B-4A30-837D-A1239A823EC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Value.Framework.Aspectacular", "Value.Framework.Aspectacular\Value.Framework.Aspectacular.csproj", "{AA70188E-305F-4910-AFEC-6DB7E79F8603}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Main", "Value.Framework.Aspectacular\Aspectacular.Framework.Main.csproj", "{AA70188E-305F-4910-AFEC-6DB7E79F8603}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.AdventureWorks2008_Dal", "Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008_Dal.csproj", "{E728FBE5-B2AD-47FB-91C1-9E42C3B93A10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Value.Framework.Aspectacular.EntityFramework", "Value.Framework.Aspectacular.EntityFramework\Value.Framework.Aspectacular.EntityFramework.csproj", "{ECC659DC-B903-40E9-9382-07BF719CF5B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.EntityFramework", "Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.csproj", "{ECC659DC-B903-40E9-9382-07BF719CF5B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Value.Framework.Aspectacular.Web", "Value.Framework.Aspectacular.Web\Value.Framework.Aspectacular.Web.csproj", "{273275C4-4AE2-4CD1-8C1E-75ED8BFD50A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Web", "Value.Framework.Aspectacular.Web\Aspectacular.Framework.Web.csproj", "{273275C4-4AE2-4CD1-8C1E-75ED8BFD50A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.All", "NuGet.All\NuGet.All.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
 EndProject

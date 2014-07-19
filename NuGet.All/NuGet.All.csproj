@@ -68,21 +68,21 @@
     <Folder Include="src\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Value.Framework.Aspectacular.EntityFramework.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.csproj">
       <Project>{ecc659dc-b903-40e9-9382-07bf719cf5b0}</Project>
-      <Name>Value.Framework.Aspectacular.EntityFramework</Name>
+      <Name>Aspectacular.Framework.EntityFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Value.Framework.Aspectacular.Web\Value.Framework.Aspectacular.Web.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular.Web\Aspectacular.Framework.Web.csproj">
       <Project>{273275c4-4ae2-4cd1-8c1e-75ed8bfd50a1}</Project>
-      <Name>Value.Framework.Aspectacular.Web</Name>
+      <Name>Aspectacular.Framework.Web</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Value.Framework.Aspectacular\Value.Framework.Aspectacular.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.csproj">
       <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
-      <Name>Value.Framework.Aspectacular</Name>
+      <Name>Aspectacular.Framework.Main</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Vlad.Framework.Core\Value.Framework.Core.csproj">
+    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.csproj">
       <Project>{07e5da8b-6018-427b-9ecd-9c39ac691036}</Project>
-      <Name>Value.Framework.Core</Name>
+      <Name>Aspectacular.Framework.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
