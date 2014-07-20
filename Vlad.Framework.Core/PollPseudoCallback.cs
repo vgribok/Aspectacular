@@ -5,12 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     public class PollPseudoCallback<TPollRetVal> where TPollRetVal : class
     {
-        private readonly ManualResetEvent stopSignal = new ManualResetEvent(initialState: false);
+        private readonly ManualResetEvent stopSignal = new ManualResetEvent(initialState: true);
         private readonly Func<TPollRetVal> pollFunc;
         private readonly Func<TPollRetVal, bool> processFunc;
 
@@ -45,28 +46,32 @@ namespace Aspectacular
             return this.pollFunc();
         }
 
-        protected virtual bool Process(TPollRetVal polledValue)
+        protected virtual bool ProcessAsync(TPollRetVal polledValue)
         {
             if(this.processFunc == null)
-                throw new InvalidDataException("Process function must either be supplied to a constructor as a delegate, or Process() method must be overridden in a subclass.");
+                throw new InvalidDataException("ProcessAsync function must either be supplied to a constructor as a delegate, or ProcessAsync() method must be overridden in a subclass.");
 
             return this.processFunc(polledValue);
         }
 
-        public void StartSmartPolling()
+        public async void StartSmartPolling()
         {
-            this.stopSignal.Reset();
+            if(!this.IsStopSignalled)
+                // Already running.
+                return;
 
-            this.RunPollLoop();
+            await Task.Run(() => this.RunPollLoop());
         }
 
         private void RunPollLoop()
         {
+            this.stopSignal.Reset();
+
             for (TPollRetVal polledValue = this.WaitTillGetValueOrToldToStop();
                 polledValue != null; // If polledValue, it means loop was told to stop;
                 polledValue = this.WaitTillGetValueOrToldToStop())
             {
-                this.Process(polledValue);
+                this.ProcessAsync(polledValue);
             }
         }
 
@@ -99,6 +104,16 @@ namespace Aspectacular
             }
 
             return null;
+        }
+
+        public bool IsStopSignalled
+        {
+            get
+            {
+                bool stopSignalled = this.stopSignal.WaitOne(0);
+                bool applicationExiting = Threading.ApplicationExiting.WaitOne(0);
+                return stopSignalled || applicationExiting;
+            }
         }
 
         public void StopSmartPolling()
