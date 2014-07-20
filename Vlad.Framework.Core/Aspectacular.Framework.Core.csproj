@@ -46,6 +46,7 @@
     <Compile Include="Caching.cs" />
     <Compile Include="CollectionExtensions.cs" />
     <Compile Include="DateTimeExtensions.cs" />
+    <Compile Include="PollPseudoCallback.cs" />
     <Compile Include="RelativeTimeSpan.cs" />
     <Compile Include="Disposer.cs" />
     <Compile Include="ExceptionExtensions.cs" />

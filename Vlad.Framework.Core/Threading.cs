@@ -156,33 +156,31 @@ namespace Aspectacular
         public static T WaitUntilStopped<T>(this WaitHandle waitExitSignal, Task<T> task)
         {
             Task completedTask;
-            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), task);
-            return index == 1 ? ((Task<T>)completedTask).Result : default(T);
+            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), ApplicationExiting.AsTask(), task);
+            return index == 2 ? ((Task<T>)completedTask).Result : default(T);
         }
 
         /// <summary>
         ///     Returns true if task was completed, false if exit signal was raised.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="waitExitSignal"></param>
         /// <param name="task"></param>
         /// <returns></returns>
-        public static bool WaitUntilStopped<T>(this WaitHandle waitExitSignal, Task task)
+        public static bool WaitUntilStopped(this WaitHandle waitExitSignal, Task task)
         {
             Task completedTask;
-            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), task);
-            return index == 1;
+            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), ApplicationExiting.AsTask(), task);
+            return index == 2;
         }
 
         /// <summary>
         ///     Returns null if stop signal was raised.
         ///     Otherwise returns task that was completed.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="waitExitSignal"></param>
         /// <param name="tasks"></param>
         /// <returns></returns>
-        public static Task WaitUntilStopped<T>(this WaitHandle waitExitSignal, params Task[] tasks)
+        public static Task WaitUntilStopped(this WaitHandle waitExitSignal, params Task[] tasks)
         {
             Task completedTask;
             WaitAny(out completedTask, tasks);
