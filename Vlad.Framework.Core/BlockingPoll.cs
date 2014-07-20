@@ -27,7 +27,7 @@ namespace Aspectacular
     ///     or made to notify a caller via callback.
     /// </remarks>
     /// <typeparam name="TPollRetVal"></typeparam>
-    public class PollPseudoCallback<TPollRetVal>
+    public class BlockingPoll<TPollRetVal>
     {
         public delegate bool PollFunc(out TPollRetVal payload);
 
@@ -61,7 +61,7 @@ namespace Aspectacular
         /// <param name="maxPollSleepDelayMillisec"></param>
         /// <param name="delayAfterFirstEmptyPollMillisec"></param>
         /// <param name="syncContext"></param>
-        public PollPseudoCallback(PollFunc asyncPollFunc = null,
+        public BlockingPoll(PollFunc asyncPollFunc = null,
             int maxPollSleepDelayMillisec = 60*1000,
             int delayAfterFirstEmptyPollMillisec = 10,
             SynchronizationContext syncContext = null
