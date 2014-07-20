@@ -1,50 +1,71 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿#region License Info Header
+
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Aspectacular
 {
     /// <summary>
-    /// An adapter for turning non-blocking polling into 
-    /// either blocking wait or a callback.
+    ///     An adapter for turning non-blocking polling into
+    ///     either blocking wait or a callback.
     /// </summary>
     /// <remarks>
-    /// Polling of queues or monitoring state changes can be difficult: 
-    /// from CPU hogging if polling is done in a tight loop, 
-    /// to leaking money when polling calls call paid cloud services 
-    /// or waste valuable resources, like limited bandwidth.
-    /// This adapter will add and grow delays (up to a limit) between poll calls that come back empty.
-    /// It can be used either in blocking mode, by calling WaitForPayload() method, 
-    /// or made to notify a caller via callback.
+    ///     Polling of queues or monitoring state changes can be difficult:
+    ///     from CPU hogging if polling is done in a tight loop,
+    ///     to leaking money when polling calls call paid cloud services
+    ///     or waste valuable resources, like limited bandwidth.
+    ///     This adapter will add and grow delays (up to a limit) between poll calls that come back empty.
+    ///     It can be used either in blocking mode, by calling WaitForPayload() method,
+    ///     or made to notify a caller via callback.
     /// </remarks>
     /// <typeparam name="TPollRetVal"></typeparam>
     public class PollPseudoCallback<TPollRetVal>
     {
         public delegate bool PollFunc(out TPollRetVal payload);
 
-        private readonly ManualResetEvent stopSignal = new ManualResetEvent(initialState: true);
+        private readonly ManualResetEvent stopSignal = new ManualResetEvent(true);
         private readonly PollFunc asyncPollFunc;
-        private readonly Func<TPollRetVal, bool> processFunc;
 
         public readonly int MaxPollSleepDelayMillisec;
         public readonly int DelayAfterFirstEmptyPollMillisec;
 
         private readonly WaitHandle[] abortSignals;
-        private readonly TaskScheduler taskScheduler;
         private readonly SynchronizationContext syncContext;
 
-        public PollPseudoCallback(PollFunc asyncPollFunc = null, 
-                                  Func<TPollRetVal, bool> processFunc = null,  
-                                  int maxPollSleepDelayMillisec = 60 * 1000, 
-                                  int delayAfterFirstEmptyPollMillisec = 10,
-                                  TaskScheduler scheduler = null,
-                                  SynchronizationContext syncContext = null
-                                )
+        /// <summary>
+        ///     Number of poll calls that came up empty so far.
+        /// </summary>
+        public ulong EmptyPollCallCount { get; private set; }
+
+        /// <summary>
+        ///     Number of poll calls that returned payload.
+        ///     Useful only with
+        /// </summary>
+        public ulong PollCallCountWithPayload { get; private set; }
+
+        /// <summary>
+        ///     Initializes poll-to-callback adapter class.
+        /// </summary>
+        /// <param name="asyncPollFunc">
+        ///     Optional delegate implementing polling. If not specified, Poll() method must be overridden in the subclass.
+        ///     Callback delegate must return true if payload was acquired, and false if poll method came back empty.
+        /// </param>
+        /// <param name="maxPollSleepDelayMillisec"></param>
+        /// <param name="delayAfterFirstEmptyPollMillisec"></param>
+        /// <param name="syncContext"></param>
+        public PollPseudoCallback(PollFunc asyncPollFunc = null,
+            int maxPollSleepDelayMillisec = 60*1000,
+            int delayAfterFirstEmptyPollMillisec = 10,
+            SynchronizationContext syncContext = null
+            )
         {
             if(maxPollSleepDelayMillisec < 1)
                 throw new ArgumentException("maxPollSleepDelayMillisec must be 1 or larger.");
@@ -52,52 +73,22 @@ namespace Aspectacular
                 throw new ArgumentException("delayAfterFirstEmptyPollMillisec must be 1 or larger.");
 
             this.asyncPollFunc = asyncPollFunc;
-            this.processFunc = processFunc;
             this.MaxPollSleepDelayMillisec = maxPollSleepDelayMillisec;
             this.DelayAfterFirstEmptyPollMillisec = delayAfterFirstEmptyPollMillisec;
-            this.taskScheduler = scheduler ?? TaskScheduler.Current;
             this.syncContext = syncContext ?? SynchronizationContext.Current;
 
-            var stopEvents = new [] { stopSignal, Threading.ApplicationExiting };
+            var stopEvents = new[] {stopSignal, Threading.ApplicationExiting};
             this.abortSignals = stopEvents.Cast<WaitHandle>().ToArray();
-        }
 
-        private T ExecuteWithSyncContext<T>(Func<T> @delegate)
-        {
-            if(this.syncContext == null)
-                return @delegate();
-#if !DEBUG
-            if(this.syncContext == SynchronizationContext.Current)
-                return @delegate();
-#endif
-            T retVal = default(T);
-            this.syncContext.Send(delegate { retVal = @delegate(); }, null);
-            return retVal;
-        }
-
-        private Task<T> StartSchedulerTask<T>(Func<T> @delegate)
-        {
-            var task = Task.Factory.StartNew(() => this.ExecuteWithSyncContext(@delegate), CancellationToken.None, TaskCreationOptions.DenyChildAttach, this.taskScheduler);
-            return task;
+            this.PollCallCountWithPayload = 0;
         }
 
         /// <summary>
-        /// Executes delegate on using its own sync context and task scheduler.
-        /// This simplifies raising events within caller's context.
+        ///     Returns true if payload was acquired. False if poll call came back empty.
+        ///     Can be overridden in subclasses.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="delegate"></param>
+        /// <param name="payload"></param>
         /// <returns></returns>
-        private T SyncExecuteWithSyncContextAndScheduler<T>(Func<T> @delegate)
-        {
-#if !DEBUG
-            if(this.taskScheduler == TaskScheduler.Current)
-                return @delegate();
-#endif
-            Task<T> task = this.StartSchedulerTask(@delegate);
-            return task.Result;
-        }
-
         protected virtual bool Poll(out TPollRetVal payload)
         {
             if(this.asyncPollFunc == null)
@@ -106,48 +97,62 @@ namespace Aspectacular
             return this.asyncPollFunc(out payload);
         }
 
-        protected virtual bool ProcessAsync(TPollRetVal polledValue)
+        /// <summary>
+        ///     A callback that processes payload inside the non-blocking poll loop started by StartSmartPolling() method.
+        ///     Payload parameter value is non-default(TPollRetVal).
+        ///     Can be overridden in subclasses, if StartSmartPolling() method's payloadProcessCallback parameter value is not
+        ///     specified.
+        /// </summary>
+        /// <param name="payload"></param>
+        protected virtual void Process(TPollRetVal payload)
         {
-            if(this.processFunc == null)
-                throw new InvalidDataException("ProcessAsync function must either be supplied to a constructor as a delegate, or ProcessAsync() method must be overridden in a subclass.");
-
-            return this.processFunc(polledValue);
+            throw new NotImplementedException("Must be overridden in a subclass.");
         }
 
-        public async void StartSmartPolling()
+        /// <summary>
+        ///     Launches polling loop that invokes process callback when payload arrives.
+        ///     This is an alternative to using blocking WaitForPayload() method.
+        /// </summary>
+        /// <param name="payloadProcessCallback">
+        ///     Optional payload processing delegate. If null, Process() method must be overridden
+        ///     in a subclass.
+        /// </param>
+        public async void StartSmartPolling(Action<TPollRetVal> payloadProcessCallback = null)
         {
             if(!this.IsStopSignalled)
                 // Already running.
                 return;
 
-            await Task.Run(() => this.RunPollLoop());
+            await Task.Run(() => this.RunPollLoop(payloadProcessCallback ?? this.Process));
         }
 
-        private void RunPollLoop()
+        private void RunPollLoop(Action<TPollRetVal> processFunc)
         {
             this.stopSignal.Reset();
-            
+            this.EmptyPollCallCount = 0;
+
             TPollRetVal polledValue;
 
-            while(this.WaitForPayload(out polledValue))
+            while(this.WaitForPayloadInternal(out polledValue, this.syncContext))
             {
-                var polledValTemp = polledValue;
-                this.SyncExecuteWithSyncContextAndScheduler(() => this.ProcessAsync(polledValTemp));
+                TPollRetVal polledValTemp = polledValue;
+                this.syncContext.Execute(() => processFunc(polledValTemp));
             }
         }
 
         /// <summary>
-        /// Blocks until either payload has arrived, or polling is turned off.
-        /// Returns true if payload arrived, and false if application is exiting or stop is signaled.
+        ///     Blocks until either payload arrives, or polling is terminated.
+        ///     Returns true if payload arrived, and false if application is exiting or stop is signaled.
         /// </summary>
         /// <returns></returns>
         public bool WaitForPayload(out TPollRetVal payload)
         {
             this.stopSignal.Reset();
-            return this.WaitForPayloadInternal(out payload);
+            this.EmptyPollCallCount = 0;
+            return this.WaitForPayloadInternal(out payload, null);
         }
 
-        private bool WaitForPayloadInternal(out TPollRetVal payload)
+        private bool WaitForPayloadInternal(out TPollRetVal payload, SynchronizationContext syncCtx)
         {
             payload = default(TPollRetVal);
             int delayMillisec = 0;
@@ -156,11 +161,15 @@ namespace Aspectacular
             while(WaitHandle.WaitAny(this.abortSignals, delayMillisec) < 0)
             {
                 TPollRetVal polledValue = default(TPollRetVal);
-                bool hasPayload = this.SyncExecuteWithSyncContextAndScheduler(() => this.Poll(out polledValue));
+                bool hasPayload = syncCtx.Execute(() => this.Poll(out polledValue));
                 payload = polledValue;
-                
-                if (hasPayload)
+
+                if(hasPayload)
+                {
+                    this.PollCallCountWithPayload++;
                     return true;
+                }
+                this.EmptyPollCallCount++;
 
                 // Poll came back empty.
                 this.IncreasePollDelay(ref delayMillisec, ref delayIncrementMillisec);
@@ -170,8 +179,9 @@ namespace Aspectacular
         }
 
         /// <summary>
-        /// Called after poll method came back empty.
-        /// Increases delay between subsequent empty poll calls.
+        ///     Called after poll method came back empty.
+        ///     Increases delay between subsequent empty poll calls.
+        ///     May be overridden in subclasses to provide different delay adjustment logic.
         /// </summary>
         /// <param name="delayMillisec"></param>
         /// <param name="delayIncrementMillisec"></param>
@@ -200,6 +210,10 @@ namespace Aspectacular
             }
         }
 
+        /// <summary>
+        ///     Either stops WaitForPayload() or terminates polling loop started with StartSmartPolling()
+        ///     that generates callbacks on payload arrival.
+        /// </summary>
         public void StopSmartPolling()
         {
             this.stopSignal.Set();

@@ -186,5 +186,48 @@ namespace Aspectacular
             WaitAny(out completedTask, tasks);
             return completedTask;
         }
+
+
+        /// <summary>
+        /// Convenience method to execute a function within given SynchronizationContext.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="syncContext"></param>
+        /// <param name="delegate"></param>
+        /// <returns></returns>
+        public static T Execute<T>(this SynchronizationContext syncContext, Func<T> @delegate)
+        {
+            if (syncContext == null)
+                return @delegate();
+#if !DEBUG
+            if(syncContext == SynchronizationContext.Current)
+                return @delegate();
+#endif
+            T retVal = default(T);
+            syncContext.Send(delegate { retVal = @delegate(); }, null);
+            return retVal;
+        }
+
+        /// <summary>
+        /// Convenience method to execute a function within given SynchronizationContext.
+        /// </summary>
+        /// <param name="syncContext"></param>
+        /// <param name="delegate"></param>
+        public static void Execute(this SynchronizationContext syncContext, Action @delegate)
+        {
+            if(syncContext == null)
+            {
+                @delegate();
+                return;
+            }
+#if !DEBUG
+            if(syncContext == SynchronizationContext.Current)
+            {
+                @delegate();
+                return;
+            }
+#endif
+            syncContext.Send(delegate { @delegate(); }, null);
+        }
     }
 }
