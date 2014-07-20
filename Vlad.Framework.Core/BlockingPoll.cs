@@ -6,6 +6,7 @@
 #endregion
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -64,7 +65,7 @@ namespace Aspectacular
         /// </param>
         /// <param name="delayAfterFirstEmptyPollMillisec">Delay after the first empty poll call following non-empty poll call.</param>
         public BlockingPoll(PollFunc asyncPollFunc = null,
-            int maxPollSleepDelayMillisec = 60*1000,
+            int maxPollSleepDelayMillisec = 60 * 1000,
             int delayAfterFirstEmptyPollMillisec = 10
             )
         {
@@ -164,7 +165,7 @@ namespace Aspectacular
             int delayMillisec = 0;
             int delayIncrementMillisec = this.DelayAfterFirstEmptyPollMillisec;
 
-            while(WaitHandle.WaitAny(this.abortSignals, delayMillisec) < 0)
+            while(this.SleepAfterEmptyPollCall(delayMillisec))
             {
                 TPollRetVal polledValue = default(TPollRetVal);
                 bool hasPayload = syncCtx.Execute(() => this.Poll(out polledValue));
@@ -182,6 +183,53 @@ namespace Aspectacular
             }
 
             return false;
+        }
+
+        private bool SleepAfterEmptyPollCall(int delayMillisec)
+        {
+            DateTime nextCheckTimeUtc = GetNextCallTimeUtcAlignedonDelayBoundary(delayMillisec);
+            delayMillisec = (int)(DateTime.UtcNow - nextCheckTimeUtc).TotalMilliseconds;
+            if(delayMillisec < 0)
+                delayMillisec = 0;
+
+            return WaitHandle.WaitAny(this.abortSignals, delayMillisec) < 0;
+        }
+
+        /// <summary>
+        ///     Ensures that next poll call is scheduled on the factor of delay boundary.
+        ///     For example, if delay = 1 minute, then next call is scheduled at 00 seconds of the next minute,
+        ///     and not xx minutes and, say, 11 seconds.
+        /// </summary>
+        /// <param name="delayMillisec"></param>
+        /// <returns>UTC time of the next poll call.</returns>
+        internal static DateTime GetNextCallTimeUtcAlignedonDelayBoundary(int delayMillisec)
+        {
+            if(delayMillisec < 0)
+                throw new ArgumentException("delayMillisec cannot be negative.");
+
+            var utcNow = DateTime.UtcNow;
+
+            long delayInTicks = delayMillisec * TimeSpan.TicksPerMillisecond;
+            DateTime utcNowAligned = new DateTime(utcNow.Ticks / delayInTicks * delayInTicks, DateTimeKind.Utc);
+
+            int lessThanSecMillisec = delayMillisec % 1000;
+            int targetMillisec = lessThanSecMillisec == 0 ? 0 : utcNowAligned.Millisecond / lessThanSecMillisec * lessThanSecMillisec;
+            if(lessThanSecMillisec != 0)
+            {
+                Debug.Assert(targetMillisec % lessThanSecMillisec == 0);
+            }
+
+            DateTime nextCallTimetUtc = utcNowAligned.AddMilliseconds(delayMillisec);
+            nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(targetMillisec - nextCallTimetUtc.Millisecond);
+            Debug.Assert(nextCallTimetUtc.Millisecond == targetMillisec);
+
+            //if (nextCallTimetUtc <= utcNow)
+            //    nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(lessThanSecMillisec);
+            //if (nextCallTimetUtc <= utcNow)
+            //    nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(lessThanSecMillisec);
+            Debug.Assert(nextCallTimetUtc > utcNow);
+
+            return nextCallTimetUtc;
         }
 
         /// <summary>
