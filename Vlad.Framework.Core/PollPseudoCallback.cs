@@ -18,11 +18,15 @@ namespace Aspectacular
         public readonly int MaxPollSleepDelayMillisec;
         public readonly int DelayAfterFirstEmptyPollMillisec;
 
+        private readonly WaitHandle[] abortSignals;
+
+
         public PollPseudoCallback(Func<TPollRetVal> pollFunc = null, 
                                   Func<TPollRetVal, bool> processFunc = null,  
                                   int maxPollSleepDelayMillisec = 60 * 1000, 
                                   int delayAfterFirstEmptyPollMillisec = 10,
-                                  bool autoStart = true)
+                                  bool autoStart = true
+                                )
         {
             if(maxPollSleepDelayMillisec < 1)
                 throw new ArgumentException("maxPollSleepDelayMillisec must be 1 or larger.");
@@ -33,6 +37,9 @@ namespace Aspectacular
             this.processFunc = processFunc;
             this.MaxPollSleepDelayMillisec = maxPollSleepDelayMillisec;
             this.DelayAfterFirstEmptyPollMillisec = delayAfterFirstEmptyPollMillisec;
+
+            var stopEvents = new [] { stopSignal, Threading.ApplicationExiting };
+            this.abortSignals = stopEvents.Cast<WaitHandle>().ToArray();
 
             if(autoStart)
                 this.StartSmartPolling();
@@ -80,9 +87,7 @@ namespace Aspectacular
             int delayMillisec = 0;
             int delayIncrementMillisec = this.DelayAfterFirstEmptyPollMillisec;
 
-            var waiters = new WaitHandle[] { this.stopSignal, Threading.ApplicationExiting };
-
-            while(WaitHandle.WaitAny(waiters, delayMillisec) < 0)
+            while(WaitHandle.WaitAny(this.abortSignals, delayMillisec) < 0)
             {
                 TPollRetVal polledValue = this.Poll();
                 if(polledValue != null)
