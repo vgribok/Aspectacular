@@ -211,22 +211,26 @@ namespace Aspectacular
 
             long delayInTicks = delayMillisec * TimeSpan.TicksPerMillisecond;
             DateTime utcNowAligned = new DateTime(utcNow.Ticks / delayInTicks * delayInTicks, DateTimeKind.Utc);
+            DateTime nextCallTimetUtc = utcNowAligned.AddMilliseconds(delayMillisec);
 
             int lessThanSecMillisec = delayMillisec % 1000;
-            int targetMillisec = lessThanSecMillisec == 0 ? 0 : utcNowAligned.Millisecond / lessThanSecMillisec * lessThanSecMillisec;
             if(lessThanSecMillisec != 0)
             {
+                int targetMillisec = nextCallTimetUtc.Millisecond / lessThanSecMillisec * lessThanSecMillisec;
+                Debug.Assert(targetMillisec < 1000);
+
+                if (targetMillisec + lessThanSecMillisec < 1000)
+                    targetMillisec += lessThanSecMillisec;
                 Debug.Assert(targetMillisec % lessThanSecMillisec == 0);
+
+                int millisecAdjustment = targetMillisec - nextCallTimetUtc.Millisecond;
+                if(millisecAdjustment < 0)
+                    millisecAdjustment = 1000 - nextCallTimetUtc.Millisecond + targetMillisec;
+
+                nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(millisecAdjustment);
+
+                Debug.Assert(nextCallTimetUtc.Millisecond == targetMillisec);
             }
-
-            DateTime nextCallTimetUtc = utcNowAligned.AddMilliseconds(delayMillisec);
-            nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(targetMillisec - nextCallTimetUtc.Millisecond);
-            Debug.Assert(nextCallTimetUtc.Millisecond == targetMillisec);
-
-            //if (nextCallTimetUtc <= utcNow)
-            //    nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(lessThanSecMillisec);
-            //if (nextCallTimetUtc <= utcNow)
-            //    nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(lessThanSecMillisec);
             Debug.Assert(nextCallTimetUtc > utcNow);
 
             return nextCallTimetUtc;
