@@ -30,30 +30,22 @@ namespace Aspectacular
     /// <typeparam name="TPollRetVal"></typeparam>
     public class BlockingPoll<TPollRetVal>
     {
+        #region Fields
+
+        private readonly ManualResetEvent stopSignal = new ManualResetEvent(true);
+
         /// <summary>
         ///     Poll delegate, returning combination of boolean telling whether payload was retrieved, and payload itself.
         /// </summary>
         /// <returns></returns>
-        public delegate Pair<bool, TPollRetVal> PollFunc();
-
-        private readonly ManualResetEvent stopSignal = new ManualResetEvent(true);
-        private readonly PollFunc asyncPollFunc;
+        private readonly Func<Pair<bool, TPollRetVal>> asyncPollFunc;
 
         public readonly int MaxPollSleepDelayMillisec;
         public readonly int DelayAfterFirstEmptyPollMillisec;
 
         private readonly WaitHandle[] abortSignals;
 
-        /// <summary>
-        ///     Number of poll calls that came up empty so far.
-        /// </summary>
-        public ulong EmptyPollCallCount { get; private set; }
-
-        /// <summary>
-        ///     Number of poll calls that returned payload.
-        ///     Useful only with
-        /// </summary>
-        public ulong PollCallCountWithPayload { get; private set; }
+        #endregion Fields
 
         /// <summary>
         ///     Initializes poll-to-callback adapter class.
@@ -67,7 +59,7 @@ namespace Aspectacular
         ///     Delays starts with 0 and is increased up to this value if poll calls keep come back empty.
         /// </param>
         /// <param name="delayAfterFirstEmptyPollMillisec">Delay after the first empty poll call following non-empty poll call.</param>
-        public BlockingPoll(PollFunc asyncPollFunc = null,
+        public BlockingPoll(Func<Pair<bool, TPollRetVal>> asyncPollFunc = null,
             int maxPollSleepDelayMillisec = 60 * 1000,
             int delayAfterFirstEmptyPollMillisec = 10
             )
@@ -86,6 +78,91 @@ namespace Aspectacular
 
             this.PollCallCountWithPayload = 0;
         }
+
+
+        /// <summary>
+        ///     Launches polling loop that invokes process callback when payload arrives.
+        ///     This is an alternative to using blocking WaitForPayload() method.
+        /// </summary>
+        /// <param name="payloadProcessCallback">
+        ///     Optional payload processing delegate. If null, Process() method must be overridden
+        ///     in a subclass.
+        /// </param>
+        public async void StartNotificationLoop(Action<TPollRetVal> payloadProcessCallback = null)
+        {
+            if (!this.IsStopped)
+                throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
+
+            SynchronizationContext syncContext = SynchronizationContext.Current;
+            await Task.Run(() => this.RunPollLoop(syncContext, payloadProcessCallback ?? this.Process));
+        }
+
+        /// <summary>
+        ///     Blocks until either payload arrives, or polling is terminated.
+        ///     Returns true if payload arrived, and false if application is exiting or stop is signaled.
+        /// </summary>
+        /// <returns>
+        ///     True if payload was acquired, and false if polling loop was terminated with Stop() method or by application
+        ///     exiting.
+        /// </returns>
+        public Pair<bool, TPollRetVal> WaitForPayload()
+        {
+            if (!this.IsStopped)
+                throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
+
+            this.stopSignal.Reset();
+            this.EmptyPollCallCount = 0;
+
+            try
+            {
+                TPollRetVal payload;
+                bool success = this.WaitForPayloadInternal(out payload, syncCtx: null);
+                return new Pair<bool, TPollRetVal>(success, payload);
+            }
+            finally
+            {
+                this.Stop();
+            }
+        }
+
+        /// <summary>
+        ///     Either stops WaitForPayload() or terminates polling loop started with StartNotificationLoop()
+        ///     that generates callbacks on payload arrival.
+        /// </summary>
+        public void Stop()
+        {
+            this.stopSignal.Set();
+        }
+
+        #region Properties
+
+        /// <summary>
+        ///     Number of poll calls that came up empty so far.
+        /// </summary>
+        public ulong EmptyPollCallCount { get; private set; }
+
+        /// <summary>
+        ///     Number of poll calls that returned payload.
+        ///     Useful only with
+        /// </summary>
+        public ulong PollCallCountWithPayload { get; private set; }
+
+        /// <summary>
+        ///     Returns true if neither WaitForPayload(), nor StartNotificationLoop() methods are running.
+        /// </summary>
+        public bool IsStopped
+        {
+            get
+            {
+                bool stopSignalled = this.stopSignal.WaitOne(0);
+                bool applicationExiting = Threading.ApplicationExiting.WaitOne(0);
+                return stopSignalled || applicationExiting;
+            }
+        }
+
+        #endregion Properties
+
+        #region Virtual Methods
 
         /// <summary>
         ///     Returns true if payload was acquired. False if poll call came back empty.
@@ -113,22 +190,30 @@ namespace Aspectacular
         }
 
         /// <summary>
-        ///     Launches polling loop that invokes process callback when payload arrives.
-        ///     This is an alternative to using blocking WaitForPayload() method.
+        ///     Called after poll method came back empty.
+        ///     Increases delay between subsequent empty poll calls.
+        ///     May be overridden in subclasses to provide different delay adjustment logic.
         /// </summary>
-        /// <param name="payloadProcessCallback">
-        ///     Optional payload processing delegate. If null, Process() method must be overridden
-        ///     in a subclass.
-        /// </param>
-        public async void StartNotificationLoop(Action<TPollRetVal> payloadProcessCallback = null)
+        /// <param name="delayMillisec">Current delay to be changed, between empty poll call attempts</param>
+        /// <param name="delayIncrementMillisec">Current delay increment to be changed if necessary.</param>
+        protected virtual void IncreasePollDelay(ref int delayMillisec, ref int delayIncrementMillisec)
         {
-            if(!this.IsStopped)
-                throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
+            if (delayMillisec >= this.MaxPollSleepDelayMillisec)
+                return;
 
-            SynchronizationContext syncContext = SynchronizationContext.Current;
-            await Task.Run(() => this.RunPollLoop(syncContext, payloadProcessCallback ?? this.Process));
+            // Increase delay
+            delayMillisec += delayIncrementMillisec;
+
+            if (delayMillisec > this.MaxPollSleepDelayMillisec)
+                // Ensure delay does not exceed specified maximum
+                delayMillisec = this.MaxPollSleepDelayMillisec;
+            else
+                delayIncrementMillisec *= 2;
         }
 
+        #endregion Virtual Methods
+
+        #region Utility Methods
         private void RunPollLoop(SynchronizationContext syncContext, Action<TPollRetVal> processFunc)
         {
             this.stopSignal.Reset();
@@ -140,34 +225,6 @@ namespace Aspectacular
             {
                 TPollRetVal polledValTemp = polledValue;
                 syncContext.Execute(() => processFunc(polledValTemp));
-            }
-        }
-
-        /// <summary>
-        ///     Blocks until either payload arrives, or polling is terminated.
-        ///     Returns true if payload arrived, and false if application is exiting or stop is signaled.
-        /// </summary>
-        /// <returns>
-        ///     True if payload was acquired, and false if polling loop was terminated with Stop() method or by application
-        ///     exiting.
-        /// </returns>
-        public Pair<bool, TPollRetVal> WaitForPayload()
-        {
-            if(!this.IsStopped)
-                throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
-
-            this.stopSignal.Reset();
-            this.EmptyPollCallCount = 0;
-
-            try
-            {
-                TPollRetVal payload;
-                bool success = this.WaitForPayloadInternal(out payload, syncCtx: null);
-                return new Pair<bool, TPollRetVal>(success, payload);
-            }
-            finally 
-            {
-                this.Stop();
             }
         }
 
@@ -203,48 +260,6 @@ namespace Aspectacular
             return canContinue;
         }
 
-        /// <summary>
-        ///     Called after poll method came back empty.
-        ///     Increases delay between subsequent empty poll calls.
-        ///     May be overridden in subclasses to provide different delay adjustment logic.
-        /// </summary>
-        /// <param name="delayMillisec">Current delay to be changed, between empty poll call attempts</param>
-        /// <param name="delayIncrementMillisec">Current delay increment to be changed if necessary.</param>
-        protected virtual void IncreasePollDelay(ref int delayMillisec, ref int delayIncrementMillisec)
-        {
-            if(delayMillisec >= this.MaxPollSleepDelayMillisec)
-                return;
-
-            // Increase delay
-            delayMillisec += delayIncrementMillisec;
-
-            if(delayMillisec > this.MaxPollSleepDelayMillisec)
-                // Ensure delay does not exceed specified maximum
-                delayMillisec = this.MaxPollSleepDelayMillisec;
-            else
-                delayIncrementMillisec *= 2;
-        }
-
-        /// <summary>
-        ///     Returns true if neither WaitForPayload(), nor StartNotificationLoop() methods are running.
-        /// </summary>
-        public bool IsStopped
-        {
-            get
-            {
-                bool stopSignalled = this.stopSignal.WaitOne(0);
-                bool applicationExiting = Threading.ApplicationExiting.WaitOne(0);
-                return stopSignalled || applicationExiting;
-            }
-        }
-
-        /// <summary>
-        ///     Either stops WaitForPayload() or terminates polling loop started with StartNotificationLoop()
-        ///     that generates callbacks on payload arrival.
-        /// </summary>
-        public void Stop()
-        {
-            this.stopSignal.Set();
-        }
+        #endregion Utility Methods
     }
 }

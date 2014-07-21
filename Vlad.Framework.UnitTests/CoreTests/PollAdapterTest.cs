@@ -68,7 +68,6 @@ namespace Aspectacular.Test.CoreTests
             Assert.IsTrue(pollmeister.PollCallCountWithPayload == 1);
         }
 
-
         [TestMethod]
         public void TestSmartPollingCallback()
         {
