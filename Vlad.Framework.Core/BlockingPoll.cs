@@ -27,7 +27,7 @@ namespace Aspectacular
     ///     or made to notify a caller via callback.
     ///     User WaitForPayload() or StartNotificationLoop() methods to run the polling loop.
     /// </remarks>
-    /// <typeparam name="TPollRetVal"></typeparam>
+    /// <typeparam name="TPollRetVal">Payload that may have null as valid payload.</typeparam>
     public class BlockingPoll<TPollRetVal>
     {
         #region Fields
@@ -38,7 +38,7 @@ namespace Aspectacular
         ///     Poll delegate, returning combination of boolean telling whether payload was retrieved, and payload itself.
         /// </summary>
         /// <returns></returns>
-        protected readonly Func<Pair<bool, TPollRetVal>> asyncPollFunc;
+        private readonly Func<Pair<bool, TPollRetVal>> asyncPollFunc;
 
         public readonly int MaxPollSleepDelayMillisec;
         public readonly int DelayAfterFirstEmptyPollMillisec;
@@ -90,7 +90,7 @@ namespace Aspectacular
         /// </param>
         public async void StartNotificationLoop(Action<TPollRetVal> payloadProcessCallback = null)
         {
-            if (!this.IsStopped)
+            if(!this.IsStopped)
                 throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
 
             SynchronizationContext syncContext = SynchronizationContext.Current;
@@ -107,7 +107,7 @@ namespace Aspectacular
         /// </returns>
         public Pair<bool, TPollRetVal> WaitForPayload()
         {
-            if (!this.IsStopped)
+            if(!this.IsStopped)
                 throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
 
             this.stopSignal.Reset();
@@ -198,13 +198,13 @@ namespace Aspectacular
         /// <param name="delayIncrementMillisec">Current delay increment to be changed if necessary.</param>
         protected virtual void IncreasePollDelay(ref int delayMillisec, ref int delayIncrementMillisec)
         {
-            if (delayMillisec >= this.MaxPollSleepDelayMillisec)
+            if(delayMillisec >= this.MaxPollSleepDelayMillisec)
                 return;
 
             // Increase delay
             delayMillisec += delayIncrementMillisec;
 
-            if (delayMillisec > this.MaxPollSleepDelayMillisec)
+            if(delayMillisec > this.MaxPollSleepDelayMillisec)
                 // Ensure delay does not exceed specified maximum
                 delayMillisec = this.MaxPollSleepDelayMillisec;
             else
@@ -214,6 +214,7 @@ namespace Aspectacular
         #endregion Virtual Methods
 
         #region Utility Methods
+
         private void RunPollLoop(SynchronizationContext syncContext, Action<TPollRetVal> processFunc)
         {
             this.stopSignal.Reset();
@@ -263,31 +264,58 @@ namespace Aspectacular
         #endregion Utility Methods
     }
 
+    /// <summary>
+    ///     An adapter for turning non-blocking polling into
+    ///     either blocking wait or a callback.
+    ///     This version is a simplified polling adapter class whose polling payload is non-null when present.
+    /// </summary>
+    /// <remarks>
+    ///     Polling of queues or monitoring state changes can be difficult:
+    ///     from CPU hogging if polling is done in a tight loop,
+    ///     to leaking money when polling calls call paid cloud services
+    ///     or waste valuable resources, like limited bandwidth.
+    ///     This adapter will add and grow delays (up to a limit) between poll calls that come back empty.
+    ///     It can be used either in blocking mode, by calling WaitForPayload() method,
+    ///     or made to notify a caller via callback.
+    ///     User WaitForPayload() or StartNotificationLoop() methods to run the polling loop.
+    /// </remarks>
+    /// <typeparam name="TNonNullablePayload">Payload type that which never has null as valid payload.</typeparam>
     public class BlockingPollNonNullablePayload<TNonNullablePayload> : BlockingPoll<TNonNullablePayload>
         where TNonNullablePayload : class
     {
-        public BlockingPollNonNullablePayload(Func<TNonNullablePayload> asycnPollFunc = null,
+        private readonly Func<TNonNullablePayload> asyncPollFunc;
+
+        /// <summary>
+        ///     Initializes poll-to-callback adapter class.
+        /// </summary>
+        /// <param name="asyncPollFunc">
+        ///     Optional delegate implementing polling. If not specified, Poll() method must be overridden in the subclass.
+        ///     Callback delegate must return non-null if payload was acquired, and null if poll method came back empty.
+        /// </param>
+        /// <param name="maxPollSleepDelayMillisec">
+        ///     Maximum delay between poll attempts that come back empty.
+        ///     Delays starts with 0 and is increased up to this value if poll calls keep come back empty.
+        /// </param>
+        /// <param name="delayAfterFirstEmptyPollMillisec">Delay after the first empty poll call following non-empty poll call.</param>
+        public BlockingPollNonNullablePayload(Func<TNonNullablePayload> asyncPollFunc = null,
             int maxPollSleepDelayMillisec = 60 * 1000,
             int delayAfterFirstEmptyPollMillisec = 10)
-
-        : base(asycnPollFunc == null ? (Func<Pair<bool, TNonNullablePayload>>)null : () => PollFuncWrapper(asycnPollFunc), 
-                maxPollSleepDelayMillisec, delayAfterFirstEmptyPollMillisec)
+            : base(null, maxPollSleepDelayMillisec, delayAfterFirstEmptyPollMillisec)
         {
+            this.asyncPollFunc = asyncPollFunc;
         }
 
-        internal static Pair<bool, TNonNullablePayload> PollFuncWrapper(Func<TNonNullablePayload> asycnPollFunc)
-        {
-            var payload = asycnPollFunc();
-            return new Pair<bool, TNonNullablePayload>(payload != null, payload);
-        }
-
+        /// <summary>
+        ///     Returns null if payload cannot be acquired, and non-null if payload is captured.
+        /// </summary>
+        /// <returns></returns>
         public virtual TNonNullablePayload PollEasy()
         {
-            if (this.asyncPollFunc == null)
+            if(this.asyncPollFunc == null)
                 throw new InvalidDataException("Poll function must either be supplied to a constructor as a delegate, or Poll() method must be overridden in a subclass.");
 
-            Pair<bool, TNonNullablePayload> payload = this.asyncPollFunc();
-            return payload.Second;
+            TNonNullablePayload payload = this.asyncPollFunc();
+            return payload;
         }
 
         /// <summary>
