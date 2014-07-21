@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using System.Collections.Generic;
 
@@ -43,30 +44,51 @@ namespace Aspectacular.Test.CoreTests
         //
         #endregion
 
-        [TestMethod]
-        public void PollSchedulingDelayTest()
+        public static Pair<bool, DateTimeOffset> PollTime(DateTimeOffset targetTime)
         {
-            const int twoSecDelay = 2 * 1000;
+            var time = DateTimeOffset.Now;
+            return new Pair<bool, DateTimeOffset>(time >= targetTime && (time - targetTime).Milliseconds <= 500, time);
+        }
 
-            DateTime nextCallTime;
+        [TestMethod]
+        public void TestSmartPollingBlocking()
+        {
+            DateTimeOffset threeSecondDelay = DateTimeOffset.Now.AddSeconds(3);
 
-            nextCallTime = BlockingPoll<int>.GetNextCallTimeUtcAlignedonDelayBoundary(twoSecDelay).ToLocalTime();
-            Assert.IsTrue((nextCallTime.Second % 2) == 0 && nextCallTime.Millisecond == 0);
+            const int maxDelayMillisec = 500;
+            var pollmeister = new BlockingPoll<DateTimeOffset>(() => PollTime(threeSecondDelay), maxDelayMillisec);
 
-            const int fourHourDelay = 4 * 1000 * 60 * 60;
-            nextCallTime = BlockingPoll<int>.GetNextCallTimeUtcAlignedonDelayBoundary(fourHourDelay).ToLocalTime();
-            Assert.IsTrue((nextCallTime.Hour % 4) == 0 && nextCallTime.Millisecond == 0);
+            Pair<bool, DateTimeOffset> result = pollmeister.WaitForPayload();
+            this.TestContext.WriteLine("Empty poll calls: {0:#,#0}", pollmeister.EmptyPollCallCount);
+            
+            Assert.IsTrue(result.First);
+            int discrepMillisecBetweenHopedAndActual = (result.Second - threeSecondDelay).Milliseconds;
+            Assert.IsTrue(discrepMillisecBetweenHopedAndActual <= maxDelayMillisec);
+            Assert.IsTrue(pollmeister.EmptyPollCallCount <= 12);
+            Assert.IsTrue(pollmeister.PollCallCountWithPayload == 1);
+        }
 
 
-            for (int millisecBoundary = 1; millisecBoundary <= 11111; millisecBoundary++)
-            {
-                nextCallTime = BlockingPoll<int>.GetNextCallTimeUtcAlignedonDelayBoundary(millisecBoundary).ToLocalTime();
+        [TestMethod]
+        public void TestSmartPollingCallback()
+        {
+            DateTimeOffset threeSecondDelay = DateTimeOffset.Now.AddSeconds(3);
 
-                DateTime now = DateTime.Now;
-                Assert.IsTrue(/*(nextCallTime.Millisecond % millisecBoundary) == 0 &&*/ nextCallTime > now);
-                int delayMillisec = (int)(nextCallTime - now).TotalMilliseconds;
-                Assert.IsTrue(delayMillisec < millisecBoundary * 2 + 20);
-            }
+            const int maxDelayMillisec = 500;
+            var pollmeister = new BlockingPoll<DateTimeOffset>(() => PollTime(threeSecondDelay), maxDelayMillisec);
+
+            DateTimeOffset? message = null;
+            pollmeister.StartNotificationLoop(payload => message = payload);
+            Threading.Sleep(3100);
+            pollmeister.Stop();
+
+            this.TestContext.WriteLine("Empty poll calls: {0:#,#0}, Calls with payload: {1:#,#0}", pollmeister.EmptyPollCallCount, pollmeister.PollCallCountWithPayload);
+
+            Assert.IsTrue(message != null);
+            int discrepMillisecBetweenHopedAndActual = (message.Value - threeSecondDelay).Milliseconds;
+            Assert.IsTrue(discrepMillisecBetweenHopedAndActual <= maxDelayMillisec + 100);
+            Assert.IsTrue(pollmeister.EmptyPollCallCount <= 12);
+            Assert.IsTrue(pollmeister.PollCallCountWithPayload >= 1);
         }
     }
 }

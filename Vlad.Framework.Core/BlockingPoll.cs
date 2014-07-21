@@ -6,7 +6,6 @@
 #endregion
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -31,7 +30,11 @@ namespace Aspectacular
     /// <typeparam name="TPollRetVal"></typeparam>
     public class BlockingPoll<TPollRetVal>
     {
-        public delegate bool PollFunc(out TPollRetVal payload);
+        /// <summary>
+        ///     Poll delegate, returning combination of boolean telling whether payload was retrieved, and payload itself.
+        /// </summary>
+        /// <returns></returns>
+        public delegate Pair<bool, TPollRetVal> PollFunc();
 
         private readonly ManualResetEvent stopSignal = new ManualResetEvent(true);
         private readonly PollFunc asyncPollFunc;
@@ -90,12 +93,12 @@ namespace Aspectacular
         /// </summary>
         /// <param name="payload"></param>
         /// <returns></returns>
-        protected virtual bool Poll(out TPollRetVal payload)
+        protected virtual Pair<bool, TPollRetVal> Poll()
         {
             if(this.asyncPollFunc == null)
                 throw new InvalidDataException("Poll function must either be supplied to a constructor as a delegate, or Poll() method must be overridden in a subclass.");
 
-            return this.asyncPollFunc(out payload);
+            return this.asyncPollFunc();
         }
 
         /// <summary>
@@ -149,14 +152,18 @@ namespace Aspectacular
         ///     True if payload was acquired, and false if polling loop was terminated with Stop() method or by application
         ///     exiting.
         /// </returns>
-        public bool WaitForPayload(out TPollRetVal payload)
+        public Pair<bool, TPollRetVal> WaitForPayload()
         {
             if(!this.IsStopped)
                 throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
 
             this.stopSignal.Reset();
             this.EmptyPollCallCount = 0;
-            return this.WaitForPayloadInternal(out payload, syncCtx: null);
+
+            TPollRetVal payload;
+            bool success = this.WaitForPayloadInternal(out payload, syncCtx: null);
+            this.Stop();
+            return new Pair<bool, TPollRetVal>(success, payload);
         }
 
         private bool WaitForPayloadInternal(out TPollRetVal payload, SynchronizationContext syncCtx)
@@ -167,11 +174,10 @@ namespace Aspectacular
 
             while(this.SleepAfterEmptyPollCall(delayMillisec))
             {
-                TPollRetVal polledValue = default(TPollRetVal);
-                bool hasPayload = syncCtx.Execute(() => this.Poll(out polledValue));
-                payload = polledValue;
+                Pair<bool, TPollRetVal> retVal = syncCtx.Execute(() => this.Poll());
+                payload = retVal.Second;
 
-                if(hasPayload)
+                if(retVal.First)
                 {
                     this.PollCallCountWithPayload++;
                     return true;
@@ -187,53 +193,9 @@ namespace Aspectacular
 
         private bool SleepAfterEmptyPollCall(int delayMillisec)
         {
-            DateTime nextCheckTimeUtc = GetNextCallTimeUtcAlignedonDelayBoundary(delayMillisec);
-            delayMillisec = (int)(DateTime.UtcNow - nextCheckTimeUtc).TotalMilliseconds;
-            if(delayMillisec < 0)
-                delayMillisec = 0;
-
-            return WaitHandle.WaitAny(this.abortSignals, delayMillisec) < 0;
-        }
-
-        /// <summary>
-        ///     Ensures that next poll call is scheduled on the factor of delay boundary.
-        ///     For example, if delay = 1 minute, then next call is scheduled at 00 seconds of the next minute,
-        ///     and not xx minutes and, say, 11 seconds.
-        /// </summary>
-        /// <param name="delayMillisec"></param>
-        /// <returns>UTC time of the next poll call.</returns>
-        internal static DateTime GetNextCallTimeUtcAlignedonDelayBoundary(int delayMillisec)
-        {
-            if(delayMillisec < 0)
-                throw new ArgumentException("delayMillisec cannot be negative.");
-
-            var utcNow = DateTime.UtcNow;
-
-            long delayInTicks = delayMillisec * TimeSpan.TicksPerMillisecond;
-            DateTime utcNowAligned = new DateTime(utcNow.Ticks / delayInTicks * delayInTicks, DateTimeKind.Utc);
-            DateTime nextCallTimetUtc = utcNowAligned.AddMilliseconds(delayMillisec);
-
-            //int lessThanSecMillisec = delayMillisec % 1000;
-            //if(lessThanSecMillisec != 0)
-            //{
-            //    int targetMillisec = nextCallTimetUtc.Millisecond / lessThanSecMillisec * lessThanSecMillisec;
-            //    Debug.Assert(targetMillisec < 1000);
-
-            //    if (targetMillisec + lessThanSecMillisec < 1000)
-            //        targetMillisec += lessThanSecMillisec;
-            //    Debug.Assert(targetMillisec % lessThanSecMillisec == 0);
-
-            //    int millisecAdjustment = targetMillisec - nextCallTimetUtc.Millisecond;
-            //    if(millisecAdjustment < 0)
-            //        millisecAdjustment = 1000 - nextCallTimetUtc.Millisecond + targetMillisec;
-
-            //    nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(millisecAdjustment);
-
-            //    Debug.Assert(nextCallTimetUtc.Millisecond == targetMillisec);
-            //}
-            Debug.Assert(nextCallTimetUtc > utcNow);
-
-            return nextCallTimetUtc;
+            int index = WaitHandle.WaitAny(this.abortSignals, delayMillisec);
+            bool canContinue = index == WaitHandle.WaitTimeout;
+            return canContinue;
         }
 
         /// <summary>
