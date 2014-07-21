@@ -207,7 +207,12 @@ namespace Aspectacular
             if(delayMillisec < 0)
                 throw new ArgumentException("delayMillisec cannot be negative.");
 
+            int digitCount = (int)Math.Log10(delayMillisec);
+            int digitTruncator = (int)Math.Pow(10, digitCount);
+            delayMillisec = delayMillisec / digitTruncator * digitTruncator; // 150 is turned into 100, 2568 into 2000, etc.
+
             var utcNow = DateTime.UtcNow;
+
 
             long delayInTicks = delayMillisec * TimeSpan.TicksPerMillisecond;
             DateTime utcNowAligned = new DateTime(utcNow.Ticks / delayInTicks * delayInTicks, DateTimeKind.Utc);

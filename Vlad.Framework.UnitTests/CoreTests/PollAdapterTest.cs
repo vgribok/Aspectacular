@@ -53,13 +53,19 @@ namespace Aspectacular.Test.CoreTests
             nextCallTime = BlockingPoll<int>.GetNextCallTimeUtcAlignedonDelayBoundary(twoSecDelay).ToLocalTime();
             Assert.IsTrue((nextCallTime.Second % 2) == 0 && nextCallTime.Millisecond == 0);
 
-            for(int millisecBoundary = 1; millisecBoundary <= 1111; millisecBoundary ++)
+            const int fourHourDelay = 4 * 1000 * 60 * 60;
+            nextCallTime = BlockingPoll<int>.GetNextCallTimeUtcAlignedonDelayBoundary(fourHourDelay).ToLocalTime();
+            Assert.IsTrue((nextCallTime.Hour % 4) == 0 && nextCallTime.Millisecond == 0);
+
+
+            for(int millisecBoundary = 1; millisecBoundary <= 11111; millisecBoundary ++)
             {
-                DateTime now = DateTime.Now;
                 nextCallTime = BlockingPoll<int>.GetNextCallTimeUtcAlignedonDelayBoundary(millisecBoundary).ToLocalTime();
-                Assert.IsTrue((nextCallTime.Millisecond % millisecBoundary) == 0 && nextCallTime > now);
-                //int delayMillisec = (int)(nextCallTime - now).TotalMilliseconds;
-                //Assert.IsTrue(delayMillisec < millisecBoundary * 2 + 20);
+
+                DateTime now = DateTime.Now;
+                Assert.IsTrue(/*(nextCallTime.Millisecond % millisecBoundary) == 0 &&*/ nextCallTime > now);
+                int delayMillisec = (int)(nextCallTime - now).TotalMilliseconds;
+                Assert.IsTrue(delayMillisec < millisecBoundary * 2 + 20);
             }
         }
     }
