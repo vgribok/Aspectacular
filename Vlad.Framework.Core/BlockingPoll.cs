@@ -16,6 +16,8 @@ namespace Aspectacular
     /// <summary>
     ///     An adapter for turning non-blocking polling into
     ///     either blocking wait or a callback.
+    ///     User this class if null can be a valid payload.
+    ///     If valid payload cannot be null, use BlockingPollNonNullablePayload class instead.
     /// </summary>
     /// <remarks>
     ///     Polling of queues or monitoring state changes can be difficult:
