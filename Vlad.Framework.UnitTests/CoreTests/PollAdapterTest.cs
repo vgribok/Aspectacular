@@ -58,7 +58,7 @@ namespace Aspectacular.Test.CoreTests
             Assert.IsTrue((nextCallTime.Hour % 4) == 0 && nextCallTime.Millisecond == 0);
 
 
-            for(int millisecBoundary = 1; millisecBoundary <= 11111; millisecBoundary ++)
+            for (int millisecBoundary = 1; millisecBoundary <= 11111; millisecBoundary++)
             {
                 nextCallTime = BlockingPoll<int>.GetNextCallTimeUtcAlignedonDelayBoundary(millisecBoundary).ToLocalTime();
 

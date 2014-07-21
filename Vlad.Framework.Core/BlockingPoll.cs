@@ -207,35 +207,30 @@ namespace Aspectacular
             if(delayMillisec < 0)
                 throw new ArgumentException("delayMillisec cannot be negative.");
 
-            int digitCount = (int)Math.Log10(delayMillisec);
-            int digitTruncator = (int)Math.Pow(10, digitCount);
-            delayMillisec = delayMillisec / digitTruncator * digitTruncator; // 150 is turned into 100, 2568 into 2000, etc.
-
             var utcNow = DateTime.UtcNow;
-
 
             long delayInTicks = delayMillisec * TimeSpan.TicksPerMillisecond;
             DateTime utcNowAligned = new DateTime(utcNow.Ticks / delayInTicks * delayInTicks, DateTimeKind.Utc);
             DateTime nextCallTimetUtc = utcNowAligned.AddMilliseconds(delayMillisec);
 
-            int lessThanSecMillisec = delayMillisec % 1000;
-            if(lessThanSecMillisec != 0)
-            {
-                int targetMillisec = nextCallTimetUtc.Millisecond / lessThanSecMillisec * lessThanSecMillisec;
-                Debug.Assert(targetMillisec < 1000);
+            //int lessThanSecMillisec = delayMillisec % 1000;
+            //if(lessThanSecMillisec != 0)
+            //{
+            //    int targetMillisec = nextCallTimetUtc.Millisecond / lessThanSecMillisec * lessThanSecMillisec;
+            //    Debug.Assert(targetMillisec < 1000);
 
-                if (targetMillisec + lessThanSecMillisec < 1000)
-                    targetMillisec += lessThanSecMillisec;
-                Debug.Assert(targetMillisec % lessThanSecMillisec == 0);
+            //    if (targetMillisec + lessThanSecMillisec < 1000)
+            //        targetMillisec += lessThanSecMillisec;
+            //    Debug.Assert(targetMillisec % lessThanSecMillisec == 0);
 
-                int millisecAdjustment = targetMillisec - nextCallTimetUtc.Millisecond;
-                if(millisecAdjustment < 0)
-                    millisecAdjustment = 1000 - nextCallTimetUtc.Millisecond + targetMillisec;
+            //    int millisecAdjustment = targetMillisec - nextCallTimetUtc.Millisecond;
+            //    if(millisecAdjustment < 0)
+            //        millisecAdjustment = 1000 - nextCallTimetUtc.Millisecond + targetMillisec;
 
-                nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(millisecAdjustment);
+            //    nextCallTimetUtc = nextCallTimetUtc.AddMilliseconds(millisecAdjustment);
 
-                Debug.Assert(nextCallTimetUtc.Millisecond == targetMillisec);
-            }
+            //    Debug.Assert(nextCallTimetUtc.Millisecond == targetMillisec);
+            //}
             Debug.Assert(nextCallTimetUtc > utcNow);
 
             return nextCallTimetUtc;
