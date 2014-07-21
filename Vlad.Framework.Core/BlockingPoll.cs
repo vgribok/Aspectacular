@@ -38,7 +38,7 @@ namespace Aspectacular
         ///     Poll delegate, returning combination of boolean telling whether payload was retrieved, and payload itself.
         /// </summary>
         /// <returns></returns>
-        private readonly Func<Pair<bool, TPollRetVal>> asyncPollFunc;
+        protected readonly Func<Pair<bool, TPollRetVal>> asyncPollFunc;
 
         public readonly int MaxPollSleepDelayMillisec;
         public readonly int DelayAfterFirstEmptyPollMillisec;
@@ -261,5 +261,44 @@ namespace Aspectacular
         }
 
         #endregion Utility Methods
+    }
+
+    public class BlockingPollNonNullablePayload<TNonNullablePayload> : BlockingPoll<TNonNullablePayload>
+        where TNonNullablePayload : class
+    {
+        public BlockingPollNonNullablePayload(Func<TNonNullablePayload> asycnPollFunc = null,
+            int maxPollSleepDelayMillisec = 60 * 1000,
+            int delayAfterFirstEmptyPollMillisec = 10)
+
+        : base(asycnPollFunc == null ? (Func<Pair<bool, TNonNullablePayload>>)null : () => PollFuncWrapper(asycnPollFunc), 
+                maxPollSleepDelayMillisec, delayAfterFirstEmptyPollMillisec)
+        {
+        }
+
+        internal static Pair<bool, TNonNullablePayload> PollFuncWrapper(Func<TNonNullablePayload> asycnPollFunc)
+        {
+            var payload = asycnPollFunc();
+            return new Pair<bool, TNonNullablePayload>(payload != null, payload);
+        }
+
+        public virtual TNonNullablePayload PollEasy()
+        {
+            if (this.asyncPollFunc == null)
+                throw new InvalidDataException("Poll function must either be supplied to a constructor as a delegate, or Poll() method must be overridden in a subclass.");
+
+            Pair<bool, TNonNullablePayload> payload = this.asyncPollFunc();
+            return payload.Second;
+        }
+
+        /// <summary>
+        ///     Returns true if payload was acquired. False if poll call came back empty.
+        ///     Can be overridden in subclasses.
+        /// </summary>
+        /// <returns></returns>
+        protected override Pair<bool, TNonNullablePayload> Poll()
+        {
+            TNonNullablePayload payload = this.PollEasy();
+            return new Pair<bool, TNonNullablePayload>(payload != null, payload);
+        }
     }
 }
