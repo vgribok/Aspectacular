@@ -91,7 +91,6 @@ namespace Aspectacular
         ///     Returns true if payload was acquired. False if poll call came back empty.
         ///     Can be overridden in subclasses.
         /// </summary>
-        /// <param name="payload"></param>
         /// <returns></returns>
         protected virtual Pair<bool, TPollRetVal> Poll()
         {
@@ -160,10 +159,16 @@ namespace Aspectacular
             this.stopSignal.Reset();
             this.EmptyPollCallCount = 0;
 
-            TPollRetVal payload;
-            bool success = this.WaitForPayloadInternal(out payload, syncCtx: null);
-            this.Stop();
-            return new Pair<bool, TPollRetVal>(success, payload);
+            try
+            {
+                TPollRetVal payload;
+                bool success = this.WaitForPayloadInternal(out payload, syncCtx: null);
+                return new Pair<bool, TPollRetVal>(success, payload);
+            }
+            finally 
+            {
+                this.Stop();
+            }
         }
 
         private bool WaitForPayloadInternal(out TPollRetVal payload, SynchronizationContext syncCtx)
