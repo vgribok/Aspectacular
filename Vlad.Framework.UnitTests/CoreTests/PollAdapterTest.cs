@@ -44,10 +44,10 @@ namespace Aspectacular.Test.CoreTests
         //
         #endregion
 
-        public static Pair<bool, DateTimeOffset> PollTime(DateTimeOffset targetTime)
+        public static object PollTime(DateTimeOffset targetTime)
         {
             var time = DateTimeOffset.Now;
-            return new Pair<bool, DateTimeOffset>(time >= targetTime && (time - targetTime).Milliseconds <= 500, time);
+            return time >= targetTime && (time - targetTime).Milliseconds <= 500 ? time : (object)null;
         }
 
         [TestMethod]
@@ -56,13 +56,13 @@ namespace Aspectacular.Test.CoreTests
             DateTimeOffset threeSecondDelay = DateTimeOffset.Now.AddSeconds(3);
 
             const int maxDelayMillisec = 500;
-            var pollmeister = new BlockingPoll<DateTimeOffset>(() => PollTime(threeSecondDelay), maxDelayMillisec);
+            var pollmeister = new BlockingObjectPoll<object>(() => PollTime(threeSecondDelay), maxDelayMillisec);
 
-            Pair<bool, DateTimeOffset> result = pollmeister.WaitForPayload();
+            Pair<bool, object> result = pollmeister.WaitForPayload();
             this.TestContext.WriteLine("Empty poll calls: {0:#,#0}", pollmeister.EmptyPollCallCount);
             
             Assert.IsTrue(result.First);
-            int discrepMillisecBetweenHopedAndActual = (result.Second - threeSecondDelay).Milliseconds;
+            int discrepMillisecBetweenHopedAndActual = ((DateTimeOffset)result.Second - threeSecondDelay).Milliseconds;
             Assert.IsTrue(discrepMillisecBetweenHopedAndActual <= maxDelayMillisec);
             Assert.IsTrue(pollmeister.EmptyPollCallCount <= 12);
             Assert.IsTrue(pollmeister.PollCallCountWithPayload == 1);
@@ -74,10 +74,10 @@ namespace Aspectacular.Test.CoreTests
             DateTimeOffset threeSecondDelay = DateTimeOffset.Now.AddSeconds(3);
 
             const int maxDelayMillisec = 500;
-            var pollmeister = new BlockingPoll<DateTimeOffset>(() => PollTime(threeSecondDelay), maxDelayMillisec);
+            var pollmeister = new BlockingObjectPoll<object>(() => PollTime(threeSecondDelay), maxDelayMillisec);
 
             DateTimeOffset? message = null;
-            pollmeister.StartNotificationLoop(payload => message = payload);
+            pollmeister.StartNotificationLoop(payload => message = payload == null ? (DateTimeOffset?)null : (DateTimeOffset)payload);
             Threading.Sleep(3100);
             pollmeister.Stop();
 

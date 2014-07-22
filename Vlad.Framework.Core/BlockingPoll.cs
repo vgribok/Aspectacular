@@ -17,7 +17,7 @@ namespace Aspectacular
     ///     An adapter for turning non-blocking polling into
     ///     either blocking wait or a callback.
     ///     User this class if null can be a valid payload.
-    ///     If valid payload cannot be null, use BlockingPollNonNullablePayload class instead.
+    ///     If valid payload cannot be null, use BlockingObjectPoll class instead.
     /// </summary>
     /// <remarks>
     ///     Polling of queues or monitoring state changes can be difficult:
@@ -282,13 +282,13 @@ namespace Aspectacular
     ///     User WaitForPayload() or StartNotificationLoop() methods to run the polling loop.
     /// </remarks>
     /// <typeparam name="TNonNullablePayload">Payload type that which never has null as valid payload.</typeparam>
-    public class BlockingPollNonNullablePayload<TNonNullablePayload> : BlockingPoll<TNonNullablePayload>
+    public class BlockingObjectPoll<TNonNullablePayload> : BlockingPoll<TNonNullablePayload>
         where TNonNullablePayload : class
     {
         private readonly Func<TNonNullablePayload> asyncPollFunc;
 
         /// <summary>
-        ///     Initializes poll-to-callback adapter class.
+        ///     Initializes poll-to-callback adapter class where null poll return means data was not acquired.
         /// </summary>
         /// <param name="asyncPollFunc">
         ///     Optional delegate implementing polling. If not specified, Poll() method must be overridden in the subclass.
@@ -299,7 +299,7 @@ namespace Aspectacular
         ///     Delays starts with 0 and is increased up to this value if poll calls keep come back empty.
         /// </param>
         /// <param name="delayAfterFirstEmptyPollMillisec">Delay after the first empty poll call following non-empty poll call.</param>
-        public BlockingPollNonNullablePayload(Func<TNonNullablePayload> asyncPollFunc = null,
+        public BlockingObjectPoll(Func<TNonNullablePayload> asyncPollFunc = null,
             int maxPollSleepDelayMillisec = 60 * 1000,
             int delayAfterFirstEmptyPollMillisec = 10)
             : base(null, maxPollSleepDelayMillisec, delayAfterFirstEmptyPollMillisec)
