@@ -57,7 +57,6 @@ namespace Aspectacular.Test.CoreTests
 
             const int maxDelayMillisec = 500;
             var pollmeister = new BlockingObjectPoll<object>(() => PollTime(threeSecondDelay), maxDelayMillisec);
-
             object result = pollmeister.WaitForPayload();
             this.TestContext.WriteLine("Empty poll calls: {0:#,#0}", pollmeister.EmptyPollCallCount);
 
@@ -74,12 +73,13 @@ namespace Aspectacular.Test.CoreTests
             DateTimeOffset threeSecondDelay = DateTimeOffset.Now.AddSeconds(3);
 
             const int maxDelayMillisec = 500;
-            var pollmeister = new BlockingObjectPoll<object>(() => PollTime(threeSecondDelay), maxDelayMillisec);
-
             DateTimeOffset? message = null;
-            pollmeister.StartNotificationLoop(payload => message = payload == null ? (DateTimeOffset?)null : (DateTimeOffset)payload);
-            Threading.Sleep(3100);
-            pollmeister.Stop();
+            BlockingObjectPoll<object> pollmeister;
+            using (pollmeister = new BlockingObjectPoll<object>(() => PollTime(threeSecondDelay), maxDelayMillisec))
+            {
+                pollmeister.StartNotificationLoop(payload => message = payload == null ? (DateTimeOffset?)null : (DateTimeOffset)payload);
+                Threading.Sleep(3100);
+            }
 
             this.TestContext.WriteLine("Empty poll calls: {0:#,#0}, Calls with payload: {1:#,#0}", pollmeister.EmptyPollCallCount, pollmeister.PollCallCountWithPayload);
 

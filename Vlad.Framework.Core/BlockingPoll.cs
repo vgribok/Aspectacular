@@ -30,7 +30,7 @@ namespace Aspectacular
     ///     User WaitForPayload() or StartNotificationLoop() methods to run the polling loop.
     /// </remarks>
     /// <typeparam name="TPollRetVal">Payload that may have null as valid payload.</typeparam>
-    public class BlockingPoll<TPollRetVal>
+    public class BlockingPoll<TPollRetVal> : IDisposable
     {
         #region Fields
 
@@ -264,6 +264,14 @@ namespace Aspectacular
         }
 
         #endregion Utility Methods
+
+        /// <summary>
+        /// Implements IDisposable and stops polling.
+        /// </summary>
+        public void Dispose()
+        {
+            this.Stop();
+        }
     }
 
     /// <summary>
