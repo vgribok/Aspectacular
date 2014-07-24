@@ -311,7 +311,7 @@ namespace Aspectacular
         ///     Returns null if payload cannot be acquired, and non-null if payload is captured.
         /// </summary>
         /// <returns></returns>
-        public virtual TNonNullablePayload PollEasy()
+        protected virtual TNonNullablePayload PollEasy()
         {
             if(this.asyncPollFunc == null)
                 throw new InvalidDataException("Poll function must either be supplied to a constructor as a delegate, or Poll() method must be overridden in a subclass.");
