@@ -330,5 +330,15 @@ namespace Aspectacular
             TNonNullablePayload payload = this.PollEasy();
             return new Pair<bool, TNonNullablePayload>(payload != null, payload);
         }
+
+        /// <summary>
+        ///     Blocks until either payload arrives, or polling is terminated.
+        ///     Returns null if application is exiting or stop is signaled, or non-null if payload has arrived.
+        /// </summary>
+        public new TNonNullablePayload WaitForPayload()
+        {
+            Pair<bool, TNonNullablePayload> result = base.WaitForPayload();
+            return result.First ? result.Second : null;
+        }
     }
 }

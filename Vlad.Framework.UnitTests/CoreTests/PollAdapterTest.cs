@@ -58,11 +58,11 @@ namespace Aspectacular.Test.CoreTests
             const int maxDelayMillisec = 500;
             var pollmeister = new BlockingObjectPoll<object>(() => PollTime(threeSecondDelay), maxDelayMillisec);
 
-            Pair<bool, object> result = pollmeister.WaitForPayload();
+            object result = pollmeister.WaitForPayload();
             this.TestContext.WriteLine("Empty poll calls: {0:#,#0}", pollmeister.EmptyPollCallCount);
-            
-            Assert.IsTrue(result.First);
-            int discrepMillisecBetweenHopedAndActual = ((DateTimeOffset)result.Second - threeSecondDelay).Milliseconds;
+
+            Assert.IsNotNull(result);
+            int discrepMillisecBetweenHopedAndActual = ((DateTimeOffset)result - threeSecondDelay).Milliseconds;
             Assert.IsTrue(discrepMillisecBetweenHopedAndActual <= maxDelayMillisec);
             Assert.IsTrue(pollmeister.EmptyPollCallCount <= 12);
             Assert.IsTrue(pollmeister.PollCallCountWithPayload == 1);
