@@ -63,7 +63,7 @@ namespace Aspectacular
         /// </summary>
         public static Regex EmailFormatRegex = new Regex(EmailCheckRegexPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
 
-        public Match Match { get; protected set; }
+        public Match Match { get; private set; }
 
         public EmailAddress() : this(null)
         {

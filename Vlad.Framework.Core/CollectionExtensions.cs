@@ -424,6 +424,7 @@ namespace Aspectacular
     /// </summary>
     /// <typeparam name="T1"></typeparam>
     /// <typeparam name="T2"></typeparam>
+    [Obsolete("Use Tuble<> from .NET Framework.")]
     public class Pair<T1, T2>
     {
         public readonly T1 First;

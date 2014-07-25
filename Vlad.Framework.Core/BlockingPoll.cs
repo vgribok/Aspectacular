@@ -40,7 +40,7 @@ namespace Aspectacular
         ///     Poll delegate, returning combination of boolean telling whether payload was retrieved, and payload itself.
         /// </summary>
         /// <returns></returns>
-        private readonly Func<Pair<bool, TPollRetVal>> asyncPollFunc;
+        private readonly Func<Tuple<bool, TPollRetVal>> asyncPollFunc;
 
         public readonly int MaxPollSleepDelayMillisec;
         public readonly int DelayAfterFirstEmptyPollMillisec;
@@ -61,7 +61,7 @@ namespace Aspectacular
         ///     Delays starts with 0 and is increased up to this value if poll calls keep come back empty.
         /// </param>
         /// <param name="delayAfterFirstEmptyPollMillisec">Delay after the first empty poll call following non-empty poll call.</param>
-        public BlockingPoll(Func<Pair<bool, TPollRetVal>> asyncPollFunc = null,
+        public BlockingPoll(Func<Tuple<bool, TPollRetVal>> asyncPollFunc = null,
             int maxPollSleepDelayMillisec = 60 * 1000,
             int delayAfterFirstEmptyPollMillisec = 10
             )
@@ -107,7 +107,7 @@ namespace Aspectacular
         ///     True if payload was acquired, and false if polling loop was terminated with Stop() method or by application
         ///     exiting.
         /// </returns>
-        public Pair<bool, TPollRetVal> WaitForPayload()
+        public Tuple<bool, TPollRetVal> WaitForPayload()
         {
             if(!this.IsStopped)
                 throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
@@ -119,7 +119,7 @@ namespace Aspectacular
             {
                 TPollRetVal payload;
                 bool success = this.WaitForPayloadInternal(out payload, syncCtx: null);
-                return new Pair<bool, TPollRetVal>(success, payload);
+                return new Tuple<bool, TPollRetVal>(success, payload);
             }
             finally
             {
@@ -171,7 +171,7 @@ namespace Aspectacular
         ///     Can be overridden in subclasses.
         /// </summary>
         /// <returns></returns>
-        protected virtual Pair<bool, TPollRetVal> Poll()
+        protected virtual Tuple<bool, TPollRetVal> Poll()
         {
             if(this.asyncPollFunc == null)
                 throw new InvalidDataException("Poll function must either be supplied to a constructor as a delegate, or Poll() method must be overridden in a subclass.");
@@ -239,10 +239,10 @@ namespace Aspectacular
 
             while(this.SleepAfterEmptyPollCall(delayMillisec))
             {
-                Pair<bool, TPollRetVal> retVal = syncCtx.Execute(() => this.Poll());
-                payload = retVal.Second;
+                Tuple<bool, TPollRetVal> retVal = syncCtx.Execute(() => this.Poll());
+                payload = retVal.Item2;
 
-                if(retVal.First)
+                if(retVal.Item1)
                 {
                     this.PollCallCountWithPayload++;
                     return true;
@@ -333,10 +333,10 @@ namespace Aspectacular
         ///     Can be overridden in subclasses.
         /// </summary>
         /// <returns></returns>
-        protected override Pair<bool, TNonNullablePayload> Poll()
+        protected override Tuple<bool, TNonNullablePayload> Poll()
         {
             TNonNullablePayload payload = this.PollEasy();
-            return new Pair<bool, TNonNullablePayload>(payload != null, payload);
+            return new Tuple<bool, TNonNullablePayload>(payload != null, payload);
         }
 
         /// <summary>
@@ -345,8 +345,8 @@ namespace Aspectacular
         /// </summary>
         public new TNonNullablePayload WaitForPayload()
         {
-            Pair<bool, TNonNullablePayload> result = base.WaitForPayload();
-            return result.First ? result.Second : null;
+            Tuple<bool, TNonNullablePayload> result = base.WaitForPayload();
+            return result.Item1 ? result.Item2 : null;
         }
     }
 }
