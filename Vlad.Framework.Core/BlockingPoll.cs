@@ -90,6 +90,11 @@ namespace Aspectacular
         ///     Optional payload processing delegate. If null, Process() method must be overridden
         ///     in a subclass.
         /// </param>
+        /// <remarks>
+        /// This method starts polling thread, on which both polling function and payload processing functions are called.
+        /// This means that next attempt to dequeue messages won't occur until payload processing callback function is done.
+        /// Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return control to the polling thread.
+        /// </remarks>
         public async void TurnOnAsyncHandler(Action<TPollRetVal> payloadProcessCallback = null)
         {
             if(!this.IsStopped)
