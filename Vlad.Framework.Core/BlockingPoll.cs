@@ -90,7 +90,7 @@ namespace Aspectacular
         ///     Optional payload processing delegate. If null, Process() method must be overridden
         ///     in a subclass.
         /// </param>
-        public async void StartNotificationLoop(Action<TPollRetVal> payloadProcessCallback = null)
+        public async void TurnOnAsyncHandler(Action<TPollRetVal> payloadProcessCallback = null)
         {
             if(!this.IsStopped)
                 throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
