@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Aspectacular
 {
@@ -75,6 +76,42 @@ namespace Aspectacular
             foreach(object elem in collection)
                 func(elem);
         }
+
+
+        /// <summary>
+        /// Lambda-style foreach loop starting new task to handle each element in the collection.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
+        /// <returns>List of Task objects</returns>
+        public static List<Task> ForEachAsync(this IEnumerable collection, Action<object> asyncFunc)
+        {
+            if (collection == null)
+                return null;
+
+            var tasks = new List<Task>();
+            collection.ForEach(elem => Task.Run(() => asyncFunc(elem)));
+
+            return tasks;
+        }
+
+        /// <summary>
+        /// Lambda-style foreach loop starting new task to handle each element in the collection.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
+        /// <returns>List of Task objects</returns>
+        public static List<Task> ForEachAsync<T>(this IEnumerable<T> collection, Action<T> asyncFunc)
+        {
+            if (collection == null)
+                return null;
+
+            var tasks = new List<Task>();
+            collection.ForEach(elem => Task.Run(() => asyncFunc(elem)));
+
+            return tasks;
+        }
+
 
         /// <summary>
         ///     Lambda-style for loop
