@@ -22,12 +22,11 @@ namespace Aspectacular
     /// <remarks>
     ///     Polling of queues or monitoring state changes can be difficult:
     ///     from CPU hogging if polling is done in a tight loop,
-    ///     to leaking money when polling calls call paid cloud services
-    ///     or waste valuable resources, like limited bandwidth.
-    ///     This adapter will add and grow delays (up to a limit) between poll calls that come back empty.
-    ///     It can be used either in blocking mode, by calling WaitForPayload() method,
-    ///     or made to notify a caller via callback.
-    ///     User WaitForPayload() or StartNotificationLoop() methods to run the polling loop.
+    ///     to leaking money when polling calls paid cloud services
+    ///     or wasting valuable resources, like limited bandwidth.
+    ///     This adapter will do polling with growing delays between poll calls (up to a limit) that come back empty.
+    ///     It can be used either in blocking mode, by calling WaitForPayload() method, or made to notify a caller via callback.
+    ///     User WaitForPayload() or RegisterCallbackHandler() methods to run the polling loop.
     /// </remarks>
     /// <typeparam name="TPollRetVal">Payload that may have null as valid payload.</typeparam>
     public class BlockingPoll<TPollRetVal> : IDisposable
@@ -37,7 +36,7 @@ namespace Aspectacular
         private readonly ManualResetEvent stopSignal = new ManualResetEvent(true);
 
         /// <summary>
-        ///     Poll delegate, returning combination of boolean telling whether payload was retrieved, and payload itself.
+        ///     Poll delegate, returning combination of Boolean telling whether payload was retrieved, and payload itself.
         /// </summary>
         /// <returns></returns>
         private readonly Func<Tuple<bool, TPollRetVal>> asyncPollFunc;
@@ -91,11 +90,12 @@ namespace Aspectacular
         ///     in a subclass.
         /// </param>
         /// <remarks>
-        /// This method starts polling thread, on which both polling function and payload processing functions are called.
-        /// This means that next attempt to dequeue messages won't occur until payload processing callback function is done.
-        /// Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return control to the polling thread.
+        ///     This method starts polling thread, on which both polling function and payload processing functions are called.
+        ///     This means that next attempt to dequeue messages won't occur until payload processing callback function is done.
+        ///     Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return
+        ///     control to the polling thread.
         /// </remarks>
-        public async void TurnOnAsyncHandler(Action<TPollRetVal> payloadProcessCallback = null)
+        public async void RegisterCallbackHandler(Action<TPollRetVal> payloadProcessCallback = null)
         {
             if(!this.IsStopped)
                 throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
@@ -133,7 +133,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        ///     Either stops WaitForPayload() or terminates polling loop started with StartNotificationLoop()
+        ///     Either stops WaitForPayload() or terminates polling loop started with RegisterCallbackHandler()
         ///     that generates callbacks on payload arrival.
         /// </summary>
         public void Stop()
@@ -155,7 +155,7 @@ namespace Aspectacular
         public ulong PollCallCountWithPayload { get; private set; }
 
         /// <summary>
-        ///     Returns true if neither WaitForPayload(), nor StartNotificationLoop() methods are running.
+        ///     Returns true if neither WaitForPayload(), nor RegisterCallbackHandler() methods are running.
         /// </summary>
         public bool IsStopped
         {
@@ -185,9 +185,9 @@ namespace Aspectacular
         }
 
         /// <summary>
-        ///     A callback that processes payload inside the non-blocking poll loop started by StartNotificationLoop() method.
+        ///     A callback that processes payload inside the non-blocking poll loop started by RegisterCallbackHandler() method.
         ///     Payload parameter value is non-default(TPollRetVal).
-        ///     Can be overridden in subclasses, if StartNotificationLoop() method's payloadProcessCallback parameter value is not
+        ///     Can be overridden in subclasses, if RegisterCallbackHandler() method's payloadProcessCallback parameter value is not
         ///     specified.
         /// </summary>
         /// <param name="payload"></param>
@@ -271,7 +271,7 @@ namespace Aspectacular
         #endregion Utility Methods
 
         /// <summary>
-        /// Implements IDisposable and stops polling.
+        ///     Implements IDisposable and stops polling.
         /// </summary>
         public void Dispose()
         {
@@ -292,7 +292,7 @@ namespace Aspectacular
     ///     This adapter will add and grow delays (up to a limit) between poll calls that come back empty.
     ///     It can be used either in blocking mode, by calling WaitForPayload() method,
     ///     or made to notify a caller via callback.
-    ///     User WaitForPayload() or StartNotificationLoop() methods to run the polling loop.
+    ///     User WaitForPayload() or RegisterCallbackHandler() methods to run the polling loop.
     /// </remarks>
     /// <typeparam name="TNonNullablePayload">Payload type that which never has null as valid payload.</typeparam>
     public class BlockingObjectPoll<TNonNullablePayload> : BlockingPoll<TNonNullablePayload>

@@ -77,7 +77,7 @@ namespace Aspectacular.Test.CoreTests
             BlockingObjectPoll<object> pollmeister;
             using (pollmeister = new BlockingObjectPoll<object>(() => PollTime(threeSecondDelay), maxDelayMillisec))
             {
-                pollmeister.TurnOnAsyncHandler(payload => message = payload == null ? (DateTimeOffset?)null : (DateTimeOffset)payload);
+                pollmeister.RegisterCallbackHandler(payload => message = payload == null ? (DateTimeOffset?)null : (DateTimeOffset)payload);
                 Threading.Sleep(3100);
             }
 
