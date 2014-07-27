@@ -7,8 +7,10 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 
 namespace Aspectacular
 {
@@ -451,6 +453,24 @@ namespace Aspectacular
                 return string.Empty;
 
             return str.Substring(sepIndex);
+        }
+
+        /// <summary>
+        /// Deserializes xml text into an object of specified type.
+        /// </summary>
+        /// <typeparam name="T">Type of the deserialized object.</typeparam>
+        /// <param name="xml">XML text to be parsed and deserialized.</param>
+        /// <returns>Deserialized object</returns>
+        public static T FromXml<T>(this string xml)
+            where T : class, new()
+        {
+            var xmlSer = new XmlSerializer(typeof(T));
+
+            using(StringReader reader = new StringReader(xml))
+            {
+                T obj = (T)xmlSer.Deserialize(reader);
+                return obj;
+            }
         }
     }
 }
