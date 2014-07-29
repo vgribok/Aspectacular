@@ -1,6 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region License Info Header
 
+// This file is a part of the Aspectacular framework created by Vlad Hrybok.
+// This software is free and is distributed under MIT License: http://bit.ly/Q3mUG7
+
+#endregion
+
+using System;
+using System.Collections.Generic;
 using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace Aspectacular
@@ -11,7 +17,9 @@ namespace Aspectacular
     ///     2) pub/sub pattern (callback on message arrival) via RegisterMessageHandler().
     /// </summary>
     /// <remarks>
-    ///     An attempt of reading a message from Azure queues (non-EBS, regular storage queues) are
+    ///     This class deals with Azure Storage Queues' annoying lack of either blocking wait for messages,
+    ///     or message arrival callback.
+    ///     Background info: attempts of reading a message from Azure queues (non-EBS, regular storage queues) are
     ///     non-blocking, meaning that if there are no messages, queue message retriever returns immediately
     ///     with null response. This means that in order to read a message, a loop is required.
     ///     This loop, if done with no delays between attempts, will hog CPU and leak money as each queue check costs money.
