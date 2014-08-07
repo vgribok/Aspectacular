@@ -103,7 +103,9 @@ namespace Aspectacular
         public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
             this.LogLinqModifierName("List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
+// ReSharper disable SuspiciousTypeConversion.Global
             this.Invoke(linqQueryExpression, query => (query == null || query is IList<TEntity>) ? query as IList<TEntity> : query.ToList());
+// ReSharper restore SuspiciousTypeConversion.Global
             IList<TEntity> entityList = (IList<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -406,6 +408,20 @@ namespace Aspectacular
         public static void Invoke(Expression<Action> interceptedCallExpression)
         {
             Invoke(null, interceptedCallExpression);
+        }
+
+
+        /// <summary>
+        /// Returns AOP-enabled service interface previously registered using SvcLocator.Register().
+        /// </summary>
+        /// <typeparam name="TInterface">IDisposable interface</typeparam>
+        /// <param name="aspects"></param>
+        /// <returns>AOP proxy representing service interface.</returns>
+        public static InstanceProxy<TInterface> GetService<TInterface>(IEnumerable<Aspect> aspects = null)
+            where TInterface : class
+        {
+            InstanceProxy<TInterface> proxy = new InstanceProxy<TInterface>(SvcLocator.Get<TInterface>(), aspects);
+            return proxy;
         }
     }
 
