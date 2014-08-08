@@ -82,7 +82,7 @@ namespace Aspectacular
         /// <summary>
         /// Returns AOP-enabled service interface previously registered using SvcLocator.Register().
         /// </summary>
-        /// <typeparam name="TDispInterface">IDisposable interface</typeparam>
+        /// <typeparam name="TDispInterface">An interface subclassing IDisposable.</typeparam>
         /// <param name="aspects"></param>
         /// <returns>AOP proxy representing service interface.</returns>
         public static RunDisposeProxy<TDispInterface> GetDispService<TDispInterface>(IEnumerable<Aspect> aspects = null)

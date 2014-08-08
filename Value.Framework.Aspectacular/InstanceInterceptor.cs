@@ -414,7 +414,7 @@ namespace Aspectacular
         /// <summary>
         /// Returns AOP-enabled service interface previously registered using SvcLocator.Register().
         /// </summary>
-        /// <typeparam name="TInterface">IDisposable interface</typeparam>
+        /// <typeparam name="TInterface">An interface type.</typeparam>
         /// <param name="aspects"></param>
         /// <returns>AOP proxy representing service interface.</returns>
         public static InstanceProxy<TInterface> GetService<TInterface>(IEnumerable<Aspect> aspects = null)
