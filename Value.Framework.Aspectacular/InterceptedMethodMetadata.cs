@@ -39,7 +39,7 @@ namespace Aspectacular
     ///     and optional opt-out - when methods marked as [InstanceInvariant(false)].
     ///     Also, explicit opt-in can be implemented if [InstanceInvariant(true)] is applied to each individual method.
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = false)]
     public class InvariantReturnAttribute : Attribute
     {
         public bool IsInstanceInvariant { get; private set; }
