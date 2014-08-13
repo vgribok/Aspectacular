@@ -28,6 +28,11 @@ namespace Aspectacular.Test
             return string.Format("{0} {1}", (prefix ?? "[No Prefix]"), this.dt);
         }
 
+        public void LongRunningMethod(uint m = 1000)
+        {
+            Threading.Sleep(m);
+        }
+
         public bool ThrowFailure()
         {
             throw new Exception("Expected exception in a test method.");

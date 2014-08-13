@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Aspectacular.Aspects;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.Test
@@ -73,6 +74,15 @@ namespace Aspectacular.Test
             actual = AOP.GetProxy<SomeTestDisposable>(TestAspects).Invoke(dispInstance => dispInstance.Echo("some text"));
 
             Assert.AreEqual("some text", actual);
+        }
+
+        [TestMethod]
+        public void TestTimerAspect()
+        {
+            var timerAspect = new TimerAspect();
+
+            var testClass = new SomeTestClass();
+            testClass.GetProxy(MoreTestAspects(timerAspect)).Invoke(instance => instance.LongRunningMethod(4000));
         }
 
         public int IntProp { get; set; }
