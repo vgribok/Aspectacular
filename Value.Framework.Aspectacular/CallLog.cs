@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Aspectacular
@@ -91,6 +92,18 @@ namespace Aspectacular
     /// </summary>
     public class CallLifetimeLog
     {
+        /// <summary>
+        /// If true, logging done by methods will be outputted to the System.Diagnostic.Trace
+        /// if the methods are called w/o Aspectacular AOP.
+        /// </summary>
+        /// <remarks>
+        /// When methods that log using ICallLogger or Proxy.CurrentLog are called without AOP Proxy,
+        /// this flag allows this logging to go to Trace instead of being lost.
+        /// Set this flag to false for backward compatibility - to have the behavior 
+        /// as of before this change (where logs are thrown away).
+        /// </remarks>
+        public static bool FallbackToTraceLoggingWhenNoProxy = true;
+
 // ReSharper disable once InconsistentNaming
         public readonly List<CallLogEntry> callLog = new List<CallLogEntry>();
 
@@ -340,7 +353,12 @@ namespace Aspectacular
         public static void Log(this IMethodLogProvider methodLogger, EntryType entryType, string category, string format, params object[] args)
         {
             if(methodLogger == null)
+            {
+                if(CallLifetimeLog.FallbackToTraceLoggingWhenNoProxy)
+                    FallbackTraceLog(entryType, format, args);
+             
                 return;
+            }
 
             CallLifetimeLog log = (CallLifetimeLog)methodLogger;
             log.AddLogEntry(LogEntryOriginator.Method, entryType, category, format, args);
@@ -358,7 +376,12 @@ namespace Aspectacular
         public static void Log(this ICallLogger interceptedClass, EntryType entryType, string category, string format, params object[] args)
         {
             if(interceptedClass == null)
+            {
+                if (CallLifetimeLog.FallbackToTraceLoggingWhenNoProxy)
+                    FallbackTraceLog(entryType, format, args);
+
                 return;
+            }
 
             interceptedClass.AopLogger.Log(entryType, category, format, args);
         }
@@ -533,6 +556,22 @@ namespace Aspectacular
         public static void LogWarning(this ICallLogger interceptedClass, string format, params object[] args)
         {
             LogWarningWithKey(interceptedClass, null, format, args);
+        }
+
+        private static void FallbackTraceLog(EntryType entryType, string format, params object[] args)
+        {
+            switch (entryType)
+            {
+                case EntryType.Error:
+                    Trace.TraceError(format, args);
+                    break;
+                case EntryType.Warning:
+                    Trace.TraceWarning(format, args);
+                    break;
+                case EntryType.Info:
+                    Trace.TraceInformation(format, args);
+                    break;
+            }
         }
     }
 }
