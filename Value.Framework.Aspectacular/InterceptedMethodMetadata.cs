@@ -177,7 +177,7 @@ namespace Aspectacular
         /// </code>
         ///     please note that <code>CreateNewUserAndGetID("John Doe")</code> function will be called
         ///     not only when Foo() is called to pass the parameter, but also when this property value is retrieved.
-        ///     Therefore, if intercepted inputs should be invariant. So instead of calling
+        ///     Therefore, intercepted inputs should be invariant. So instead of calling
         ///     <code>inst.Foo("hello!", CreateNewUserAndGetID("John Doe"))</code>, store value returned by
         ///     <code>CreateNewUserAndGetID("John Doe")</code> and pass stored value as a parameter.
         /// </remarks>
