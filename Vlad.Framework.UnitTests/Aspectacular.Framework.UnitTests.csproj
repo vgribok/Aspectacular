@@ -74,6 +74,7 @@
     <Compile Include="CoreTests\DynamicPropertyReaderTest.cs" />
     <Compile Include="CoreTests\EmailHelpersTest.cs" />
     <Compile Include="CoreTests\ExceptionExtTest.cs" />
+    <Compile Include="CoreTests\MethodMetadataTest.cs" />
     <Compile Include="CoreTests\PollAdapterTest.cs" />
     <Compile Include="CoreTests\RangeTest.cs" />
     <Compile Include="CoreTests\RelativeTimeRangeTest.cs" />

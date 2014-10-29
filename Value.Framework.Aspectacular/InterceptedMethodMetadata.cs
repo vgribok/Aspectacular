@@ -214,7 +214,12 @@ namespace Aspectacular
         {
             object val = this.SlowEvaluatingValueLoader;
 
-            return FormatParamValue(this.Type, val, trueUi_falseInternal);
+            Type type = val == null ? this.Type : val.GetType();
+
+            //if(val is System.Collections.IEnumerable)
+            //    throw new Exception("IEnumerable parameters are nor supported for caching because they may have different data at different times for the same instance.");
+
+            return FormatParamValue(type, val, trueUi_falseInternal);
         }
 
         public bool ValueIsSecret
