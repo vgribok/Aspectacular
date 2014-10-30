@@ -44,7 +44,14 @@ namespace Aspectacular.Test.CoreTests
         //
         #endregion
 
-        public static object PollTime(DateTimeOffset targetTime)
+        /// <summary>
+        /// Keeps returning null while current time is 
+        /// either less than target time, or exceeds it by 0.5 seconds.
+        /// Otherwise returns current time.
+        /// </summary>
+        /// <param name="targetTime"></param>
+        /// <returns></returns>
+        public static object PollCurrentTime(DateTimeOffset targetTime)
         {
             var time = DateTimeOffset.Now;
             return time >= targetTime && (time - targetTime).Milliseconds <= 500 ? time : (object)null;
@@ -56,7 +63,7 @@ namespace Aspectacular.Test.CoreTests
             DateTimeOffset threeSecondDelay = DateTimeOffset.Now.AddSeconds(3);
 
             const int maxDelayMillisec = 500;
-            var pollmeister = new BlockingObjectPoll<object>(() => PollTime(threeSecondDelay), maxDelayMillisec);
+            var pollmeister = new BlockingObjectPoll<object>(() => PollCurrentTime(threeSecondDelay), maxDelayMillisec);
             object result = pollmeister.WaitForPayload();
             this.TestContext.WriteLine("Empty poll calls: {0:#,#0}", pollmeister.EmptyPollCallCount);
 
@@ -75,7 +82,7 @@ namespace Aspectacular.Test.CoreTests
             const int maxDelayMillisec = 500;
             DateTimeOffset? message = null;
             BlockingObjectPoll<object> pollmeister;
-            using (pollmeister = new BlockingObjectPoll<object>(() => PollTime(threeSecondDelay), maxDelayMillisec))
+            using (pollmeister = new BlockingObjectPoll<object>(() => PollCurrentTime(threeSecondDelay), maxDelayMillisec))
             {
                 pollmeister.RegisterCallbackHandler(payload => message = payload == null ? (DateTimeOffset?)null : (DateTimeOffset)payload);
                 Threading.Sleep(3100);
@@ -83,11 +90,11 @@ namespace Aspectacular.Test.CoreTests
 
             this.TestContext.WriteLine("Empty poll calls: {0:#,#0}, Calls with payload: {1:#,#0}", pollmeister.EmptyPollCallCount, pollmeister.PollCallCountWithPayload);
 
-            Assert.IsTrue(message != null);
+            Assert.IsTrue(message != null, "Message cannot be null.");
             int discrepMillisecBetweenHopedAndActual = (message.Value - threeSecondDelay).Milliseconds;
-            Assert.IsTrue(discrepMillisecBetweenHopedAndActual <= maxDelayMillisec + 100);
-            Assert.IsTrue(pollmeister.EmptyPollCallCount <= 12);
-            Assert.IsTrue(pollmeister.PollCallCountWithPayload >= 1);
+            Assert.IsTrue(discrepMillisecBetweenHopedAndActual <= maxDelayMillisec + 100, "After-wait delay is too long.");
+            Assert.IsTrue(pollmeister.EmptyPollCallCount <= 12, "Number of poll hits is too low.");
+            Assert.IsTrue(pollmeister.PollCallCountWithPayload >= 1, "There was no poll hit returning actual payload.");
         }
     }
 }
