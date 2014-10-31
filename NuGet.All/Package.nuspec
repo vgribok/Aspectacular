@@ -23,6 +23,8 @@
       </dependencies>
       <frameworkAssemblies>
           <frameworkAssembly assemblyName="System.Configuration" targetFramework="" />
+          <frameworkAssembly assemblyName="System.Data.Entity" targetFramework="" />
+          <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework="" />
       </frameworkAssemblies>
     </metadata>
     <files>
