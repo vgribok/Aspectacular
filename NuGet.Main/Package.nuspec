@@ -26,6 +26,10 @@
     <files>
       <file src="bin\Release\Aspectacular.Framework.Main.dll" target="lib\net45\Aspectacular.Framework.Main.dll" />
       <file src="bin\Release\Aspectacular.Framework.Core.dll" target="lib\net45\Aspectacular.Framework.Core.dll" />
+
+      <file src="bin\Release\Aspectacular.Framework.Main.xml" target="lib\net45\Aspectacular.Framework.Main.xml" />
+      <file src="bin\Release\Aspectacular.Framework.Core.xml" target="lib\net45\Aspectacular.Framework.Core.xml" />
+
       <file src="tools\init.ps1" target="tools\init.ps1" />
         <file src="tools\install.ps1" target="tools\install.ps1" />
         <file src="tools\uninstall.ps1" target="tools\uninstall.ps1" />

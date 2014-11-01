@@ -129,6 +129,14 @@ namespace Aspectacular
                 localTcs.TrySetResult(null);
         }
 
+        /// <summary>
+        /// Waits for any task in the collection to complete
+        /// </summary>
+        /// <param name="tasks">Collection of tasks</param>
+        /// <param name="completedTask">Returned first completed task, or null if timeout was reached before any task completed.</param>
+        /// <param name="waitTimeoutMillisec">Timeout. Set to -1 for indefinite timeout.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Index of the first completed task, or -1 if timeout was reached before any task timed out.</returns>
         public static int WaitAny(this IEnumerable<Task> tasks, out Task completedTask, int waitTimeoutMillisec = -1, CancellationToken? cancellationToken = null)
         {
             Task[] taskArray = tasks.ToArray();
@@ -139,6 +147,12 @@ namespace Aspectacular
             return index;
         }
 
+        /// <summary>
+        /// Waits for any task in the collection to complete.
+        /// </summary>
+        /// <param name="completedTask">Returns first task that got completed.</param>
+        /// <param name="tasks">Collection of tasks</param>
+        /// <returns>Index of completed task</returns>
         public static int WaitAny(out Task completedTask, params Task[] tasks)
         {
             return tasks.WaitAny(out completedTask);
