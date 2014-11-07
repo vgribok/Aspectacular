@@ -66,7 +66,7 @@ namespace Aspectacular
             this.SetRetryIfNecessary(mayNeedToRetry);
         }
 
-        private void SetRetryIfNecessary(bool mayNeedToRetry)
+        protected virtual void SetRetryIfNecessary(bool mayNeedToRetry)
         {
             if(!mayNeedToRetry || this.NeedToStopRetries())
                 return;
@@ -171,6 +171,39 @@ namespace Aspectacular
         protected override void BeforeFirstRetry()
         {
             this.LogInformationWithKey("Retry time period (milliseconds)", "{0:#,#0}", this.KeepTryingForMilliseconds);
+        }
+    }
+
+    /// <summary>
+    /// Aspect that will keep retrying method call for a certain amount of time, 
+    /// with ever increasing delays between retries.
+    /// </summary>
+    public class RetryExponentialDelayAspect : RetryTimeAspect
+    {
+        public double DelayMultiplier { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="keepTryingForMilliseconds">Maximum amount of time to keep retrying for, after which failure is considered permanent.</param>
+        /// <param name="initialMillisecDelayBetweenRetries">Delay after first failed attempt. Delay between subsequent attempts will grow.</param>
+        /// <param name="delayMultiplier">Multiplier determining growth of delay between subsequent attempts.</param>
+        /// <param name="optionalFailureDetector">Optional custom method to decide whether failure occurred and retry is required. If not provided, exception in the main method or result post-processing will trigger retry.</param>
+        public RetryExponentialDelayAspect(uint keepTryingForMilliseconds, uint initialMillisecDelayBetweenRetries = 1, double delayMultiplier = 2.0, FailureDetectorDelegate optionalFailureDetector = null)
+            : base(keepTryingForMilliseconds, initialMillisecDelayBetweenRetries == 0 ? 1 : initialMillisecDelayBetweenRetries, optionalFailureDetector)
+        {
+            if(delayMultiplier <= 1)
+                throw new ArgumentException("delayMultiplier has to be greater than 1. {0} is an invalid value.".SmartFormat(delayMultiplier));
+
+            this.DelayMultiplier = delayMultiplier;
+        }
+
+        protected override void SetRetryIfNecessary(bool mayNeedToRetry)
+        {
+            if (mayNeedToRetry && this.Proxy.AttemptsMade > 1)
+                this.MillisecDelayBetweenRetries = (uint)(this.MillisecDelayBetweenRetries * this.DelayMultiplier); 
+
+            base.SetRetryIfNecessary(mayNeedToRetry);
         }
     }
 }
