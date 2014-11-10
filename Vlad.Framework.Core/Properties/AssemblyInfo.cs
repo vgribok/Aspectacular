@@ -43,6 +43,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("2.1.*")]
+[assembly: AssemblyVersion("2.1.5.*")]
 //[assembly: AssemblyFileVersion("0.5.*")]
 [assembly: InternalsVisibleTo("Aspectacular.Framework.UnitTests")]
