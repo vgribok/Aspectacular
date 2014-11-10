@@ -472,16 +472,5 @@ namespace Aspectacular
                 return obj;
             }
         }
-
-        /// <summary>
-        /// Extension wrapper for Enum.Parse(Type,string).
-        /// </summary>
-        /// <typeparam name="T">Enum type</typeparam>
-        /// <param name="str">string to parse</param>
-        /// <returns></returns>
-        public static T ParseEnum<T>(this string str) where T : struct
-        {
-            return (T)Enum.Parse(typeof(T), str);
-        }
     }
 }
