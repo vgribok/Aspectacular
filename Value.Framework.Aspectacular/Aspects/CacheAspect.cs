@@ -8,12 +8,24 @@
 using System;
 using System.Runtime.Caching;
 
+// ReSharper disable CSharpWarnings::CS0618
 namespace Aspectacular
 {
     /// <summary>
     ///     Implementing this minimal-dependency interface is
     ///     all that's needed to enable caching via CacheAspect.
     /// </summary>
+    public interface ICacheProvider2
+    {
+        void Set(string key, object val, Proxy proxy);
+        bool TryGet(string key, out object val, Proxy proxy);
+    }
+
+    /// <summary>
+    ///     Implementing this minimal-dependency interface is
+    ///     all that's needed to enable caching via CacheAspect.
+    /// </summary>
+    [Obsolete("Use ICacheProvider2 instead.")]
     public interface ICacheProvider
     {
         void Set(string key, object val);
@@ -25,30 +37,38 @@ namespace Aspectacular
     ///     Use it only to cache data that store in slow storage types, like databases, files, on the network, on the Internet,
     ///     etc.
     /// </summary>
-    /// <typeparam name="TCacher"></typeparam>
     /// <remarks>
     ///     Please note that CacheAspect will not attempt to invalidate the cache - it's a responsibility of the ICacheProvider
     ///     implementation.
     /// </remarks>
-    public class CacheAspect<TCacher> : Aspect
-        where TCacher : class, ICacheProvider
+    public class CacheAspect : Aspect
     {
-        protected TCacher Cache { get; private set; }
+        protected ICacheProvider Cache { get; private set; }
+        protected ICacheProvider2 Cache2 { get; private set; }
 
         public bool ValueFoundInCache { get; private set; }
 
         [Obsolete("Use CacheFactory.CreateCacheAspect() instead.")]
-        protected internal CacheAspect(TCacher cacheProvider)
+        protected internal CacheAspect(ICacheProvider cacheProvider)
         {
-            if(cacheProvider == null)
+            if (cacheProvider == null)
                 throw new ArgumentNullException("cacheProvider");
 
             this.Cache = cacheProvider;
         }
 
+        [Obsolete("Use CacheFactory.CreateCacheAspect() instead.")]
+        protected internal CacheAspect(ICacheProvider2 cacheProvider)
+        {
+            if (cacheProvider == null)
+                throw new ArgumentNullException("cacheProvider");
+
+            this.Cache2 = cacheProvider;
+        }
+
         public override void Step_2_BeforeTryingMethodExec()
         {
-            this.LogInformationWithKey("Cache provider type", this.Cache.GetType().FormatCSharp());
+            this.LogInformationWithKey("Cache provider type", ((object)this.Cache2 ?? this.Cache).GetType().FormatCSharp());
             this.LogInformationData("Method is cacheable", this.Proxy.CanCacheReturnedResult);
 
             if(!this.Proxy.CanCacheReturnedResult)
@@ -83,7 +103,11 @@ namespace Aspectacular
         {
             string cacheKey = this.BuildMethodCacheKeyVerySlowly();
             object val = this.Proxy.InterceptedMedthodCallFailed ? this.Proxy.MethodExecutionException : this.Proxy.ReturnedValue;
-            this.Cache.Set(cacheKey, val);
+            
+            if(this.Cache2 != null)
+                this.Cache2.Set(cacheKey, val, this.Proxy);
+            else
+                this.Cache.Set(cacheKey, val);
         }
 
         private void GetValueFromCacheIfItsThere()
@@ -91,7 +115,11 @@ namespace Aspectacular
             string cacheKey = this.BuildMethodCacheKeyVerySlowly();
 
             object cachedValue;
-            this.ValueFoundInCache = this.Cache.TryGet(cacheKey, out cachedValue);
+
+            if (this.Cache2 != null)
+                this.ValueFoundInCache = this.Cache2.TryGet(cacheKey, out cachedValue, this.Proxy);
+            else
+                this.ValueFoundInCache = this.Cache.TryGet(cacheKey, out cachedValue);
 
             this.LogInformationData("Found in cache", this.ValueFoundInCache);
 
@@ -116,7 +144,7 @@ namespace Aspectacular
     ///     A class fronting .NET Framework's mediocre ObjectCache
     ///     with Aspectacular-friendly ICacheProvider implementation.
     /// </summary>
-    public class ObjectCacheFacade : ICacheProvider
+    public class ObjectCacheFacade : ICacheProvider2
     {
         protected readonly ObjectCache objectCache;
         protected readonly CacheItemPolicy cacheTemplatePolicy;
@@ -154,12 +182,12 @@ namespace Aspectacular
             return clonePolicy;
         }
 
-        public void Set(string key, object val)
+        public virtual void Set(string key, object val, Proxy proxy)
         {
             this.objectCache.Add(key, val, this.ClonePolicy(), this.regionName);
         }
 
-        public bool TryGet(string key, out object val)
+        public virtual bool TryGet(string key, out object val, Proxy proxy)
         {
             // It really stinks that MS folks who designed ObjectCache didn't think of "bool TryGetValue(key, out val)" pattern
             // so this thing could be done in one search instead of two. Terrible!
@@ -182,18 +210,29 @@ namespace Aspectacular
         /// </summary>
         /// <param name="cacheProvider"></param>
         /// <returns></returns>
-        public static CacheAspect<ICacheProvider> CreateCacheAspect(this ICacheProvider cacheProvider)
+        public static CacheAspect CreateCacheAspect(this ICacheProvider2 cacheProvider)
         {
-            if(cacheProvider == null)
+            if (cacheProvider == null)
                 throw new ArgumentNullException("cacheProvider");
 
-#pragma warning disable 618
-            // ReSharper disable once CSharpWarnings::CS0618
-            var cacheAspect = new CacheAspect<ICacheProvider>(cacheProvider);
-#pragma warning restore 618
+            var cacheAspect = new CacheAspect(cacheProvider);
             return cacheAspect;
         }
 
+        /// <summary>
+        ///     Instantiates new CacheAspect for a given cache provider.
+        /// </summary>
+        /// <param name="cacheProvider"></param>
+        /// <returns></returns>
+        [Obsolete("Use CreateCacheAspect(ICacheProvider2) instead.")]
+        public static CacheAspect CreateCacheAspect(this ICacheProvider cacheProvider)
+        {
+            if (cacheProvider == null)
+                throw new ArgumentNullException("cacheProvider");
+
+            var cacheAspect = new CacheAspect(cacheProvider);
+            return cacheAspect;
+        }
         /// <summary>
         ///     Augments .NET Framework ObjectCache and its descendants into
         ///     Aspectacular-friendly cache provider compatible with the CacheAspect.
@@ -215,9 +254,10 @@ namespace Aspectacular
         /// <param name="cachePolicyTemplate">.NET Framework object driving cached item expiration.</param>
         /// <param name="regionName"></param>
         /// <returns></returns>
-        public static CacheAspect<ICacheProvider> CreateCacheAspect(this ObjectCache cache, CacheItemPolicy cachePolicyTemplate, string regionName = null)
+        public static CacheAspect CreateCacheAspect(this ObjectCache cache, CacheItemPolicy cachePolicyTemplate, string regionName = null)
         {
             return cache.CreateCacheProvider(cachePolicyTemplate, regionName).CreateCacheAspect();
         }
     }
 }
+// ReSharper restore CSharpWarnings::CS0618
