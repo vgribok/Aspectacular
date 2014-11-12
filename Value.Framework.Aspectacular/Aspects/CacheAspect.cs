@@ -15,9 +15,28 @@ namespace Aspectacular
     ///     Implementing this minimal-dependency interface is
     ///     all that's needed to enable caching via CacheAspect.
     /// </summary>
+    /// <remarks>
+    /// This interface does not prescribe any expiration policy or functionality.
+    /// Expiration/Removal items from cache is up to cache implementation.
+    /// </remarks>
     public interface ICacheProvider2
     {
+        /// <summary>
+        /// Implement to save a value to a cache store.
+        /// </summary>
+        /// <param name="key">Cache key</param>
+        /// <param name="val">Value to cache.</param>
+        /// <param name="proxy">AOP proxy for additional context.</param>
         void Set(string key, object val, Proxy proxy);
+
+        /// <summary>
+        /// Implement to retrieve values from cache.
+        /// Must return true if item found in cache, false otherwise.
+        /// </summary>
+        /// <param name="key">Cache key</param>
+        /// <param name="val">Returned item if found in cache.</param>
+        /// <param name="proxy">AOP proxy reference for additional context.</param>
+        /// <returns></returns>
         bool TryGet(string key, out object val, Proxy proxy);
     }
 
@@ -46,6 +65,10 @@ namespace Aspectacular
         protected ICacheProvider Cache { get; private set; }
         protected ICacheProvider2 Cache2 { get; private set; }
 
+        /// <summary>
+        /// Returns true if value was found in cache.
+        /// It's set only after intercepted method was called.
+        /// </summary>
         public bool ValueFoundInCache { get; private set; }
 
         [Obsolete("Use CacheFactory.CreateCacheAspect() instead.")]

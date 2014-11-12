@@ -15,6 +15,7 @@ namespace Aspectacular
     ///     Class representing an inclusive range between two comparable objects.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Serializable]
     public abstract class RangeBase<T> : IEquatable<RangeBase<T>>, ISerializable
         where T : IComparable
     {
@@ -200,6 +201,7 @@ namespace Aspectacular
     ///     Range of reference types. May be used for strings.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Serializable]
     public class Range<T> : RangeBase<T>
         where T : class, IComparable
     {
@@ -213,7 +215,7 @@ namespace Aspectacular
         }
 
         // ReSharper disable once UnusedMember.Local
-        private Range(SerializationInfo info, StreamingContext ctxt)
+        protected Range(SerializationInfo info, StreamingContext ctxt)
             : base(info, ctxt)
         {
         }
@@ -223,6 +225,7 @@ namespace Aspectacular
     ///     Range of value types. My be used for numerical types.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [Serializable]
     public class ValueRange<T> : RangeBase<T>
         where T : struct, IComparable
     {
@@ -325,6 +328,7 @@ namespace Aspectacular
     /// <summary>
     ///     Class representing a range between two moments in time.
     /// </summary>
+    [Serializable]
     public class TimeMomentRange : ValueRange<DateTimeOffset>
     {
         public TimeMomentRange()
@@ -365,6 +369,7 @@ namespace Aspectacular
     /// <summary>
     ///     Class representing a range of date/time values.
     /// </summary>
+    [Serializable]
     public class DateRange : ValueRange<DateTime>
     {
         public DateRange()

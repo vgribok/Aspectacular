@@ -20,7 +20,7 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.Ado.net.AwDataSetTableAdap
     [InvariantReturn]
     public partial class ProductCategoryTableAdapter : ISqlServerConnectionProvider
     {
-        SqlConnection ISqlServerConnectionProvider.SqlConnection
+        public SqlConnection SqlConnection
         {
             get { return this.Connection; }
         }

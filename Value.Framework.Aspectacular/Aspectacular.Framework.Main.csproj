@@ -64,6 +64,7 @@
     <Compile Include="DbEngineProxy.cs" />
     <Compile Include="DefaultAspects.cs" />
     <Compile Include="DispAspectInjector.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="InstanceInterceptor.cs" />
     <Compile Include="InterceptedMethodMetadata.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
