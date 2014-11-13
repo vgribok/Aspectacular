@@ -12,6 +12,9 @@ using System.Linq;
 
 namespace Aspectacular
 {
+    /// <summary>
+    /// Specifies creator of a log entry in call's log collection
+    /// </summary>
     public enum LogEntryOriginator
     {
         Proxy,
@@ -20,6 +23,9 @@ namespace Aspectacular
         Caller,
     }
 
+    /// <summary>
+    /// Specifies a type of a call log entry: an error, warning, etc.
+    /// </summary>
     [Flags]
     public enum EntryType
     {
@@ -58,16 +64,34 @@ namespace Aspectacular
         IMethodLogProvider AopLogger { get; set; }
     }
 
-    [Serializable]
+    /// <summary>
+    /// Call log entry structure. AOP logger has a collection of these objects that is populated by Proxy, Aspects, and sometimes by callers and intercepted methods.
+    /// </summary>
     public class CallLogEntry
     {
+        /// <summary>
+        /// Specifies the type of entry creator: whether it's Proxy, an aspect, caller, or intercepted method.
+        /// </summary>
         public LogEntryOriginator Who { get; internal set; }
+
+        /// <summary>
+        /// If entry was created by an aspect, contains information about the type of the Aspect.
+        /// </summary>
         public string OptionalAspectType { get; internal set; }
 
+        /// <summary>
+        /// Specifies what kind of log entry this is: an error, warning, etc.
+        /// </summary>
         public EntryType What { get; internal set; }
 
+        /// <summary>
+        /// Log entry key. It's not required to be unique, but it might be a good idea to make it unique for structured logging.
+        /// </summary>
         public string Key { get; internal set; }
 
+        /// <summary>
+        /// Log entry text.
+        /// </summary>
         public string Message { get; internal set; }
 
         public override string ToString()
@@ -88,7 +112,7 @@ namespace Aspectacular
     }
 
     /// <summary>
-    ///     Base class collecting execution text information from aspects and method itself.
+    ///     Base class collecting entries with text information logged by aspects, proxy, callers and the intercepted method.
     /// </summary>
     public class CallLifetimeLog
     {
@@ -110,6 +134,8 @@ namespace Aspectacular
         /// It's populated by the Proxy, Aspects, and sometimes by the method itself or the caller.
         /// </summary>
         public readonly List<CallLogEntry> callLog = new List<CallLogEntry>();
+
+        private CallerAopLogger callerLogAccessor = null;
 
         internal void AddLogEntry(LogEntryOriginator who, EntryType entryType, string category, string format, params object[] args)
         {
@@ -196,6 +222,14 @@ namespace Aspectacular
                 presentTypes.ForEach(entryType => allTypes |= entryType);
                 return allTypes;
             }
+        }
+
+        /// <summary>
+        /// Provides access to AOP logging functionality for callers of AOP-intercepted functions.
+        /// </summary>
+        public CallerAopLogger CallerAopLogger
+        {
+            get { return this.callerLogAccessor ?? (this.callerLogAccessor = new CallerAopLogger(this)); }
         }
 
         #region Logging methods for the proxy
@@ -582,6 +616,104 @@ namespace Aspectacular
                     Trace.TraceInformation(format, args);
                     break;
             }
+        }
+    }
+
+    /// <summary>
+    /// Provides access to logging functionality for callers of AOP-intercepted functions.
+    /// </summary>
+    public class CallerAopLogger
+    {
+        protected readonly CallLifetimeLog log;
+
+        internal CallerAopLogger(CallLifetimeLog log)
+        {
+            this.log = log;
+        }
+
+        /// <summary>
+        ///     Adds entry to the log held by the proxy.
+        /// </summary>
+        /// <param name="entryType"></param>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void Log(EntryType entryType, string optionalKey, string format, params object[] args)
+        {
+            this.log.AddLogEntry(LogEntryOriginator.Caller, entryType, optionalKey, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging information entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogInformationWithKey(string optionalKey, string format, params object[] args)
+        {
+            this.Log(EntryType.Info, optionalKey, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging information entries.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogInformation(string format, params object[] args)
+        {
+            this.LogInformationWithKey(null, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging information entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="data"></param>
+        protected void LogInformationData(string optionalKey, object data)
+        {
+            this.LogInformationWithKey(optionalKey, data.ToStringEx());
+        }
+
+        /// <summary>
+        ///     Shortcut for logging error entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogErrorWithKey(string optionalKey, string format, params object[] args)
+        {
+            this.Log(EntryType.Error, optionalKey, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging error entries.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogError(string format, params object[] args)
+        {
+            this.LogErrorWithKey(null, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging warning entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogWarningWithKey(string optionalKey, string format, params object[] args)
+        {
+            this.Log(EntryType.Warning, optionalKey, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging warning entries.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogWarning(string format, params object[] args)
+        {
+            this.LogWarningWithKey(null, format, args);
         }
     }
 }
