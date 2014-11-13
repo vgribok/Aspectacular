@@ -104,7 +104,11 @@ namespace Aspectacular
         /// </remarks>
         public static bool FallbackToTraceLoggingWhenNoProxy = true;
 
-// ReSharper disable once InconsistentNaming
+        // ReSharper disable once InconsistentNaming
+        /// <summary>
+        /// Collection of log entries populated during intercepted call lifecycle.
+        /// It's populated by the Proxy, Aspects, and sometimes by the method itself or the caller.
+        /// </summary>
         public readonly List<CallLogEntry> callLog = new List<CallLogEntry>();
 
         internal void AddLogEntry(LogEntryOriginator who, EntryType entryType, string category, string format, params object[] args)
@@ -204,7 +208,7 @@ namespace Aspectacular
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void Log(EntryType entryType, string category, string format, params object[] args)
+        protected void Log(EntryType entryType, string category, string format, params object[] args)
         {
             this.AddLogEntry(LogEntryOriginator.Proxy, entryType, category, format, args);
         }
@@ -216,7 +220,7 @@ namespace Aspectacular
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogInformationWithKey(string category, string format, params object[] args)
+        protected void LogInformationWithKey(string category, string format, params object[] args)
         {
             this.Log(EntryType.Info, category, format, args);
         }
@@ -226,7 +230,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="key"></param>
         /// <param name="val"></param>
-        public void LogInformationData(string key, object val)
+        protected void LogInformationData(string key, object val)
         {
             this.Log(EntryType.Info, key, val.ToStringEx());
         }
@@ -237,7 +241,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogInformation(string format, params object[] args)
+        protected void LogInformation(string format, params object[] args)
         {
             this.LogInformationWithKey(null, format, args);
         }
@@ -249,7 +253,7 @@ namespace Aspectacular
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogErrorWithKey(string category, string format, params object[] args)
+        protected void LogErrorWithKey(string category, string format, params object[] args)
         {
             this.Log(EntryType.Error, category, format, args);
         }
@@ -260,7 +264,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogError(string format, params object[] args)
+        protected void LogError(string format, params object[] args)
         {
             this.LogErrorWithKey(null, format, args);
         }
@@ -272,7 +276,7 @@ namespace Aspectacular
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogWarningWithKey(string category, string format, params object[] args)
+        protected void LogWarningWithKey(string category, string format, params object[] args)
         {
             this.Log(EntryType.Warning, category, format, args);
         }
@@ -283,7 +287,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogWarning(string format, params object[] args)
+        protected void LogWarning(string format, params object[] args)
         {
             this.LogWarningWithKey(null, format, args);
         }
@@ -292,6 +296,9 @@ namespace Aspectacular
 
         #region Hierarchical views of the log entry collection
 
+        /// <summary>
+        /// Log collection accessible by entry's key
+        /// </summary>
         public IDictionary<string, IList<CallLogEntry>> KeyEntryLogHierarchy
         {
             get
@@ -313,6 +320,9 @@ namespace Aspectacular
             }
         }
 
+        /// <summary>
+        /// Log collection accessible by entry's type (Error, Info, etc.)
+        /// </summary>
         public IDictionary<EntryType, IList<CallLogEntry>> EntryLogHierarchy
         {
             get

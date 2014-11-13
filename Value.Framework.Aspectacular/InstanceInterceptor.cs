@@ -374,9 +374,31 @@ namespace Aspectacular
         /// <returns></returns>
         public static TOut Invoke<TOut>(IEnumerable<Aspect> aspects, Expression<Func<TOut>> interceptedCallExpression)
         {
-            var context = new Proxy(null, aspects);
-            TOut retVal = context.Invoke(interceptedCallExpression);
+            var proxy = GetProxyForStaticCall(aspects);
+            TOut retVal = proxy.Invoke(interceptedCallExpression);
             return retVal;
+        }
+
+        /// <summary>
+        /// Returns AOP Proxy that can be used to Invoke() static methods.
+        /// Consider AOP.Invoke() as an alternative.
+        /// </summary>
+        /// <param name="aspects"></param>
+        /// <returns></returns>
+        public static Proxy GetProxyForStaticCall(IEnumerable<Aspect> aspects)
+        {
+            return new Proxy(instanceFactory: null, aspects: aspects);
+        }
+
+        /// <summary>
+        /// Returns AOP Proxy that can be used to Invoke() static methods.
+        /// Consider AOP.Invoke() as an alternative.
+        /// </summary>
+        /// <param name="aspects"></param>
+        /// <returns></returns>
+        public static Proxy GetProxyForStaticCall(params Aspect[] aspects)
+        {
+            return GetProxyForStaticCall(aspects.AsEnumerable());
         }
 
         /// <summary>
@@ -397,8 +419,8 @@ namespace Aspectacular
         /// <param name="interceptedCallExpression"></param>
         public static void Invoke(IEnumerable<Aspect> aspects, Expression<Action> interceptedCallExpression)
         {
-            var context = new Proxy(null, aspects);
-            context.Invoke(interceptedCallExpression);
+            var proxy = GetProxyForStaticCall(aspects);
+            proxy.Invoke(interceptedCallExpression);
         }
 
         /// <summary>
@@ -438,8 +460,8 @@ namespace Aspectacular
         public static InstanceProxy<TInstance> GetProxy<TInstance>(this TInstance instance, IEnumerable<Aspect> aspects = null)
             where TInstance : class
         {
-            var interceptor = new InstanceProxy<TInstance>(instance, aspects);
-            return interceptor;
+            var proxy = new InstanceProxy<TInstance>(instance, aspects);
+            return proxy;
         }
     }
 }
