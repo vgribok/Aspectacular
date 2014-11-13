@@ -132,6 +132,56 @@ namespace Aspectacular.Test.CoreTests
             Assert.AreEqual(DateTimeKind.Utc, actual.Kind);
         }
 
+
+        [TestMethod]
+        public void TestTimeMomentRangeMonth()
+        {
+            DateTimeOffset now = DateTimeOffset.Now;
+
+            TimeMomentRange dtr = TimeUnits.Month.Current((DateTimeOffset)new DateTime(2013, 5, 15, 11, 46, 38));
+
+            DateTimeOffset expectedStart = now.StartOf(TimeUnits.Month);
+            DateTimeOffset expectedEnd = now.EndOf(TimeUnits.Month);
+            Assert.AreEqual(expectedStart, dtr.Start.Value);
+            Assert.AreEqual(expectedEnd, dtr.End.Value);
+
+            dtr = TimeUnits.Month.Current();
+            expectedStart = now.StartOf(TimeUnits.Month);
+            expectedEnd = now.EndOf(TimeUnits.Month);
+            Assert.AreEqual(expectedStart, dtr.Start.Value);
+            Assert.AreEqual(expectedEnd, dtr.End.Value);
+        }
+
+        [TestMethod]
+        public void TestTimeMomentRangeYear()
+        {
+            DateTimeOffset now = DateTimeOffset.Now;
+
+            TimeMomentRange dtr = TimeUnits.Year.Current((DateTimeOffset)new DateTime(now.Year, 5, 1, 11, 46, 38));
+
+            DateTimeOffset expectedStart = now.StartOf(TimeUnits.Year);
+            DateTimeOffset expectedEnd = now.EndOf(TimeUnits.Year);
+            Assert.AreEqual(expectedStart, dtr.Start.Value);
+            Assert.AreEqual(expectedEnd, dtr.End.Value);
+        }
+
+        [TestMethod]
+        public void TestDateTimeOffsetDayLightSavingWhenAddingMonth()
+        {
+            DateTimeOffset someNov2014 = new DateTime(2014, 11, 12, 22, 28, 11, 0, DateTimeKind.Local);
+            DateTimeOffset someDec2014 = someNov2014.AddMonths(1);
+            DateTimeOffset dec2014Start = new DateTimeOffset(someDec2014.Year, someDec2014.Month, 1, 0, 0, 0, someNov2014.Offset);
+            DateTimeOffset nov2014End = dec2014Start.PreviousMoment();
+            DateTimeOffset nov2014Start = dec2014Start.AddMonths(-1);
+
+            DateTimeOffset expectedStart = someNov2014.StartOf(TimeUnits.Month);
+            DateTimeOffset expectedEnd = someNov2014.EndOf(TimeUnits.Month);
+
+            Assert.AreEqual(expectedStart, nov2014Start);
+            Assert.AreEqual(expectedEnd, nov2014End);
+        }
+
+
         [TestMethod]
         public void TestTimeMomentStart()
         {
@@ -139,13 +189,6 @@ namespace Aspectacular.Test.CoreTests
 
             DateTimeOffset dt = (new DateTimeOffset(2013, 12, 31, 0, 0, 0, localOffset)).EndOf(TimeUnits.Day);
             Assert.AreEqual(999, dt.Millisecond);
-
-            TimeMomentRange dtr = TimeUnits.Month.Current();
-            DateTimeOffset now = DateTimeOffset.Now;
-            DateTimeOffset expectedStart = now.StartOf(TimeUnits.Month);
-            DateTimeOffset expectedEnd = now.EndOf(TimeUnits.Month);
-            Assert.AreEqual(expectedStart, dtr.Start.Value);
-            Assert.AreEqual(expectedEnd, dtr.End.Value);
 
             string dtStr = dt.ToString();
             Assert.AreEqual("12/31/2013 11:59:59 PM -05:00", dtStr);

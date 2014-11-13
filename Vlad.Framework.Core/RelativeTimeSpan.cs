@@ -166,7 +166,7 @@ namespace Aspectacular
 
         public TimeMomentRange GetTimeMomentRange(DateTimeOffset? referenceMoment = null)
         {
-            DateTime? refMoment = referenceMoment == null ? (DateTime?)null : referenceMoment.Value.UtcDateTime;
+            DateTime? refMoment = referenceMoment == null ? (DateTime?)null : new DateTime(referenceMoment.Value.UtcDateTime.Ticks);
 #pragma warning disable 618
             DateRange derange = this.GetDateTimeRange(refMoment);
 #pragma warning restore 618
@@ -237,7 +237,8 @@ namespace Aspectacular
 
         public static DateTime StartOf(this DateTime dt, TimeUnits unit)
         {
-            DateTimeKind dtKind = dt.Kind == DateTimeKind.Unspecified ? DateTimeKind.Local : dt.Kind;
+            //DateTimeKind dtKind = dt.Kind == DateTimeKind.Unspecified ? DateTimeKind.Local : dt.Kind;
+            DateTimeKind dtKind = dt.Kind;
 
             DateTimeOffset startDto = new DateTimeOffset(dt);
             startDto = startDto.StartOf(unit);
@@ -246,6 +247,12 @@ namespace Aspectacular
             return start;
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static DateTimeOffset StartOf(this DateTimeOffset dt, TimeUnits unit)
         {
             switch(unit)
@@ -307,6 +314,13 @@ namespace Aspectacular
             return dtResult;
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="count"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static DateTimeOffset Add(this DateTimeOffset dt, int count, TimeUnits unit)
         {
             switch(unit)
@@ -342,6 +356,12 @@ namespace Aspectacular
             return dtResult;
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static DateTimeOffset EndOf(this DateTimeOffset dt, TimeUnits unit)
         {
             DateTimeOffset start = dt.StartOf(unit);
@@ -352,6 +372,12 @@ namespace Aspectacular
 
         #region TimeMomentRange factory methods
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="referenceMoment"></param>
+        /// <returns></returns>
         public static TimeMomentRange Current(this TimeUnits unit, DateTimeOffset? referenceMoment = null)
         {
             var span = new RelativeTimeSpan(Timeline.EntireCurrentOrSpecified, unit);
@@ -359,6 +385,12 @@ namespace Aspectacular
             return range;
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="referenceMoment"></param>
+        /// <returns></returns>
         public static TimeMomentRange ToDate(this TimeUnits unit, DateTimeOffset? referenceMoment = null)
         {
             var span = new RelativeTimeSpan(Timeline.ToDateOrTillSpecified, unit);
@@ -366,6 +398,13 @@ namespace Aspectacular
             return range;
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="referenceMoment"></param>
+        /// <returns></returns>
         public static TimeMomentRange Past(this TimeUnits unit, ulong unitCount = 1, DateTimeOffset? referenceMoment = null)
         {
             var span = new RelativeTimeSpan(Timeline.Past, unit, unitCount);
@@ -373,6 +412,13 @@ namespace Aspectacular
             return range;
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="referenceMoment"></param>
+        /// <returns></returns>
         public static TimeMomentRange Future(this TimeUnits unit, ulong unitCount = 1, DateTimeOffset? referenceMoment = null)
         {
             var span = new RelativeTimeSpan(Timeline.Future, unit, unitCount);
@@ -380,6 +426,13 @@ namespace Aspectacular
             return range;
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="referenceMoment"></param>
+        /// <returns></returns>
         public static TimeMomentRange Previous(this TimeUnits unit, ulong unitCount = 1, DateTimeOffset? referenceMoment = null)
         {
             var span = new RelativeTimeSpan(Timeline.PreviousExcludingCurrent, unit, unitCount);
@@ -387,6 +440,13 @@ namespace Aspectacular
             return range;
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="unit"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="referenceMoment"></param>
+        /// <returns></returns>
         public static TimeMomentRange Next(this TimeUnits unit, ulong unitCount = 1, DateTimeOffset? referenceMoment = null)
         {
             var span = new RelativeTimeSpan(Timeline.NextExcludingCurrent, unit, unitCount);
@@ -395,61 +455,141 @@ namespace Aspectacular
         }
 
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangeCurrent(this DateTimeOffset dt, TimeUnits unit)
         {
             return unit.Current(dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangeCurrent(this DateTimeOffset? dt, TimeUnits unit)
         {
             return unit.Current(dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangeToDate(this DateTimeOffset dt, TimeUnits unit)
         {
             return unit.ToDate(dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangeToDate(this DateTimeOffset? dt, TimeUnits unit)
         {
             return unit.ToDate(dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangePast(this DateTimeOffset dt, ulong unitCount, TimeUnits unit)
         {
             return unit.Past(unitCount, dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangePast(this DateTimeOffset? dt, ulong unitCount, TimeUnits unit)
         {
             return unit.Past(unitCount, dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangeFuture(this DateTimeOffset dt, ulong unitCount, TimeUnits unit)
         {
             return unit.Future(unitCount, dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangeFuture(this DateTimeOffset? dt, ulong unitCount, TimeUnits unit)
         {
             return unit.Future(unitCount, dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangePrevious(this DateTimeOffset dt, ulong unitCount, TimeUnits unit)
         {
             return unit.Previous(unitCount, dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangePrevious(this DateTimeOffset? dt, ulong unitCount, TimeUnits unit)
         {
             return unit.Previous(unitCount, dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangeNext(this DateTimeOffset dt, ulong unitCount, TimeUnits unit)
         {
             return unit.Next(unitCount, dt);
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <param name="unitCount"></param>
+        /// <param name="unit"></param>
+        /// <returns></returns>
         public static TimeMomentRange RangeNext(this DateTimeOffset? dt, ulong unitCount, TimeUnits unit)
         {
             return unit.Next(unitCount, dt);
