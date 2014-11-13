@@ -164,6 +164,11 @@ namespace Aspectacular
             return range;
         }
 
+        /// <summary>
+        /// Warning: bug found. dt.Offset may be incorrect as offsets could be different if range crosses daylight saving switch, i.e. October - December, or month of November in the EST USA.
+        /// </summary>
+        /// <param name="referenceMoment"></param>
+        /// <returns></returns>
         public TimeMomentRange GetTimeMomentRange(DateTimeOffset? referenceMoment = null)
         {
             DateTime? refMoment = referenceMoment == null ? (DateTime?)null : new DateTime(referenceMoment.Value.UtcDateTime.Ticks);
