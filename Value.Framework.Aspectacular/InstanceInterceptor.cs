@@ -374,7 +374,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static TOut Invoke<TOut>(IEnumerable<Aspect> aspects, Expression<Func<TOut>> interceptedCallExpression)
         {
-            var proxy = GetProxyForStaticCall(aspects);
+            var proxy = GetProxy(aspects);
             TOut retVal = proxy.Invoke(interceptedCallExpression);
             return retVal;
         }
@@ -385,7 +385,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static Proxy GetProxyForStaticCall(IEnumerable<Aspect> aspects)
+        public static Proxy GetProxy(IEnumerable<Aspect> aspects)
         {
             return new Proxy(instanceFactory: null, aspects: aspects);
         }
@@ -396,9 +396,9 @@ namespace Aspectacular
         /// </summary>
         /// <param name="aspects"></param>
         /// <returns></returns>
-        public static Proxy GetProxyForStaticCall(params Aspect[] aspects)
+        public static Proxy GetProxy(params Aspect[] aspects)
         {
-            return GetProxyForStaticCall(aspects.AsEnumerable());
+            return GetProxy(aspects.AsEnumerable());
         }
 
         /// <summary>
@@ -419,7 +419,7 @@ namespace Aspectacular
         /// <param name="interceptedCallExpression"></param>
         public static void Invoke(IEnumerable<Aspect> aspects, Expression<Action> interceptedCallExpression)
         {
-            var proxy = GetProxyForStaticCall(aspects);
+            var proxy = GetProxy(aspects);
             proxy.Invoke(interceptedCallExpression);
         }
 
