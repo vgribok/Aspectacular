@@ -51,7 +51,7 @@ namespace Aspectacular
             where TInterface : class
             where TImplementation : class, TInterface, new()
         {
-            Register(() => new TImplementation());
+            Register<TInterface>(() => new TImplementation());
         }
 
         /// <summary>
