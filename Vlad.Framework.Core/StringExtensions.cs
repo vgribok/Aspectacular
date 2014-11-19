@@ -76,7 +76,7 @@ namespace Aspectacular
         /// <typeparam name="TEnum"></typeparam>
         /// <param name="str"></param>
         /// <returns></returns>
-        [Obsolete("User ParseEnum<TEnum>() instead.")]
+        [Obsolete("Use str.ParseEnum<TEnum>() instead.")]
         public static TEnum? Parse<TEnum>(this string str) where TEnum : struct
         {
             TEnum val;
@@ -84,23 +84,6 @@ namespace Aspectacular
                 return val;
 
             return null;
-        }
-
-        /// <summary>
-        ///     Parses string and returns default value if parsing failed.
-        /// </summary>
-        /// <typeparam name="TEnum"></typeparam>
-        /// <param name="str"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        [Obsolete("User ParseEnum<TEnum>(TEnum defaultValue) instead.")]
-        public static TEnum ParseEnum<TEnum>(this string str, TEnum defaultValue) where TEnum : struct
-        {
-            TEnum val;
-            if (Enum.TryParse(str, out val))
-                return val;
-
-            return defaultValue;
         }
 
         /// <summary>
