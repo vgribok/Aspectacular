@@ -99,13 +99,12 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
+        /// <param name="optionalQueryModifiers"></param>
         /// <returns></returns>
-        public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
+        public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, params IQueryModifier<TEntity>[] optionalQueryModifiers)
         {
             this.LogLinqModifierName("List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
-// ReSharper disable SuspiciousTypeConversion.Global
-            this.Invoke(linqQueryExpression, query => (query == null || query is IList<TEntity>) ? query as IList<TEntity> : query.ToList());
-// ReSharper restore SuspiciousTypeConversion.Global
+            this.Invoke(linqQueryExpression, query => query.ToIListWithMods(optionalQueryModifiers));
             IList<TEntity> entityList = (IList<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -115,11 +114,12 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
+        /// <param name="optionalQueryModifiers"></param>
         /// <returns></returns>
-        public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
+        public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, params IQueryModifier<TEntity>[] optionalQueryModifiers)
         {
             this.LogLinqModifierName("List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
-            this.Invoke(sequenceExpression, sequence => (sequence == null || sequence is IList<TEntity>) ? sequence as IList<TEntity> : sequence.ToList());
+            this.Invoke(sequenceExpression, sequence => sequence.ToIListWithMods(optionalQueryModifiers));
             IList<TEntity> entityList = (IList<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -129,11 +129,12 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
+        /// <param name="optionalQueryModifiers"></param>
         /// <returns></returns>
-        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
+        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, params IQueryModifier<TEntity>[] optionalQueryModifiers)
         {
             this.LogLinqModifierName("ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
-            this.Invoke(linqQueryExpression, query => query.ToList());
+            this.Invoke(linqQueryExpression, query => query.ToListWithMods(optionalQueryModifiers));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -143,11 +144,12 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
+        /// <param name="optionalQueryModifiers"></param>
         /// <returns></returns>
-        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
+        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, params IQueryModifier<TEntity>[] optionalQueryModifiers)
         {
             this.LogLinqModifierName("ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
-            this.Invoke(sequenceExpression, sequence => sequence.ToList());
+            this.Invoke(sequenceExpression, sequence => sequence.ToListWithMods(optionalQueryModifiers));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -200,11 +202,12 @@ namespace Aspectacular
         /// <param name="pageSize">Page size in the number of records.</param>
         /// <param name="linqQueryExpression">Query that returns entire set.</param>
         /// <returns>One page subset of data specified by the query.</returns>
+        [Obsolete("Use List() with query modifiers instead")]
         public IList<TEntity> Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
             this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
 
-            this.Invoke(linqQueryExpression, query => query.PageList(pageIndex, pageSize));
+            this.Invoke(linqQueryExpression, query => query.ToIListWithMods(new Paging<TEntity>(pageIndex, pageSize)));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -217,11 +220,12 @@ namespace Aspectacular
         /// <param name="pageSize">Page size in the number of records.</param>
         /// <param name="sequenceExpression"></param>
         /// <returns></returns>
+        [Obsolete("Use List() with query modifiers instead")]
         public IList<TEntity> Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
             this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
 
-            this.Invoke(sequenceExpression, query => query.PageList(pageIndex, pageSize));
+            this.Invoke(sequenceExpression, query => query.ToListWithMods(new Paging<TEntity>(pageIndex, pageSize)));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }

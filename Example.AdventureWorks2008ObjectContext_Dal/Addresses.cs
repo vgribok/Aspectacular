@@ -46,6 +46,7 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
             return q;
         }
 
+        [InvariantReturn(false)]
         public IQueryable<Address> QueryCustomerAddressesByCustomerID(int customerID)
         {
             this.LogInformationData("customerID", customerID);
