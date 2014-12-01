@@ -191,16 +191,6 @@ namespace Aspectacular
         }
 
 
-        private static int CalcSkip(int pageIndex, int pageSize)
-        {
-            if(pageIndex < 0)
-                throw new ArgumentException("pageIndex parameter cannot be negative.");
-            if(pageSize < 1)
-                throw new ArgumentException("pageSize parameter must be greater than 0.");
-
-            return pageIndex*pageSize;
-        }
-
         /// <summary>
         ///     Modifies "Select" query to bring only one page of data instead of an entire result set.
         ///     Executes modified query and returns a collection of records corresponding to the given page.
@@ -214,9 +204,7 @@ namespace Aspectacular
         {
             this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
 
-            int skipCount = CalcSkip(pageIndex, pageSize);
-
-            this.Invoke(linqQueryExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
+            this.Invoke(linqQueryExpression, query => query.PageList(pageIndex, pageSize));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -233,9 +221,7 @@ namespace Aspectacular
         {
             this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
 
-            int skipCount = CalcSkip(pageIndex, pageSize);
-
-            this.Invoke(sequenceExpression, query => (query == null) ? null : query.Skip(skipCount).Take(pageSize).ToList());
+            this.Invoke(sequenceExpression, query => query.PageList(pageIndex, pageSize));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
