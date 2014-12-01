@@ -201,6 +201,11 @@ namespace Aspectacular
             this.EntitySortProperty = sortProperty;
         }
 
+        //protected MemberAugmentBase(string sortPropertyName) : this(MemberExpression.Property())
+        //{
+
+        //}
+
         protected MemberAugmentBase()
             : this(sortProperty: null)
         {
