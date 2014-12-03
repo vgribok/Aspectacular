@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace Aspectacular
 {
@@ -39,6 +41,13 @@ namespace Aspectacular
 
             return query == null ? null : optionalQueryModifiers.Where(mod => mod != null).Aggregate(query, (current, modifier) => modifier.Augment(current));
         }
+
+        public static IQueryable<TEntity> AugmentQuery<TEntity>(this IQueryable<TEntity> query, CommonQueryModifiers queryModifiers)
+        {
+            IQueryModifier<TEntity>[] mods = queryModifiers.GetModifiers<TEntity>();
+            return query.AugmentQuery(mods);
+        }
+
         /// <summary>
         /// Modifies a collection by applying paging, sorting and filtering.
         /// </summary>
@@ -52,6 +61,12 @@ namespace Aspectacular
                 return collection;
 
             return collection == null ? null : optionalQueryModifiers.Where(mod => mod != null).Aggregate(collection, (current, modifier) => modifier.Augment(current));
+        }
+
+        public static IEnumerable<TEntity> AugmentQuery<TEntity>(this IEnumerable<TEntity> collection, CommonQueryModifiers queryModifiers)
+        {
+            IQueryModifier<TEntity>[] mods = queryModifiers.GetModifiers<TEntity>();
+            return collection.AugmentQuery(mods);
         }
 
         public static IList<TEntity> ToIListWithMods<TEntity>(this IQueryable<TEntity> query, params IQueryModifier<TEntity>[] optionalQueryModifiers)
@@ -236,13 +251,18 @@ namespace Aspectacular
         protected abstract IEnumerable<TEntity> AugmentCollection(IEnumerable<TEntity> collection, Func<TEntity, TKey> func);
     }
 
+    /// <summary>
+    /// Modifies query by adding ascending sorting for a given field.
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    /// <typeparam name="TKey"></typeparam>
     public class SortingAsc<TEntity, TKey> : MemberAugmentBase<TEntity, TKey>
     {
         public SortingAsc(Expression<Func<TEntity, TKey>> sortProperty) : base(sortProperty)
         {
         }
 
-        public SortingAsc() : base()
+        public SortingAsc()
         {
         }
 
@@ -265,7 +285,6 @@ namespace Aspectacular
         }
 
         public SortingDesc()
-            : base()
         {
         }
 
@@ -280,5 +299,132 @@ namespace Aspectacular
         }
     }
 
+    public enum SortOrder
+    {
+        Asceding, Descending
+    }
+
+    /// <summary>
+    /// Allows using List(), Single() and other AOP wire-tripping functions 
+    /// to apply query augmentation to DAL methods returning IQueryable.
+    /// </summary>
+    /// <typeparam name="TEntity"></typeparam>
+    public class QueryFilter<TEntity> : IQueryModifier<TEntity>
+    {
+        public Expression<Func<TEntity, bool>> QueryablePredicate { get; set; }
+        public Func<TEntity, bool> EnumerablePredicate { get; set; }
+
+        public QueryFilter(Expression<Func<TEntity, bool>> predicate)
+        {
+            this.QueryablePredicate = predicate;
+        }
+
+        public QueryFilter(Func<TEntity, bool> predicate)
+        {
+            this.EnumerablePredicate = predicate;
+        }
+
+        public QueryFilter()
+        {
+        }
+
+        IQueryable<TEntity> IQueryModifier<TEntity>.Augment(IQueryable<TEntity> query)
+        {
+            return query.Where(this.QueryablePredicate);
+        }
+
+        IEnumerable<TEntity> IQueryModifier<TEntity>.Augment(IEnumerable<TEntity> query)
+        {
+            if(this.EnumerablePredicate == null && this.QueryablePredicate != null)
+                this.EnumerablePredicate = this.QueryablePredicate.Compile();
+
+            if (this.EnumerablePredicate == null)
+                throw new NullReferenceException("EnumerablePredicate must be specified.");
+
+            return query.Where(this.EnumerablePredicate);
+        }
+    }
+
     #endregion Stock Query Modifier Classes
+
+    /// <summary>
+    /// Web-service-friendly XML- and JSON-serializable structure 
+    /// defining common query modifiers.
+    /// </summary>
+    public class CommonQueryModifiers
+    {
+        #region Inner structures
+
+        public class PagingInfo
+        {
+            public int PageIndex { get; set; }
+            public int PageSize { get; set; }
+
+            internal IQueryModifier<TEntity> GetModifier<TEntity>()
+            {
+                return new Paging<TEntity>(this.PageIndex, this.PageSize);
+            }
+        }
+
+        public class FilterInfo
+        {
+            public string FilterColumnName { get; set; }
+            public object FilterValue { get; set; }
+            public DynamicFilterOperators FilterOperator { get; set; }
+
+            internal IQueryModifier<TEntity> GetModifier<TEntity>()
+            {
+                Expression<Func<TEntity, bool>> predicate = PredicateBuilder.GetPredicate<TEntity>(this.FilterColumnName, this.FilterOperator, this.FilterValue);
+                QueryFilter<TEntity> filter = new QueryFilter<TEntity>(predicate);
+                return filter;
+            }
+        }
+        // ReSharper restore PossiblyMistakenUseOfParamsMethod
+
+        public class SortingInfo
+        {
+            public SortOrder SortOrder { get; set; }
+            public string SortFieldName { get; set; }
+
+            internal IQueryModifier<TEntity> GetModifier<TEntity>()
+            {
+                //Expression<Func<TEntity, TKey>> sortProperty = ...
+                //return this.SortOrder == SortOrder.Asceding ? new SortingAsc<TEntity>()
+                throw new NotImplementedException("SortingInfo.GetModifier()");
+            }
+        }
+
+        #endregion Inner structures
+
+        /// <summary>
+        /// Filters combined by "and" operator.
+        /// </summary>
+        public List<FilterInfo> Filters { get; set; }
+
+        public List<SortingInfo> Sorting { get; set; }
+
+        public PagingInfo Paging { get; set; }
+    }
+
+    internal static partial class InternalExtensions
+    {
+        internal static IQueryModifier<TEntity>[] GetModifiers<TEntity>(this CommonQueryModifiers cmod)
+        {
+            if(cmod == null)
+                return null;
+
+            List<IQueryModifier<TEntity>> modifiers = new List<IQueryModifier<TEntity>>();
+
+            if(cmod.Filters != null)
+                modifiers.AddRange(cmod.Filters.Where(f => f != null).Select(f => f.GetModifier<TEntity>()));
+
+            if(cmod.Sorting != null)
+                modifiers.AddRange(cmod.Sorting.Where(s => s != null).Select(s => s.GetModifier<TEntity>()));
+
+            if(cmod.Paging != null)
+                modifiers.Add(cmod.Paging.GetModifier<TEntity>());
+
+            return modifiers.Count == 0 ? null : modifiers.ToArray();
+        }
+    }
 }

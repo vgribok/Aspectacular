@@ -9,9 +9,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Aspectacular
 {
+    public enum DynamicFilterOperators
+    {
+        Equal, NotEqual,
+        GreaterThan, GreaterThanOrEqual,
+        LessThan, LessThanOrEqual,
+        StringStartsWith, StringContains
+    }
+
     /// <summary>
     ///     Enables the efficient, dynamic composition of query predicates.
     /// </summary>
@@ -21,6 +30,8 @@ namespace Aspectacular
     /// </remarks>
     public static class PredicateBuilder
     {
+        #region Predicate combiner
+
         /// <summary>
         ///     Creates a predicate that evaluates to true.
         /// </summary>
@@ -113,5 +124,72 @@ namespace Aspectacular
                 return base.VisitParameter(p);
             }
         }
+
+        #endregion Predicate combiner
+
+        #region Dynamic predicate builder
+
+        private static readonly MethodInfo stringStartsWithMethod = typeof(string).GetMethod("StartsWith");
+        private static readonly MethodInfo stringContainsMethod = typeof(string).GetMethod("Contains");
+
+        // ReSharper disable PossiblyMistakenUseOfParamsMethod
+
+        /// <summary>
+        /// Creates predicate expression that can be used in IQueryable[TEntity].Where(entity => entity.PropertyName FilterOperation FilterValue).
+        /// Got most from
+        /// http://stackoverflow.com/questions/8315819/expression-lambda-and-query-generation-at-runtime-simplest-where-example
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="propertyName">Entity property name</param>
+        /// <param name="dynamicFilterOperator">Filter operator, like Equal, StartsWith, Contains, LessThan, etc.</param>
+        /// <param name="filterValue">Filter value</param>
+        /// <returns></returns>
+        public static Expression<Func<TEntity, bool>> GetPredicate<TEntity>(string propertyName, DynamicFilterOperators dynamicFilterOperator, object filterValue)
+        {
+            var entityExp = Expression.Parameter(typeof(TEntity), "entity");
+            var propertyExpression = Expression.Property(entityExp, propertyName);
+
+            Expression rvalue = Expression.Constant(filterValue);
+            Expression rvalueString = Expression.Constant(filterValue as string);
+            Expression boolExpression = null;
+
+            switch (dynamicFilterOperator)
+            {
+                case DynamicFilterOperators.Equal:
+                    boolExpression = Expression.Equal(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperators.NotEqual:
+                    boolExpression = Expression.NotEqual(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperators.GreaterThan:
+                    boolExpression = Expression.GreaterThan(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperators.GreaterThanOrEqual:
+                    boolExpression = Expression.GreaterThanOrEqual(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperators.LessThan:
+                    boolExpression = Expression.LessThan(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperators.LessThanOrEqual:
+                    boolExpression = Expression.LessThanOrEqual(propertyExpression, rvalue);
+                    break;
+
+                case DynamicFilterOperators.StringStartsWith:
+                    boolExpression = Expression.Call(propertyExpression, stringStartsWithMethod, rvalueString);
+                    break;
+                case DynamicFilterOperators.StringContains:
+                    boolExpression = Expression.Call(propertyExpression, stringContainsMethod, rvalueString);
+                    break;
+            }
+
+            if (boolExpression == null)
+                throw new InvalidOperationException();
+
+            Expression<Func<TEntity, bool>> exp = Expression.Lambda<Func<TEntity, bool>>(boolExpression, entityExp);
+
+            return exp;
+        }
+
+        #endregion Dynamic predicate builder
     }
 }

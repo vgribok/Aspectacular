@@ -207,7 +207,7 @@ namespace Aspectacular
             if(instance == null)
                 throw new ArgumentNullException("instance");
 
-            object val = GetPropertyValue(instance.GetType(), propertyName, instance);
+            object val = instance.GetType().GetPropertyValue(propertyName, instance);
             return (T)val;
         }
 
