@@ -392,6 +392,10 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<Guid>(query, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyQuery<bool>(query, propType);
             if (modified != null)
                 return modified;
@@ -428,6 +432,14 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<short>(query, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyQuery<ushort>(query, propType);
+            if (modified != null)
+                return modified;
+
             throw new Exception(string.Format("Type \"{0}\" of {1}.{2} is not supported for dynamic sorting.", propType.FormatCSharp(), typeof(TEntity).FormatCSharp(), this.PropertyName));
         }
 
@@ -452,6 +464,10 @@ namespace Aspectacular
                 return modified;
 
             modified = this.ModifyCollection<decimal>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<Guid>(collection, propType);
             if (modified != null)
                 return modified;
 
@@ -488,6 +504,14 @@ namespace Aspectacular
                 return modified;
 
             modified = this.ModifyCollection<double>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<short>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<ushort>(collection, propType);
             if (modified != null)
                 return modified;
 
