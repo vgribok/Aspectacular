@@ -144,7 +144,7 @@ namespace Aspectacular
         /// <param name="dynamicFilterOperator">Filter operator, like Equal, StartsWith, Contains, LessThan, etc.</param>
         /// <param name="filterValue">Filter value</param>
         /// <returns></returns>
-        public static Expression<Func<TEntity, bool>> GetPredicate<TEntity>(string propertyName, DynamicFilterOperators dynamicFilterOperator, object filterValue)
+        public static Expression<Func<TEntity, bool>> GetFilterPredicate<TEntity>(string propertyName, DynamicFilterOperators dynamicFilterOperator, object filterValue)
         {
             var entityExp = Expression.Parameter(typeof(TEntity), "entity");
             var propertyExpression = Expression.Property(entityExp, propertyName);
@@ -186,6 +186,16 @@ namespace Aspectacular
                 throw new InvalidOperationException();
 
             Expression<Func<TEntity, bool>> exp = Expression.Lambda<Func<TEntity, bool>>(boolExpression, entityExp);
+
+            return exp;
+        }
+
+        public static Expression<Func<TEntity, TKey>> GetSortingExpression<TEntity, TKey>(string propertyName)
+        {
+            var entityExp = Expression.Parameter(typeof(TEntity), "entity");
+            var propertyExpression = Expression.Property(entityExp, propertyName);
+
+            Expression<Func<TEntity, TKey>> exp = Expression.Lambda<Func<TEntity, TKey>>(propertyExpression, entityExp);
 
             return exp;
         }

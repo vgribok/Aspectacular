@@ -99,12 +99,12 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
-        /// <param name="optionalQueryModifiers"></param>
+        /// <param name="queryModifiers">Optional filtering, sorting and paging applied to the query</param>
         /// <returns></returns>
-        public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, params IQueryModifier<TEntity>[] optionalQueryModifiers)
+        public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
-            this.Invoke(linqQueryExpression, query => query.ToIListWithMods(optionalQueryModifiers));
+            this.Invoke(linqQueryExpression, query => query.ToIListWithMods(queryModifiers));
             IList<TEntity> entityList = (IList<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -114,12 +114,12 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
-        /// <param name="optionalQueryModifiers"></param>
+        /// <param name="queryModifiers">Optional filtering, sorting and paging applied to the query</param>
         /// <returns></returns>
-        public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, params IQueryModifier<TEntity>[] optionalQueryModifiers)
+        public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
-            this.Invoke(sequenceExpression, sequence => sequence.ToIListWithMods(optionalQueryModifiers));
+            this.Invoke(sequenceExpression, sequence => sequence.ToIListWithMods(queryModifiers));
             IList<TEntity> entityList = (IList<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -129,12 +129,12 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="linqQueryExpression"></param>
-        /// <param name="optionalQueryModifiers"></param>
+        /// <param name="queryModifiers">Optional filtering, sorting and paging applied to the query</param>
         /// <returns></returns>
-        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, params IQueryModifier<TEntity>[] optionalQueryModifiers)
+        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
-            this.Invoke(linqQueryExpression, query => query.ToListWithMods(optionalQueryModifiers));
+            this.Invoke(linqQueryExpression, query => query.ToListWithMods(queryModifiers));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -144,12 +144,12 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="sequenceExpression"></param>
-        /// <param name="optionalQueryModifiers"></param>
+        /// <param name="queryModifiers">Optional filtering, sorting and paging applied to the query</param>
         /// <returns></returns>
-        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, params IQueryModifier<TEntity>[] optionalQueryModifiers)
+        public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
-            this.Invoke(sequenceExpression, sequence => sequence.ToListWithMods(optionalQueryModifiers));
+            this.Invoke(sequenceExpression, sequence => sequence.ToListWithMods(queryModifiers));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -207,7 +207,9 @@ namespace Aspectacular
         {
             this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
 
-            this.Invoke(linqQueryExpression, query => query.ToIListWithMods(new Paging<TEntity>(pageIndex, pageSize)));
+            QueryModifiers mods = new QueryModifiers { Paging = new QueryModifiers.PagingInfo {PageIndex = pageIndex, PageSize = pageSize}};
+
+            this.Invoke(linqQueryExpression, query => query.ToIListWithMods(mods));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -225,7 +227,9 @@ namespace Aspectacular
         {
             this.LogLinqModifierName("Page<TEntity>(int pageIndex, int pageSize, Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
 
-            this.Invoke(sequenceExpression, query => query.ToListWithMods(new Paging<TEntity>(pageIndex, pageSize)));
+            QueryModifiers mods = new QueryModifiers { Paging = new QueryModifiers.PagingInfo { PageIndex = pageIndex, PageSize = pageSize } };
+
+            this.Invoke(sequenceExpression, query => query.ToListWithMods(mods));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }

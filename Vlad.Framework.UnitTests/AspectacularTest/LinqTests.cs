@@ -61,14 +61,14 @@ namespace Aspectacular.Test
 
             // Example 1: where AOP creates instance of AdventureWorksLT2008R2Entities, runs the DAL method, 
             // and disposes AdventureWorksLT2008R2Entities instance - all in one shot.
-            addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses), new SortingAsc<Address, string>(entity => entity.AddressLine1) /*, new Paging<Address>(0, 1)*/);
+            addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
             Assert.IsTrue(2 == addresses.Count);
 
             // Example 2: with simple AOP proxied call for existing instance of DbContext.
             using(var db = new AdventureWorksLT2008R2Entities())
             {
                 db.Configuration.LazyLoadingEnabled = false;
-                addresses = db.GetDbProxy(TestAspects).List(dbx => dbx.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses), new SortingDesc<Address, string>(entity => entity.AddressLine1));
+                addresses = db.GetDbProxy(TestAspects).List(dbx => dbx.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
             }
             Assert.IsTrue(2 == addresses.Count);
         }
