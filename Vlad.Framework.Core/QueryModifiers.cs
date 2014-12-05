@@ -33,7 +33,7 @@ namespace Aspectacular
         {
             public string FilterColumnName { get; set; }
             public object FilterValue { get; set; }
-            public DynamicFilterOperators FilterOperator { get; set; }
+            public DynamicFilterOperator FilterOperator { get; set; }
 
             internal IQueryModifier<TEntity> GetModifier<TEntity>()
             {
@@ -81,6 +81,60 @@ namespace Aspectacular
         /// Can be null if entire result set should be returned.
         /// </summary>
         public PagingInfo Paging { get; set; }
+
+        #region Utility methods
+
+        /// <summary>
+        /// A shortcut method to add sorting.
+        /// </summary>
+        /// <param name="cortColumnName"></param>
+        /// <param name="sortOrder"></param>
+        /// <returns></returns>
+        public QueryModifiers AddSortCriteria(string cortColumnName, SortOrder sortOrder = SortOrder.Ascending)
+        {
+            if(this.Sorting == null)
+                this.Sorting = new List<SortingInfo>();
+
+            this.Sorting.Add(new SortingInfo { SortFieldName = cortColumnName, SortOrder = sortOrder });
+
+            return this;
+        }
+
+        /// <summary>
+        /// A shortcut methods to add a filter.
+        /// </summary>
+        /// <param name="filterColumnName"></param>
+        /// <param name="filterOperator"></param>
+        /// <param name="filterValue"></param>
+        /// <returns></returns>
+        public QueryModifiers AddFilter(string filterColumnName, DynamicFilterOperator filterOperator, object filterValue)
+        {
+            if(this.Filters == null)
+                this.Filters = new List<FilterInfo>();
+
+            this.Filters.Add(new FilterInfo { FilterColumnName = filterColumnName, FilterOperator = filterOperator, FilterValue = filterValue });
+
+            return this;
+        }
+
+        /// <summary>
+        /// A shortcut method to add paging.
+        /// </summary>
+        /// <param name="pageIndex">Zero-based page index.</param>
+        /// <param name="pageSize">Page size in item number.</param>
+        /// <returns></returns>
+        public QueryModifiers AddPaging(int pageIndex, int pageSize)
+        {
+            this.Paging = new PagingInfo
+            {
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
+
+            return this;
+        }
+
+        #endregion Utility methods
     }
 
     /// <summary>
@@ -153,44 +207,18 @@ namespace Aspectacular
             return retVal;
         }
 
-        public static TEntity FirstOrDefaultWithMods<TEntity>(this IQueryable<TEntity> query, QueryModifiers queryModifiers) where TEntity : class
+        public static long LongCount<TEntity>(this IQueryable<TEntity> query, QueryModifiers queryModifiers)
         {
             var newQuery = query.Augment(queryModifiers);
-
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            TEntity retVal = newQuery as TEntity ?? newQuery.FirstOrDefault();
-
-            return retVal;
+            long count = newQuery.Count();
+            return count;
         }
 
-        public static TEntity FirstOrDefaultWithMods<TEntity>(this IEnumerable<TEntity> collection, QueryModifiers queryModifiers) where TEntity : class
-        {
-            var newCollection = collection.Augment(queryModifiers);
-
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            TEntity retVal = newCollection as TEntity ?? newCollection.FirstOrDefault();
-
-            return retVal;
-        }
-
-        public static TEntity SingleOrDefaultWithMods<TEntity>(this IQueryable<TEntity> query, QueryModifiers queryModifiers) where TEntity : class
+        public static long LongCount<TEntity>(this IEnumerable<TEntity> query, QueryModifiers queryModifiers)
         {
             var newQuery = query.Augment(queryModifiers);
-
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            TEntity retVal = newQuery as TEntity ?? newQuery.SingleOrDefault();
-
-            return retVal;
-        }
-
-        public static TEntity SingleOrDefaultWithMods<TEntity>(this IEnumerable<TEntity> collection, QueryModifiers queryModifiers) where TEntity : class
-        {
-            var newCollection = collection.Augment(queryModifiers);
-
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            TEntity retVal = newCollection as TEntity ?? newCollection.SingleOrDefault();
-
-            return retVal;
+            long count = newQuery.Count();
+            return count;
         }
 
         #region Internal methods

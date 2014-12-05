@@ -310,6 +310,38 @@ namespace Aspectacular
             return entity;
         }
 
+
+        /// <summary>
+        ///     Adds LongCount() to IQueryable return result.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="linqQueryExpression"></param>
+        /// <param name="queryModifiers"></param>
+        /// <returns>Number of records that would be returned by the query</returns>
+        public long Count<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, QueryModifiers queryModifiers = null)
+        {
+            this.LogLinqModifierName("Count<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)");
+            this.Invoke(linqQueryExpression, sequence => sequence.LongCount(queryModifiers));
+            long count = (long)this.ReturnedValue;
+            return count;
+        }
+
+        /// <summary>
+        ///     Adds LongCount() to IQueryable return result.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="sequenceExpression"></param>
+        /// <param name="queryModifiers"></param>
+        /// <returns>Number of items in the collection</returns>
+        public long Count<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, QueryModifiers queryModifiers = null)
+        {
+            this.LogLinqModifierName("Count<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)");
+            this.Invoke(sequenceExpression, sequence => sequence.LongCount(queryModifiers));
+            long count = (long)this.ReturnedValue;
+            return count;
+        }
+
+
         /// <summary>
         ///     Adds Exists() to IQueryable return result.
         /// </summary>

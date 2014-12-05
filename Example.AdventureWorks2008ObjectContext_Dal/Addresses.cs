@@ -82,5 +82,11 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
 
             return q.Distinct();
         }
+
+        [InvariantReturn(false)]
+        public IQueryable<Customer> QueryAllCustomers()
+        {
+            return this.Customers;
+        }
     }
 }

@@ -13,7 +13,7 @@ using System.Reflection;
 
 namespace Aspectacular
 {
-    public enum DynamicFilterOperators
+    public enum DynamicFilterOperator
     {
         Equal, NotEqual,
         GreaterThan, GreaterThanOrEqual,
@@ -129,7 +129,7 @@ namespace Aspectacular
 
         #region Dynamic predicate builder
 
-        private static readonly MethodInfo stringStartsWithMethod = typeof(string).GetMethod("StartsWith");
+        private static readonly MethodInfo stringStartsWithMethod = typeof(string).GetMethod("StartsWith", new []{ typeof(string) });
         private static readonly MethodInfo stringContainsMethod = typeof(string).GetMethod("Contains");
 
         // ReSharper disable PossiblyMistakenUseOfParamsMethod
@@ -144,7 +144,7 @@ namespace Aspectacular
         /// <param name="dynamicFilterOperator">Filter operator, like Equal, StartsWith, Contains, LessThan, etc.</param>
         /// <param name="filterValue">Filter value</param>
         /// <returns></returns>
-        public static Expression<Func<TEntity, bool>> GetFilterPredicate<TEntity>(string propertyName, DynamicFilterOperators dynamicFilterOperator, object filterValue)
+        public static Expression<Func<TEntity, bool>> GetFilterPredicate<TEntity>(string propertyName, DynamicFilterOperator dynamicFilterOperator, object filterValue)
         {
             var entityExp = Expression.Parameter(typeof(TEntity), "entity");
             var propertyExpression = Expression.Property(entityExp, propertyName);
@@ -155,29 +155,29 @@ namespace Aspectacular
 
             switch (dynamicFilterOperator)
             {
-                case DynamicFilterOperators.Equal:
+                case DynamicFilterOperator.Equal:
                     boolExpression = Expression.Equal(propertyExpression, rvalue);
                     break;
-                case DynamicFilterOperators.NotEqual:
+                case DynamicFilterOperator.NotEqual:
                     boolExpression = Expression.NotEqual(propertyExpression, rvalue);
                     break;
-                case DynamicFilterOperators.GreaterThan:
+                case DynamicFilterOperator.GreaterThan:
                     boolExpression = Expression.GreaterThan(propertyExpression, rvalue);
                     break;
-                case DynamicFilterOperators.GreaterThanOrEqual:
+                case DynamicFilterOperator.GreaterThanOrEqual:
                     boolExpression = Expression.GreaterThanOrEqual(propertyExpression, rvalue);
                     break;
-                case DynamicFilterOperators.LessThan:
+                case DynamicFilterOperator.LessThan:
                     boolExpression = Expression.LessThan(propertyExpression, rvalue);
                     break;
-                case DynamicFilterOperators.LessThanOrEqual:
+                case DynamicFilterOperator.LessThanOrEqual:
                     boolExpression = Expression.LessThanOrEqual(propertyExpression, rvalue);
                     break;
 
-                case DynamicFilterOperators.StringStartsWith:
+                case DynamicFilterOperator.StringStartsWith:
                     boolExpression = Expression.Call(propertyExpression, stringStartsWithMethod, rvalueString);
                     break;
-                case DynamicFilterOperators.StringContains:
+                case DynamicFilterOperator.StringContains:
                     boolExpression = Expression.Call(propertyExpression, stringContainsMethod, rvalueString);
                     break;
             }
