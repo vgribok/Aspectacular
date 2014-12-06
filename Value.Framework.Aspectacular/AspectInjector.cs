@@ -401,11 +401,11 @@ namespace Aspectacular
 
         #region Utility methods
 
-        private void AddAspect(Aspect aspect, bool trueAppend_falseInsertFirst = true)
+        private void AddAspect(Aspect aspect, bool trueAppend_FalseInsertFirst = true)
         {
             aspect.Proxy = this;
 
-            if(trueAppend_falseInsertFirst)
+            if(trueAppend_FalseInsertFirst)
                 this.aspects.Add(aspect);
             else
                 this.aspects.Insert(0, aspect);
@@ -470,9 +470,9 @@ namespace Aspectacular
             }
         }
 
-        protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethod)
+        protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethodDelegate)
         {
-            this.interceptedMethod = interceptedMethod;
+            this.interceptedMethod = interceptedMethodDelegate;
             this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper, this.ForceCallInvariance);
         }
 
@@ -493,15 +493,17 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="interceptedCallExpression"></param>
-        /// <param name="retValPostProcessor">
+        /// <param name="retValPostProcessorExpression">
         ///     Delegate called immediately after callExpression function was executed.
         ///     Allows additional massaging of the returned value. Useful when LINQ suffix functions, like ToList(), Single(), etc.
         ///     need to be called in alloc/invoke/dispose pattern.
         /// </param>
         /// <returns></returns>
-        public TOut Invoke<TOut>(Expression<Func<TOut>> interceptedCallExpression, Func<TOut, object> retValPostProcessor = null)
+        public TOut Invoke<TOut>(Expression<Func<TOut>> interceptedCallExpression, Expression<Func<TOut, object>> retValPostProcessorExpression = null)
         {
             Func<TOut> blDelegate = interceptedCallExpression.Compile();
+            Func<TOut, object> retValPostProcessor = retValPostProcessorExpression == null ? null : retValPostProcessorExpression.Compile();
+
             this.InitMethodMetadata(interceptedCallExpression, blDelegate);
 
             TOut retVal = default(TOut);
@@ -549,16 +551,16 @@ namespace Aspectacular
         /// <summary>
         ///     Returns string representation of method's return value;
         /// </summary>
-        /// <param name="trueUi_falseInternal"></param>
+        /// <param name="trueUi_FalseInternal"></param>
         /// <returns></returns>
-        public string FormateReturnValue(bool trueUi_falseInternal)
+        public string FormateReturnValue(bool trueUi_FalseInternal)
         {
             this.RequirePostExecutionPhase();
 
             string retValStr = InterceptedMethodParamMetadata.FormatParamValue(
                 this.InterceptedCallMetaData.MethodReturnType,
                 this.GetReturnValueInternal(this.InterceptedCallMetaData.IsReturnValueSecret),
-                trueUi_falseInternal);
+                trueUi_FalseInternal);
             return retValStr;
         }
 

@@ -48,17 +48,19 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="interceptedCallExpression"></param>
-        /// <param name="retValPostProcessor">
+        /// <param name="retValPostProcessorExpression">
         ///     Delegate called immediately after callExpression function was executed.
         ///     Allows additional massaging of the returned value. Useful when LINQ suffix functions, like ToList(), Single(), etc.
         ///     need to be called in alloc/invoke/dispose pattern.
         /// </param>
         /// <returns></returns>
-        public TOut Invoke<TOut>(Expression<Func<TInstance, TOut>> interceptedCallExpression, Func<TOut, object> retValPostProcessor = null)
+        public TOut Invoke<TOut>(Expression<Func<TInstance, TOut>> interceptedCallExpression, Expression<Func<TOut, object>> retValPostProcessorExpression = null)
         {
             this.ResolveClassInstance();
 
             Func<TInstance, TOut> blDelegate = interceptedCallExpression.Compile();
+            Func<TOut, object> retValPostProcessor = retValPostProcessorExpression == null ? null : retValPostProcessorExpression.Compile();
+
             this.InitMethodMetadata(interceptedCallExpression, blDelegate);
 
             TOut retVal = default(TOut);
@@ -162,14 +164,17 @@ namespace Aspectacular
         public List<object> List(Expression<Func<TInstance, IQueryable>> linqQueryExpression)
         {
             this.LogLinqModifierName("List(Expression<Func<TInstance, IQueryable>> linqQueryExpression)");
+            
             List<object> records = new List<object>();
+            this.Invoke(linqQueryExpression, query => ToOjbectList(query, ref records));
 
-            this.Invoke(linqQueryExpression, query =>
-            {
-                query.ToEnumerable().ForEach(records.Add);
-                return records;
-            });
+            return records;
+        }
 
+        private static List<object> ToOjbectList(IEnumerable collection, ref List<object> records)
+        {
+            if(collection != null)
+                collection.ForEach(records.Add);
             return records;
         }
 
@@ -181,13 +186,9 @@ namespace Aspectacular
         public List<object> List(Expression<Func<TInstance, IEnumerable>> sequenceExpression)
         {
             this.LogLinqModifierName("List(Expression<Func<TInstance, IEnumerable>> sequenceExpression)");
+            
             List<object> records = new List<object>();
-
-            this.Invoke(sequenceExpression, sequence =>
-            {
-                sequence.ForEach(records.Add);
-                return records;
-            });
+            this.Invoke(sequenceExpression, sequence => ToOjbectList(sequence, ref records));
 
             return records;
         }
@@ -272,18 +273,14 @@ namespace Aspectacular
             this.LogLinqModifierName("Single(Expression<Func<TInstance, IQueryable>> linqQueryExpression)");
 
             object entity = null;
-
-            this.Invoke(linqQueryExpression, query =>
-            {
-                foreach(object record in query)
-                {
-                    entity = record;
-                    return record;
-                }
-                return null;
-            });
-
+            this.Invoke(linqQueryExpression, query => GetFirst(query, out entity));
             return entity;
+        }
+
+        private static object GetFirst(IEnumerable collection, out object obj)
+        {
+            obj = collection == null ? null : collection.Cast<object>().FirstOrDefault();
+            return obj;
         }
 
         /// <summary>
@@ -296,17 +293,7 @@ namespace Aspectacular
             this.LogLinqModifierName("Single(Expression<Func<TInstance, IEnumerable>> sequenceExpression)");
 
             object entity = null;
-
-            this.Invoke(sequenceExpression, sequence =>
-            {
-                foreach(object record in sequence)
-                {
-                    entity = record;
-                    return record;
-                }
-                return null;
-            });
-
+            this.Invoke(sequenceExpression, sequence => GetFirst(sequence, out entity));
             return entity;
         }
 
