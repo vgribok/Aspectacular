@@ -384,7 +384,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<DateTime?>(query, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyQuery<DateTimeOffset>(query, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyQuery<DateTimeOffset?>(query, propType);
             if (modified != null)
                 return modified;
 
@@ -392,7 +400,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<decimal?>(query, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyQuery<Guid>(query, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyQuery<Guid?>(query, propType);
             if (modified != null)
                 return modified;
 
@@ -400,7 +416,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<bool?>(query, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyQuery<int>(query, propType);
+            if(modified != null)
+                return modified;
+
+            modified = this.ModifyQuery<int?>(query, propType);
             if(modified != null)
                 return modified;
 
@@ -408,7 +432,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<uint?>(query, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyQuery<long>(query, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyQuery<long?>(query, propType);
             if (modified != null)
                 return modified;
 
@@ -416,7 +448,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<ulong?>(query, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyQuery<byte>(query, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyQuery<byte?>(query, propType);
             if (modified != null)
                 return modified;
 
@@ -424,7 +464,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<sbyte?>(query, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyQuery<float>(query, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyQuery<float?>(query, propType);
             if (modified != null)
                 return modified;
 
@@ -432,11 +480,23 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<double?>(query, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyQuery<short>(query, propType);
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyQuery<short?>(query, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyQuery<ushort>(query, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyQuery<ushort?>(query, propType);
             if (modified != null)
                 return modified;
 
@@ -459,7 +519,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyCollection<DateTime?>(collection, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyCollection<DateTimeOffset>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<DateTimeOffset?>(collection, propType);
             if (modified != null)
                 return modified;
 
@@ -467,7 +535,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyCollection<decimal?>(collection, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyCollection<Guid>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<Guid?>(collection, propType);
             if (modified != null)
                 return modified;
 
@@ -475,7 +551,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyCollection<bool?>(collection, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyCollection<int>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<int?>(collection, propType);
             if (modified != null)
                 return modified;
 
@@ -483,7 +567,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyCollection<uint?>(collection, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyCollection<long>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<long?>(collection, propType);
             if (modified != null)
                 return modified;
 
@@ -491,7 +583,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyCollection<ulong?>(collection, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyCollection<byte>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<byte?>(collection, propType);
             if (modified != null)
                 return modified;
 
@@ -499,7 +599,15 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyCollection<sbyte?>(collection, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyCollection<float>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<float?>(collection, propType);
             if (modified != null)
                 return modified;
 
@@ -507,11 +615,23 @@ namespace Aspectacular
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyCollection<double?>(collection, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyCollection<short>(collection, propType);
             if (modified != null)
                 return modified;
 
+            modified = this.ModifyCollection<short?>(collection, propType);
+            if (modified != null)
+                return modified;
+
             modified = this.ModifyCollection<ushort>(collection, propType);
+            if (modified != null)
+                return modified;
+
+            modified = this.ModifyCollection<ushort?>(collection, propType);
             if (modified != null)
                 return modified;
 
@@ -530,7 +650,7 @@ namespace Aspectacular
             return propType;
         }
 
-        private IQueryable<TEntity> ModifyQuery<TKey>(IQueryable<TEntity> query, Type propType)
+        private IQueryable<TEntity> ModifyQuery<TKey>(IQueryable<TEntity> query, Type propType) 
         {
             if(propType != typeof(TKey))
                 return null;
