@@ -79,9 +79,16 @@ namespace Aspectacular
         public Exception MethodExecutionException { get; set; }
 
         /// <summary>
-        ///     Extensive information about method, its name, attributes, parameter names and value, etc.
+        ///     Extensive information about intercepted method, its name, attributes, parameter names and value, etc.
         /// </summary>
         public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
+        
+        /// <summary>
+        /// Information about result post-processing method, its name, attributes, parameter names and value, etc.
+        /// Can be null if there post-processing is not required.
+        /// </summary>
+        public InterceptedMethodMetadata PostProcessingCallMetadata { get; set; }
+
 
         /// <summary>
         ///     Number of attempts made to call intercepted method.
@@ -157,7 +164,7 @@ namespace Aspectacular
 
         public Proxy(Func<object> instanceFactory, Action<object> optionalInstanceCleaner, IEnumerable<Aspect> aspects)
         {
-            this.LogInformation("#### Starting new call log ###");
+            this.LogInformation("#### Starting new call log ### ------------------------------------------------------------------------------------------------------------------------------------");
             this.LogInformationData("Call ID", this.CallID);
 
             this.instanceResolverFunc = instanceFactory;
@@ -275,7 +282,7 @@ namespace Aspectacular
 
         protected virtual void Step_7_AfterEverythingSaidAndDone()
         {
-            this.LogInformation("**** Finished call with ID = {0} ****\r\n", this.CallID);
+            this.LogInformation("**** Finished call with ID = {0} **** -------------------------------------------------------------------------------------------------------------------------\r\n", this.CallID);
 
             this.CallAspectsBackwards(aspect =>
             {
@@ -470,10 +477,11 @@ namespace Aspectacular
             }
         }
 
-        protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethodDelegate)
+        protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethodDelegate, LambdaExpression postProcessingMethodExpression)
         {
             this.interceptedMethod = interceptedMethodDelegate;
-            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper, this.ForceCallInvariance);
+            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper, this.ForceCallInvariance, checkInstanceVsStatic: true);
+            this.PostProcessingCallMetadata = postProcessingMethodExpression == null ? null : new InterceptedMethodMetadata(null, postProcessingMethodExpression, this.ForceCallInvariance, checkInstanceVsStatic: false);
         }
 
         protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
@@ -504,7 +512,7 @@ namespace Aspectacular
             Func<TOut> blDelegate = interceptedCallExpression.Compile();
             Func<TOut, object> retValPostProcessor = retValPostProcessorExpression == null ? null : retValPostProcessorExpression.Compile();
 
-            this.InitMethodMetadata(interceptedCallExpression, blDelegate);
+            this.InitMethodMetadata(interceptedCallExpression, blDelegate, retValPostProcessorExpression);
 
             TOut retVal = default(TOut);
 
@@ -524,7 +532,7 @@ namespace Aspectacular
         public void Invoke(Expression<Action> interceptedCallExpression)
         {
             Action blDelegate = interceptedCallExpression.Compile();
-            this.InitMethodMetadata(interceptedCallExpression, blDelegate);
+            this.InitMethodMetadata(interceptedCallExpression, blDelegate, postProcessingMethodExpression: null);
 
             this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(blDelegate.Invoke));
         }

@@ -4,8 +4,10 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 using System.Xml;
 
 namespace Aspectacular
@@ -27,6 +29,17 @@ namespace Aspectacular
             {
                 return new Paging<TEntity>(this.PageIndex, this.PageSize);
             }
+
+            /// <summary>
+            /// Serves as a hash function for a particular type. 
+            /// </summary>
+            /// <returns>
+            /// A hash code for the current <see cref="T:System.Object"/>.
+            /// </returns>
+            public override int GetHashCode()
+            {
+                return this.PageIndex.GetHashCode() ^ this.PageSize.GetHashCode();
+            }
         }
 
         public class FilterInfo
@@ -40,6 +53,22 @@ namespace Aspectacular
                 Expression<Func<TEntity, bool>> predicate = PredicateBuilder.GetFilterPredicate<TEntity>(this.FilterColumnName, this.FilterOperator, this.FilterValue);
                 QueryFilter<TEntity> filter = new QueryFilter<TEntity>(predicate);
                 return filter;
+            }
+
+            /// <summary>
+            /// Serves as a hash function for a particular type. 
+            /// </summary>
+            /// <returns>
+            /// A hash code for the current <see cref="T:System.Object"/>.
+            /// </returns>
+            public override int GetHashCode()
+            {
+                int[] hashCodes = new int[3];
+                hashCodes[0] = this.FilterColumnName == null ? 0 : this.FilterColumnName.GetHashCode();
+                hashCodes[1] = this.FilterValue == null ? 0 : this.FilterValue.GetHashCode();
+                hashCodes[2] = this.FilterOperator.GetHashCode();
+
+                return hashCodes.Aggregate((a, b) => a ^ b);
             }
         }
         // ReSharper restore PossiblyMistakenUseOfParamsMethod
@@ -58,6 +87,18 @@ namespace Aspectacular
             {
                 var mod = new Sorter<TEntity>(this.SortFieldName, this.SortOrder == SortOrder.Ascending);
                 return mod;
+            }
+
+            /// <summary>
+            /// Serves as a hash function for a particular type. 
+            /// </summary>
+            /// <returns>
+            /// A hash code for the current <see cref="T:System.Object"/>.
+            /// </returns>
+            public override int GetHashCode()
+            {
+                int sortFieldHashCode = this.SortFieldName == null ? 0 : this.SortFieldName.GetHashCode();
+                return this.SortOrder.GetHashCode() ^ sortFieldHashCode;
             }
         }
 
@@ -135,6 +176,45 @@ namespace Aspectacular
         }
 
         #endregion Utility methods
+
+        /// <summary>
+        /// Serves as a hash function for a particular type. 
+        /// </summary>
+        /// <returns>
+        /// A hash code for the current <see cref="T:System.Object"/>.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            int[] hashCodes = { 0, 0, 0 };
+            
+            if(this.Filters != null)
+                hashCodes[0] = this.Filters.Select(f => f.GetHashCode()).Aggregate((a, b) => a ^ b);
+
+            if(this.Sorting != null)
+                hashCodes[1] = this.Sorting.Select(s => s.GetHashCode()).Aggregate((a, b) => a ^ b);
+
+            if(this.Paging != null)
+                hashCodes[2] = this.Paging.GetHashCode();
+
+            if (hashCodes.Sum() == 0)
+                // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
+                return base.GetHashCode();
+
+            int hashCode = hashCodes.Aggregate((a, b) => a ^ b);
+            return hashCode;
+        }
+
+        /// <summary>
+        /// Returns a string that represents the current object.
+        /// </summary>
+        /// <returns>
+        /// A string that represents the current object.
+        /// </returns>
+        public override string ToString()
+        {
+            string json = new JavaScriptSerializer().Serialize(this);
+            return json;
+        }
     }
 
     /// <summary>
@@ -214,9 +294,9 @@ namespace Aspectacular
             return count;
         }
 
-        public static long LongCount<TEntity>(this IEnumerable<TEntity> query, QueryModifiers queryModifiers)
+        public static long LongCount<TEntity>(this IEnumerable<TEntity> collection, QueryModifiers queryModifiers)
         {
-            var newQuery = query.Augment(queryModifiers);
+            var newQuery = collection.Augment(queryModifiers);
             long count = newQuery.Count();
             return count;
         }

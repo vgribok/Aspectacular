@@ -264,11 +264,11 @@ namespace Aspectacular
                         val = ((ConstantExpression)expression).Value;
                         break;
                     case ExpressionType.Parameter:
-                    {
-                        ParameterExpression pex = (ParameterExpression)expression;
-                        if(augmentedObject != null && pex.Type == augmentedObject.GetType())
-                            return augmentedObject;
-                    }
+                        {
+                            ParameterExpression pex = (ParameterExpression)expression;
+                            if(augmentedObject != null && pex.Type == augmentedObject.GetType())
+                                return augmentedObject;
+                        }
                         val = expression.EvaluateExpressionVerySlow();
                         break;
                     default:
@@ -339,7 +339,7 @@ namespace Aspectacular
             get { return this.MethodReflectionInfo.GetCustomAttributes(); }
         }
 
-        private readonly object augmentedInstance;
+        private readonly object methodInstance;
         public readonly List<InterceptedMethodParamMetadata> Params = new List<InterceptedMethodParamMetadata>();
 
 
@@ -356,7 +356,7 @@ namespace Aspectacular
             get { return this.MethodReflectionInfo.ReturnType; }
         }
 
-        internal InterceptedMethodMetadata(object augmentedInstance, LambdaExpression callLambdaExp, bool forceClassInstanceInvariant)
+        internal InterceptedMethodMetadata(object methodInstance, LambdaExpression callLambdaExp, bool forceClassInstanceInvariant, bool checkInstanceVsStatic)
         {
             try
             {
@@ -369,10 +369,10 @@ namespace Aspectacular
                 throw new ArgumentException(errorText, ex);
             }
 
-            this.augmentedInstance = augmentedInstance;
+            this.methodInstance = methodInstance;
             this.MethodReflectionInfo = this.interceptedMethodExpression.Method;
 
-            if(this.augmentedInstance == null && !this.MethodReflectionInfo.IsStatic)
+            if (checkInstanceVsStatic && this.methodInstance == null && !this.MethodReflectionInfo.IsStatic)
                 throw new Exception("Null instance specified for instance method \"{0}\". Please use obj.GetProxy().Invoke() instead of AOP.Invoke().".SmartFormat(this.GetMethodSignature(ParamValueOutputOptions.NoValue)));
 
             this.forceClassInstanceInvariant = forceClassInstanceInvariant;
@@ -389,7 +389,7 @@ namespace Aspectacular
             {
                 Expression paramExpression = this.interceptedMethodExpression.Arguments[i];
 
-                var paramMetadata = new InterceptedMethodParamMetadata(paramData[i], paramExpression, this.augmentedInstance);
+                var paramMetadata = new InterceptedMethodParamMetadata(paramData[i], paramExpression, this.methodInstance);
                 this.Params.Add(paramMetadata);
             }
         }
@@ -547,7 +547,7 @@ namespace Aspectacular
             if(this.IsStaticMethod || valueOutputOptions == ParamValueOutputOptions.NoValue || this.IsReturnResultInvariant)
                 return string.Empty;
 
-            object val = this.augmentedInstance;
+            object val = this.methodInstance;
             Type type = val == null ? null : val.GetType();
 
             string thisValueStr = InterceptedMethodParamMetadata.FormatParamValue(type, val, valueOutputOptions == ParamValueOutputOptions.SlowUIValue);

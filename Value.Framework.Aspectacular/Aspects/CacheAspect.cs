@@ -159,7 +159,14 @@ namespace Aspectacular
 
         protected string BuildMethodCacheKeyVerySlowly()
         {
-            return this.Proxy.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
+            string mainMethodSignature = this.Proxy.InterceptedCallMetaData.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
+            if(this.Proxy.PostProcessingCallMetadata == null)
+                return mainMethodSignature;
+
+            string prostProcessingMethodSignature = this.Proxy.PostProcessingCallMetadata.GetMethodSignature(ParamValueOutputOptions.SlowInternalValue);
+            string combined = string.Format("{0}+{1}", mainMethodSignature, prostProcessingMethodSignature);
+
+            return combined;
         }
     }
 

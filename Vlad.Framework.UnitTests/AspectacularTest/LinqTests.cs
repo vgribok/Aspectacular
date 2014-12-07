@@ -55,14 +55,14 @@ namespace Aspectacular.Test
                 db.Configuration.LazyLoadingEnabled = false;
                 addresses = db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses).ToList();
             }
-            Assert.IsTrue(2 == addresses.Count);
+            Assert.AreEqual(2, addresses.Count);
 
             // Now same with LINQ-friendly AOP shortcuts:
 
             // Example 1: where AOP creates instance of AdventureWorksLT2008R2Entities, runs the DAL method, 
             // and disposes AdventureWorksLT2008R2Entities instance - all in one shot.
             addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
-            Assert.IsTrue(2 == addresses.Count);
+            Assert.AreEqual(2, addresses.Count);
 
             // Example 2: with simple AOP proxied call for existing instance of DbContext.
             using(var db = new AdventureWorksLT2008R2Entities())
@@ -70,7 +70,16 @@ namespace Aspectacular.Test
                 db.Configuration.LazyLoadingEnabled = false;
                 addresses = db.GetDbProxy(TestAspects).List(dbx => dbx.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
             }
-            Assert.IsTrue(2 == addresses.Count);
+            Assert.AreEqual(2, addresses.Count);
+
+            var address = AwDal.Single(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
+            Assert.IsNotNull(address);
+
+            long adrressCount = AwDal.Count(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
+            Assert.AreEqual(2, adrressCount);
+
+            adrressCount = AwDal.Count(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses), new QueryModifiers().AddSortCriteria("AddressID").AddPaging(0, 1));
+            Assert.AreEqual(1, adrressCount);
         }
 
         //[TestMethod]
@@ -198,8 +207,13 @@ namespace Aspectacular.Test
             customers = AwDal.List(db => db.QueryAllCustomers(), mods);
             Assert.IsTrue(customers.All(c => c.LastName.StartsWith("Ve")));
 
+            //int hash1 = mods.GetHashCode();
+            string mods1 = mods.ToString();
             mods.Filters.Clear();
             mods.AddFilter("LastName", DynamicFilterOperator.StringContains, "er");
+            //int hash2 = mods.GetHashCode();
+            string mods2 = mods.ToString();
+            Assert.AreNotEqual(mods1, mods2);
             customers = AwDal.List(db => db.QueryAllCustomers(), mods);
             Assert.IsTrue(customers.All(c => c.LastName.Contains("er")));
             customer = customers[2];

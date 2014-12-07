@@ -156,6 +156,9 @@ namespace Aspectacular
         /// <returns></returns>
         public static object EvaluateExpressionVerySlow(this Expression expression)
         {
+            if (expression.ToString() == "yetUnassignedReturnedValue") // an ugly hack to allow parameter evaluation for query modifiers before returned IQueryable itself is available.
+                return null;
+
             // This is really, veeery, terribly slow. 
             // The performance loss double-whammy is expression compilation plus reflection invocation.
             LambdaExpression lx = Expression.Lambda(expression);
