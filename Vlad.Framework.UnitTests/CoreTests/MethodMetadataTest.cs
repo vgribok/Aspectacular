@@ -47,7 +47,7 @@ namespace Aspectacular.Test.CoreTests
             //Type type = typeof(IEnumerable<Tuple<int, string>>);
             Type type = bad.GetType();
 
-            string valuString = InterceptedMethodParamMetadata.FormatParamValue(type, whatevs, trueUi_falseInternal: false);
+            string valuString = InterceptedMethodParamMetadata.FormatParamValue(type, whatevs, trueUi_FalseInternal: false);
             Assert.IsTrue(valuString.Contains("HASH"));
         }
     }

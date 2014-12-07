@@ -109,7 +109,7 @@ namespace Aspectacular
         public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("List<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)", queryModifiers);
-            this.Invoke(linqQueryExpression, yetUnassignedReturnedValue => yetUnassignedReturnedValue.ToIListWithMods(queryModifiers)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(linqQueryExpression, query => query.ToIListWithMods(queryModifiers));
             IList<TEntity> entityList = (IList<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -124,7 +124,7 @@ namespace Aspectacular
         public IList<TEntity> List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("List<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)", queryModifiers);
-            this.Invoke(sequenceExpression, yetUnassignedReturnedValue => yetUnassignedReturnedValue.ToIListWithMods(queryModifiers)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(sequenceExpression, collection => collection.ToIListWithMods(queryModifiers));
             IList<TEntity> entityList = (IList<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -139,7 +139,7 @@ namespace Aspectacular
         public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("ListList<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)", queryModifiers);
-            this.Invoke(linqQueryExpression, yetUnassignedReturnedValue => yetUnassignedReturnedValue.ToListWithMods(queryModifiers)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(linqQueryExpression, query => query.ToListWithMods(queryModifiers));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -154,7 +154,7 @@ namespace Aspectacular
         public List<TEntity> ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("ListList<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)", queryModifiers);
-            this.Invoke(sequenceExpression, yetUnassignedReturnedValue => yetUnassignedReturnedValue.ToListWithMods(queryModifiers)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(sequenceExpression, collection => collection.ToListWithMods(queryModifiers));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -169,7 +169,7 @@ namespace Aspectacular
             this.LogLinqModifierName("List(Expression<Func<TInstance, IQueryable>> linqQueryExpression)", queryModifiers: null);
             
             List<object> records = new List<object>();
-            this.Invoke(linqQueryExpression, yetUnassignedReturnedValue => ToOjbectList(yetUnassignedReturnedValue, ref records)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(linqQueryExpression, query => ToOjbectList(query, ref records));
 
             return records;
         }
@@ -191,7 +191,7 @@ namespace Aspectacular
             this.LogLinqModifierName("List(Expression<Func<TInstance, IEnumerable>> sequenceExpression)", queryModifiers: null);
             
             List<object> records = new List<object>();
-            this.Invoke(sequenceExpression, yetUnassignedReturnedValue => ToOjbectList(yetUnassignedReturnedValue, ref records)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(sequenceExpression, sequence => ToOjbectList(sequence, ref records));
 
             return records;
         }
@@ -213,7 +213,7 @@ namespace Aspectacular
 
             QueryModifiers mods = new QueryModifiers { Paging = new QueryModifiers.PagingInfo {PageIndex = pageIndex, PageSize = pageSize}};
 
-            this.Invoke(linqQueryExpression, yetUnassignedReturnedValue => yetUnassignedReturnedValue.ToIListWithMods(mods)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(linqQueryExpression, query => query.ToIListWithMods(mods));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -233,7 +233,7 @@ namespace Aspectacular
 
             QueryModifiers mods = new QueryModifiers { Paging = new QueryModifiers.PagingInfo { PageIndex = pageIndex, PageSize = pageSize } };
 
-            this.Invoke(sequenceExpression, yetUnassignedReturnedValue => yetUnassignedReturnedValue.ToListWithMods(mods)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(sequenceExpression, sequence => sequence.ToListWithMods(mods));
             List<TEntity> entityList = (List<TEntity>)this.ReturnedValue;
             return entityList;
         }
@@ -247,7 +247,7 @@ namespace Aspectacular
         public TEntity Single<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
             this.LogLinqModifierName("Single<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)", queryModifiers: null);
-            this.Invoke(linqQueryExpression, yetUnassignedReturnedValue => FirstOrDefault((yetUnassignedReturnedValue))); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(linqQueryExpression, query => FirstOrDefault(query)); 
             TEntity entity = (TEntity)this.ReturnedValue;
             return entity;
         }
@@ -271,7 +271,7 @@ namespace Aspectacular
         public TEntity Single<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
             this.LogLinqModifierName("Single<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)", queryModifiers: null);
-            this.Invoke(sequenceExpression, yetUnassignedReturnedValue => FirstOrDefault(yetUnassignedReturnedValue)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(sequenceExpression, collection => FirstOrDefault(collection));
             TEntity entity = (TEntity)this.ReturnedValue;
             return entity;
         }
@@ -286,7 +286,7 @@ namespace Aspectacular
             this.LogLinqModifierName("Single(Expression<Func<TInstance, IQueryable>> linqQueryExpression)", queryModifiers: null);
 
             object entity = null;
-            this.Invoke(linqQueryExpression, yetUnassignedReturnedValue => GetFirst(yetUnassignedReturnedValue, out entity)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(linqQueryExpression, query => GetFirst(query, out entity)); 
             return entity;
         }
 
@@ -306,7 +306,7 @@ namespace Aspectacular
             this.LogLinqModifierName("Single(Expression<Func<TInstance, IEnumerable>> sequenceExpression)", queryModifiers: null);
 
             object entity = null;
-            this.Invoke(sequenceExpression, yetUnassignedReturnedValue => GetFirst(yetUnassignedReturnedValue, out entity)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(sequenceExpression, collection => GetFirst(collection, out entity));
             return entity;
         }
 
@@ -339,7 +339,7 @@ namespace Aspectacular
         public long Count<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("Count<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)", queryModifiers);
-            this.Invoke(linqQueryExpression, yetUnassignedReturnedValue => LongCountInternal(yetUnassignedReturnedValue, queryModifiers)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(linqQueryExpression, query => LongCountInternal(query, queryModifiers));
             long count = (long)this.ReturnedValue;
             return count;
         }
@@ -354,7 +354,7 @@ namespace Aspectacular
         public long Count<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression, QueryModifiers queryModifiers = null)
         {
             this.LogLinqModifierName("Count<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)", queryModifiers);
-            this.Invoke(sequenceExpression, yetUnassignedReturnedValue => LongCountInternal(yetUnassignedReturnedValue, queryModifiers)); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(sequenceExpression, collection => LongCountInternal(collection, queryModifiers)); 
             long count = (long)this.ReturnedValue;
             return count;
         }
@@ -369,7 +369,7 @@ namespace Aspectacular
         public bool Exists<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
             this.LogLinqModifierName("Exists<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)", queryModifiers: null);
-            this.Invoke(linqQueryExpression, yetUnassignedReturnedValue => yetUnassignedReturnedValue.Exists()); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(linqQueryExpression, query => query.Exists());
             return (bool)this.ReturnedValue;
         }
 
@@ -382,7 +382,7 @@ namespace Aspectacular
         public bool Exists<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)
         {
             this.LogLinqModifierName("Exists<TEntity>(Expression<Func<TInstance, IEnumerable<TEntity>>> sequenceExpression)", queryModifiers: null);
-            this.Invoke(sequenceExpression, yetUnassignedReturnedValue => yetUnassignedReturnedValue.Any()); // Don't rename "yetUnassignedReturnedValue" variable! It's a special name used for an ugly hack.
+            this.Invoke(sequenceExpression, collection => collection.Any());
             return (bool)this.ReturnedValue;
         }
 

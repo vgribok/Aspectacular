@@ -24,7 +24,7 @@ namespace Aspectacular
     }
 
 
-    public static class TypeAndRefectionExtensions
+    public static class TypeAndReflectionExtensions
     {
         private static readonly string[][] simpleParmTypeNames =
         {
@@ -47,7 +47,7 @@ namespace Aspectacular
 
         private static readonly Dictionary<string, string> stdTypeCSharpNames = new Dictionary<string, string>();
 
-        static TypeAndRefectionExtensions()
+        static TypeAndReflectionExtensions()
         {
             foreach(string[] pair in simpleParmTypeNames)
                 stdTypeCSharpNames.Add(pair[0], pair[1]);
@@ -156,9 +156,6 @@ namespace Aspectacular
         /// <returns></returns>
         public static object EvaluateExpressionVerySlow(this Expression expression)
         {
-            if (expression.ToString() == "yetUnassignedReturnedValue") // an ugly hack to allow parameter evaluation for query modifiers before returned IQueryable itself is available.
-                return null;
-
             // This is really, veeery, terribly slow. 
             // The performance loss double-whammy is expression compilation plus reflection invocation.
             LambdaExpression lx = Expression.Lambda(expression);

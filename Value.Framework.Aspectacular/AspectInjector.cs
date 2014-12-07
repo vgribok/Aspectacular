@@ -480,8 +480,8 @@ namespace Aspectacular
         protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethodDelegate, LambdaExpression postProcessingMethodExpression)
         {
             this.interceptedMethod = interceptedMethodDelegate;
-            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper, this.ForceCallInvariance, checkInstanceVsStatic: true);
-            this.PostProcessingCallMetadata = postProcessingMethodExpression == null ? null : new InterceptedMethodMetadata(null, postProcessingMethodExpression, this.ForceCallInvariance, checkInstanceVsStatic: false);
+            this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper, this.ForceCallInvariance);
+            this.PostProcessingCallMetadata = postProcessingMethodExpression == null ? null : new PostProcessingMethodMetadata(null, postProcessingMethodExpression, this.ForceCallInvariance);
         }
 
         protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
