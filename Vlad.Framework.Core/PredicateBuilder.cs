@@ -13,6 +13,10 @@ using System.Reflection;
 
 namespace Aspectacular
 {
+    // ReSharper disable CSharpWarnings::CS1591
+    /// <summary>
+    /// Operators used for building dynamic query filtering expressions
+    /// </summary>
     public enum DynamicFilterOperator
     {
         Equal, NotEqual,
@@ -20,6 +24,7 @@ namespace Aspectacular
         LessThan, LessThanOrEqual,
         StringStartsWith, StringContains
     }
+    // ReSharper restore CSharpWarnings::CS1591
 
     /// <summary>
     ///     Enables the efficient, dynamic composition of query predicates.
@@ -190,6 +195,13 @@ namespace Aspectacular
             return exp;
         }
 
+        /// <summary>
+        /// Creates OrderBy() or OrderByDescending() expressions for a given TEntity.propertyName combination.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
         public static Expression<Func<TEntity, TKey>> GetSortingExpression<TEntity, TKey>(string propertyName)
         {
             var entityExp = Expression.Parameter(typeof(TEntity), "entity");

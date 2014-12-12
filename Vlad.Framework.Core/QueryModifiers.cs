@@ -20,9 +20,20 @@ namespace Aspectacular
     {
         #region Inner structures
 
+        /// <summary>
+        /// Specifies query paging, to bring a subset of records.
+        /// For Entity Framework, sorting is also required when paging is used.
+        /// </summary>
         public class PagingInfo
         {
+            /// <summary>
+            /// 0-based subset page index.
+            /// </summary>
             public int PageIndex { get; set; }
+
+            /// <summary>
+            /// Number of records in the page.
+            /// </summary>
             public int PageSize { get; set; }
 
             internal IQueryModifier<TEntity> GetModifier<TEntity>()
@@ -42,10 +53,24 @@ namespace Aspectacular
             }
         }
 
+        /// <summary>
+        /// Specifies dynamic filtering for a query.
+        /// </summary>
         public class FilterInfo
         {
+            /// <summary>
+            /// Name of the column (entity property) to filter on.
+            /// </summary>
             public string FilterColumnName { get; set; }
+
+            /// <summary>
+            /// Filter value.
+            /// </summary>
             public object FilterValue { get; set; }
+
+            /// <summary>
+            /// Filtering operator.
+            /// </summary>
             public DynamicFilterOperator FilterOperator { get; set; }
 
             internal IQueryModifier<TEntity> GetModifier<TEntity>()
@@ -73,14 +98,35 @@ namespace Aspectacular
         }
         // ReSharper restore PossiblyMistakenUseOfParamsMethod
 
+        /// <summary>
+        /// Sorting direction
+        /// </summary>
         public enum SortOrder
         {
-            Ascending, Descending
+            /// <summary>
+            /// Sorting in the order of increasing values.
+            /// </summary>
+            Ascending, 
+
+            /// <summary>
+            /// Sorting in the order of decreasing values.
+            /// </summary>
+            Descending
         }
 
+        /// <summary>
+        /// Specifies dynamic query sorting.
+        /// </summary>
         public class SortingInfo
         {
+            /// <summary>
+            /// Sort direction
+            /// </summary>
             public SortOrder SortOrder { get; set; }
+
+            /// <summary>
+            /// Database column or entity property used for sorting.
+            /// </summary>
             public string SortFieldName { get; set; }
 
             internal IQueryModifier<TEntity> GetModifier<TEntity>()
@@ -235,12 +281,27 @@ namespace Aspectacular
 
     public static class QueryModifiersExtensions
     {
+        /// <summary>
+        /// Applies dynamic modifiers to a query.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="query"></param>
+        /// <param name="queryModifiers"></param>
+        /// <returns></returns>
         public static IQueryable<TEntity> Augment<TEntity>(this IQueryable<TEntity> query, QueryModifiers queryModifiers)
         {
             IQueryModifier<TEntity>[] mods = queryModifiers.GetModifiers<TEntity>();
             return query.AugmentQuery(mods);
         }
 
+
+        /// <summary>
+        /// Applies dynamic modifiers to a collection.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="queryModifiers"></param>
+        /// <returns></returns>
         public static IEnumerable<TEntity> Augment<TEntity>(this IEnumerable<TEntity> collection, QueryModifiers queryModifiers)
         {
             IQueryModifier<TEntity>[] mods = queryModifiers.GetModifiers<TEntity>();
