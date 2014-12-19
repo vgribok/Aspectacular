@@ -42,5 +42,18 @@ namespace Aspectacular
         {
             return queryable.Select(x => (int?)1).FirstOrDefault().HasValue;
         }
-   }
+
+        /// <summary>
+        /// Distinct by a given field. Could be slow as it uses GroupBy.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="query"></param>
+        /// <param name="keySelector">Expression returning field used to determine distinct</param>
+        /// <returns></returns>
+        public static IQueryable<TEntity> DistinctSlow<TEntity, TKey>(this IQueryable<TEntity> query, Expression<Func<TEntity, TKey>> keySelector)
+        {
+            return query.GroupBy(keySelector).Select(r => r.FirstOrDefault());
+        }
+    }
 }
