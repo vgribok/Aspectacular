@@ -55,6 +55,7 @@
     <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="BlockingPoll.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Lazier.cs" />
     <Compile Include="QueryModifiers.cs" />
     <Compile Include="RelativeTimeSpan.cs" />
     <Compile Include="Disposer.cs" />
