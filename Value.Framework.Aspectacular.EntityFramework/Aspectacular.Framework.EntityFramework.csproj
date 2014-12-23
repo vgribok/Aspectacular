@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\Aspectacular.Framework.EntityFramework.XML</DocumentationFile>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>UnsecuredKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net45\EntityFramework.dll</HintPath>
@@ -57,6 +63,7 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="UnsecuredKey.snk" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.csproj">

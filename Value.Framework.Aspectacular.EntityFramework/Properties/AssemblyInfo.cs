@@ -46,4 +46,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("2.1.5.*")]
 //[assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: InternalsVisibleTo("Aspectacular.Framework.UnitTests")]
+[assembly: InternalsVisibleTo("Aspectacular.Framework.UnitTests, PublicKeyToken=123456")]

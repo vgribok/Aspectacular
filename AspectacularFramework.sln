@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Core", "Vlad.Framework.Core\Aspectacular.Framework.Core.csproj", "{07E5DA8B-6018-427B-9ECD-9C39AC691036}"
 EndProject
@@ -31,6 +31,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet UnitTest", "NuGet Projects\NuGet UnitTest\NuGet UnitTest.csproj", "{37363729-7EE5-40C9-B391-D023325B4DE3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Main", "NuGet.Main\NuGet.Main.csproj", "{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F1766EF3-BFF3-4C2C-A4CA-CC73D185EBCA}"
+	ProjectSection(SolutionItems) = preProject
+		UnsecuredKey.snk = UnsecuredKey.snk
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
