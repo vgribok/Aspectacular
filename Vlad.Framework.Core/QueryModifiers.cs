@@ -242,7 +242,7 @@ namespace Aspectacular
             if(this.Paging != null)
                 hashCodes[2] = this.Paging.GetHashCode();
 
-            if (hashCodes.Sum() == 0)
+            if (hashCodes.All(x => x == 0))
                 // ReSharper disable once BaseObjectGetHashCodeCallInGetHashCode
                 return base.GetHashCode();
 
