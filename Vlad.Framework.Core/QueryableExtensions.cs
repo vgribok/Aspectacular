@@ -55,5 +55,46 @@ namespace Aspectacular
         {
             return query.GroupBy(keySelector).Select(r => r.FirstOrDefault());
         }
+
+        internal class OuterJoinTemp<TOuter, TInner>
+        {
+            internal TOuter Outer { get; set; }
+            internal IEnumerable<TInner> InnerSet { get; set; }
+        }
+
+        public static IQueryable<TResult> FullOuterJoin<TLeft,TRight,TKey,TResult>(this IQueryable<TLeft> left, 
+            IQueryable<TRight> right, 
+            Expression<Func<TLeft,TKey>> leftKeySelector, 
+            Expression<Func<TRight,TKey>> rightKeySelector, 
+            Expression<Func<TLeft,TRight,TResult>> resultSelector) 
+            where TResult : new
+        {
+            Expression<Func<OuterJoinTemp<TLeft, TRight>, TRight, Tuple<TLeft, TRight>>> leftOuterExp = (j, r) => new Tuple<TLeft, TRight>(j.Outer, r);
+            Expression<Func<OuterJoinTemp<TRight, TLeft>, TLeft, Tuple<TLeft, TRight>>> rightOuterExp = (j, r) => new Tuple<TLeft, TRight>(r, j.Outer);
+
+            IQueryable<TResult> leftJoin = left.GroupJoin(right, leftKeySelector, rightKeySelector, 
+                                    (l,rs) => new OuterJoinTemp<TLeft, TRight> { Outer = l, InnerSet = rs})
+                                    .SelectMany(x => x.InnerSet.DefaultIfEmpty(), 
+                                                MakeJoinExpressionLeft(j => j.Outer, resultSelector)
+                                                );
+            IQueryable<TResult> rightJoin = right.GroupJoin(left, rightKeySelector, leftKeySelector, 
+                                    (r, ls) => new OuterJoinTemp<TRight, TLeft> { Outer = r, InnerSet = ls })
+                                    .SelectMany(x => x.InnerSet.DefaultIfEmpty(), (s,l) => resultSelector(l, s.Outer));
+
+            var fullOuter = leftJoin.Union(rightJoin);
+            return fullOuter;
+        }
+
+        private static Expression<Func<TLeft, IQueryable<TRight>, TResult>> MakeJoinExpressionLeft<TLeft, TRight, TResult>
+                            (Expression<Func<OuterJoinTemp<TLeft, TRight>, TLeft>> leftOuterExp,
+                             Expression<Func<TLeft,TRight,TResult>> resultSelector)
+        {
+            //(j, r) => new TResult
+            //    {
+            //            //ID1 = j.Outer.ID,
+            //            //ID2 = r.ID
+            //    }
+            throw new NotImplementedException();
+        }
     }
 }
