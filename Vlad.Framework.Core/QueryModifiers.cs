@@ -129,9 +129,15 @@ namespace Aspectacular
             /// </summary>
             public string SortFieldName { get; set; }
 
-            internal IQueryModifier<TEntity> GetModifier<TEntity>()
+            internal IQueryModifier<TEntity> GetModifier<TEntity>(bool isFirst)
             {
-                var mod = new Sorter<TEntity>(this.SortFieldName, this.SortOrder == SortOrder.Ascending);
+                Order<TEntity> mod;
+
+                if(isFirst)
+                    mod = new Order<TEntity>(this.SortFieldName, this.SortOrder == SortOrder.Ascending);
+                else
+                    mod = new ThenOrder<TEntity>(this.SortFieldName, this.SortOrder == SortOrder.Ascending);
+                
                 return mod;
             }
 
@@ -170,6 +176,16 @@ namespace Aspectacular
         public PagingInfo Paging { get; set; }
 
         #region Utility methods
+
+        /// <summary>
+        /// Factory method instantiating new query modifier object,
+        /// useful together with AddXxx() methods.
+        /// </summary>
+        /// <returns></returns>
+        public static QueryModifiers New()
+        {
+            return new QueryModifiers();
+        }
 
         /// <summary>
         /// A shortcut method to add sorting.
@@ -281,6 +297,29 @@ namespace Aspectacular
 
     public static class QueryModifiersExtensions
     {
+        /// <summary>
+        /// Returns false if query modifiers are going to modify the query,
+        /// and true if no changes to the query will be made.
+        /// </summary>
+        /// <param name="queryModifiers"></param>
+        /// <returns></returns>
+        public static bool IsEmpty(this QueryModifiers queryModifiers)
+        {
+            if(queryModifiers != null)
+            {
+                if(!queryModifiers.Filters.IsNullOrEmpty())
+                    return false;
+                
+                if(!queryModifiers.Sorting.IsNullOrEmpty())
+                    return false;
+
+                if(queryModifiers.Paging != null)
+                    return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Applies dynamic modifiers to a query.
         /// </summary>
@@ -495,9 +534,9 @@ namespace Aspectacular
         }
     }
 
-    internal class Sorter<TEntity> : IQueryModifier<TEntity>
+    internal class Order<TEntity> : IQueryModifier<TEntity>
     {
-        internal Sorter(NonEmptyString propertyName, bool isAscending)
+        internal Order(NonEmptyString propertyName, bool isAscending)
         {
             if(propertyName == null)
                 throw new ArgumentNullException("propertyName");
@@ -797,6 +836,12 @@ namespace Aspectacular
                 return null;
 
             Expression<Func<TEntity, TKey>> sortExpression = PredicateBuilder.GetSortingExpression<TEntity, TKey>(this.PropertyName);
+
+            return this.ApplySorting(query, sortExpression);
+        }
+
+        protected virtual IQueryable<TEntity> ApplySorting<TKey>(IQueryable<TEntity> query, Expression<Func<TEntity, TKey>> sortExpression)
+        {
             return this.IsAscending ? query.OrderBy(sortExpression) : query.OrderByDescending(sortExpression);
         }
 
@@ -806,7 +851,38 @@ namespace Aspectacular
                 return null;
 
             Func<TEntity, TKey> sortExpression = PredicateBuilder.GetSortingExpression<TEntity, TKey>(this.PropertyName).Compile();
+
+            return this.ApplySorting(colletion, sortExpression);
+        }
+
+        protected virtual IEnumerable<TEntity> ApplySorting<TKey>(IEnumerable<TEntity> colletion, Func<TEntity, TKey> sortExpression)
+        {
             return this.IsAscending ? colletion.OrderBy(sortExpression) : colletion.OrderByDescending(sortExpression);
+        }
+    }
+
+    internal class ThenOrder<TEntity> : Order<TEntity>
+    {
+        internal ThenOrder(NonEmptyString propertyName, bool isAscending) : base(propertyName, isAscending)
+        {
+        }
+
+        protected override IQueryable<TEntity> ApplySorting<TKey>(IQueryable<TEntity> query, Expression<Func<TEntity, TKey>> sortExpression)
+        {
+            IOrderedQueryable<TEntity> orderedQuery = query as IOrderedQueryable<TEntity>;
+            if (orderedQuery != null)
+                return this.IsAscending ? orderedQuery.ThenBy(sortExpression) : orderedQuery.ThenByDescending(sortExpression);
+
+            return base.ApplySorting(query, sortExpression);
+        }
+
+        protected override IEnumerable<TEntity> ApplySorting<TKey>(IEnumerable<TEntity> colletion, Func<TEntity, TKey> sortExpression)
+        {
+            IOrderedEnumerable<TEntity> ordered = colletion as IOrderedEnumerable<TEntity>;
+            if (ordered != null)
+                return this.IsAscending ? ordered.ThenBy(sortExpression) : ordered.ThenByDescending(sortExpression);
+
+            return base.ApplySorting(colletion, sortExpression);
         }
     }
 
@@ -824,8 +900,12 @@ namespace Aspectacular
             if(cmod.Filters != null)
                 modifiers.AddRange(cmod.Filters.Where(f => f != null).Select(f => f.GetModifier<TEntity>()));
 
-            if(cmod.Sorting != null)
-                modifiers.AddRange(cmod.Sorting.Where(s => s != null).Select(s => s.GetModifier<TEntity>()));
+            if(!cmod.Sorting.IsNullOrEmpty())
+            {
+                var betterSort = cmod.Sorting.Where(s => s != null).ToList();
+                modifiers.AddRange(betterSort.Take(1).Select(s => s.GetModifier<TEntity>(isFirst: true)));
+                modifiers.AddRange(betterSort.Skip(1).Select(s => s.GetModifier<TEntity>(isFirst: false)));
+            }
 
             if(cmod.Paging != null)
                 modifiers.Add(cmod.Paging.GetModifier<TEntity>());
