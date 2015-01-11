@@ -231,5 +231,24 @@ namespace Aspectacular.Test
             Assert.AreEqual("Lucy", customer.FirstName);
             Assert.AreEqual("Harrington", customer.LastName);
         }
+
+        [TestMethod]
+        public void TestFullOuterJoin()
+        {
+            IList<StateCity> stateCities = AwDal.List(db => db.QueryAllStateCities());
+            IList<StateZipCode> stateZipCodes = AwDal.List(db => db.QueryAllStateZipCodes());
+            IList<StateCityZip> stateCityZips = stateCities.FullOuterJoin(stateZipCodes, c => c.StateProvince, z => z.StateProvince,
+                (s, z) => new StateCityZip
+                    {
+                        StateProvince = s.StateProvince,
+                        PostalCode = z.PostalCode,
+                        City = s.City
+                    }
+                ).Distinct().ToList();
+            this.TestContext.WriteLine("OuterJoin count: {0}", stateCityZips.Count);
+
+            var items = AwDal.List(db => db.QueryAllStateCityZips());
+            this.TestContext.WriteLine("OuterJoin count: {0}", items.Count);
+        }
     }
 }
