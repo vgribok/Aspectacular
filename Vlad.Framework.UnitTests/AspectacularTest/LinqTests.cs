@@ -235,20 +235,11 @@ namespace Aspectacular.Test
         [TestMethod]
         public void TestFullOuterJoin()
         {
-            IList<StateCity> stateCities = AwDal.List(db => db.QueryAllStateCities());
-            IList<StateZipCode> stateZipCodes = AwDal.List(db => db.QueryAllStateZipCodes());
-            IList<StateCityZip> stateCityZips = stateCities.FullOuterJoin(stateZipCodes, c => c.StateProvince, z => z.StateProvince,
-                (s, z) => new StateCityZip
-                    {
-                        StateProvince = s.StateProvince,
-                        PostalCode = z.PostalCode,
-                        City = s.City
-                    }
-                ).Distinct().ToList();
-            this.TestContext.WriteLine("OuterJoin count: {0}", stateCityZips.Count);
+            var items1 = AwDal.Invoke(db => db.GetAllStateCityZips());
+            this.TestContext.WriteLine("In-memory OuterJoin count: {0}", items1.Count);
 
-            var items = AwDal.List(db => db.QueryAllStateCityZips());
-            this.TestContext.WriteLine("OuterJoin count: {0}", items.Count);
+            var items2 = AwDal.List(db => db.QueryAllStateCityZips());
+            this.TestContext.WriteLine("OuterJoin count: {0}", items2.Count);
         }
     }
 }

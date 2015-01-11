@@ -6,6 +6,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Aspectacular;
 
@@ -127,6 +128,24 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
                 );
 
             return stateCityZips;
+        }
+
+
+        public List<StateCityZip> GetAllStateCityZips()
+        {
+            IEnumerable<StateCity> cities = this.QueryAllStateCities().ToList();
+            IEnumerable<StateZipCode> zips = this.QueryAllStateZipCodes().ToList();
+
+            IEnumerable<StateCityZip> stateCityZips = cities.FullOuterJoin(zips, s => s.StateProvince, z => z.StateProvince,
+                (s, z) => new StateCityZip
+                    {
+                        StateProvince = s.StateProvince,
+                        PostalCode = z.PostalCode,
+                        City = s.City
+                    }
+                );
+
+            return stateCityZips.Distinct().ToList();
         }
     }
 
