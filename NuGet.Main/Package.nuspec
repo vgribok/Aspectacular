@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>Aspectacular.Main</id>
-      <version>2.1.6.0</version>
+      <version>2.1.7.0</version>
       <title>Aspectacular.Main</title>
         <authors>Vlad Hrybok</authors>
         <owners>Vlad Hrybok</owners>
@@ -12,8 +12,10 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>An AOP framework that can intercept any method call: instance or static, virtual or not. It's very easy to get started with, it has in-depth support of LINQ and comes with bunch of useful stock aspect classes for DAL, BL, Testing and Service tiers.</description>
         <summary>LINQ-friendly, easy-to-start Aspect-Oriented framework for .NET 4.5 enterprise development.</summary>
-        <releaseNotes>Enjoy!</releaseNotes>
-        <copyright>Copyright 2013-2014 Vlad Hrybok</copyright>
+        <releaseNotes>
+          -------------------- UPDATE in .NuSpec file --------------------
+        </releaseNotes>
+        <copyright>Copyright 2013-2015 Vlad Hrybok</copyright>
         <language>en-US</language>
         <tags>AOP Aspect-Oriented Aspect Framework Linq Enterprise IoC</tags>
         <dependencies>
