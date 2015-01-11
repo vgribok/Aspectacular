@@ -27,6 +27,17 @@ namespace Aspectacular
                             Func<TLeft, TKey> leftKeySelector, Func<TRight, TKey> rightKeySelector,
                             Func<TLeft, TRight, TResult> resultSelector)
         {
+            if (left == null)
+                throw new ArgumentNullException("left");
+            if (right == null)
+                throw new ArgumentNullException("right");
+            if (leftKeySelector == null)
+                throw new ArgumentNullException("leftKeySelector");
+            if (rightKeySelector == null)
+                throw new ArgumentNullException("rightKeySelector");
+            if (resultSelector == null)
+                throw new ArgumentNullException("resultSelector");
+
             // ReSharper disable PossibleMultipleEnumeration
             IEnumerable<TResult> leftJoin = left.GroupJoin(right, leftKeySelector, rightKeySelector,
                                     (l, rs) => new OuterJoinTemp<TLeft, TRight> { Outer = l, InnerSet = rs })
@@ -60,6 +71,17 @@ namespace Aspectacular
                                             Expression<Func<TLeft, TKey>> leftKeySelector, Expression<Func<TRight, TKey>> rightKeySelector,
                                             Expression<Func<TLeft, TRight, TResult>> resultSelector)
         {
+            if(left == null)
+                throw new ArgumentNullException("left");
+            if(right == null)
+                throw new ArgumentNullException("right");
+            if(leftKeySelector == null)
+                throw new ArgumentNullException("leftKeySelector");
+            if(rightKeySelector == null)
+                throw new ArgumentNullException("rightKeySelector");
+            if(resultSelector == null)
+                throw new ArgumentNullException("resultSelector");
+
             IQueryable<TResult> leftJoin = left.GroupJoin(right, leftKeySelector, rightKeySelector,
                                     (l, rs) => new OuterJoinTemp<TLeft, TRight> { Outer = l, InnerSet = rs })
                                     .SelectMany(ojt => ojt.InnerSet.DefaultIfEmpty(), MakeJoinExpressionLeft(resultSelector));
