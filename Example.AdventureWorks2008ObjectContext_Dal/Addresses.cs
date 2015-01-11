@@ -130,7 +130,6 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
             return stateCityZips;
         }
 
-
         public List<StateCityZip> GetAllStateCityZips()
         {
             IEnumerable<StateCity> cities = this.QueryAllStateCities().ToList();
@@ -145,7 +144,7 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
                     }
                 );
 
-            return stateCityZips.Distinct().ToList();
+            return stateCityZips.ToList();
         }
     }
 
@@ -177,6 +176,23 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
 
             bool same = this.PostalCode == other.PostalCode && this.City == other.City && this.StateProvince == other.StateProvince;
             return same;
+        }
+
+        /// <summary>
+        /// Serves as a hash function for a particular type. 
+        /// </summary>
+        /// <returns>
+        /// A hash code for the current <see cref="T:System.Object"/>.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            int hash = GetStringHash(this.City) ^ GetStringHash(this.StateProvince) ^ GetStringHash(this.PostalCode);
+            return hash;
+        }
+
+        private static int GetStringHash(string str)
+        {
+            return str == null ? 0 : str.GetHashCode();
         }
     }
 }

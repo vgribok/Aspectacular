@@ -399,14 +399,8 @@ namespace Aspectacular
 
         public static bool AreEqualEquitable<T>(this T x, T y) where T : IEquatable<T>
         {
-            T def = default(T);
-
-            if(def.Equals(x) && def.Equals(y))
-                // both are possible null
-                return true;
-
-            if(def.Equals(x)) // x is possible null, when y is not null.
-                return y.Equals(x);
+            if((object)x == null || (object)y == null)
+                return (object)x == null && (object)y == null;
 
             // neither is null
             return x.Equals(y);

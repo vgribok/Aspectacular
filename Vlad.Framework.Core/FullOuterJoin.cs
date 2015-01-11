@@ -10,6 +10,19 @@ namespace Aspectacular
 {
     public static partial class QueryableExtensions
     {
+        /// <summary>
+        /// Implements in-memory full outer join of two sets.
+        /// </summary>
+        /// <typeparam name="TLeft">Entity type of the left set of the join</typeparam>
+        /// <typeparam name="TRight">Entity type of the right set of the join</typeparam>
+        /// <typeparam name="TKey">Type of the join field</typeparam>
+        /// <typeparam name="TResult">Entity type of the result set</typeparam>
+        /// <param name="left">Left set of the join</param>
+        /// <param name="right">Right set of the join</param>
+        /// <param name="leftKeySelector">Delegate returning join column from the left set</param>
+        /// <param name="rightKeySelector">Delegate returning join column from the right set</param>
+        /// <param name="resultSelector">Delegate returning result entity based on two entities - one left and one right.</param>
+        /// <returns>Set including full outer join</returns>
         public static IEnumerable<TResult> FullOuterJoin<TLeft, TRight, TKey, TResult>(this IEnumerable<TLeft> left, IEnumerable<TRight> right,
                             Func<TLeft, TKey> leftKeySelector, Func<TRight, TKey> rightKeySelector,
                             Func<TLeft, TRight, TResult> resultSelector)
@@ -33,16 +46,16 @@ namespace Aspectacular
         /// Implements full outer join as a query that can be translated to T-SQL and other IQueryable-aware engines,
         /// and executed at the database engine.
         /// </summary>
-        /// <typeparam name="TLeft"></typeparam>
-        /// <typeparam name="TRight"></typeparam>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TResult"></typeparam>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <param name="leftKeySelector"></param>
-        /// <param name="rightKeySelector"></param>
-        /// <param name="resultSelector"></param>
-        /// <returns></returns>
+        /// <typeparam name="TLeft">Entity type of the left set of the join</typeparam>
+        /// <typeparam name="TRight">Entity type of the right set of the join</typeparam>
+        /// <typeparam name="TKey">Type of the join field</typeparam>
+        /// <typeparam name="TResult">Entity type of the result set</typeparam>
+        /// <param name="left">Left set of the join</param>
+        /// <param name="right">Right set of the join</param>
+        /// <param name="leftKeySelector">Expression returning join column from the left set</param>
+        /// <param name="rightKeySelector">Expression returning join column from the right set</param>
+        /// <param name="resultSelector">Expression returning result entity based on two entities - one left and one right.</param>
+        /// <returns>Query implementing full outer join</returns>
         public static IQueryable<TResult> FullOuterJoin<TLeft, TRight, TKey, TResult>(this IQueryable<TLeft> left, IQueryable<TRight> right,
                                             Expression<Func<TLeft, TKey>> leftKeySelector, Expression<Func<TRight, TKey>> rightKeySelector,
                                             Expression<Func<TLeft, TRight, TResult>> resultSelector)

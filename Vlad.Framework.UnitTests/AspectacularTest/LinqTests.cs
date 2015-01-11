@@ -240,6 +240,8 @@ namespace Aspectacular.Test
 
             var items2 = AwDal.List(db => db.QueryAllStateCityZips());
             this.TestContext.WriteLine("OuterJoin count: {0}", items2.Count);
+
+            Assert.AreEqual(items1.Count, items2.Count);
         }
     }
 }
