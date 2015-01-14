@@ -360,6 +360,11 @@ namespace Aspectacular
         }
 
 
+        private static object ExistsInternal<TEntity>(IQueryable<TEntity> query)
+        {
+            return query.Exists();
+        }
+
         /// <summary>
         ///     Adds Exists() to IQueryable return result.
         /// </summary>
@@ -369,7 +374,7 @@ namespace Aspectacular
         public bool Exists<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)
         {
             this.LogLinqModifierName("Exists<TEntity>(Expression<Func<TInstance, IQueryable<TEntity>>> linqQueryExpression)", queryModifiers: null);
-            this.Invoke(linqQueryExpression, query => query.Exists());
+            this.Invoke(linqQueryExpression, query => ExistsInternal(query));
             return (bool)this.ReturnedValue;
         }
 

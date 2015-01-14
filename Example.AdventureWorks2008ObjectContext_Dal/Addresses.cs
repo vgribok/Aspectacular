@@ -69,6 +69,11 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
             return q;
         }
 
+        public IQueryable<Address> SearchAddress(string addressString)
+        {
+            return this.Addresses.Where(x => x.AddressLine1.Contains(addressString));
+        }
+
         public IQueryable QueryUserCoutryStateCity(int customerID)
         {
             this.LogInformationData("customerID", customerID);

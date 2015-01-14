@@ -243,5 +243,15 @@ namespace Aspectacular.Test
 
             Assert.AreEqual(items1.Count, items2.Count);
         }
+
+        [TestMethod]
+        public void TestExistsExtensionMethod()
+        {
+            long barCount = AwDal.Count(db => db.SearchAddress("bar"));
+            Assert.IsTrue(barCount == 1);
+
+            bool addressExists = AwDal.Exists(db => db.SearchAddress("bar"));
+            Assert.IsTrue(addressExists);
+        }
     }
 }
