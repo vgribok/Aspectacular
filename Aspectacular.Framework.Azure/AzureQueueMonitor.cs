@@ -29,6 +29,10 @@ namespace Aspectacular
     public class AzureQueueMonitor : BlockingObjectPoll<List<CloudQueueMessage>>
     {
         protected readonly bool useAopProxyWhenAccessingQueue;
+        
+        /// <summary>
+        /// Azure queue to be monitored (polled).
+        /// </summary>
         public CloudQueue Queue { get; private set; }
 
         private readonly TimeSpan messageInvisibilityTime;
@@ -97,6 +101,7 @@ namespace Aspectacular
         }
     }
 
+    // ReSharper disable once CSharpWarnings::CS1591
     public static class AzureQueueExtensions
     {
         /// <summary>
