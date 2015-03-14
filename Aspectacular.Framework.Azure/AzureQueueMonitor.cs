@@ -78,7 +78,7 @@ namespace Aspectacular
         }
 
         /// <summary>
-        ///     Launches polling loop that invokes message-processing callback when messages arrived.
+        ///     Enables pub/sub patter by launching polling loop that invokes message-processing callback when messages arrived.
         ///     This is an alternative to using blocking WaitForPayload() method.
         /// </summary>
         /// <param name="messageProcessCallback">
@@ -91,13 +91,13 @@ namespace Aspectacular
         ///     Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return
         ///     control to the polling thread.
         /// </remarks>
-        public void RegisterMessageHandler(Action<CloudQueue, List<CloudQueueMessage>> messageProcessCallback = null)
+        public void Subscribe(Action<CloudQueue, List<CloudQueueMessage>> messageProcessCallback = null)
         {
             if(messageProcessCallback == null)
                 // ReSharper disable once RedundantBaseQualifier
-                base.RegisterCallbackHandler(payloadProcessCallback: null);
+                base.Subscribe(payloadProcessCallback: null);
             else
-                this.RegisterCallbackHandler(payload => messageProcessCallback(this.Queue, payload));
+                this.Subscribe(payload => messageProcessCallback(this.Queue, payload));
         }
     }
 
@@ -105,6 +105,7 @@ namespace Aspectacular
     public static class AzureQueueExtensions
     {
         /// <summary>
+        ///     Eliminates polling from getting a message off the regular Azure queue.
         ///     Blocks until either messages arrive, or smart polling is terminated.
         ///     Returns null if application is exiting or stop is signaled, otherwise non-empty collection of messages.
         ///     Uses smart polling with delays between attempts to dequeue messages, ensuring lows CPU utilization and not leaking
@@ -134,8 +135,9 @@ namespace Aspectacular
         }
 
         /// <summary>
-        ///     Launches polling loop that invokes message-processing callback when messages arrived.
-        ///     This is an alternative to using blocking WaitForPayload() method.
+        ///     Enable pub/sub pattern for regular Azure queues instead of polling by
+        ///     launching polling loop that invokes message-processing callback when messages arrived.
+        ///     This is an alternative to using blocking WaitForMessage() method.
         ///     Uses smart polling with delays between attempts to dequeue messages, ensuring lows CPU utilization and not leaking
         ///     money for Azure storage transactions.
         /// </summary>
@@ -163,7 +165,7 @@ namespace Aspectacular
         ///     Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return
         ///     control to the polling thread.
         /// </remarks>
-        public static AzureQueueMonitor RegisterMessageHandler(this CloudQueue queue, Action<CloudQueue, List<CloudQueueMessage>> messageProcessCallback,
+        public static AzureQueueMonitor Subscribe(this CloudQueue queue, Action<CloudQueue, List<CloudQueueMessage>> messageProcessCallback,
             int messageInvisibilityTimeMillisec, int maxCheckDelaySeconds = 60, bool useAopProxyWhenAccessingQueue = true)
         {
             if(queue == null)
@@ -172,7 +174,7 @@ namespace Aspectacular
                 throw new ArgumentNullException("messageProcessCallback");
 
             var qmon = new AzureQueueMonitor(queue, messageInvisibilityTimeMillisec, maxCheckDelaySeconds, useAopProxyWhenAccessingQueue);
-            qmon.RegisterMessageHandler(messageProcessCallback);
+            qmon.Subscribe(messageProcessCallback);
             return qmon;
         }
     }

@@ -15,7 +15,7 @@ namespace Aspectacular
 {
     /// <summary>
     ///     An adapter for turning non-blocking polling into
-    ///     either blocking wait or a callback.
+    ///     either blocking wait or a callback, enabling pub/sub pattern instead of having to poll.
     ///     User this class if null can be a valid payload.
     ///     If valid payload cannot be null, use BlockingObjectPoll class instead.
     /// </summary>
@@ -95,7 +95,7 @@ namespace Aspectacular
         ///     Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return
         ///     control to the polling thread.
         /// </remarks>
-        public async void RegisterCallbackHandler(Action<TPollRetVal> payloadProcessCallback = null)
+        public async void Subscribe(Action<TPollRetVal> payloadProcessCallback = null)
         {
             if(!this.IsStopped)
                 throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
