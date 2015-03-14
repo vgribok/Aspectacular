@@ -9,6 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Aspectacular
@@ -77,22 +78,18 @@ namespace Aspectacular
                 func(elem);
         }
 
-
         /// <summary>
         /// Lambda-style foreach loop starting new task to handle each element in the collection.
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
-        /// <returns>List of Task objects</returns>
-        public static List<Task> ForEachAsync(this IEnumerable collection, Action<object> asyncFunc)
+        /// <returns></returns>
+        public static IEnumerable<Task> ForEachAsync(this IEnumerable collection, Action<object> asyncFunc)
         {
-            if (collection == null)
+            if(collection == null)
                 return null;
 
-            var tasks = new List<Task>();
-            collection.ForEach(elem => Task.Run(() => asyncFunc(elem)));
-
-            return tasks;
+            return collection.ForEachAsync(asyncFunc, CancellationToken.None);
         }
 
         /// <summary>
@@ -100,16 +97,42 @@ namespace Aspectacular
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>List of Task objects</returns>
-        public static List<Task> ForEachAsync<T>(this IEnumerable<T> collection, Action<T> asyncFunc)
+        public static IEnumerable<Task> ForEachAsync(this IEnumerable collection, Action<object> asyncFunc, CancellationToken cancellationToken)
+        {
+            foreach(object elem in collection)
+            {
+                object param = elem;
+                yield return Task.Run(() => asyncFunc(param), cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Lambda-style foreach loop starting new task to handle each element in the collection.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<Task> ForEachAsync<T>(this IEnumerable<T> collection, Action<T> asyncFunc)
+        {
+            return collection.ForEachAsync(asyncFunc, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Lambda-style foreach loop starting new task to handle each element in the collection.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>List of Task objects</returns>
+        public static IEnumerable<Task> ForEachAsync<T>(this IEnumerable<T> collection, Action<T> asyncFunc, CancellationToken cancellationToken)
         {
             if (collection == null)
                 return null;
 
-            var tasks = new List<Task>();
-            collection.ForEach(elem => Task.Run(() => asyncFunc(elem)));
-
-            return tasks;
+            return collection.Select(elem => Task.Run(() => asyncFunc(elem), cancellationToken));
         }
 
 

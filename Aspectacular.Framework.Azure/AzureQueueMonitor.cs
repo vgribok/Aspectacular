@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace Aspectacular
@@ -26,7 +27,7 @@ namespace Aspectacular
     ///     This class implements smart queue check loop, with increasing delays - up to specified limit, ensuring that CPU
     ///     is free most of the time and saving money on
     /// </remarks>
-    public class AzureQueueMonitor : BlockingObjectPoll<List<CloudQueueMessage>>
+    public class AzureQueueMonitor : BlockingObjectPoll<IList<CloudQueueMessage>>
     {
         protected readonly bool useAopProxyWhenAccessingQueue;
         
@@ -60,18 +61,18 @@ namespace Aspectacular
         /// </summary>
         /// <returns>Null if no messages were in the queue. List of dequeued messages otherwise.</returns>
         /// <remarks>Can be synchronized as it does "lock(this) {" before attempting to dequeue messages.</remarks>
-        protected override List<CloudQueueMessage> PollEasy()
+        protected override IList<CloudQueueMessage> PollEasy()
         {
             const int maxMessageCount = 32;
 
-            List<CloudQueueMessage> messages;
+            IList<CloudQueueMessage> messages;
 
             lock(this)
             {
                 if(this.useAopProxyWhenAccessingQueue)
-                    messages = (List<CloudQueueMessage>)this.Queue.GetProxy().Invoke(q => q.GetMessages(maxMessageCount, messageInvisibilityTime, null, null));
+                    messages = this.Queue.GetProxy().List(q => q.GetMessages(maxMessageCount, messageInvisibilityTime, null, null));
                 else
-                    messages = (List<CloudQueueMessage>)this.Queue.GetMessages(maxMessageCount, messageInvisibilityTime, null, null);
+                    messages = this.Queue.GetMessages(maxMessageCount, messageInvisibilityTime, null, null).ToList();
             }
 
             return messages == null || messages.Count == 0 ? null : messages;
@@ -91,7 +92,7 @@ namespace Aspectacular
         ///     Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return
         ///     control to the polling thread.
         /// </remarks>
-        public void Subscribe(Action<CloudQueue, List<CloudQueueMessage>> messageProcessCallback = null)
+        public void Subscribe(Action<CloudQueue, IList<CloudQueueMessage>> messageProcessCallback = null)
         {
             if(messageProcessCallback == null)
                 // ReSharper disable once RedundantBaseQualifier
@@ -122,14 +123,14 @@ namespace Aspectacular
         ///     to call queue access functions. Set to false to call queue operations directly.
         /// </param>
         /// <returns>Returns null if application is exiting or stop is signaled, otherwise non-empty collection of messages.</returns>
-        public static List<CloudQueueMessage> WaitForMessages(this CloudQueue queue, int messageInvisibilityTimeMillisec, int maxCheckDelaySeconds = 60, bool useAopProxyWhenAccessingQueue = true)
+        public static IList<CloudQueueMessage> WaitForMessages(this CloudQueue queue, int messageInvisibilityTimeMillisec, int maxCheckDelaySeconds = 60, bool useAopProxyWhenAccessingQueue = true)
         {
             if(queue == null)
                 throw new ArgumentNullException("queue");
 
             using(var qmon = new AzureQueueMonitor(queue, messageInvisibilityTimeMillisec, maxCheckDelaySeconds, useAopProxyWhenAccessingQueue))
             {
-                List<CloudQueueMessage> messages = qmon.WaitForPayload();
+                IList<CloudQueueMessage> messages = qmon.WaitForPayload();
                 return messages;
             }
         }
@@ -165,7 +166,7 @@ namespace Aspectacular
         ///     Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return
         ///     control to the polling thread.
         /// </remarks>
-        public static AzureQueueMonitor Subscribe(this CloudQueue queue, Action<CloudQueue, List<CloudQueueMessage>> messageProcessCallback,
+        public static AzureQueueMonitor Subscribe(this CloudQueue queue, Action<CloudQueue, IList<CloudQueueMessage>> messageProcessCallback,
             int messageInvisibilityTimeMillisec, int maxCheckDelaySeconds = 60, bool useAopProxyWhenAccessingQueue = true)
         {
             if(queue == null)
