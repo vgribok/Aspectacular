@@ -134,7 +134,7 @@ namespace Aspectacular
                 // Push messages to destination queues in parallel.
                 this.DestinationQueues.AsParallel().ForAll(destQueue => PostMessagesToDestQueue(destQueue.Queue, messageBodies));
 
-            this.LogInformation("Done posting {0} messages in {1} queues. Elapsed {2}.", inboundMessages.Count, this.DestinationQueues.Count, stopWatch.Elapsed);
+            this.LogInformation("Done forwarding {0} messages to {1} queues. Elapsed {2}.", inboundMessages.Count, this.DestinationQueues.Count, stopWatch.Elapsed);
             stopWatch.Reset();
             stopWatch.Start();
 
