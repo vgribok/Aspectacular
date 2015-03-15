@@ -121,7 +121,7 @@ namespace Aspectacular
         /// </summary>
         public override void Step_7_AfterEverythingSaidAndDone()
         {
-            this.RecordStepTime("Finished execution");
+            this.RecordStepTime("Finished execution", forceDetail: true);
             this.stopwatch.Stop();
         }
 
@@ -129,17 +129,17 @@ namespace Aspectacular
         /// Records elapsed time for a given step.
         /// </summary>
         /// <param name="stepName"></param>
-        protected void RecordStepTime(string stepName)
+        /// <param name="forceDetail">Pass true to record data for the step even if this.Detail=false.</param>
+        protected void RecordStepTime(string stepName, bool forceDetail = false)
         {
             if (!this.stopwatch.IsRunning)
             {
                 this.RecordStartTime();
             }
-            else if (this.Detailed)
+            else if (this.Detailed || forceDetail)
             {
-                long elapsedTicks = stopwatch.ElapsedTicks;
-                this.LogInformationWithKey("Elapsed time since start till " + stepName, "{0}", new TimeSpan(elapsedTicks));
-                this.LogInformationData("Elapsed ticks since start till " + stepName, elapsedTicks);
+                this.LogInformationData("Elapsed time since start till " + stepName, this.stopwatch.Elapsed);
+                this.LogInformationData("Elapsed ticks since start till " + stepName, stopwatch.ElapsedTicks);
             }
         }
     }
