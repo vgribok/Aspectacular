@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
 using System.Xml.Serialization;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.Storage;
@@ -77,15 +79,16 @@ namespace Aspectacular
         /// For serialization purposes only. Do not use directly. Use InitialInvisibilityDelay instead.
         /// </summary>
         [XmlAttribute]
-        public int? InitialInvisibilityDelayMillisec
+        [DefaultValue(0)]
+        public int InitialInvisibilityDelayMillisec
         {
-            get { return this.InitialInvisibilityDelay == null ? null : (int?)this.InitialInvisibilityDelay.Value.TotalMilliseconds; }
+            get { return this.InitialInvisibilityDelay == null ? 0 : (int)this.InitialInvisibilityDelay.Value.TotalMilliseconds; }
             set
             {
-                if(value == null)
+                if(value < 1)
                     this.InitialInvisibilityDelay = null;
                 else
-                    this.InitialInvisibilityDelay = new TimeSpan(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: value.Value);
+                    this.InitialInvisibilityDelay = new TimeSpan(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: value);
             }
         }
 
