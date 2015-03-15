@@ -42,6 +42,7 @@ namespace Aspectacular
         /// Message transformation hook. Set it to have an ability to modify the message after it picked 
         /// from the source queue and inserted into the destination queue.
         /// </summary>
+        [XmlIgnore]
         public Func<CloudQueueMessage, CloudQueueMessage> OptionalThreadSafeMessageTransformer { get; set; }
 
         /// <summary>
