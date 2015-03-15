@@ -15,10 +15,11 @@ namespace Aspectacular
     public class AzureQueueMulticastRouteConfiguration : List<AzureQueueMulticastRoute>
     {
         /// <summary>
-        /// Starts multicast relay of Azure queue messages for all routes.
+        /// Starts asynchronous multicast relay of Azure queue messages for all routes,
+        /// and immediately returns control.
         /// </summary>
         /// <returns>Count of routes that have started successfully.</returns>
-        public int Start()
+        public int BeginAsyncMessageForwarding()
         {
             int successfulStartCount = this.Count(route => route.BeginAsyncMessageForwarding());
 
@@ -31,7 +32,7 @@ namespace Aspectacular
         /// <summary>
         /// Stops relaying Azure queue messages for all routes.
         /// </summary>
-        public void Stop()
+        public void EndMessageForwarding()
         {
             this.ForEach(route => route.EndMessageForwarding());
         }
