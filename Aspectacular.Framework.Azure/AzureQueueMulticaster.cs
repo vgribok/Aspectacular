@@ -88,7 +88,7 @@ namespace Aspectacular
         /// <param name="inboundMessages"></param>
         protected void RelayMessages(CloudQueue sourceQueue, IList<CloudQueueMessage> inboundMessages)
         {
-            this.GetProxy().Invoke(() => RelayMessagesInternal(sourceQueue, inboundMessages));
+            this.GetProxy().Invoke(inst => inst.RelayMessagesInternal(sourceQueue, inboundMessages));
         }
 
         /// <summary>
