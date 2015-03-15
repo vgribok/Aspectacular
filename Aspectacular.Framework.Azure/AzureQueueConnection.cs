@@ -73,6 +73,52 @@ namespace Aspectacular
     /// </summary>
     public class AzureDestinationQueueConnection : AzureQueueConnection
     {
+        /// <summary>
+        /// For serialization purposes only. Do not use directly. Use InitialInvisibilityDelay instead.
+        /// </summary>
+        [XmlAttribute]
+        public int? InitialInvisibilityDelayMillisec
+        {
+            get { return this.InitialInvisibilityDelay == null ? null : (int?)this.InitialInvisibilityDelay.Value.TotalMilliseconds; }
+            set
+            {
+                if(value == null)
+                    this.InitialInvisibilityDelay = null;
+                else
+                    this.InitialInvisibilityDelay = new TimeSpan(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: value.Value);
+            }
+        }
+
+        /// <summary>
+        /// Optional QueueRequestOptions for posting messages to the destination queue.
+        /// </summary>
+        [XmlIgnore]
+        public QueueRequestOptions RequestOptions { get; set; }
+
+        /// <summary>
+        /// Provides a way to supply An Microsoft.WindowsAzure.Storage.OperationContext object 
+        /// that represents the context for the current operation, when posting forwarding a message to the destination quueue.
+        /// </summary>
+        [XmlIgnore]
+        public Func<AzureDestinationQueueConnection, OperationContext> ContextSupplier { get; set; }
+
+        /// <summary>
+        /// Specifies interval of time from now during which the message will be invisible.
+        /// If null then the message will be visible immediately.
+        /// </summary>
+        [XmlIgnore]
+        public TimeSpan? InitialInvisibilityDelay { get; set; }
+
+        /// <summary>
+        /// Posts message to the queue using context properties.
+        /// </summary>
+        /// <param name="outboundMessage"></param>
+        /// <param name="ttl"></param>
+        public virtual void AddMessage(CloudQueueMessage outboundMessage, TimeSpan? ttl = null)
+        {
+            OperationContext context = this.ContextSupplier == null ? null : this.ContextSupplier(this);
+            this.Queue.AddMessage(outboundMessage, ttl, this.InitialInvisibilityDelay, this.RequestOptions, context);
+        }
     }
 
     /// <summary>

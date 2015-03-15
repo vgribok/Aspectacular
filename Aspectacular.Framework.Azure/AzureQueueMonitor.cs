@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace Aspectacular
@@ -27,9 +28,16 @@ namespace Aspectacular
     ///     This class implements smart queue check loop, with increasing delays - up to specified limit, ensuring that CPU
     ///     is free most of the time and saving money on
     /// </remarks>
-    public class AzureQueueMonitor : BlockingObjectPoll<IList<CloudQueueMessage>>
+    public class AzureQueuePicker : BlockingObjectPoll<IList<CloudQueueMessage>>
     {
+        /// <summary>
+        /// Maximum number of messages that can be picked from a queue at any given time.
+        /// </summary>
+        public const int MaxMessageCountForPicking = 32;
+
         protected readonly bool useAopProxyWhenAccessingQueue;
+        protected QueueRequestOptions requestOptions;
+        protected int messagePickCount = MaxMessageCountForPicking;
         
         /// <summary>
         /// Azure queue to be monitored (polled).
@@ -48,12 +56,21 @@ namespace Aspectacular
         ///     Set to true to use Aspectacular AOP proxy with process-wide set of aspects,
         ///     to call queue access functions. Set to false to call queue operations directly.
         /// </param>
-        public AzureQueueMonitor(CloudQueue queue, int messageInvisibilityTimeMillisec, int maxCheckDelaySeconds = 60, bool useAopProxyWhenAccessingQueue = true)
+        /// <param name="requestOptions"></param>
+        /// <param name="messagePickCount">Number of messages to be dequeued at a time. Can't exceed MaxMessageCountForPicking.</param>
+        public AzureQueuePicker(CloudQueue queue, int messageInvisibilityTimeMillisec, 
+                        int maxCheckDelaySeconds = 60, 
+                        bool useAopProxyWhenAccessingQueue = true,
+                        QueueRequestOptions requestOptions = null,
+                        int messagePickCount = MaxMessageCountForPicking
+            )
             : base(null, maxCheckDelaySeconds * 1000)
         {
             this.Queue = queue;
             this.useAopProxyWhenAccessingQueue = useAopProxyWhenAccessingQueue;
             this.messageInvisibilityTime = new TimeSpan(days: 0, hours: 0, minutes: 0, seconds: 0, milliseconds: messageInvisibilityTimeMillisec);
+            this.requestOptions = requestOptions;
+            this.messagePickCount = messagePickCount;
         }
 
         /// <summary>
@@ -63,16 +80,16 @@ namespace Aspectacular
         /// <remarks>Can be synchronized as it does "lock(this) {" before attempting to dequeue messages.</remarks>
         protected override IList<CloudQueueMessage> PollEasy()
         {
-            const int maxMessageCount = 32;
-
             IList<CloudQueueMessage> messages;
+
+            OperationContext context = this.GetOperationContext();
 
             lock(this)
             {
                 if(this.useAopProxyWhenAccessingQueue)
-                    messages = this.Queue.GetProxy().List(q => q.GetMessages(maxMessageCount, messageInvisibilityTime, null, null));
+                    messages = this.Queue.GetProxy().List(q => q.GetMessages(messagePickCount, messageInvisibilityTime, this.requestOptions, context));
                 else
-                    messages = this.Queue.GetMessages(maxMessageCount, messageInvisibilityTime, null, null).ToList();
+                    messages = this.Queue.GetMessages(messagePickCount, messageInvisibilityTime, this.requestOptions, context).ToList();
             }
 
             return messages == null || messages.Count == 0 ? null : messages;
@@ -99,6 +116,16 @@ namespace Aspectacular
                 base.Subscribe(payloadProcessCallback: null);
             else
                 this.Subscribe(payload => messageProcessCallback(this.Queue, payload));
+        }
+
+        /// <summary>
+        /// Returns OperationContext for picking a message from the queue.
+        /// Default (base class) implementation returns null.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual OperationContext GetOperationContext()
+        {
+            return null;
         }
     }
 
@@ -128,7 +155,7 @@ namespace Aspectacular
             if(queue == null)
                 throw new ArgumentNullException("queue");
 
-            using(var qmon = new AzureQueueMonitor(queue, messageInvisibilityTimeMillisec, maxCheckDelaySeconds, useAopProxyWhenAccessingQueue))
+            using(var qmon = new AzureQueuePicker(queue, messageInvisibilityTimeMillisec, maxCheckDelaySeconds, useAopProxyWhenAccessingQueue))
             {
                 IList<CloudQueueMessage> messages = qmon.WaitForPayload();
                 return messages;
@@ -166,7 +193,7 @@ namespace Aspectacular
         ///     Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return
         ///     control to the polling thread.
         /// </remarks>
-        public static AzureQueueMonitor Subscribe(this CloudQueue queue, Action<CloudQueue, IList<CloudQueueMessage>> messageProcessCallback,
+        public static AzureQueuePicker Subscribe(this CloudQueue queue, Action<CloudQueue, IList<CloudQueueMessage>> messageProcessCallback,
             int messageInvisibilityTimeMillisec, int maxCheckDelaySeconds = 60, bool useAopProxyWhenAccessingQueue = true)
         {
             if(queue == null)
@@ -174,7 +201,7 @@ namespace Aspectacular
             if(messageProcessCallback == null)
                 throw new ArgumentNullException("messageProcessCallback");
 
-            var qmon = new AzureQueueMonitor(queue, messageInvisibilityTimeMillisec, maxCheckDelaySeconds, useAopProxyWhenAccessingQueue);
+            var qmon = new AzureQueuePicker(queue, messageInvisibilityTimeMillisec, maxCheckDelaySeconds, useAopProxyWhenAccessingQueue);
             qmon.Subscribe(messageProcessCallback);
             return qmon;
         }

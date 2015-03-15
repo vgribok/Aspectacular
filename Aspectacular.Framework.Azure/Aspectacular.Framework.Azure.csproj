@@ -75,6 +75,7 @@
     <Compile Include="AzureQueueConnection.cs" />
     <Compile Include="AzureQueueMonitor.cs" />
     <Compile Include="AzureQueueMulticaster.cs" />
+    <Compile Include="AzureQueueMulticastRouteConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

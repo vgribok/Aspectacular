@@ -16,7 +16,7 @@ namespace Aspectacular
     /// </summary>
     public class AzureQueueMulticastRoute : IDisposable, ICallLogger
     {
-        protected AzureQueueMonitor queueMonitor;
+        protected AzureQueuePicker queueMonitor;
 
         // ReSharper disable once EmptyConstructor
         /// <summary>
@@ -25,6 +25,8 @@ namespace Aspectacular
         {
             this.DestinationQueues = new List<AzureDestinationQueueConnection>();
         }
+
+        #region Properties
 
         /// <summary>
         /// Specifies an Azure queue from which messages will be removed
@@ -41,17 +43,27 @@ namespace Aspectacular
         /// <summary>
         /// Message transformation hook. Set it to have an ability to modify the message after it picked 
         /// from the source queue and inserted into the destination queue.
+        /// Ensure this is a thread-safe method as it may be called in parallel, and for out-of-order messages.
         /// </summary>
         [XmlIgnore]
         public Func<CloudQueueMessage, CloudQueueMessage> OptionalThreadSafeMessageTransformer { get; set; }
 
         /// <summary>
-        /// Starts Azure queue multicast relay of messages for the route.
+        /// Allows providing an alternative way of instantiating AzureQueuePicker or its subclass.
+        /// </summary>
+        [XmlIgnore]
+        public Func<AzureQueueMulticastRoute,AzureQueuePicker> OptionalQueueMonitorInjector { get; set; }
+
+        #endregion Properties
+
+        /// <summary>
+        /// Starts asynchronous Azure queue multicast relaying of messages for the route,
+        /// and immediately returns control.
         /// </summary>
         /// <returns></returns>
-        public bool Start()
+        public bool BeginAsyncMessageForwarding()
         {
-            this.Stop();
+            this.EndMessageForwarding();
 
             if (this.SourceQueue.Queue == null)
             {
@@ -70,15 +82,44 @@ namespace Aspectacular
 
             lock (this)
             {
-                this.queueMonitor = this.SourceQueue.Queue.Subscribe(
-                    this.RelayMessages,
-                    this.SourceQueue.MessageInivisibilityTimeMillisec,
-                    this.SourceQueue.MaxDelayBetweenDequeueAttemptsSeconds,
-                    useAopProxyWhenAccessingQueue: false
-                    );
+                this.queueMonitor = this.InstantiateQueueMonitor();
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Stops route's message relay.
+        /// </summary>
+        public void EndMessageForwarding()
+        {
+            lock (this)
+            {
+                if (this.queueMonitor != null)
+                {
+                    queueMonitor.Stop();
+                    this.queueMonitor = null;
+                }
+            }
+        }
+
+        #region Implementation Methods
+
+        private AzureQueuePicker InstantiateQueueMonitor()
+        {
+            if (this.OptionalQueueMonitorInjector != null)
+            {
+                AzureQueuePicker qmon = this.OptionalQueueMonitorInjector(this);
+                qmon.Subscribe(this.RelayMessages);
+                return qmon;
+            }
+
+            return this.SourceQueue.Queue.Subscribe(
+                this.RelayMessages,
+                this.SourceQueue.MessageInivisibilityTimeMillisec,
+                this.SourceQueue.MaxDelayBetweenDequeueAttemptsSeconds,
+                useAopProxyWhenAccessingQueue: false
+                );
         }
 
         /// <summary>
@@ -110,222 +151,114 @@ namespace Aspectacular
             var stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            if(this.OptionalThreadSafeMessageTransformer != null)
-            {   // Transform messages before requeueing them.
-                
-                if(inboundMessages.Count < 5)
-                    // When we have a few messages, transform them sequentially.
-                    inboundMessages = inboundMessages.Select(msg => this.OptionalThreadSafeMessageTransformer(msg)).ToList();
-                else
-                    // When there are many messages, transform them in parallel.
-                    inboundMessages = inboundMessages.AsParallel().AsOrdered().Select(msg => this.OptionalThreadSafeMessageTransformer(msg)).ToList();
+            inboundMessages = this.TransformInboundMessages(inboundMessages, stopWatch);
 
-                this.LogInformation("Done transforming {0} messages. Elapsed {1}.", inboundMessages.Count, stopWatch.Elapsed);
-                stopWatch.Reset();
-                stopWatch.Start();
-            }
+            this.ForwardMessages(inboundMessages.Count, inboundMessages, stopWatch);
 
-            IEnumerable<byte[]> messageBodies = inboundMessages.Select(msg => msg.AsBytes);
+            this.DeleteSourceMessages(sourceQueue, inboundMessages, stopWatch);
+        }
 
-            if (this.DestinationQueues.Count == 1)
+        private void ForwardMessages(int inboundMessageCount, IList<CloudQueueMessage> inboundMessages, Stopwatch stopWatch)
+        {
+            if(this.DestinationQueues.Count == 1)
                 // Special case: no need to incur the overhead of parallelism.
-                PostMessagesToDestQueue(this.DestinationQueues[0].Queue, messageBodies);
+                PostMessagesToDestQueue(this.DestinationQueues[0], inboundMessages);
             else
                 // Push messages to destination queues in parallel.
-                this.DestinationQueues.AsParallel().ForAll(destQueue => PostMessagesToDestQueue(destQueue.Queue, messageBodies));
+                this.DestinationQueues.AsParallel().ForAll(destQueue => PostMessagesToDestQueue(destQueue, inboundMessages));
 
-            this.LogInformation("Done forwarding {0} messages to {1} queues. Elapsed {2}.", inboundMessages.Count, this.DestinationQueues.Count, stopWatch.Elapsed);
+            this.LogInformation("Done forwarding {0} messages to {1} queues. Elapsed {2}.", inboundMessageCount, this.DestinationQueues.Count, stopWatch.Elapsed);
+            stopWatch.Reset();
+            stopWatch.Start();
+        }
+
+        private IList<CloudQueueMessage> TransformInboundMessages(IList<CloudQueueMessage> inboundMessages, Stopwatch stopWatch)
+        {
+            if(this.OptionalThreadSafeMessageTransformer == null)
+                return inboundMessages;
+
+            // Transform messages before requeueing them.
+
+            if(inboundMessages.Count < 5)
+                // When we have a few messages, transform them sequentially.
+                inboundMessages = inboundMessages.Select(msg => this.OptionalThreadSafeMessageTransformer(msg)).ToList();
+            else
+                // When there are many messages, transform them in parallel.
+                inboundMessages = inboundMessages.AsParallel().AsOrdered().Select(msg => this.OptionalThreadSafeMessageTransformer(msg)).ToList();
+
+            this.LogInformation("Done transforming {0} messages. Elapsed {1}.", inboundMessages.Count, stopWatch.Elapsed);
             stopWatch.Reset();
             stopWatch.Start();
 
+            return inboundMessages;
+        }
+
+        // ReSharper disable once UnusedParameter.Local
+        private int PostMessagesToDestQueue(AzureDestinationQueueConnection destQueue, IEnumerable<CloudQueueMessage> inboundMessages)
+        {
+            var outboundMessages = this.ConvertInboundMessagesToOutbound(inboundMessages).ToList();
+
+            outboundMessages.ForEach(outMsgTuple => this.PostMessageToDestQueue(destQueue, outMsgTuple.Item1, outMsgTuple.Item2));
+
+            return outboundMessages.Count();
+        }
+
+        private IEnumerable<Tuple<CloudQueueMessage, TimeSpan?>> ConvertInboundMessagesToOutbound(IEnumerable<CloudQueueMessage> inboundMessages)
+        {
+            foreach(CloudQueueMessage inboundMessage in inboundMessages)
+            {
+                if(inboundMessage.DequeueCount > 1)
+                    this.LogWarning("Message {0} from queue \"{1}\" has been dequeued before {2} times.", inboundMessage.Id, this.SourceQueue.Queue.Name, inboundMessage.DequeueCount);
+
+                TimeSpan? ttl = inboundMessage.ExpirationTime == null ? (TimeSpan?)null : inboundMessage.ExpirationTime.Value - DateTimeOffset.Now;
+                CloudQueueMessage outboundMessage = new CloudQueueMessage(inboundMessage.AsBytes);
+                
+                yield return new Tuple<CloudQueueMessage, TimeSpan?>(outboundMessage, ttl);
+            }
+        }
+
+        private void PostMessageToDestQueue(AzureDestinationQueueConnection destQueue, CloudQueueMessage outboundMessage, TimeSpan? ttl)
+        {
+            CloudQueueMessage outMsg = outboundMessage;
+
+            try
+            {
+                destQueue.AddMessage(outMsg, ttl);
+            }
+            catch(StorageException ex)
+            {
+                const int queueNotFound = -2146233088;
+                if(ex.HResult != queueNotFound) // Queue not found
+                    throw;
+
+                this.LogWarning("Queue \"{0}\" not found. Recreating.", destQueue.Queue.Name);
+                // Re-create the queue and retry
+                destQueue.Queue.CreateIfNotExists();
+                destQueue.AddMessage(outMsg, ttl);
+            }
+        }
+
+        private void DeleteSourceMessages(CloudQueue sourceQueue, IList<CloudQueueMessage> inboundMessages, Stopwatch stopWatch)
+        {
             inboundMessages.ForEach(inMsg => sourceQueue.DeleteMessage(inMsg));
             this.LogInformation("Done deleting {0} messages from {1} queue. Elapsed {2}.", inboundMessages.Count, sourceQueue.Name, stopWatch.Elapsed);
         }
 
-        // ReSharper disable once UnusedParameter.Local
-        private int PostMessagesToDestQueue(CloudQueue destQueue, IEnumerable<byte[]> messageBodies)
+        #endregion Implementation Methods
+
+        #region Interface Implementations
+
+        void IDisposable.Dispose()
         {
-            IEnumerable<CloudQueueMessage> outboudMessages = messageBodies.Select(msgBody => new CloudQueueMessage(msgBody));
-
-            int count = 0;
-            foreach (CloudQueueMessage outboundMessage in outboudMessages)
-            {
-                TimeSpan? ttl = outboundMessage.ExpirationTime == null ? (TimeSpan?)null : outboundMessage.ExpirationTime.Value - DateTimeOffset.Now;
-
-                CloudQueueMessage outMsg = outboundMessage;
-
-                try
-                {
-                    destQueue.AddMessage(outMsg, ttl, initialVisibilityDelay: null, options: null, operationContext: null);
-                }
-                catch (StorageException ex)
-                {
-                    const int queueNotFound = -2146233088;
-                    if (ex.HResult != queueNotFound) // Queue not found
-                        throw;
-
-                    this.LogWarning("Queue \"{0}\" not found. Recreating.", destQueue.Name);
-                    // Re-create the queue and retry
-                    destQueue.CreateIfNotExists();
-                    destQueue.AddMessage(outMsg, ttl, initialVisibilityDelay: null, options: null, operationContext: null);
-                }
-                count++;
-            }
-
-            return count;
-        }
-
-        public void Dispose()
-        {
-            this.Stop();
-        }
-
-        /// <summary>
-        /// Stops route's message relay.
-        /// </summary>
-        public void Stop()
-        {
-            lock (this)
-            {
-                if (this.queueMonitor != null)
-                {
-                    queueMonitor.Stop();
-                    this.queueMonitor = null;
-                }
-            }
+            this.EndMessageForwarding();
         }
 
         /// <summary>
         ///     An accessor to AOP logging functionality for intercepted methods.
         /// </summary>
         [XmlIgnore]
-        public IMethodLogProvider AopLogger { get; set; }
-    }
+        IMethodLogProvider ICallLogger.AopLogger { get; set; }
 
-    /// <summary>
-    /// Represents XML-serializable collection of queue dispatcher multicast routes.
-    /// </summary>
-    [XmlRoot(ElementName = "AzureQueueMulticastRoutes")]
-    public class AzureQueueMulticastRouteConfiguration : List<AzureQueueMulticastRoute>
-    {
-        /*
-         *  Example of the route configuration stored as XML:
-		 
-            <AzureQueueMulticastRoutes xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                <AzureQueueMulticastRoute>
-                    <SourceQueue MessageInivisibilityTimeMillisec="10000" MaxDelayBetweenDequeueAttemptsSeconds="15">
-                        <ConnectionStringName>QueueStorageAccountConnectionString</ConnectionStringName>
-                        <QueueName>scheduletriggers</QueueName>
-                    </SourceQueue>
-                    <DestinationQueues>
-                        <AzureDestinationQueueConnection>
-                            <ConnectionStringName>QueueStorageAccountConnectionString</ConnectionStringName>
-                            <QueueName>destionationuno</QueueName>
-                        </AzureDestinationQueueConnection>
-                        <AzureDestinationQueueConnection>
-                            <ConnectionStringName>QueueStorageAccountConnectionString</ConnectionStringName>
-                            <QueueName>destionationdos</QueueName>
-                        </AzureDestinationQueueConnection>
-                    </DestinationQueues>
-                </AzureQueueMulticastRoute>
-            </AzureQueueMulticastRoutes>         
-         */
-
-        /// <summary>
-        /// Loads Azure queue multicast route configuration from XML.
-        /// </summary>
-        /// <param name="formatForRoleSettings">If true, CR/LFs get removed from XML so XML could be stored as a value of an Azure role setting.</param>
-        /// <param name="defaultNamespace">XML default namespace.</param>
-        /// <param name="settings">XML serialization settings.</param>
-        /// <returns></returns>
-        public string ToXml(bool formatForRoleSettings, string defaultNamespace = null, XmlWriterSettings settings = null)
-        {
-            if (formatForRoleSettings)
-            {
-                if (settings == null)
-                    settings = new XmlWriterSettings();
-
-                settings.NewLineHandling = NewLineHandling.Replace;
-                settings.NewLineChars = " ";
-
-                settings.Indent = false;
-                settings.Encoding = Encoding.UTF8;
-                settings.OmitXmlDeclaration = true;
-            }
-
-            // ReSharper disable once InvokeAsExtensionMethod
-            string xml = this.ToXml(defaultNamespace, settings);
-
-            return xml;
-        }
-
-        /// <summary>
-        /// Loads Azure queue multicasting relay route configuration from XML stored as a Role setting value.
-        /// </summary>
-        /// <param name="azureRoleSettingName"></param>
-        /// <returns></returns>
-        public static AzureQueueMulticastRouteConfiguration LoadFromAzureRoleSettings(string azureRoleSettingName = "AzureQueueMulticastRoutes")
-        {
-            if (azureRoleSettingName.IsBlank())
-                azureRoleSettingName = "AzureQueueMulticastRoutes";
-
-            string routeConfigXml = RoleEnvironment.GetConfigurationSettingValue(azureRoleSettingName);
-            return LoadFromXml(routeConfigXml);
-        }
-
-        /// <summary>
-        /// Loads message routing information from XML.
-        /// </summary>
-        /// <param name="routeConfigXml">Example:
-        /// <![CDATA[
-        ///             <AzureQueueMulticastRoutes xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        ///         <AzureQueueMulticastRoute>
-        ///             <SourceQueue MessageInivisibilityTimeMillisec="10000" MaxDelayBetweenDequeueAttemptsSeconds="15">
-        ///                 <ConnectionStringName>QueueStorageAccountConnectionString</ConnectionStringName>
-        ///                 <QueueName>scheduletriggers</QueueName>
-        ///            </SourceQueue>
-        ///            <DestinationQueues>
-        ///                <AzureDestinationQueueConnection>
-        ///                    <ConnectionStringName>QueueStorageAccountConnectionString</ConnectionStringName>
-        ///                    <QueueName>destionationone</QueueName>
-        ///                </AzureDestinationQueueConnection>
-        ///                <AzureDestinationQueueConnection>
-        ///                    <ConnectionStringName>QueueStorageAccountConnectionString</ConnectionStringName>
-        ///                    <QueueName>destionationtwo</QueueName>
-        ///                </AzureDestinationQueueConnection>
-        ///            </DestinationQueues>
-        ///        </AzureQueueMulticastRoute>
-        ///    </AzureQueueMulticastRoutes>         
-        /// ]]>
-        /// </param>
-        /// <returns></returns>
-        /// 
-        public static AzureQueueMulticastRouteConfiguration LoadFromXml(string routeConfigXml)
-        {
-            AzureQueueMulticastRouteConfiguration routeConfig = routeConfigXml.FromXml<AzureQueueMulticastRouteConfiguration>();
-            return routeConfig;
-        }
-
-        /// <summary>
-        /// Starts multicast relay of Azure queue messages for all routes.
-        /// </summary>
-        /// <returns>Count of routes that have started successfully.</returns>
-        public int Start()
-        {
-            int successfulStartCount = this.Count(route => route.Start());
-
-            if (successfulStartCount != this.Count)
-                Trace.TraceInformation("Started {0} of {1} azure queue multicasting routes.", successfulStartCount, this.Count);
-
-            return successfulStartCount;
-        }
-
-        /// <summary>
-        /// Stops relaying Azure queue messages for all routes.
-        /// </summary>
-        public void Stop()
-        {
-            this.ForEach(route => route.Stop());
-        }
+        #endregion Interface Implementations
     }
 }
