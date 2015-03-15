@@ -54,7 +54,7 @@ namespace Aspectacular
 
     /// <summary>
     ///     If implemented by classes whose methods are intercepted,
-    ///     then intercepted method may log data for aspects to pick up, if they care.
+    ///     then intercepted methods may use AOP logging via this.LogXXX();
     /// </summary>
     public interface ICallLogger
     {
