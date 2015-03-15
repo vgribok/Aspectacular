@@ -198,6 +198,7 @@ namespace Aspectacular
         /// <summary>
         ///     An accessor to AOP logging functionality for intercepted methods.
         /// </summary>
+        [XmlIgnore]
         public IMethodLogProvider AopLogger { get; set; }
     }
 
