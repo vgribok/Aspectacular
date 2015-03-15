@@ -64,6 +64,7 @@
     <Compile Include="Aspects\SimpleStockAspects.cs" />
     <Compile Include="Aspects\SqlConnectionAttributesAspect.cs" />
     <Compile Include="Aspects\SqlExecutionPlanAspect.cs" />
+    <Compile Include="Aspects\StopwatchAspect.cs" />
     <Compile Include="CallLog.cs" />
     <Compile Include="DalInterceptor.cs" />
     <Compile Include="Data.cs" />
