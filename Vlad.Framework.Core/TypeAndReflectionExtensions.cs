@@ -7,12 +7,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Xml.XPath;
 
 namespace Aspectacular
 {
@@ -330,46 +332,6 @@ namespace Aspectacular
         public static bool IsAnyFlagOn(this Enum valueToCheck, Enum flag)
         {
             return ((int)(object)valueToCheck & (int)(object)flag) != 0;
-        }
-
-        /// <summary>
-        ///     Serializes object to XML
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="defaultNamespace"></param>
-        /// <param name="settings"></param>
-        /// <returns></returns>
-        public static string ToXml(this object obj, string defaultNamespace = null, XmlWriterSettings settings = null)
-        {
-            if(obj == null)
-                return null;
-
-            if(obj is string)
-                throw new ArgumentException("Cannot convert string to XML.");
-
-            //if(!obj.GetType().IsSerializable)
-            //    throw new ArgumentException("Object must be serializable in order to be converted to XML.");
-
-            if(settings == null)
-                settings = new XmlWriterSettings
-                {
-                    Indent = true,
-                    IndentChars = "\t",
-                    Encoding = Encoding.UTF8,
-                    OmitXmlDeclaration = true,
-                };
-
-            XmlSerializer ser = new XmlSerializer(obj.GetType(), defaultNamespace);
-
-            StringBuilder sb = new StringBuilder();
-
-            using(XmlWriter writer = XmlWriter.Create(sb, settings))
-            {
-                ser.Serialize(writer, obj);
-            }
-
-            string xml = sb.ToString();
-            return xml;
         }
     }
 }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Text;
-using System.Collections.Generic;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Aspectacular;
@@ -84,7 +80,7 @@ namespace Aspectacular.Test.CoreTests
             BlockingObjectPoll<object> pollmeister;
             using (pollmeister = new BlockingObjectPoll<object>(() => PollCurrentTime(threeSecondDelay), maxDelayMillisec))
             {
-                pollmeister.RegisterCallbackHandler(payload => message = payload == null ? (DateTimeOffset?)null : (DateTimeOffset)payload);
+                pollmeister.Subscribe(payload => message = payload == null ? (DateTimeOffset?)null : (DateTimeOffset)payload);
                 Threading.Sleep(3100);
             }
 
