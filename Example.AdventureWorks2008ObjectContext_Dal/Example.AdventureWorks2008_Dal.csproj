@@ -22,6 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -30,6 +31,12 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>UnsecuredKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework">
@@ -119,6 +126,7 @@
     <Compile Include="DbCtx\vProductModelCatalogDescription.cs">
       <DependentUpon>AdventureWorksLT2008R2.tt</DependentUpon>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -162,6 +170,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <None Include="UnsecuredKey.snk" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -170,17 +179,17 @@
     <Content Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Value.Framework.Aspectacular.EntityFramework.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.csproj">
       <Project>{ecc659dc-b903-40e9-9382-07bf719cf5b0}</Project>
-      <Name>Value.Framework.Aspectacular.EntityFramework</Name>
+      <Name>Aspectacular.Framework.EntityFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Value.Framework.Aspectacular\Value.Framework.Aspectacular.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.csproj">
       <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
-      <Name>Value.Framework.Aspectacular</Name>
+      <Name>Aspectacular.Framework.Main</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Vlad.Framework.Core\Value.Framework.Core.csproj">
+    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.csproj">
       <Project>{07e5da8b-6018-427b-9ecd-9c39ac691036}</Project>
-      <Name>Value.Framework.Core</Name>
+      <Name>Aspectacular.Framework.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

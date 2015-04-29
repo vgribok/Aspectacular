@@ -76,10 +76,11 @@ namespace Aspectacular.Test.CoreTests
                     actual = outer.ConsolidatedInfo();
                     Assert.IsTrue(actual.Contains(ExceptionExtensions.defaultItemSeparator));
 
-                    actual = outer.Consolidate("", true, ex => ex.ToSerializable().ToXml());
+                    const bool innerFirst = true;
+                    actual = outer.Consolidate("", innerFirst, ex => ex.ToSerializable().ToXml());
                     this.TestContext.WriteLine(actual);
 
-                    actual = outer.Consolidate("", true, ex => ex.ToSerializable().ToJsonString());
+                    actual = outer.Consolidate("", innerFirst, ex => ex.ToSerializable().ToJsonString());
                     this.TestContext.WriteLine("{0}", actual);
                 }
             }

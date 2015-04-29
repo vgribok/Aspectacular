@@ -129,6 +129,14 @@ namespace Aspectacular
                 localTcs.TrySetResult(null);
         }
 
+        /// <summary>
+        /// Waits for any task in the collection to complete
+        /// </summary>
+        /// <param name="tasks">Collection of tasks</param>
+        /// <param name="completedTask">Returned first completed task, or null if timeout was reached before any task completed.</param>
+        /// <param name="waitTimeoutMillisec">Timeout. Set to -1 for indefinite timeout.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>Index of the first completed task, or -1 if timeout was reached before any task timed out.</returns>
         public static int WaitAny(this IEnumerable<Task> tasks, out Task completedTask, int waitTimeoutMillisec = -1, CancellationToken? cancellationToken = null)
         {
             Task[] taskArray = tasks.ToArray();
@@ -139,6 +147,12 @@ namespace Aspectacular
             return index;
         }
 
+        /// <summary>
+        /// Waits for any task in the collection to complete.
+        /// </summary>
+        /// <param name="completedTask">Returns first task that got completed.</param>
+        /// <param name="tasks">Collection of tasks</param>
+        /// <returns>Index of completed task</returns>
         public static int WaitAny(out Task completedTask, params Task[] tasks)
         {
             return tasks.WaitAny(out completedTask);
@@ -156,37 +170,78 @@ namespace Aspectacular
         public static T WaitUntilStopped<T>(this WaitHandle waitExitSignal, Task<T> task)
         {
             Task completedTask;
-            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), task);
-            return index == 1 ? ((Task<T>)completedTask).Result : default(T);
+            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), ApplicationExiting.AsTask(), task);
+            return index == 2 ? ((Task<T>)completedTask).Result : default(T);
         }
 
         /// <summary>
         ///     Returns true if task was completed, false if exit signal was raised.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="waitExitSignal"></param>
         /// <param name="task"></param>
         /// <returns></returns>
-        public static bool WaitUntilStopped<T>(this WaitHandle waitExitSignal, Task task)
+        public static bool WaitUntilStopped(this WaitHandle waitExitSignal, Task task)
         {
             Task completedTask;
-            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), task);
-            return index == 1;
+            int index = WaitAny(out completedTask, waitExitSignal.AsTask(), ApplicationExiting.AsTask(), task);
+            return index == 2;
         }
 
         /// <summary>
         ///     Returns null if stop signal was raised.
         ///     Otherwise returns task that was completed.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="waitExitSignal"></param>
         /// <param name="tasks"></param>
         /// <returns></returns>
-        public static Task WaitUntilStopped<T>(this WaitHandle waitExitSignal, params Task[] tasks)
+        public static Task WaitUntilStopped(this WaitHandle waitExitSignal, params Task[] tasks)
         {
             Task completedTask;
             WaitAny(out completedTask, tasks);
             return completedTask;
+        }
+
+
+        /// <summary>
+        /// Convenience method to execute a function within given SynchronizationContext.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="syncContext"></param>
+        /// <param name="delegate"></param>
+        /// <returns></returns>
+        public static T Execute<T>(this SynchronizationContext syncContext, Func<T> @delegate)
+        {
+            if (syncContext == null)
+                return @delegate();
+#if !DEBUG
+            if(syncContext == SynchronizationContext.Current)
+                return @delegate();
+#endif
+            T retVal = default(T);
+            syncContext.Send(delegate { retVal = @delegate(); }, null);
+            return retVal;
+        }
+
+        /// <summary>
+        /// Convenience method to execute a function within given SynchronizationContext.
+        /// </summary>
+        /// <param name="syncContext"></param>
+        /// <param name="delegate"></param>
+        public static void Execute(this SynchronizationContext syncContext, Action @delegate)
+        {
+            if(syncContext == null)
+            {
+                @delegate();
+                return;
+            }
+#if !DEBUG
+            if(syncContext == SynchronizationContext.Current)
+            {
+                @delegate();
+                return;
+            }
+#endif
+            syncContext.Send(delegate { @delegate(); }, null);
         }
     }
 }

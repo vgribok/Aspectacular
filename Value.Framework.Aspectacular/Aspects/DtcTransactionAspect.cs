@@ -16,7 +16,7 @@ namespace Aspectacular
     ///     i.e. apply to Create/Update/Delete multi-database methods,
     ///     by using [RequiredAspectAttribute] on the method-by-method basis.
     /// </summary>
-    public class DtcTransactionAspect : Aspect
+    public class DtcTransactionAspect : Aspect, IDisposable
     {
         protected TransactionScope transaction = null;
 
@@ -58,8 +58,16 @@ namespace Aspectacular
                 }
             }
 
-            this.transaction.Dispose(); // Rolls transaction back if not committed.
-            this.transaction = null;
+            this.Dispose(); // Rolls transaction back if not committed.
+        }
+
+        public void Dispose()
+        {
+            if(this.transaction != null)
+            {
+                this.transaction.Dispose(); // Rolls transaction back if not committed.
+                this.transaction = null;
+            }
         }
     }
 

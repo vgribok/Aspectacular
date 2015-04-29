@@ -9,9 +9,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Aspectacular
 {
+    // ReSharper disable CSharpWarnings::CS1591
+    /// <summary>
+    /// Operators used for building dynamic query filtering expressions
+    /// </summary>
+    public enum DynamicFilterOperator
+    {
+        Equal, NotEqual,
+        GreaterThan, GreaterThanOrEqual,
+        LessThan, LessThanOrEqual,
+        StringStartsWith, StringContains
+    }
+    // ReSharper restore CSharpWarnings::CS1591
+
     /// <summary>
     ///     Enables the efficient, dynamic composition of query predicates.
     /// </summary>
@@ -21,6 +35,8 @@ namespace Aspectacular
     /// </remarks>
     public static class PredicateBuilder
     {
+        #region Predicate combiner
+
         /// <summary>
         ///     Creates a predicate that evaluates to true.
         /// </summary>
@@ -113,5 +129,89 @@ namespace Aspectacular
                 return base.VisitParameter(p);
             }
         }
+
+        #endregion Predicate combiner
+
+        #region Dynamic predicate builder
+
+        private static readonly MethodInfo stringStartsWithMethod = typeof(string).GetMethod("StartsWith", new []{ typeof(string) });
+        private static readonly MethodInfo stringContainsMethod = typeof(string).GetMethod("Contains");
+
+        // ReSharper disable PossiblyMistakenUseOfParamsMethod
+
+        /// <summary>
+        /// Creates predicate expression that can be used in IQueryable[TEntity].Where(entity => entity.PropertyName FilterOperation FilterValue).
+        /// Got most from
+        /// http://stackoverflow.com/questions/8315819/expression-lambda-and-query-generation-at-runtime-simplest-where-example
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="propertyName">Entity property name</param>
+        /// <param name="dynamicFilterOperator">Filter operator, like Equal, StartsWith, Contains, LessThan, etc.</param>
+        /// <param name="filterValue">Filter value</param>
+        /// <returns></returns>
+        public static Expression<Func<TEntity, bool>> GetFilterPredicate<TEntity>(string propertyName, DynamicFilterOperator dynamicFilterOperator, object filterValue)
+        {
+            var entityExp = Expression.Parameter(typeof(TEntity), "entity");
+            var propertyExpression = Expression.Property(entityExp, propertyName);
+
+            Expression rvalue = Expression.Constant(filterValue);
+            Expression rvalueString = Expression.Constant(filterValue as string);
+            Expression boolExpression = null;
+
+            switch (dynamicFilterOperator)
+            {
+                case DynamicFilterOperator.Equal:
+                    boolExpression = Expression.Equal(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperator.NotEqual:
+                    boolExpression = Expression.NotEqual(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperator.GreaterThan:
+                    boolExpression = Expression.GreaterThan(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperator.GreaterThanOrEqual:
+                    boolExpression = Expression.GreaterThanOrEqual(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperator.LessThan:
+                    boolExpression = Expression.LessThan(propertyExpression, rvalue);
+                    break;
+                case DynamicFilterOperator.LessThanOrEqual:
+                    boolExpression = Expression.LessThanOrEqual(propertyExpression, rvalue);
+                    break;
+
+                case DynamicFilterOperator.StringStartsWith:
+                    boolExpression = Expression.Call(propertyExpression, stringStartsWithMethod, rvalueString);
+                    break;
+                case DynamicFilterOperator.StringContains:
+                    boolExpression = Expression.Call(propertyExpression, stringContainsMethod, rvalueString);
+                    break;
+            }
+
+            if (boolExpression == null)
+                throw new InvalidOperationException();
+
+            Expression<Func<TEntity, bool>> exp = Expression.Lambda<Func<TEntity, bool>>(boolExpression, entityExp);
+
+            return exp;
+        }
+
+        /// <summary>
+        /// Creates OrderBy() or OrderByDescending() expressions for a given TEntity.propertyName combination.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
+        public static Expression<Func<TEntity, TKey>> GetSortingExpression<TEntity, TKey>(string propertyName)
+        {
+            var entityExp = Expression.Parameter(typeof(TEntity), "entity");
+            var propertyExpression = Expression.Property(entityExp, propertyName);
+
+            Expression<Func<TEntity, TKey>> exp = Expression.Lambda<Func<TEntity, TKey>>(propertyExpression, entityExp);
+
+            return exp;
+        }
+
+        #endregion Dynamic predicate builder
     }
 }

@@ -61,18 +61,24 @@ namespace Aspectacular.Test
 
             this.testStart = DateTime.UtcNow;
             retryAspect = new RetryTimeAspect(300, 100);
-// ReSharper disable once RedundantAssignment
+            // ReSharper disable once RedundantAssignment
             dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureFor(200, true));
 
             this.iteration = 0;
             retryAspect = new RetryCountAspect(3, 50, proxy => proxy.ReturnedValue == null);
-// ReSharper disable once RedundantAssignment
+            // ReSharper disable once RedundantAssignment
             dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureNTimes(2, false));
 
             this.testStart = DateTime.UtcNow;
             retryAspect = new RetryTimeAspect(300, 100, proxy => proxy.ReturnedValue == null);
-// ReSharper disable once RedundantAssignment
+            // ReSharper disable once RedundantAssignment
             dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureFor(200, false));
+
+            this.testStart = DateTime.UtcNow;
+            retryAspect = new RetryExponentialDelayAspect(300, 10, 2.5, proxy => proxy.ReturnedValue == null);
+            // ReSharper disable once RedundantAssignment
+            dt = (DateTime)this.GetProxy(AspectacularTest.MoreTestAspects(retryAspect)).Invoke(test => test.SimulateFailureFor(200, false));
+
 #pragma warning restore 219
         }
 

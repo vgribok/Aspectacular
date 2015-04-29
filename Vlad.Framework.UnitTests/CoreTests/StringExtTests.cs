@@ -6,6 +6,7 @@
 #endregion
 
 using System;
+using System.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Aspectacular.CoreTests
@@ -159,6 +160,15 @@ namespace Aspectacular.CoreTests
 
             actual = "@".LeftOf("+");
             Assert.AreEqual(null, actual);
+        }
+
+
+        [TestMethod]
+        public void ConfigurationManagerParsingTest()
+        {
+            const int expectedNumber = 3600000;
+            int actual = ConfigurationManager.AppSettings["TotallyBogus"].Parse(defaultValue: expectedNumber);
+            Assert.AreEqual(expectedNumber, actual);
         }
     }
 }

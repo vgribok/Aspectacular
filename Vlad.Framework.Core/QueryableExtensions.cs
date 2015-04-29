@@ -6,12 +6,13 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
 namespace Aspectacular
 {
-    public static class QueryableExtensions
+    public static partial class QueryableExtensions
     {
         /// <summary>
         ///     More efficient version of Any() when applied to Entity Framework.
@@ -40,6 +41,19 @@ namespace Aspectacular
         public static bool Exists<T>(this IQueryable<T> queryable)
         {
             return queryable.Select(x => (int?)1).FirstOrDefault().HasValue;
+        }
+
+        /// <summary>
+        /// Distinct by a given field. Could be slow as it uses GroupBy.
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <typeparam name="TKey"></typeparam>
+        /// <param name="query"></param>
+        /// <param name="keySelector">Expression returning field used to determine distinct</param>
+        /// <returns></returns>
+        public static IQueryable<TEntity> DistinctSlow<TEntity, TKey>(this IQueryable<TEntity> query, Expression<Func<TEntity, TKey>> keySelector)
+        {
+            return query.GroupBy(keySelector).Select(r => r.FirstOrDefault());
         }
     }
 }

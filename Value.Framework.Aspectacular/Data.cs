@@ -145,7 +145,7 @@ namespace Aspectacular
 
         #endregion Implementation of IEfCallInterceptor
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             this.dataStores.ForEach(pair =>
             {
@@ -154,9 +154,11 @@ namespace Aspectacular
                 if(dataStoreProxy.IsValueCreated)
                     dataStoreProxy.Value.Dispose();
             });
+
+            this.dataStores.Clear();
         }
 
-        IMethodLogProvider ICallLogger.AopLogger { get; set; }
+        public IMethodLogProvider AopLogger { get; set; }
 
         /// <summary>
         ///     This value may be set by a SqlConnectionAttributesAspect to improve SQL Server query performance.

@@ -15,7 +15,7 @@ namespace Aspectacular
     /// </summary>
     /// <param name="aopProxy">AOP Proxy providing access to intercepted method's returned value or invocation exception.</param>
     /// <returns>True to retry, false not to retry.</returns>
-    public delegate bool RetryDeciderDelegate(Proxy aopProxy);
+    public delegate bool FailureDetectorDelegate(Proxy aopProxy);
 
     /// <summary>
     ///     Enables method retrying
@@ -33,17 +33,17 @@ namespace Aspectacular
         ///     If not specified, only failed calls (when exception is thrown) would be retried.
         ///     Either return value or an Exception is passed
         /// </summary>
-// ReSharper disable once InconsistentNaming
-        private readonly RetryDeciderDelegate OptionalRetryDecider;
+        // ReSharper disable once InconsistentNaming
+        private readonly FailureDetectorDelegate OptionalFailureDetector;
 
         /// <summary>
         /// </summary>
         /// <param name="millisecDelayBetweenRetries">Optional delay in milliseconds between retries.</param>
-        /// <param name="optionalRetryDecider">Optional custom method deciding whether retry is required.</param>
-        protected RetryAspectBase(uint millisecDelayBetweenRetries, RetryDeciderDelegate optionalRetryDecider)
+        /// <param name="optionalFailureDetector">Optional custom method to decide whether failure occurred and retry is required. If not provided, exception in the main method or result post-processing will trigger retry.</param>
+        protected RetryAspectBase(uint millisecDelayBetweenRetries, FailureDetectorDelegate optionalFailureDetector)
         {
             this.MillisecDelayBetweenRetries = millisecDelayBetweenRetries;
-            this.OptionalRetryDecider = optionalRetryDecider;
+            this.OptionalFailureDetector = optionalFailureDetector;
         }
 
         /// <summary>
@@ -56,17 +56,17 @@ namespace Aspectacular
 
         public override void Step_4_Optional_AfterSuccessfulCallCompletion()
         {
-            bool mayNeedToRetry = this.OptionalRetryDecider != null && this.OptionalRetryDecider(this.Proxy);
+            bool mayNeedToRetry = this.OptionalFailureDetector != null && this.OptionalFailureDetector(this.Proxy);
             this.SetRetryIfNecessary(mayNeedToRetry);
         }
 
         public override void Step_4_Optional_AfterCatchingMethodExecException()
         {
-            bool mayNeedToRetry = this.OptionalRetryDecider == null || this.OptionalRetryDecider(this.Proxy);
+            bool mayNeedToRetry = this.OptionalFailureDetector == null || this.OptionalFailureDetector(this.Proxy);
             this.SetRetryIfNecessary(mayNeedToRetry);
         }
 
-        private void SetRetryIfNecessary(bool mayNeedToRetry)
+        protected virtual void SetRetryIfNecessary(bool mayNeedToRetry)
         {
             if(!mayNeedToRetry || this.NeedToStopRetries())
                 return;
@@ -114,9 +114,9 @@ namespace Aspectacular
         /// </summary>
         /// <param name="retryCount">Maximum number of attempts to call the function</param>
         /// <param name="millisecDelayBetweenRetries"></param>
-        /// <param name="optionalRetryDecider">Optional custom method to decide whether retry is required</param>
-        public RetryCountAspect(byte retryCount, uint millisecDelayBetweenRetries = 0, RetryDeciderDelegate optionalRetryDecider = null)
-            : base(millisecDelayBetweenRetries, optionalRetryDecider)
+        /// <param name="optionalFailureDetector">Optional custom method to decide whether failure occurred and retry is required. If not provided, exception in the main method or result post-processing will trigger retry.</param>
+        public RetryCountAspect(byte retryCount, uint millisecDelayBetweenRetries = 0, FailureDetectorDelegate optionalFailureDetector = null)
+            : base(millisecDelayBetweenRetries, optionalFailureDetector)
         {
             this.RetryCount = retryCount;
         }
@@ -150,9 +150,9 @@ namespace Aspectacular
         /// </summary>
         /// <param name="keepTryingForMilliseconds">Time period during which attempts will be made to call intercepted method.</param>
         /// <param name="millisecDelayBetweenRetries"></param>
-        /// <param name="optionalRetryDecider">Optional custom method to decide whether retry is required</param>
-        public RetryTimeAspect(uint keepTryingForMilliseconds, uint millisecDelayBetweenRetries = 0, RetryDeciderDelegate optionalRetryDecider = null)
-            : base(millisecDelayBetweenRetries, optionalRetryDecider)
+        /// <param name="optionalFailureDetector">Optional custom method to decide whether failure occurred and retry is required. If not provided, exception in the main method or result post-processing will trigger retry.</param>
+        public RetryTimeAspect(uint keepTryingForMilliseconds, uint millisecDelayBetweenRetries = 0, FailureDetectorDelegate optionalFailureDetector = null)
+            : base(millisecDelayBetweenRetries, optionalFailureDetector)
         {
             this.KeepTryingForMilliseconds = keepTryingForMilliseconds;
         }
@@ -171,6 +171,39 @@ namespace Aspectacular
         protected override void BeforeFirstRetry()
         {
             this.LogInformationWithKey("Retry time period (milliseconds)", "{0:#,#0}", this.KeepTryingForMilliseconds);
+        }
+    }
+
+    /// <summary>
+    /// Aspect that will keep retrying method call for a certain amount of time, 
+    /// with ever increasing delays between retries.
+    /// </summary>
+    public class RetryExponentialDelayAspect : RetryTimeAspect
+    {
+        public double DelayMultiplier { get; private set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="keepTryingForMilliseconds">Maximum amount of time to keep retrying for, after which failure is considered permanent.</param>
+        /// <param name="initialMillisecDelayBetweenRetries">Delay after first failed attempt. Delay between subsequent attempts will grow.</param>
+        /// <param name="delayMultiplier">Multiplier determining growth of delay between subsequent attempts.</param>
+        /// <param name="optionalFailureDetector">Optional custom method to decide whether failure occurred and retry is required. If not provided, exception in the main method or result post-processing will trigger retry.</param>
+        public RetryExponentialDelayAspect(uint keepTryingForMilliseconds, uint initialMillisecDelayBetweenRetries = 1, double delayMultiplier = 2.0, FailureDetectorDelegate optionalFailureDetector = null)
+            : base(keepTryingForMilliseconds, initialMillisecDelayBetweenRetries == 0 ? 1 : initialMillisecDelayBetweenRetries, optionalFailureDetector)
+        {
+            if(delayMultiplier <= 1)
+                throw new ArgumentException("delayMultiplier has to be greater than 1. {0} is an invalid value.".SmartFormat(delayMultiplier));
+
+            this.DelayMultiplier = delayMultiplier;
+        }
+
+        protected override void SetRetryIfNecessary(bool mayNeedToRetry)
+        {
+            if (mayNeedToRetry && this.Proxy.AttemptsMade > 1)
+                this.MillisecDelayBetweenRetries = (uint)(this.MillisecDelayBetweenRetries * this.DelayMultiplier); 
+
+            base.SetRetryIfNecessary(mayNeedToRetry);
         }
     }
 }

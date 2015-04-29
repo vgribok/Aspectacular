@@ -9,6 +9,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Aspectacular
 {
@@ -75,6 +77,64 @@ namespace Aspectacular
             foreach(object elem in collection)
                 func(elem);
         }
+
+        /// <summary>
+        /// Lambda-style foreach loop starting new task to handle each element in the collection.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
+        /// <returns></returns>
+        public static IEnumerable<Task> ForEachAsync(this IEnumerable collection, Action<object> asyncFunc)
+        {
+            if(collection == null)
+                return null;
+
+            return collection.ForEachAsync(asyncFunc, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Lambda-style foreach loop starting new task to handle each element in the collection.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>List of Task objects</returns>
+        public static IEnumerable<Task> ForEachAsync(this IEnumerable collection, Action<object> asyncFunc, CancellationToken cancellationToken)
+        {
+            foreach(object elem in collection)
+            {
+                object param = elem;
+                yield return Task.Run(() => asyncFunc(param), cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Lambda-style foreach loop starting new task to handle each element in the collection.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static IEnumerable<Task> ForEachAsync<T>(this IEnumerable<T> collection, Action<T> asyncFunc)
+        {
+            return collection.ForEachAsync(asyncFunc, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Lambda-style foreach loop starting new task to handle each element in the collection.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="asyncFunc">Thread-safe handler of a collection element.</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns>List of Task objects</returns>
+        public static IEnumerable<Task> ForEachAsync<T>(this IEnumerable<T> collection, Action<T> asyncFunc, CancellationToken cancellationToken)
+        {
+            if (collection == null)
+                return null;
+
+            return collection.Select(elem => Task.Run(() => asyncFunc(elem), cancellationToken));
+        }
+
 
         /// <summary>
         ///     Lambda-style for loop
@@ -216,7 +276,7 @@ namespace Aspectacular
         /// <param name="dictionary"></param>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static TVal? GetValueSafe<TKey, TVal>(this Dictionary<TKey, TVal> dictionary, TKey key)
+        public static TVal? GetValueSafe<TKey, TVal>(this IDictionary<TKey, TVal> dictionary, TKey key)
             where TVal : struct
         {
             TVal val;
@@ -227,19 +287,39 @@ namespace Aspectacular
         }
 
         /// <summary>
-        ///     Returns null if value was not found in the dictionary.
+        /// Returns defaultValue if key is not found in the dictionary.
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TVal"></typeparam>
+        /// <param name="dictionary"></param>
+        /// <param name="key"></param>
+        /// <param name="defaultValue"></param>
+        /// <returns></returns>
+        public static TVal GetValueSafe<TKey, TVal>(this IDictionary<TKey, TVal> dictionary, TKey key, TVal defaultValue)
+            where TVal : struct
+        {
+            TVal val;
+            if (!dictionary.TryGetValue(key, out val))
+                return defaultValue;
+
+            return val;
+        }
+
+        /// <summary>
+        ///     Returns defaultValue if value was not found in the dictionary.
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TVal">Reference type</typeparam>
         /// <param name="dictionary"></param>
         /// <param name="key"></param>
+        /// <param name="defaultValue">Null by default</param>
         /// <returns></returns>
-        public static TVal GetObjectValueSafe<TKey, TVal>(this Dictionary<TKey, TVal> dictionary, TKey key)
+        public static TVal GetObjectValueSafe<TKey, TVal>(this IDictionary<TKey, TVal> dictionary, TKey key, TVal defaultValue = null)
             where TVal : class
         {
             TVal val;
             if(!dictionary.TryGetValue(key, out val))
-                return null;
+                return defaultValue;
 
             return val;
         }
@@ -342,14 +422,8 @@ namespace Aspectacular
 
         public static bool AreEqualEquitable<T>(this T x, T y) where T : IEquatable<T>
         {
-            T def = default(T);
-
-            if(def.Equals(x) && def.Equals(y))
-                // both are possible null
-                return true;
-
-            if(def.Equals(x)) // x is possible null, when y is not null.
-                return y.Equals(x);
+            if((object)x == null || (object)y == null)
+                return (object)x == null && (object)y == null;
 
             // neither is null
             return x.Equals(y);
@@ -424,6 +498,7 @@ namespace Aspectacular
     /// </summary>
     /// <typeparam name="T1"></typeparam>
     /// <typeparam name="T2"></typeparam>
+    [Obsolete("Use Tuple<> from .NET Framework.")]
     public class Pair<T1, T2>
     {
         public readonly T1 First;

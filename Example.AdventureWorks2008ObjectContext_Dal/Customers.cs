@@ -18,6 +18,15 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
         }
     }
 
+    public class CAddress
+    {
+        public int CustomerID { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+
+        public int AddressID { get; set; }
+    }
+
     public partial class AdventureWorksLT2008R2Entities
     {
         public IQueryable<Customer> QueryCustomerByID(int customerID)
@@ -31,9 +40,19 @@ namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
             return q;
         }
 
-        //public void Bogus(int customerID)
-        //{
-        //    this.ToString();
-        //}
+        public IQueryable<CAddress> DenormAddresses()
+        {
+            return this.Customers.FullOuterJoin(this.CustomerAddresses,
+                c => c.CustomerID, ca => ca.CustomerID,
+                (c, ca) => 
+                    new CAddress
+                    {
+                        AddressID = ca.AddressID,
+                        CustomerID = c.CustomerID,
+                        FirstName = c.FirstName,
+                        LastName = c.LastName,
+                    }
+                );
+        }
     }
 }

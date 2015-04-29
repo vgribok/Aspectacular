@@ -55,22 +55,31 @@ namespace Aspectacular.Test
                 db.Configuration.LazyLoadingEnabled = false;
                 addresses = db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses).ToList();
             }
-            Assert.IsTrue(2 == addresses.Count);
+            Assert.AreEqual(2, addresses.Count);
 
             // Now same with LINQ-friendly AOP shortcuts:
 
             // Example 1: where AOP creates instance of AdventureWorksLT2008R2Entities, runs the DAL method, 
             // and disposes AdventureWorksLT2008R2Entities instance - all in one shot.
             addresses = AwDal.List(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
-            Assert.IsTrue(2 == addresses.Count);
+            Assert.AreEqual(2, addresses.Count);
 
             // Example 2: with simple AOP proxied call for existing instance of DbContext.
             using(var db = new AdventureWorksLT2008R2Entities())
             {
                 db.Configuration.LazyLoadingEnabled = false;
-                addresses = db.GetDbProxy(TestAspects).List(inst => inst.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
+                addresses = db.GetDbProxy(TestAspects).List(dbx => dbx.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
             }
-            Assert.IsTrue(2 == addresses.Count);
+            Assert.AreEqual(2, addresses.Count);
+
+            var address = AwDal.Single(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
+            Assert.IsNotNull(address);
+
+            long adrressCount = AwDal.Count(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses));
+            Assert.AreEqual(2, adrressCount);
+
+            adrressCount = AwDal.Count(db => db.QueryCustomerAddressesByCustomerID(CustomerIdWithManyAddresses), new QueryModifiers().AddSortCriteria("AddressID").AddPaging(0, 1));
+            Assert.AreEqual(1, adrressCount);
         }
 
         //[TestMethod]
@@ -142,6 +151,107 @@ namespace Aspectacular.Test
 
             sorted = strs.OrderByProperty(null).ToArray();
             Assert.AreEqual(strs[0], sorted[0]);
+        }
+
+        [TestMethod]
+        public void TestQueryModifiers()
+        {
+            long customerCount = AwDal.Count(db => db.QueryAllCustomers());
+            Assert.AreEqual(847, customerCount);
+
+            QueryModifiers mods = new QueryModifiers();
+            customerCount = AwDal.Count(db => db.QueryAllCustomers(), mods);
+            Assert.AreEqual(847, customerCount);
+
+            mods.AddSortCriteria("CustomerID");
+            var customers = AwDal.List(db => db.QueryAllCustomers(), mods);
+            var customer = customers.First();
+            Assert.AreEqual("Orlando", customer.FirstName);
+            Assert.AreEqual("Gee", customer.LastName);
+            
+            mods.AddPaging(0, 5);
+            customers = AwDal.List(db => db.QueryAllCustomers(), mods);
+            Assert.AreEqual(5, customers.Count);
+            customer = customers.First();
+            Assert.AreEqual("Orlando", customer.FirstName);
+            Assert.AreEqual("Gee", customer.LastName);
+
+            mods.Paging = null;
+            mods.AddFilter("FirstName", DynamicFilterOperator.Equal, "John");
+            mods.AddFilter("NameStyle", DynamicFilterOperator.Equal, false);
+            customers = AwDal.List(db => db.QueryAllCustomers(), mods);
+            Assert.AreEqual(20, customers.Count);
+            customer = customers[2];
+            Assert.AreEqual(309, customer.CustomerID);
+            Assert.AreEqual("John", customer.FirstName);
+            Assert.AreEqual("Arthur", customer.LastName);
+
+            mods.AddPaging(pageIndex: 2, pageSize: 3);
+            customers = AwDal.List(db => db.QueryAllCustomers(), mods);
+            Assert.AreEqual(3, customers.Count);
+            customer = customers[0];
+            Assert.AreEqual(471, customer.CustomerID);
+            Assert.AreEqual("John", customer.FirstName);
+            Assert.AreEqual("Ford", customer.LastName);
+
+            mods = new QueryModifiers();
+            mods.AddSortCriteria("FirstName").AddSortCriteria("LastName", QueryModifiers.SortOrder.Descending);
+            mods.AddPaging(pageIndex: 0, pageSize: 3);
+            customers = AwDal.List(db => db.QueryAllCustomers(), mods);
+            Assert.AreEqual(3, customers.Count);
+            customer = customers[1];
+            Assert.AreEqual(29943, customer.CustomerID);
+            Assert.AreEqual("A.", customer.FirstName);
+            Assert.AreEqual("Leonetti", customer.LastName);
+
+            mods.AddFilter("LastName", DynamicFilterOperator.StringStartsWith, "Ve");
+            customers = AwDal.List(db => db.QueryAllCustomers(), mods);
+            Assert.IsTrue(customers.All(c => c.LastName.StartsWith("Ve")));
+
+            //int hash1 = mods.GetHashCode();
+            string mods1 = mods.ToString();
+            mods.Filters.Clear();
+            mods.AddFilter("LastName", DynamicFilterOperator.StringContains, "er");
+            //int hash2 = mods.GetHashCode();
+            string mods2 = mods.ToString();
+            Assert.AreNotEqual(mods1, mods2);
+            customers = AwDal.List(db => db.QueryAllCustomers(), mods);
+            Assert.IsTrue(customers.All(c => c.LastName.Contains("er")));
+            customer = customers[2];
+            Assert.AreEqual(29583, customer.CustomerID);
+            Assert.AreEqual("Alan", customer.FirstName);
+            Assert.AreEqual("Brewer", customer.LastName);
+
+            mods = new QueryModifiers().AddPaging(pageIndex: 1, pageSize: 5).AddSortCriteria("LastName").AddFilter("CustomerID", DynamicFilterOperator.LessThan, 10);
+            customers = AwDal.List(db => db.QueryAllCustomers(), mods);
+            Assert.IsTrue(customers.All(c => c.CustomerID < 10));
+            Assert.AreEqual(2, customers.Count);
+            customer = customers[0];
+            Assert.AreEqual(5, customer.CustomerID);
+            Assert.AreEqual("Lucy", customer.FirstName);
+            Assert.AreEqual("Harrington", customer.LastName);
+        }
+
+        [TestMethod]
+        public void TestFullOuterJoin()
+        {
+            var items1 = AwDal.Invoke(db => db.GetAllStateCityZips());
+            this.TestContext.WriteLine("In-memory OuterJoin count: {0}", items1.Count);
+
+            var items2 = AwDal.List(db => db.QueryAllStateCityZips());
+            this.TestContext.WriteLine("OuterJoin count: {0}", items2.Count);
+
+            Assert.AreEqual(items1.Count, items2.Count);
+        }
+
+        [TestMethod]
+        public void TestExistsExtensionMethod()
+        {
+            long barCount = AwDal.Count(db => db.SearchAddress("bar"));
+            Assert.IsTrue(barCount == 1);
+
+            bool addressExists = AwDal.Exists(db => db.SearchAddress("bar"));
+            Assert.IsTrue(addressExists);
         }
     }
 }

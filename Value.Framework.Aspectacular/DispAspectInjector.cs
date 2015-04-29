@@ -10,7 +10,27 @@ using System.Collections.Generic;
 
 namespace Aspectacular
 {
-    public class AllocateRunDisposeProxy<TDispClass> : InstanceProxy<TDispClass>
+    public class RunDisposeProxy<TDispClass> : InstanceProxy<TDispClass>
+        where TDispClass : class, IDisposable
+    {
+        protected internal RunDisposeProxy(TDispClass instance, IEnumerable<Aspect> aspects)
+            : base(instance, aspects)
+        {
+        }
+
+        public RunDisposeProxy(Func<TDispClass> factory, IEnumerable<Aspect> aspects)
+            : base(factory, Cleanup, aspects)
+        {
+        }
+
+        private static void Cleanup(TDispClass instance)
+        {
+            if(instance != null)
+                instance.Dispose();
+        }
+    }
+
+    public class AllocateRunDisposeProxy<TDispClass> : RunDisposeProxy<TDispClass>
         where TDispClass : class, IDisposable, new()
     {
         /// <summary>
@@ -30,7 +50,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="aspects"></param>
         public AllocateRunDisposeProxy(IEnumerable<Aspect> aspects)
-            : base(Instantiate, Cleanup, aspects)
+            : base(Instantiate, aspects)
         {
         }
 
@@ -38,12 +58,6 @@ namespace Aspectacular
         {
             TDispClass instance = new TDispClass();
             return instance;
-        }
-
-        private static void Cleanup(TDispClass instance)
-        {
-            if(instance != null)
-                instance.Dispose();
         }
     }
 
@@ -62,6 +76,19 @@ namespace Aspectacular
             where TDispClass : class, IDisposable, new()
         {
             var proxy = new AllocateRunDisposeProxy<TDispClass>(aspects);
+            return proxy;
+        }
+
+        /// <summary>
+        /// Returns AOP-enabled service interface previously registered using SvcLocator.Register().
+        /// </summary>
+        /// <typeparam name="TDispInterface">An interface subclassing IDisposable.</typeparam>
+        /// <param name="aspects"></param>
+        /// <returns>AOP proxy representing service interface.</returns>
+        public static RunDisposeProxy<TDispInterface> GetDispService<TDispInterface>(IEnumerable<Aspect> aspects = null)
+            where TDispInterface : class, IDisposable
+        {
+            RunDisposeProxy<TDispInterface> proxy = new RunDisposeProxy<TDispInterface>(SvcLocator.Get<TDispInterface>(), aspects);
             return proxy;
         }
     }

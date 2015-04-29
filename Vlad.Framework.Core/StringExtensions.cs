@@ -7,8 +7,10 @@
 
 using System;
 using System.Globalization;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Serialization;
 
 namespace Aspectacular
 {
@@ -74,10 +76,26 @@ namespace Aspectacular
         /// <typeparam name="TEnum"></typeparam>
         /// <param name="str"></param>
         /// <returns></returns>
+        [Obsolete("Use str.ParseEnum<TEnum>() instead.")]
         public static TEnum? Parse<TEnum>(this string str) where TEnum : struct
         {
             TEnum val;
             if(Enum.TryParse(str, out val))
+                return val;
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Parses string and returns null if parsing failed.
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static TEnum? ParseEnum<TEnum>(this string str) where TEnum : struct
+        {
+            TEnum val;
+            if (Enum.TryParse(str, out val))
                 return val;
 
             return null;

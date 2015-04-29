@@ -18,7 +18,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Aspectacular.Framework")]
-[assembly: AssemblyCopyright("Copyright ©  Vlad Hrybok 2013-present")]
+[assembly: AssemblyCopyright("Copyright © Vlad Hrybok 2013-2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -43,7 +43,7 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("2.0.*")]
+[assembly: AssemblyVersion("2.1.7.*")]
 //[assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: InternalsVisibleTo("Aspectacular.Framework.UnitTests")]
+[assembly: InternalsVisibleTo("Aspectacular.Framework.UnitTests, PublicKeyToken=123456")]

@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -39,7 +40,7 @@ namespace Aspectacular
     ///     and optional opt-out - when methods marked as [InstanceInvariant(false)].
     ///     Also, explicit opt-in can be implemented if [InstanceInvariant(true)] is applied to each individual method.
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method, AllowMultiple = false)]
     public class InvariantReturnAttribute : Attribute
     {
         public bool IsInstanceInvariant { get; private set; }
@@ -61,7 +62,7 @@ namespace Aspectacular
         ///     Value to be presented to the user.
         ///     Use sparingly as first evaluation of every value is very slow (Expression.Compile() + Reflection.Invoke()-slow).
         /// </summary>
-// ReSharper disable once InconsistentNaming
+        // ReSharper disable once InconsistentNaming
         SlowUIValue,
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace Aspectacular
             }
         }
 
-// ReSharper disable once InconsistentNaming
+        // ReSharper disable once InconsistentNaming
         public static long ComputeCRC(byte[] val)
         {
             long q;
@@ -129,27 +130,34 @@ namespace Aspectacular
         /// </summary>
         public readonly ParameterInfo ParamReflection;
 
+        public readonly bool CannotBeEvaluated = false;
+
         private readonly Expression expression;
         private readonly Lazy<ParamDirectionEnum> paramDirection;
 
-        public InterceptedMethodParamMetadata(ParameterInfo paramReflection, Expression paramExpression, object augmentedObject)
+        public InterceptedMethodParamMetadata(ParameterInfo paramReflection, Expression paramExpression, object augmentedObject, bool cannotBeEvaluated)
         {
             this.ParamReflection = paramReflection;
             this.Name = this.ParamReflection.Name;
             this.Type = this.ParamReflection.ParameterType;
             this.expression = MassageUnaryExpression(paramExpression);
+            this.CannotBeEvaluated = cannotBeEvaluated;
 
-            this.slowEvaluatingValueLoader = new Lazy<object>(() =>
-            {
-                object val = VerySlowlyCompileAndInvoke(augmentedObject, this.expression);
-
-                if(this.ValueIsSecret)
-                    val = new SecretValueHash(val);
-
-                return val;
-            });
-
+            this.slowEvaluatingValueLoader = new Lazy<object>(() => SlowEvaluateFunctionParameter(augmentedObject));
             this.paramDirection = new Lazy<ParamDirectionEnum>(() => this.ParamReflection.GetDirection());
+        }
+
+        private object SlowEvaluateFunctionParameter(object instanceObject)
+        {
+            if(this.CannotBeEvaluated)
+                return null;
+
+            object val = VerySlowlyCompileAndInvoke(instanceObject, this.expression);
+
+            if (this.ValueIsSecret)
+                val = new SecretValueHash(val);
+
+            return val;
         }
 
         /// <summary>
@@ -177,7 +185,7 @@ namespace Aspectacular
         /// </code>
         ///     please note that <code>CreateNewUserAndGetID("John Doe")</code> function will be called
         ///     not only when Foo() is called to pass the parameter, but also when this property value is retrieved.
-        ///     Therefore, if intercepted inputs should be invariant. So instead of calling
+        ///     Therefore, intercepted inputs should be invariant. So instead of calling
         ///     <code>inst.Foo("hello!", CreateNewUserAndGetID("John Doe"))</code>, store value returned by
         ///     <code>CreateNewUserAndGetID("John Doe")</code> and pass stored value as a parameter.
         /// </remarks>
@@ -210,11 +218,16 @@ namespace Aspectacular
 
         #endregion Attribute access members
 
-        public string FormatSlowEvaluatingValue(bool trueUi_falseInternal)
+        public string FormatSlowEvaluatingValue(bool trueUi_FalseInternal)
         {
             object val = this.SlowEvaluatingValueLoader;
 
-            return FormatParamValue(this.Type, val, trueUi_falseInternal);
+            Type type = val == null ? this.Type : val.GetType();
+
+            //if(val is System.Collections.IEnumerable)
+            //    throw new Exception("IEnumerable parameters are nor supported for caching because they may have different data at different times for the same instance.");
+
+            return FormatParamValue(type, val, trueUi_FalseInternal);
         }
 
         public bool ValueIsSecret
@@ -249,29 +262,65 @@ namespace Aspectacular
         /// <returns></returns>
         public static object VerySlowlyCompileAndInvoke(object augmentedObject, Expression expression)
         {
-            object val = null;
+            if(expression == null)
+                return null;
 
-            if(expression != null)
+            object slowObj;
+            object fastObj = null;
+            bool hasFastObj = false;
+
+            if(expression.NodeType == ExpressionType.Constant)
             {
-                switch(expression.NodeType)
+                ConstantExpression constExp = (ConstantExpression)expression;
+                fastObj = constExp.Value;
+                hasFastObj = true;
+            }else
+            if(expression.NodeType == ExpressionType.Parameter)
+            {
+                ParameterExpression pex = (ParameterExpression)expression;
+                if(augmentedObject != null && pex.Type == augmentedObject.GetType())
                 {
-                    case ExpressionType.Constant:
-                        val = ((ConstantExpression)expression).Value;
-                        break;
-                    case ExpressionType.Parameter:
-                    {
-                        ParameterExpression pex = (ParameterExpression)expression;
-                        if(augmentedObject != null && pex.Type == augmentedObject.GetType())
-                            return augmentedObject;
-                    }
-                        val = expression.EvaluateExpressionVerySlow();
-                        break;
-                    default:
-                        val = expression.EvaluateExpressionVerySlow();
-                        break;
+                    fastObj = augmentedObject;
+                    hasFastObj = true;
                 }
             }
-            return val;
+            else
+            if (expression.NodeType == ExpressionType.MemberAccess)
+            {
+                MemberExpression memExpression = (MemberExpression)expression;
+                if (memExpression.Expression != null && memExpression.Expression.NodeType == ExpressionType.Constant)
+                {
+                    ConstantExpression constExp = (ConstantExpression)memExpression.Expression;
+                    object instance = constExp.Value;
+
+                    FieldInfo fi = memExpression.Member as FieldInfo;
+                    if (fi != null)
+                    {
+                        fastObj = fi.GetValue(instance);
+                        hasFastObj = true;
+                    }
+                    else if (memExpression.Member is PropertyInfo)
+                    {
+                        PropertyInfo pi = (PropertyInfo)memExpression.Member;
+                        fastObj = pi.GetValue(instance);
+                        hasFastObj = true;
+                    }
+
+#if DEBUG
+                    if(hasFastObj)
+                    {
+                        slowObj = expression.EvaluateExpressionVerySlow();
+                        Debug.Assert(fastObj == slowObj || (fastObj == null && slowObj == null) || (fastObj != null && slowObj != null && fastObj.Equals(slowObj)));
+                    }
+#endif
+                }
+            }
+
+            if(hasFastObj)
+                return fastObj;
+
+            slowObj = expression.EvaluateExpressionVerySlow();
+            return slowObj;
         }
 
         /// <summary>
@@ -279,9 +328,9 @@ namespace Aspectacular
         /// </summary>
         /// <param name="type"></param>
         /// <param name="val">For secret values please pass "new SecretValueHash(someValue)"</param>
-        /// <param name="trueUi_falseInternal"></param>
+        /// <param name="trueUi_FalseInternal"></param>
         /// <returns></returns>
-        public static string FormatParamValue(Type type, object val, bool trueUi_falseInternal)
+        public static string FormatParamValue(Type type, object val, bool trueUi_FalseInternal)
         {
             if(type == typeof(void))
                 return string.Empty;
@@ -289,7 +338,7 @@ namespace Aspectacular
             if(val == null)
                 return "[null]";
 
-            if(trueUi_falseInternal && val is SecretValueHash)
+            if(trueUi_FalseInternal && val is SecretValueHash)
                 return "[secret]";
 
             if(val is string)
@@ -300,7 +349,7 @@ namespace Aspectacular
 
             string strVal = val.ToString();
             if(strVal == type.ToString())
-                return trueUi_falseInternal ? "[no string value]" : string.Format("HASH:{0:X}", val.GetHashCode());
+                return trueUi_FalseInternal ? "[no string value]" : string.Format("HASH:{0:X}", val.GetHashCode());
 
             return type.IsSimpleCSharpType() ? strVal : string.Format("[{0}]", strVal);
         }
@@ -334,7 +383,7 @@ namespace Aspectacular
             get { return this.MethodReflectionInfo.GetCustomAttributes(); }
         }
 
-        private readonly object augmentedInstance;
+        private readonly object methodInstance;
         public readonly List<InterceptedMethodParamMetadata> Params = new List<InterceptedMethodParamMetadata>();
 
 
@@ -351,7 +400,12 @@ namespace Aspectacular
             get { return this.MethodReflectionInfo.ReturnType; }
         }
 
-        internal InterceptedMethodMetadata(object augmentedInstance, LambdaExpression callLambdaExp, bool forceClassInstanceInvariant)
+        internal InterceptedMethodMetadata(object methodInstance, LambdaExpression callLambdaExp, bool forceClassInstanceInvariant)
+            : this(methodInstance, callLambdaExp, forceClassInstanceInvariant, checkInstanceVsStatic: true)
+        {
+        }
+
+        protected InterceptedMethodMetadata(object methodInstance, LambdaExpression callLambdaExp, bool forceClassInstanceInvariant, bool checkInstanceVsStatic)
         {
             try
             {
@@ -364,10 +418,10 @@ namespace Aspectacular
                 throw new ArgumentException(errorText, ex);
             }
 
-            this.augmentedInstance = augmentedInstance;
+            this.methodInstance = methodInstance;
             this.MethodReflectionInfo = this.interceptedMethodExpression.Method;
 
-            if(this.augmentedInstance == null && !this.MethodReflectionInfo.IsStatic)
+            if (checkInstanceVsStatic && this.methodInstance == null && !this.MethodReflectionInfo.IsStatic)
                 throw new Exception("Null instance specified for instance method \"{0}\". Please use obj.GetProxy().Invoke() instead of AOP.Invoke().".SmartFormat(this.GetMethodSignature(ParamValueOutputOptions.NoValue)));
 
             this.forceClassInstanceInvariant = forceClassInstanceInvariant;
@@ -384,9 +438,16 @@ namespace Aspectacular
             {
                 Expression paramExpression = this.interceptedMethodExpression.Arguments[i];
 
-                var paramMetadata = new InterceptedMethodParamMetadata(paramData[i], paramExpression, this.augmentedInstance);
+                bool canEvaluate = this.CanEvaluateParamValue(i, paramData[i], paramExpression);
+
+                var paramMetadata = new InterceptedMethodParamMetadata(paramData[i], paramExpression, this.methodInstance, !canEvaluate);
                 this.Params.Add(paramMetadata);
             }
+        }
+
+        protected virtual bool CanEvaluateParamValue(int index, ParameterInfo paramInfo, Expression paramExpression)
+        {
+            return true;
         }
 
         public object SlowEvaluateThisObject()
@@ -542,7 +603,7 @@ namespace Aspectacular
             if(this.IsStaticMethod || valueOutputOptions == ParamValueOutputOptions.NoValue || this.IsReturnResultInvariant)
                 return string.Empty;
 
-            object val = this.augmentedInstance;
+            object val = this.methodInstance;
             Type type = val == null ? null : val.GetType();
 
             string thisValueStr = InterceptedMethodParamMetadata.FormatParamValue(type, val, valueOutputOptions == ParamValueOutputOptions.SlowUIValue);
@@ -555,15 +616,32 @@ namespace Aspectacular
             return string.Join(", ", this.Params.Select(pinfo => pinfo.ToString(valueOutputOptions)));
         }
 
-        public string FormatReturnResult(object returnedResult, bool trueUi_falseInternal)
+        public string FormatReturnResult(object returnedResult, bool trueUi_FalseInternal)
         {
             if(this.IsReturnValueSecret)
                 returnedResult = new SecretValueHash(returnedResult);
 
             Type retType = returnedResult == null ? this.MethodReturnType : returnedResult.GetType();
 
-            string returnValueStr = InterceptedMethodParamMetadata.FormatParamValue(retType, returnedResult, trueUi_falseInternal);
+            string returnValueStr = InterceptedMethodParamMetadata.FormatParamValue(retType, returnedResult, trueUi_FalseInternal);
             return returnValueStr;
+        }
+    }
+
+    public class PostProcessingMethodMetadata : InterceptedMethodMetadata
+    {
+        public PostProcessingMethodMetadata(object methodInstance, LambdaExpression callLambdaExp, bool forceClassInstanceInvariant)
+            : base(methodInstance, callLambdaExp, forceClassInstanceInvariant, checkInstanceVsStatic: false)
+        {
+            
+        }
+
+        protected override bool CanEvaluateParamValue(int index, ParameterInfo paramInfo, Expression paramExpression)
+        {
+            // First parameter is not-yet-available IQueryable<T> or IEnumerable<T> that will be later returned by main intercepted method.
+            // But at this point - when intercepted method has not been run yet.
+            // I know this is flimsy, but I don't have any better ideas as to how to improve it.
+            return index != 0; 
         }
     }
 }

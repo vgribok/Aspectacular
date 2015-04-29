@@ -79,9 +79,16 @@ namespace Aspectacular
         public Exception MethodExecutionException { get; set; }
 
         /// <summary>
-        ///     Extensive information about method, its name, attributes, parameter names and value, etc.
+        ///     Extensive information about intercepted method, its name, attributes, parameter names and value, etc.
         /// </summary>
         public InterceptedMethodMetadata InterceptedCallMetaData { get; protected set; }
+        
+        /// <summary>
+        /// Information about result post-processing method, its name, attributes, parameter names and value, etc.
+        /// Can be null if there post-processing is not required.
+        /// </summary>
+        public InterceptedMethodMetadata PostProcessingCallMetadata { get; set; }
+
 
         /// <summary>
         ///     Number of attempts made to call intercepted method.
@@ -157,7 +164,7 @@ namespace Aspectacular
 
         public Proxy(Func<object> instanceFactory, Action<object> optionalInstanceCleaner, IEnumerable<Aspect> aspects)
         {
-            this.LogInformation("#### Starting new call log ###");
+            this.LogInformation("#### Starting new call log ### ------------------------------------------------------------------------------------------------------------------------------------");
             this.LogInformationData("Call ID", this.CallID);
 
             this.instanceResolverFunc = instanceFactory;
@@ -275,7 +282,7 @@ namespace Aspectacular
 
         protected virtual void Step_7_AfterEverythingSaidAndDone()
         {
-            this.LogInformation("**** Finished call with ID = {0} ****\r\n", this.CallID);
+            this.LogInformation("**** Finished call with ID = {0} **** -------------------------------------------------------------------------------------------------------------------------\r\n", this.CallID);
 
             this.CallAspectsBackwards(aspect =>
             {
@@ -401,11 +408,11 @@ namespace Aspectacular
 
         #region Utility methods
 
-        private void AddAspect(Aspect aspect, bool trueAppend_falseInsertFirst = true)
+        private void AddAspect(Aspect aspect, bool trueAppend_FalseInsertFirst = true)
         {
             aspect.Proxy = this;
 
-            if(trueAppend_falseInsertFirst)
+            if(trueAppend_FalseInsertFirst)
                 this.aspects.Add(aspect);
             else
                 this.aspects.Insert(0, aspect);
@@ -470,10 +477,11 @@ namespace Aspectacular
             }
         }
 
-        protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethod)
+        protected void InitMethodMetadata(LambdaExpression callLambdaWrapper, Delegate interceptedMethodDelegate, LambdaExpression postProcessingMethodExpression)
         {
-            this.interceptedMethod = interceptedMethod;
+            this.interceptedMethod = interceptedMethodDelegate;
             this.InterceptedCallMetaData = new InterceptedMethodMetadata(this.AugmentedClassInstance, callLambdaWrapper, this.ForceCallInvariance);
+            this.PostProcessingCallMetadata = postProcessingMethodExpression == null ? null : new PostProcessingMethodMetadata(null, postProcessingMethodExpression, this.ForceCallInvariance);
         }
 
         protected void CallReturnValuePostProcessor<TOut>(Func<TOut, object> retValPostProcessor, TOut retVal)
@@ -493,16 +501,18 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="TOut"></typeparam>
         /// <param name="interceptedCallExpression"></param>
-        /// <param name="retValPostProcessor">
+        /// <param name="retValPostProcessorExpression">
         ///     Delegate called immediately after callExpression function was executed.
         ///     Allows additional massaging of the returned value. Useful when LINQ suffix functions, like ToList(), Single(), etc.
         ///     need to be called in alloc/invoke/dispose pattern.
         /// </param>
         /// <returns></returns>
-        public TOut Invoke<TOut>(Expression<Func<TOut>> interceptedCallExpression, Func<TOut, object> retValPostProcessor = null)
+        public TOut Invoke<TOut>(Expression<Func<TOut>> interceptedCallExpression, Expression<Func<TOut, object>> retValPostProcessorExpression = null)
         {
             Func<TOut> blDelegate = interceptedCallExpression.Compile();
-            this.InitMethodMetadata(interceptedCallExpression, blDelegate);
+            Func<TOut, object> retValPostProcessor = retValPostProcessorExpression == null ? null : retValPostProcessorExpression.Compile();
+
+            this.InitMethodMetadata(interceptedCallExpression, blDelegate, retValPostProcessorExpression);
 
             TOut retVal = default(TOut);
 
@@ -522,7 +532,7 @@ namespace Aspectacular
         public void Invoke(Expression<Action> interceptedCallExpression)
         {
             Action blDelegate = interceptedCallExpression.Compile();
-            this.InitMethodMetadata(interceptedCallExpression, blDelegate);
+            this.InitMethodMetadata(interceptedCallExpression, blDelegate, postProcessingMethodExpression: null);
 
             this.ExecuteMainSequence(() => this.InvokeActualInterceptedMethod(blDelegate.Invoke));
         }
@@ -549,16 +559,16 @@ namespace Aspectacular
         /// <summary>
         ///     Returns string representation of method's return value;
         /// </summary>
-        /// <param name="trueUi_falseInternal"></param>
+        /// <param name="trueUi_FalseInternal"></param>
         /// <returns></returns>
-        public string FormateReturnValue(bool trueUi_falseInternal)
+        public string FormateReturnValue(bool trueUi_FalseInternal)
         {
             this.RequirePostExecutionPhase();
 
             string retValStr = InterceptedMethodParamMetadata.FormatParamValue(
                 this.InterceptedCallMetaData.MethodReturnType,
                 this.GetReturnValueInternal(this.InterceptedCallMetaData.IsReturnValueSecret),
-                trueUi_falseInternal);
+                trueUi_FalseInternal);
             return retValStr;
         }
 

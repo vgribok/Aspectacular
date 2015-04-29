@@ -7,10 +7,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace Aspectacular
 {
+    /// <summary>
+    /// Specifies creator of a log entry in call's log collection
+    /// </summary>
     public enum LogEntryOriginator
     {
         Proxy,
@@ -19,6 +23,9 @@ namespace Aspectacular
         Caller,
     }
 
+    /// <summary>
+    /// Specifies a type of a call log entry: an error, warning, etc.
+    /// </summary>
     [Flags]
     public enum EntryType
     {
@@ -47,7 +54,7 @@ namespace Aspectacular
 
     /// <summary>
     ///     If implemented by classes whose methods are intercepted,
-    ///     then intercepted method may log data for aspects to pick up, if they care.
+    ///     then intercepted methods may use AOP logging via this.LogXXX();
     /// </summary>
     public interface ICallLogger
     {
@@ -57,16 +64,34 @@ namespace Aspectacular
         IMethodLogProvider AopLogger { get; set; }
     }
 
-    [Serializable]
+    /// <summary>
+    /// Call log entry structure. AOP logger has a collection of these objects that is populated by Proxy, Aspects, and sometimes by callers and intercepted methods.
+    /// </summary>
     public class CallLogEntry
     {
+        /// <summary>
+        /// Specifies the type of entry creator: whether it's Proxy, an aspect, caller, or intercepted method.
+        /// </summary>
         public LogEntryOriginator Who { get; internal set; }
+
+        /// <summary>
+        /// If entry was created by an aspect, contains information about the type of the Aspect.
+        /// </summary>
         public string OptionalAspectType { get; internal set; }
 
+        /// <summary>
+        /// Specifies what kind of log entry this is: an error, warning, etc.
+        /// </summary>
         public EntryType What { get; internal set; }
 
+        /// <summary>
+        /// Log entry key. It's not required to be unique, but it might be a good idea to make it unique for structured logging.
+        /// </summary>
         public string Key { get; internal set; }
 
+        /// <summary>
+        /// Log entry text.
+        /// </summary>
         public string Message { get; internal set; }
 
         public override string ToString()
@@ -87,12 +112,30 @@ namespace Aspectacular
     }
 
     /// <summary>
-    ///     Base class collecting execution text information from aspects and method itself.
+    ///     Base class collecting entries with text information logged by aspects, proxy, callers and the intercepted method.
     /// </summary>
     public class CallLifetimeLog
     {
-// ReSharper disable once InconsistentNaming
+        /// <summary>
+        /// If true, logging done by methods will be outputted to the System.Diagnostic.Trace
+        /// if the methods are called w/o Aspectacular AOP.
+        /// </summary>
+        /// <remarks>
+        /// When methods that log using ICallLogger or Proxy.CurrentLog are called without AOP Proxy,
+        /// this flag allows this logging to go to Trace instead of being lost.
+        /// Set this flag to false for backward compatibility - to have the behavior 
+        /// as of before this change (where logs are thrown away).
+        /// </remarks>
+        public static bool FallbackToTraceLoggingWhenNoProxy = true;
+
+        // ReSharper disable once InconsistentNaming
+        /// <summary>
+        /// Collection of log entries populated during intercepted call lifecycle.
+        /// It's populated by the Proxy, Aspects, and sometimes by the method itself or the caller.
+        /// </summary>
         public readonly List<CallLogEntry> callLog = new List<CallLogEntry>();
+
+        private CallerAopLogger callerLogAccessor = null;
 
         internal void AddLogEntry(LogEntryOriginator who, EntryType entryType, string category, string format, params object[] args)
         {
@@ -181,6 +224,14 @@ namespace Aspectacular
             }
         }
 
+        /// <summary>
+        /// Provides access to AOP logging functionality for callers of AOP-intercepted functions.
+        /// </summary>
+        public CallerAopLogger CallerAopLogger
+        {
+            get { return this.callerLogAccessor ?? (this.callerLogAccessor = new CallerAopLogger(this)); }
+        }
+
         #region Logging methods for the proxy
 
         /// <summary>
@@ -191,7 +242,7 @@ namespace Aspectacular
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void Log(EntryType entryType, string category, string format, params object[] args)
+        protected void Log(EntryType entryType, string category, string format, params object[] args)
         {
             this.AddLogEntry(LogEntryOriginator.Proxy, entryType, category, format, args);
         }
@@ -203,7 +254,7 @@ namespace Aspectacular
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogInformationWithKey(string category, string format, params object[] args)
+        protected void LogInformationWithKey(string category, string format, params object[] args)
         {
             this.Log(EntryType.Info, category, format, args);
         }
@@ -213,7 +264,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="key"></param>
         /// <param name="val"></param>
-        public void LogInformationData(string key, object val)
+        protected void LogInformationData(string key, object val)
         {
             this.Log(EntryType.Info, key, val.ToStringEx());
         }
@@ -224,7 +275,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogInformation(string format, params object[] args)
+        protected void LogInformation(string format, params object[] args)
         {
             this.LogInformationWithKey(null, format, args);
         }
@@ -236,7 +287,7 @@ namespace Aspectacular
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogErrorWithKey(string category, string format, params object[] args)
+        protected void LogErrorWithKey(string category, string format, params object[] args)
         {
             this.Log(EntryType.Error, category, format, args);
         }
@@ -247,7 +298,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogError(string format, params object[] args)
+        protected void LogError(string format, params object[] args)
         {
             this.LogErrorWithKey(null, format, args);
         }
@@ -259,7 +310,7 @@ namespace Aspectacular
         /// <param name="category"></param>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogWarningWithKey(string category, string format, params object[] args)
+        protected void LogWarningWithKey(string category, string format, params object[] args)
         {
             this.Log(EntryType.Warning, category, format, args);
         }
@@ -270,7 +321,7 @@ namespace Aspectacular
         /// </summary>
         /// <param name="format"></param>
         /// <param name="args"></param>
-        public void LogWarning(string format, params object[] args)
+        protected void LogWarning(string format, params object[] args)
         {
             this.LogWarningWithKey(null, format, args);
         }
@@ -279,6 +330,9 @@ namespace Aspectacular
 
         #region Hierarchical views of the log entry collection
 
+        /// <summary>
+        /// Log collection accessible by entry's key
+        /// </summary>
         public IDictionary<string, IList<CallLogEntry>> KeyEntryLogHierarchy
         {
             get
@@ -300,6 +354,9 @@ namespace Aspectacular
             }
         }
 
+        /// <summary>
+        /// Log collection accessible by entry's type (Error, Info, etc.)
+        /// </summary>
         public IDictionary<EntryType, IList<CallLogEntry>> EntryLogHierarchy
         {
             get
@@ -340,7 +397,12 @@ namespace Aspectacular
         public static void Log(this IMethodLogProvider methodLogger, EntryType entryType, string category, string format, params object[] args)
         {
             if(methodLogger == null)
+            {
+                if(CallLifetimeLog.FallbackToTraceLoggingWhenNoProxy)
+                    FallbackTraceLog(entryType, format, args);
+             
                 return;
+            }
 
             CallLifetimeLog log = (CallLifetimeLog)methodLogger;
             log.AddLogEntry(LogEntryOriginator.Method, entryType, category, format, args);
@@ -358,7 +420,12 @@ namespace Aspectacular
         public static void Log(this ICallLogger interceptedClass, EntryType entryType, string category, string format, params object[] args)
         {
             if(interceptedClass == null)
+            {
+                if (CallLifetimeLog.FallbackToTraceLoggingWhenNoProxy)
+                    FallbackTraceLog(entryType, format, args);
+
                 return;
+            }
 
             interceptedClass.AopLogger.Log(entryType, category, format, args);
         }
@@ -533,6 +600,120 @@ namespace Aspectacular
         public static void LogWarning(this ICallLogger interceptedClass, string format, params object[] args)
         {
             LogWarningWithKey(interceptedClass, null, format, args);
+        }
+
+        private static void FallbackTraceLog(EntryType entryType, string format, params object[] args)
+        {
+            switch (entryType)
+            {
+                case EntryType.Error:
+                    Trace.TraceError(format, args);
+                    break;
+                case EntryType.Warning:
+                    Trace.TraceWarning(format, args);
+                    break;
+                case EntryType.Info:
+                    Trace.TraceInformation(format, args);
+                    break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Provides access to logging functionality for callers of AOP-intercepted functions.
+    /// </summary>
+    public class CallerAopLogger
+    {
+        protected readonly CallLifetimeLog log;
+
+        internal CallerAopLogger(CallLifetimeLog log)
+        {
+            this.log = log;
+        }
+
+        /// <summary>
+        ///     Adds entry to the log held by the proxy.
+        /// </summary>
+        /// <param name="entryType"></param>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void Log(EntryType entryType, string optionalKey, string format, params object[] args)
+        {
+            this.log.AddLogEntry(LogEntryOriginator.Caller, entryType, optionalKey, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging information entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogInformationWithKey(string optionalKey, string format, params object[] args)
+        {
+            this.Log(EntryType.Info, optionalKey, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging information entries.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogInformation(string format, params object[] args)
+        {
+            this.LogInformationWithKey(null, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging information entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="data"></param>
+        protected void LogInformationData(string optionalKey, object data)
+        {
+            this.LogInformationWithKey(optionalKey, data.ToStringEx());
+        }
+
+        /// <summary>
+        ///     Shortcut for logging error entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogErrorWithKey(string optionalKey, string format, params object[] args)
+        {
+            this.Log(EntryType.Error, optionalKey, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging error entries.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogError(string format, params object[] args)
+        {
+            this.LogErrorWithKey(null, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging warning entries.
+        /// </summary>
+        /// <param name="optionalKey"></param>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogWarningWithKey(string optionalKey, string format, params object[] args)
+        {
+            this.Log(EntryType.Warning, optionalKey, format, args);
+        }
+
+        /// <summary>
+        ///     Shortcut for logging warning entries.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="args"></param>
+        protected void LogWarning(string format, params object[] args)
+        {
+            this.LogWarningWithKey(null, format, args);
         }
     }
 }

@@ -142,7 +142,7 @@ namespace Aspectacular.Test
             {
                 db.Configuration.LazyLoadingEnabled = false;
 
-// ReSharper disable once ReturnValueOfPureMethodIsNotUsed
+                // ReSharper disable once ReturnValueOfPureMethodIsNotUsed
                 runsPerSec = RunCounter.SpinPerSec(MillisecToRun, () =>
                     db.QueryCustomerAddressesByCustomerID(customerIdWithManyAddresses).ToList()
                     );
