@@ -8,8 +8,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Security.Principal;
+
+#if !NET40
+using System.Security.Claims;
+#endif
 
 namespace Aspectacular
 {
@@ -56,6 +59,7 @@ namespace Aspectacular
         protected abstract IEnumerable<string> GetAuthorizedClaims();
     }
 
+#if !NET40
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public class DemandClaimsAttribute : AuthorizationDemandAttribute
     {
@@ -109,6 +113,7 @@ namespace Aspectacular
             return base.IsAuthorizedInternal();
         }
     }
+#endif // !NET40
 
     /// <summary>
     ///     Enforces claims/roles authorization for methods or classes decorated with subclasses of the

@@ -206,7 +206,7 @@ namespace Aspectacular
             return this.ParamReflection.GetCustomAttribute<T>(inherit);
         }
 
-        public IEnumerable<Attribute> GetCustomAttributes<T>(bool inherit = false) where T : Attribute
+        public IEnumerable<T> GetCustomAttributes<T>(bool inherit = false) where T : Attribute
         {
             return this.ParamReflection.GetCustomAttributes<T>(inherit);
         }
@@ -380,7 +380,7 @@ namespace Aspectacular
 
         public IEnumerable<Attribute> MethodAttributes
         {
-            get { return this.MethodReflectionInfo.GetCustomAttributes(); }
+            get { return this.MethodReflectionInfo.GetCustomAttributes<Attribute>(); }
         }
 
         private readonly object methodInstance;
