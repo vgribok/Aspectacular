@@ -99,7 +99,7 @@ namespace Aspectacular.Test
             Aspect retryAspect = new RetryCountAspect(3, 100);
 
             // A thread simulating asynchronous application exit.
-            Task asyncAbortGenerator = Task.Run(() =>
+            Task asyncAbortGenerator = Task.Factory.StartNew(() =>
             {
                 Thread.Sleep(100);
                 Threading.ApplicationExiting.Set();
