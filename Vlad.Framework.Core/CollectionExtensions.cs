@@ -104,7 +104,7 @@ namespace Aspectacular
             foreach(object elem in collection)
             {
                 object param = elem;
-                yield return Task.Run(() => asyncFunc(param), cancellationToken);
+                yield return Task.Factory.StartNew(() => asyncFunc(param), cancellationToken);
             }
         }
 
@@ -132,7 +132,7 @@ namespace Aspectacular
             if (collection == null)
                 return null;
 
-            return collection.Select(elem => Task.Run(() => asyncFunc(elem), cancellationToken));
+            return collection.Select(elem => Task.Factory.StartNew(() => asyncFunc(elem), cancellationToken));
         }
 
 
