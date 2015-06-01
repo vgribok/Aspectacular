@@ -81,7 +81,6 @@ namespace Aspectacular
         }
 
 
-#if !NET40
         /// <summary>
         ///     Launches polling loop that invokes process callback when payload arrives.
         ///     This is an alternative to using blocking WaitForPayload() method.
@@ -105,7 +104,6 @@ namespace Aspectacular
             Task task = Task.Factory.StartNew(() => this.RunPollLoop(syncContext, payloadProcessCallback ?? this.Process));
             await task;
         }
-#endif
 
         /// <summary>
         ///     Blocks until either payload arrives, or polling is terminated.
