@@ -3,19 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Core.40", "Vlad.Framework.Core\Aspectacular.Framework.Core.40.csproj", "{07E5DA8B-6018-427B-9ECD-9C39AC691036}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Core.45", "Vlad.Framework.Core\Aspectacular.Framework.Core.45.csproj", "{07E5DA8B-6018-427B-9ECD-9C39AC691036}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.UnitTests.40", "Vlad.Framework.UnitTests\Aspectacular.Framework.UnitTests.40.csproj", "{D080195E-560B-4A30-837D-A1239A823EC2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Main.40", "Value.Framework.Aspectacular\Aspectacular.Framework.Main.40.csproj", "{AA70188E-305F-4910-AFEC-6DB7E79F8603}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Main.45", "Value.Framework.Aspectacular\Aspectacular.Framework.Main.45.csproj", "{AA70188E-305F-4910-AFEC-6DB7E79F8603}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.AdventureWorks2008_Dal.40", "Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008_Dal.40.csproj", "{E728FBE5-B2AD-47FB-91C1-9E42C3B93A10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.AdventureWorks2008_Dal.45", "Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008_Dal.45.csproj", "{E728FBE5-B2AD-47FB-91C1-9E42C3B93A10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.EntityFramework.40", "Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.40.csproj", "{ECC659DC-B903-40E9-9382-07BF719CF5B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.EntityFramework.45", "Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.45.csproj", "{ECC659DC-B903-40E9-9382-07BF719CF5B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Web.40", "Value.Framework.Aspectacular.Web\Aspectacular.Framework.Web.40.csproj", "{273275C4-4AE2-4CD1-8C1E-75ED8BFD50A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Web.45", "Value.Framework.Aspectacular.Web\Aspectacular.Framework.Web.45.csproj", "{273275C4-4AE2-4CD1-8C1E-75ED8BFD50A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.All.40", "NuGet.All\NuGet.All.40.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.All.45", "NuGet.All\NuGet.All.45.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet Projects", "NuGet Projects", "{7626D21B-3354-41AE-B74D-476B0EB7978F}"
 EndProject
@@ -26,11 +26,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D77CD2
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.EntityFramework.40", "NuGet.EntityFramework\NuGet.EntityFramework.40.csproj", "{E407327C-AA24-4CAF-A872-910697E1598A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.EntityFramework.45", "NuGet.EntityFramework\NuGet.EntityFramework.45.csproj", "{E407327C-AA24-4CAF-A872-910697E1598A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet UnitTest.40", "NuGet Projects\NuGet UnitTest\NuGet UnitTest.40.csproj", "{37363729-7EE5-40C9-B391-D023325B4DE3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet UnitTest.45", "NuGet Projects\NuGet UnitTest\NuGet UnitTest.45.csproj", "{37363729-7EE5-40C9-B391-D023325B4DE3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Main.40", "NuGet.Main\NuGet.Main.40.csproj", "{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Main.45", "NuGet.Main\NuGet.Main.45.csproj", "{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F1766EF3-BFF3-4C2C-A4CA-CC73D185EBCA}"
 	ProjectSection(SolutionItems) = preProject

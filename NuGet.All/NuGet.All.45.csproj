@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Value.Framework.Aspectacular</RootNamespace>
     <AssemblyName>Value.Framework.Aspectacular.All</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -68,21 +68,21 @@
     <Folder Include="src\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.40.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.45.csproj">
       <Project>{ecc659dc-b903-40e9-9382-07bf719cf5b0}</Project>
-      <Name>Aspectacular.Framework.EntityFramework.40</Name>
+      <Name>Aspectacular.Framework.EntityFramework.45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Value.Framework.Aspectacular.Web\Aspectacular.Framework.Web.40.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular.Web\Aspectacular.Framework.Web.45.csproj">
       <Project>{273275c4-4ae2-4cd1-8c1e-75ed8bfd50a1}</Project>
-      <Name>Aspectacular.Framework.Web.40</Name>
+      <Name>Aspectacular.Framework.Web.45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.40.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.45.csproj">
       <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
-      <Name>Aspectacular.Framework.Main.40</Name>
+      <Name>Aspectacular.Framework.Main.45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.40.csproj">
+    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.45.csproj">
       <Project>{07e5da8b-6018-427b-9ecd-9c39ac691036}</Project>
-      <Name>Aspectacular.Framework.Core.40</Name>
+      <Name>Aspectacular.Framework.Core.45</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

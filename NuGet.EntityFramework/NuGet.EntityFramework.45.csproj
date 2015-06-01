@@ -5,12 +5,12 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}</ProjectGuid>
+    <ProjectGuid>{E407327C-AA24-4CAF-A872-910697E1598A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NuGet.EntityFramework</RootNamespace>
     <AssemblyName>NuGet.EntityFramework</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -38,6 +38,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\Debug\</OutputPath>
     <Prefer32Bit>false</Prefer32Bit>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -68,13 +69,17 @@
     <Folder Include="src\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.40.csproj">
-      <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
-      <Name>Aspectacular.Framework.Main.40</Name>
+    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.45.csproj">
+      <Project>{ecc659dc-b903-40e9-9382-07bf719cf5b0}</Project>
+      <Name>Aspectacular.Framework.EntityFramework.45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.40.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.45.csproj">
+      <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
+      <Name>Aspectacular.Framework.Main.45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.45.csproj">
       <Project>{07e5da8b-6018-427b-9ecd-9c39ac691036}</Project>
-      <Name>Aspectacular.Framework.Core.40</Name>
+      <Name>Aspectacular.Framework.Core.45</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
