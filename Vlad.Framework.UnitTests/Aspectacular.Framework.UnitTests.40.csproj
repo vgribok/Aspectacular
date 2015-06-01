@@ -119,25 +119,25 @@
     <Compile Include="ThreeStrikesAspect.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008_Dal.csproj">
+    <ProjectReference Include="..\Example.AdventureWorks2008ObjectContext_Dal\Example.AdventureWorks2008_Dal.40.csproj">
       <Project>{e728fbe5-b2ad-47fb-91c1-9e42c3b93a10}</Project>
-      <Name>Example.AdventureWorks2008_Dal</Name>
+      <Name>Example.AdventureWorks2008_Dal.40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular.EntityFramework\Aspectacular.Framework.EntityFramework.40.csproj">
       <Project>{ecc659dc-b903-40e9-9382-07bf719cf5b0}</Project>
-      <Name>Aspectacular.Framework.EntityFramework</Name>
+      <Name>Aspectacular.Framework.EntityFramework.40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Value.Framework.Aspectacular.Web\Aspectacular.Framework.Web.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular.Web\Aspectacular.Framework.Web.40.csproj">
       <Project>{273275c4-4ae2-4cd1-8c1e-75ed8bfd50a1}</Project>
-      <Name>Aspectacular.Framework.Web</Name>
+      <Name>Aspectacular.Framework.Web.40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.40.csproj">
       <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
-      <Name>Aspectacular.Framework.Main</Name>
+      <Name>Aspectacular.Framework.Main.40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.csproj">
+    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.40.csproj">
       <Project>{07e5da8b-6018-427b-9ecd-9c39ac691036}</Project>
-      <Name>Aspectacular.Framework.Core</Name>
+      <Name>Aspectacular.Framework.Core.40</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
