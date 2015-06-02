@@ -31,6 +31,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>UnsecuredKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
@@ -70,6 +76,17 @@
   <ItemGroup>
     <Compile Include="..\..\NET 4.5\Example.AdventureWorks2008ObjectContext_Dal\Addresses.cs">
       <Link>Addresses.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Example.AdventureWorks2008ObjectContext_Dal\Ado.net\AwDataSet.cs">
+      <Link>Ado.net\AwDataSet.cs</Link>
+      <DependentUpon>AwDataSet.xsd</DependentUpon>
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Example.AdventureWorks2008ObjectContext_Dal\Ado.net\AwDataSet1.Designer.cs">
+      <Link>Ado.net\AwDataSet1.Designer.cs</Link>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AwDataSet.xsd</DependentUpon>
     </Compile>
     <Compile Include="..\..\NET 4.5\Example.AdventureWorks2008ObjectContext_Dal\Customers.cs">
       <Link>Customers.cs</Link>
@@ -151,6 +168,20 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\NET 4.5\Example.AdventureWorks2008ObjectContext_Dal\Ado.net\AwDataSet.xsc">
+      <Link>Ado.net\AwDataSet.xsc</Link>
+      <DependentUpon>AwDataSet.xsd</DependentUpon>
+    </None>
+    <None Include="..\..\NET 4.5\Example.AdventureWorks2008ObjectContext_Dal\Ado.net\AwDataSet.xsd">
+      <Link>Ado.net\AwDataSet.xsd</Link>
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>AwDataSet1.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="..\..\NET 4.5\Example.AdventureWorks2008ObjectContext_Dal\Ado.net\AwDataSet.xss">
+      <Link>Ado.net\AwDataSet.xss</Link>
+      <DependentUpon>AwDataSet.xsd</DependentUpon>
+    </None>
     <None Include="..\..\NET 4.5\Example.AdventureWorks2008ObjectContext_Dal\Properties\Settings.settings">
       <Link>Settings.settings</Link>
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -175,9 +206,9 @@
       <LastGenOutput>AdventureWorksLT2008R2.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
+    <None Include="UnsecuredKey.snk" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Ado.net\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>

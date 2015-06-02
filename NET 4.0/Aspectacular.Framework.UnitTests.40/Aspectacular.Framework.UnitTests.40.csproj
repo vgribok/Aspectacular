@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4EC5AECE-843E-408D-A0D4-CE7AA174349E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Aspectacular.Test</RootNamespace>
+    <AssemblyName>Aspectacular.Framework.UnitTests.40</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>UnsecuredKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions, Version=1.0.12.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Threading.Tasks.Extensions.Desktop">
+      <HintPath>..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.Extensions.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.IO">
+      <HintPath>..\packages\Microsoft.Bcl.1.1.8\lib\net40\System.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net" />
+    <Reference Include="System.Runtime">
+      <HintPath>..\packages\Microsoft.Bcl.1.1.8\lib\net40\System.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Threading.Tasks">
+      <HintPath>..\packages\Microsoft.Bcl.1.1.8\lib\net40\System.Threading.Tasks.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <Choose>
+    <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+  <ItemGroup>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\AspectacularTest\AspectacularTest.cs">
+      <Link>AspectacularTest\AspectacularTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\AspectacularTest\LinqTests.cs">
+      <Link>AspectacularTest\LinqTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\AspectacularTest\PerfTest.cs">
+      <Link>AspectacularTest\PerfTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\AspectacularTest\RetryAspectsTest.cs">
+      <Link>AspectacularTest\RetryAspectsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\AdoNetSqlTest.cs">
+      <Link>CoreTests\AdoNetSqlTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\CollectionsTest.cs">
+      <Link>CoreTests\CollectionsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\DateTImeExtTest.cs">
+      <Link>CoreTests\DateTImeExtTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\DynamicPropertyReaderTest.cs">
+      <Link>CoreTests\DynamicPropertyReaderTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\EfExtensionsTest.cs">
+      <Link>CoreTests\EfExtensionsTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\EmailHelpersTest.cs">
+      <Link>CoreTests\EmailHelpersTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\ExceptionExtTest.cs">
+      <Link>CoreTests\ExceptionExtTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\MethodMetadataTest.cs">
+      <Link>CoreTests\MethodMetadataTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\PollAdapterTest.cs">
+      <Link>CoreTests\PollAdapterTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\RangeTest.cs">
+      <Link>CoreTests\RangeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\RelativeTimeRangeTest.cs">
+      <Link>CoreTests\RelativeTimeRangeTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\StringExtTests.cs">
+      <Link>CoreTests\StringExtTests.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\WebStuffTest.cs">
+      <Link>CoreTests\WebStuffTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\XmlSerializationTest.cs">
+      <Link>CoreTests\XmlSerializationTest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\GlobalSuppressions.cs">
+      <Link>GlobalSuppressions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\RunCounter.cs">
+      <Link>RunCounter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\SomeClass.cs">
+      <Link>SomeClass.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\StupidSimpleInProcCache.cs">
+      <Link>StupidSimpleInProcCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\ThreeStrikesAspect.cs">
+      <Link>ThreeStrikesAspect.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+    <None Include="UnsecuredKey.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aspectacular.Framework.Core.40\Aspectacular.Framework.Core.40.csproj">
+      <Project>{c08753dd-60a8-4fab-9118-232a23b8a8cb}</Project>
+      <Name>Aspectacular.Framework.Core.40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aspectacular.Framework.EntityFramework.40\Aspectacular.Framework.EntityFramework.40.csproj">
+      <Project>{bdef966c-e582-4cd8-8b35-43110a41df09}</Project>
+      <Name>Aspectacular.Framework.EntityFramework.40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aspectacular.Framework.Main.40\Aspectacular.Framework.Main.40.csproj">
+      <Project>{da93101c-b550-439f-8b99-54f28f8b2f00}</Project>
+      <Name>Aspectacular.Framework.Main.40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Aspectacular.Framework.Web.40\Aspectacular.Framework.Web.40.csproj">
+      <Project>{31b39315-2fa1-494c-a53d-0db4afe9dbdc}</Project>
+      <Name>Aspectacular.Framework.Web.40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Example.AdventureWorks2008_Dal.40\Example.AdventureWorks2008_Dal.40.csproj">
+      <Project>{de8278ec-e745-45a9-8990-318a778e7fd9}</Project>
+      <Name>Example.AdventureWorks2008_Dal.40</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Choose>
+    <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
+      <ItemGroup>
+        <Reference Include="Microsoft.VisualStudio.QualityTools.CodedUITestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Extension, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+        <Reference Include="Microsoft.VisualStudio.TestTools.UITesting, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+          <Private>False</Private>
+        </Reference>
+      </ItemGroup>
+    </When>
+  </Choose>
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
+  <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
+  <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">
+    <Error Condition="!Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=317567." HelpKeyword="BCLBUILD2001" />
+    <Error Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" Text="The build restored NuGet packages. Build the project again to include these packages in the build. For more information, see http://go.microsoft.com/fwlink/?LinkID=317568." HelpKeyword="BCLBUILD2002" />
+  </Target>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
