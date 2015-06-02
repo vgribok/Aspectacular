@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Core.45", "Vlad.Framework.Core\Aspectacular.Framework.Core.45.csproj", "{07E5DA8B-6018-427B-9ECD-9C39AC691036}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.UnitTests.40", "Vlad.Framework.UnitTests\Aspectacular.Framework.UnitTests.40.csproj", "{D080195E-560B-4A30-837D-A1239A823EC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.UnitTests.45", "Vlad.Framework.UnitTests\Aspectacular.Framework.UnitTests.45.csproj", "{D080195E-560B-4A30-837D-A1239A823EC2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Main.45", "Value.Framework.Aspectacular\Aspectacular.Framework.Main.45.csproj", "{AA70188E-305F-4910-AFEC-6DB7E79F8603}"
 EndProject
