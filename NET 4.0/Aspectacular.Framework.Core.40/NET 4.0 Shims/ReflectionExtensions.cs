@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
+// ReSharper disable once CheckNamespace
 namespace Aspectacular
 {
-#if NET40
     /// <summary>
     /// .NET 4.0 Framework compatibility shim.
     /// </summary>
@@ -47,5 +47,4 @@ namespace Aspectacular
             return type.GetCustomAttributes<T>(inherit).FirstOrDefault();
         }
     }
-#endif
 }

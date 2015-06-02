@@ -65,7 +65,6 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Lazier.cs" />
     <Compile Include="QueryModifiers.cs" />
-    <Compile Include="ReflectionExtensions.cs" />
     <Compile Include="RelativeTimeSpan.cs" />
     <Compile Include="Disposer.cs" />
     <Compile Include="ExceptionExtensions.cs" />
