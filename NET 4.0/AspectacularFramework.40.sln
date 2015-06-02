@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Core.40", "Aspectacular.Framework.Core.40\Aspectacular.Framework.Core.40.csproj", "{C08753DD-60A8-4FAB-9118-232A23B8A8CB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Main.40", "Aspectacular.Framework.Main.40\Aspectacular.Framework.Main.40.csproj", "{DA93101C-B550-439F-8B99-54F28F8B2F00}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C08753DD-60A8-4FAB-9118-232A23B8A8CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C08753DD-60A8-4FAB-9118-232A23B8A8CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C08753DD-60A8-4FAB-9118-232A23B8A8CB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA93101C-B550-439F-8B99-54F28F8B2F00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA93101C-B550-439F-8B99-54F28F8B2F00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA93101C-B550-439F-8B99-54F28F8B2F00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA93101C-B550-439F-8B99-54F28F8B2F00}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
