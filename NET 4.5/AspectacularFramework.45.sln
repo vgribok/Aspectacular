@@ -15,8 +15,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Enti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aspectacular.Framework.Web.45", "Value.Framework.Aspectacular.Web\Aspectacular.Framework.Web.45.csproj", "{273275C4-4AE2-4CD1-8C1E-75ED8BFD50A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.All.45", "NuGet.All\NuGet.All.45.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet Projects", "NuGet Projects", "{7626D21B-3354-41AE-B74D-476B0EB7978F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D77CD267-7C0B-4A70-B316-05E0B3224155}"
@@ -26,16 +24,18 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{D77CD2
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.EntityFramework.45", "NuGet.EntityFramework\NuGet.EntityFramework.45.csproj", "{E407327C-AA24-4CAF-A872-910697E1598A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet UnitTest.45", "NuGet Projects\NuGet UnitTest\NuGet UnitTest.45.csproj", "{37363729-7EE5-40C9-B391-D023325B4DE3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Main.45", "NuGet.Main\NuGet.Main.45.csproj", "{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F1766EF3-BFF3-4C2C-A4CA-CC73D185EBCA}"
 	ProjectSection(SolutionItems) = preProject
 		UnsecuredKey.snk = UnsecuredKey.snk
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Main.45", "NuGet Projects\NuGet.Main\NuGet.Main.45.csproj", "{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.EntityFramework.45", "NuGet Projects\NuGet.EntityFramework\NuGet.EntityFramework.45.csproj", "{E407327C-AA24-4CAF-A872-910697E1598A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.All.45", "NuGet Projects\NuGet.All\NuGet.All.45.csproj", "{0451BAEF-DF2E-4B98-8644-94EE9415E389}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,26 +67,29 @@ Global
 		{273275C4-4AE2-4CD1-8C1E-75ED8BFD50A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{273275C4-4AE2-4CD1-8C1E-75ED8BFD50A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{273275C4-4AE2-4CD1-8C1E-75ED8BFD50A1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E407327C-AA24-4CAF-A872-910697E1598A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E407327C-AA24-4CAF-A872-910697E1598A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E407327C-AA24-4CAF-A872-910697E1598A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{37363729-7EE5-40C9-B391-D023325B4DE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{37363729-7EE5-40C9-B391-D023325B4DE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37363729-7EE5-40C9-B391-D023325B4DE3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E407327C-AA24-4CAF-A872-910697E1598A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E407327C-AA24-4CAF-A872-910697E1598A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E407327C-AA24-4CAF-A872-910697E1598A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E407327C-AA24-4CAF-A872-910697E1598A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{0451BAEF-DF2E-4B98-8644-94EE9415E389} = {7626D21B-3354-41AE-B74D-476B0EB7978F}
-		{E407327C-AA24-4CAF-A872-910697E1598A} = {7626D21B-3354-41AE-B74D-476B0EB7978F}
 		{37363729-7EE5-40C9-B391-D023325B4DE3} = {7626D21B-3354-41AE-B74D-476B0EB7978F}
 		{E1A6F0AD-9204-4AA2-A9B6-4E025FDA1792} = {7626D21B-3354-41AE-B74D-476B0EB7978F}
+		{E407327C-AA24-4CAF-A872-910697E1598A} = {7626D21B-3354-41AE-B74D-476B0EB7978F}
+		{0451BAEF-DF2E-4B98-8644-94EE9415E389} = {7626D21B-3354-41AE-B74D-476B0EB7978F}
 	EndGlobalSection
 EndGlobal
