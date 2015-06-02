@@ -11,7 +11,7 @@ using Aspectacular;
 namespace Example.AdventureWorks2008ObjectContext_Dal.DbCtx
 {
     [InvariantReturn]
-    public partial class AdventureWorksLT2008R2Entities : IEfCallInterceptor, ICallLogger, ISqlServerConnectionProvider
+    partial class AdventureWorksLT2008R2Entities : IEfCallInterceptor, ICallLogger, ISqlServerConnectionProvider
     {
         public int SaveChangeReturnValue { get; set; }
 

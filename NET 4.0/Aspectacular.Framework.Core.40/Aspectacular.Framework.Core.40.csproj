@@ -7,7 +7,7 @@
     <ProjectGuid>{C08753DD-60A8-4FAB-9118-232A23B8A8CB}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Aspectacular.Framework.Core._40</RootNamespace>
+    <RootNamespace>Aspectacular</RootNamespace>
     <AssemblyName>Aspectacular.Framework.Core.40</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
