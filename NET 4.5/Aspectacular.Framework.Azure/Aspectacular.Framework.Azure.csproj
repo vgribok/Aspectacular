@@ -83,13 +83,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.csproj">
+    <ProjectReference Include="..\Value.Framework.Aspectacular\Aspectacular.Framework.Main.45.csproj">
       <Project>{aa70188e-305f-4910-afec-6db7e79f8603}</Project>
-      <Name>Aspectacular.Framework.Main</Name>
+      <Name>Aspectacular.Framework.Main.45</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.csproj">
+    <ProjectReference Include="..\Vlad.Framework.Core\Aspectacular.Framework.Core.45.csproj">
       <Project>{07e5da8b-6018-427b-9ecd-9c39ac691036}</Project>
-      <Name>Aspectacular.Framework.Core</Name>
+      <Name>Aspectacular.Framework.Core.45</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
