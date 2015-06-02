@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\Aspectacular.Framework.EntityFramework.40.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\Aspectacular.Framework.EntityFramework.40.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,7 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\Aspectacular.Framework.EntityFramework.40.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\Aspectacular.Framework.EntityFramework.40.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -73,26 +73,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.EntityFramework\EfInterceptor.cs">
-      <Link>EfInterceptor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.EntityFramework\Extensions.cs">
-      <Link>Extensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.EntityFramework\GlobalSuppressions.cs">
-      <Link>GlobalSuppressions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.EntityFramework\IDbEntityKey.cs">
-      <Link>IDbEntityKey.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.EntityFramework\LazyLoadSwitch.cs">
-      <Link>LazyLoadSwitch.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.EntityFramework\Properties\AssemblyInfo.cs">
-      <Link>AssemblyInfo.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +89,23 @@
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="UnsecuredKey.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\EfInterceptor.cs">
+      <Link>EfInterceptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\GlobalSuppressions.cs">
+      <Link>GlobalSuppressions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\IDbEntityKey.cs">
+      <Link>IDbEntityKey.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\LazyLoadSwitch.cs">
+      <Link>LazyLoadSwitch.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

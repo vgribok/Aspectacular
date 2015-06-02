@@ -80,81 +80,78 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\AspectInjector.cs">
-      <Link>AspectInjector.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\Aspect.cs">
-      <Link>Aspects\Aspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\CacheAspect.cs">
-      <Link>Aspects\CacheAspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\ClaimsAuthorizationAspect.cs">
-      <Link>Aspects\ClaimsAuthorizationAspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\DtcTransactionAspect.cs">
-      <Link>Aspects\DtcTransactionAspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\LinqToSqlAspect.cs">
-      <Link>Aspects\LinqToSqlAspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\LogOutputAspectBase.cs">
-      <Link>Aspects\LogOutputAspectBase.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\RequiredAspectAttribute.cs">
-      <Link>Aspects\RequiredAspectAttribute.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\RetryAspects.cs">
-      <Link>Aspects\RetryAspects.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\SimpleStockAspects.cs">
-      <Link>Aspects\SimpleStockAspects.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\SqlConnectionAttributesAspect.cs">
-      <Link>Aspects\SqlConnectionAttributesAspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\SqlExecutionPlanAspect.cs">
-      <Link>Aspects\SqlExecutionPlanAspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Aspects\StopwatchAspect.cs">
-      <Link>Aspects\StopwatchAspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\CallLog.cs">
-      <Link>CallLog.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\DalInterceptor.cs">
-      <Link>DalInterceptor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Data.cs">
-      <Link>Data.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\DbEngineProxy.cs">
-      <Link>DbEngineProxy.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\DefaultAspects.cs">
-      <Link>DefaultAspects.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\DispAspectInjector.cs">
-      <Link>DispAspectInjector.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\GlobalSuppressions.cs">
-      <Link>GlobalSuppressions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\InstanceInterceptor.cs">
-      <Link>InstanceInterceptor.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\InterceptedMethodMetadata.cs">
-      <Link>InterceptedMethodMetadata.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular\Properties\AssemblyInfo.cs">
-      <Link>AssemblyInfo.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Aspectacular.Framework.Core.40\Aspectacular.Framework.Core.40.csproj">
       <Project>{c08753dd-60a8-4fab-9118-232a23b8a8cb}</Project>
       <Name>Aspectacular.Framework.Core.40</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\AspectInjector.cs">
+      <Link>AspectInjector.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\Aspect.cs">
+      <Link>Aspects\Aspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\CacheAspect.cs">
+      <Link>Aspects\CacheAspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\ClaimsAuthorizationAspect.cs">
+      <Link>Aspects\ClaimsAuthorizationAspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\DtcTransactionAspect.cs">
+      <Link>Aspects\DtcTransactionAspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\LinqToSqlAspect.cs">
+      <Link>Aspects\LinqToSqlAspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\LogOutputAspectBase.cs">
+      <Link>Aspects\LogOutputAspectBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\RequiredAspectAttribute.cs">
+      <Link>Aspects\RequiredAspectAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\RetryAspects.cs">
+      <Link>Aspects\RetryAspects.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\SimpleStockAspects.cs">
+      <Link>Aspects\SimpleStockAspects.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\SqlConnectionAttributesAspect.cs">
+      <Link>Aspects\SqlConnectionAttributesAspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\SqlExecutionPlanAspect.cs">
+      <Link>Aspects\SqlExecutionPlanAspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Aspects\StopwatchAspect.cs">
+      <Link>Aspects\StopwatchAspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\CallLog.cs">
+      <Link>CallLog.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\DalInterceptor.cs">
+      <Link>DalInterceptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\Data.cs">
+      <Link>Data.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\DbEngineProxy.cs">
+      <Link>DbEngineProxy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\DefaultAspects.cs">
+      <Link>DefaultAspects.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\DispAspectInjector.cs">
+      <Link>DispAspectInjector.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\GlobalSuppressions.cs">
+      <Link>GlobalSuppressions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\InstanceInterceptor.cs">
+      <Link>InstanceInterceptor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\InterceptedMethodMetadata.cs">
+      <Link>InterceptedMethodMetadata.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />

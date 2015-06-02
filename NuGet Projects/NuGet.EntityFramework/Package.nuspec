@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>Aspectacular.EntityFramework</id>
+      <version>2.1.8.0</version>
+      <title>Aspectacular.EntityFramework</title>
+        <authors>Vlad Hrybok</authors>
+        <owners>Vlad Hrybok</owners>
+        <licenseUrl>https://github.com/vgribok/Aspectacular/blob/master/README.md</licenseUrl>
+        <projectUrl>https://github.com/vgribok/Aspectacular</projectUrl>
+        <iconUrl>http://download.ultidev.com/Images/katrina128.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>An AOP framework that can intercept any method call: instance or static, virtual or not. It's very easy to get started with, it has in-depth support of LINQ and Entity Framework and comes with bunch of useful stock aspect classes for DAL, BL, Testing and Service tiers.</description>
+        <summary>LINQ-friendly, Aspect-Oriented framework for .NET 4.x enterprise dev, with Entity Framework support.</summary>
+        <releaseNotes>
+          -------------------- UPDATE in .NuSpec file --------------------
+        </releaseNotes>
+      <copyright>Copyright 2013-2015 Vlad Hrybok</copyright>
+        <language>en-US</language>
+        <tags>AOP Aspect-Oriented Aspect Entity Framework Linq Enterprise IoC</tags>
+        <dependencies>
+          <group targetFramework=".NETFramework4.0">
+            <dependency id="Microsoft.Bcl.Async" version="1.0.168" />
+            <dependency id="EntityFramework" version="5.0.0" />
+          </group>
+          <group targetFramework=".NETFramework4.5">
+            <dependency id="EntityFramework" version="5.0.0" />
+          </group>
+        </dependencies>
+        <frameworkAssemblies>
+            <frameworkAssembly assemblyName="System.Configuration" targetFramework="" />
+            <frameworkAssembly assemblyName="System.Data.Entity" targetFramework="" />
+            <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework="" />
+        </frameworkAssemblies>
+    </metadata>
+    <files>
+      <!-- .NET Framework 4.0 files -->
+      <file src="..\..\NET 4.0\Aspectacular.Framework.EntityFramework.40\bin\Release\Aspectacular.Framework.Main.40.dll" target="lib\net40\Aspectacular.Framework.Main.40.dll" />
+      <file src="..\..\NET 4.0\Aspectacular.Framework.EntityFramework.40\bin\Release\Aspectacular.Framework.Core.40.dll" target="lib\net40\Aspectacular.Framework.Core.40.dll" />
+      <file src="..\..\NET 4.0\Aspectacular.Framework.EntityFramework.40\bin\Release\Aspectacular.Framework.Main.40.xml" target="lib\net40\Aspectacular.Framework.Main.40.xml" />
+      <file src="..\..\NET 4.0\Aspectacular.Framework.EntityFramework.40\bin\Release\Aspectacular.Framework.Core.40.xml" target="lib\net40\Aspectacular.Framework.Core.40.xml" />
+      <file src="..\..\NET 4.0\Aspectacular.Framework.EntityFramework.40\bin\Release\Aspectacular.Framework.EntityFramework.40.xml" target="lib\net40\Aspectacular.Framework.EntityFramework.40.xml" />
+      <file src="..\..\NET 4.0\Aspectacular.Framework.EntityFramework.40\bin\Release\Aspectacular.Framework.EntityFramework.40.dll" target="lib\net40\Aspectacular.Framework.EntityFramework.40.dll" />
+
+      <!-- .NET Framework 4.5 files -->
+      <file src="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\bin\Release\Aspectacular.Framework.Main.dll" target="lib\net45\Aspectacular.Framework.Main.dll" />
+      <file src="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\bin\Release\Aspectacular.Framework.Core.dll" target="lib\net45\Aspectacular.Framework.Core.dll" />
+      <file src="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\bin\Release\Aspectacular.Framework.Main.xml" target="lib\net45\Aspectacular.Framework.Main.xml" />
+      <file src="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\bin\Release\Aspectacular.Framework.Core.xml" target="lib\net45\Aspectacular.Framework.Core.xml" />
+      <file src="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\bin\Release\Aspectacular.Framework.EntityFramework.xml" target="lib\net45\Aspectacular.Framework.EntityFramework.xml" />
+      <file src="..\..\NET 4.5\Aspectacular.Framework.EntityFramework.45\bin\Release\Aspectacular.Framework.EntityFramework.dll" target="lib\net45\Aspectacular.Framework.EntityFramework.dll" />
+
+      <!-- Script files -->
+      <file src="tools\init.ps1" target="tools\init.ps1" />
+      <file src="tools\install.ps1" target="tools\install.ps1" />
+      <file src="tools\uninstall.ps1" target="tools\uninstall.ps1" />
+    </files>
+</package>

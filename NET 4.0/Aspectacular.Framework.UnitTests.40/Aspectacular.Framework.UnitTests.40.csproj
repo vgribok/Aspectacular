@@ -91,73 +91,73 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\AspectacularTest\AspectacularTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\AspectacularTest\AspectacularTest.cs">
       <Link>AspectacularTest\AspectacularTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\AspectacularTest\LinqTests.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\AspectacularTest\LinqTests.cs">
       <Link>AspectacularTest\LinqTests.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\AspectacularTest\PerfTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\AspectacularTest\PerfTest.cs">
       <Link>AspectacularTest\PerfTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\AspectacularTest\RetryAspectsTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\AspectacularTest\RetryAspectsTest.cs">
       <Link>AspectacularTest\RetryAspectsTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\AdoNetSqlTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\AdoNetSqlTest.cs">
       <Link>CoreTests\AdoNetSqlTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\CollectionsTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\CollectionsTest.cs">
       <Link>CoreTests\CollectionsTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\DateTImeExtTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\DateTImeExtTest.cs">
       <Link>CoreTests\DateTImeExtTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\DynamicPropertyReaderTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\DynamicPropertyReaderTest.cs">
       <Link>CoreTests\DynamicPropertyReaderTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\EfExtensionsTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\EfExtensionsTest.cs">
       <Link>CoreTests\EfExtensionsTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\EmailHelpersTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\EmailHelpersTest.cs">
       <Link>CoreTests\EmailHelpersTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\ExceptionExtTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\ExceptionExtTest.cs">
       <Link>CoreTests\ExceptionExtTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\MethodMetadataTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\MethodMetadataTest.cs">
       <Link>CoreTests\MethodMetadataTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\PollAdapterTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\PollAdapterTest.cs">
       <Link>CoreTests\PollAdapterTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\RangeTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\RangeTest.cs">
       <Link>CoreTests\RangeTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\RelativeTimeRangeTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\RelativeTimeRangeTest.cs">
       <Link>CoreTests\RelativeTimeRangeTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\StringExtTests.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\StringExtTests.cs">
       <Link>CoreTests\StringExtTests.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\WebStuffTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\WebStuffTest.cs">
       <Link>CoreTests\WebStuffTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\CoreTests\XmlSerializationTest.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\CoreTests\XmlSerializationTest.cs">
       <Link>CoreTests\XmlSerializationTest.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\GlobalSuppressions.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\GlobalSuppressions.cs">
       <Link>GlobalSuppressions.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\RunCounter.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\RunCounter.cs">
       <Link>RunCounter.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\SomeClass.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\SomeClass.cs">
       <Link>SomeClass.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\StupidSimpleInProcCache.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\StupidSimpleInProcCache.cs">
       <Link>StupidSimpleInProcCache.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.UnitTests\ThreeStrikesAspect.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.UnitTests.45\ThreeStrikesAspect.cs">
       <Link>ThreeStrikesAspect.cs</Link>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />

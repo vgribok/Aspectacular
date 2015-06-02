@@ -69,79 +69,76 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\AdoNetExtensions.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\AdoNetExtensions.cs">
       <Link>AdoNetExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\BlockingPoll.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\BlockingPoll.cs">
       <Link>BlockingPoll.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\Caching.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\Caching.cs">
       <Link>Caching.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\CollectionExtensions.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\CollectionExtensions.cs">
       <Link>CollectionExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\DateTimeExtensions.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\DateTimeExtensions.cs">
       <Link>DateTimeExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\Disposer.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\Disposer.cs">
       <Link>Disposer.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\Email.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\Email.cs">
       <Link>Email.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\ExceptionExtensions.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\ExceptionExtensions.cs">
       <Link>ExceptionExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\FastDynamicActivator.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\FastDynamicActivator.cs">
       <Link>FastDynamicActivator.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\FullOuterJoin.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\FullOuterJoin.cs">
       <Link>FullOuterJoin.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\GlobalSuppressions.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\GlobalSuppressions.cs">
       <Link>GlobalSuppressions.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\Lazier.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\Lazier.cs">
       <Link>Lazier.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\ModifiedString.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\ModifiedString.cs">
       <Link>ModifiedString.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\PredicateBuilder.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\PredicateBuilder.cs">
       <Link>PredicateBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\Properties\AssemblyInfo.cs">
-      <Link>AssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\QueryableExtensions.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\QueryableExtensions.cs">
       <Link>QueryableExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\QueryModifiers.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\QueryModifiers.cs">
       <Link>QueryModifiers.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\Range.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\Range.cs">
       <Link>Range.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\RelativeTimeSpan.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\RelativeTimeSpan.cs">
       <Link>RelativeTimeSpan.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\SqlConnAttribs.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\SqlConnAttribs.cs">
       <Link>SqlConnAttribs.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\StringExtensions.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\StringExtensions.cs">
       <Link>StringExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\SvcLocator.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\SvcLocator.cs">
       <Link>SvcLocator.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\Threading.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\Threading.cs">
       <Link>Threading.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\TypeAndReflectionExtensions.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\TypeAndReflectionExtensions.cs">
       <Link>TypeAndReflectionExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\NET 4.5\Vlad.Framework.Core\XmlSerializationHelpers.cs">
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\XmlSerializationHelpers.cs">
       <Link>XmlSerializationHelpers.cs</Link>
     </Compile>
     <Compile Include="NET 4.0 Shims\ReflectionExtensions.cs" />

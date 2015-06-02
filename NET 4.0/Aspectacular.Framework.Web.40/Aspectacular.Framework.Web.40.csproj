@@ -79,29 +79,6 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.Web\AspNetRoleAuthorizationAspect.cs">
-      <Link>AspNetRoleAuthorizationAspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.Web\AspNetTraceAspect.cs">
-      <Link>AspNetTraceAspect.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.Web\QueryStringEx.cs">
-      <Link>QueryStringEx.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.Web\RequestCache.cs">
-      <Link>RequestCache.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.Web\RequestExtensions.cs">
-      <Link>RequestExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.Web\SimpleJsonSerializer.cs">
-      <Link>SimpleJsonSerializer.cs</Link>
-    </Compile>
-    <Compile Include="..\..\NET 4.5\Value.Framework.Aspectacular.Web\SmartSession.cs">
-      <Link>SmartSession.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Aspectacular.Framework.Core.40\Aspectacular.Framework.Core.40.csproj">
       <Project>{c08753dd-60a8-4fab-9118-232a23b8a8cb}</Project>
       <Name>Aspectacular.Framework.Core.40</Name>
@@ -110,6 +87,29 @@
       <Project>{da93101c-b550-439f-8b99-54f28f8b2f00}</Project>
       <Name>Aspectacular.Framework.Main.40</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Web.45\AspNetRoleAuthorizationAspect.cs">
+      <Link>AspNetRoleAuthorizationAspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Web.45\AspNetTraceAspect.cs">
+      <Link>AspNetTraceAspect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Web.45\QueryStringEx.cs">
+      <Link>QueryStringEx.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Web.45\RequestCache.cs">
+      <Link>RequestCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Web.45\RequestExtensions.cs">
+      <Link>RequestExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Web.45\SimpleJsonSerializer.cs">
+      <Link>SimpleJsonSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Web.45\SmartSession.cs">
+      <Link>SmartSession.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
