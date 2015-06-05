@@ -18,11 +18,12 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="T">Type of the deserialized object.</typeparam>
         /// <param name="xml">XML text to be parsed and deserialized.</param>
+        /// <param name="defaultNamespace">Optional, default XML namespace</param>
         /// <returns>Deserialized object</returns>
-        public static T FromXml<T>(this string xml)
+        public static T FromXml<T>(this string xml, string defaultNamespace = null)
             where T : class, new()
         {
-            var xmlSer = new XmlSerializer(typeof(T));
+            var xmlSer = new XmlSerializer(typeof(T), defaultNamespace);
 
             using (StringReader reader = new StringReader(xml))
             {
@@ -138,12 +139,13 @@ namespace Aspectacular
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="xmlNode"></param>
+        /// <param name="defaultNamespace">Optional, default XML namespace</param>
         /// <returns></returns>
-        public static T Deserialize<T>(this XmlNode xmlNode) where T : new()
+        public static T Deserialize<T>(this XmlNode xmlNode, string defaultNamespace = null) where T : new()
         {
             using (XmlReader reader = new XmlNodeReader(xmlNode))
             {
-                XmlSerializer ser = new XmlSerializer(typeof(T));
+                XmlSerializer ser = new XmlSerializer(typeof(T), defaultNamespace);
                 T obj = (T)ser.Deserialize(reader);
                 return obj;
             }

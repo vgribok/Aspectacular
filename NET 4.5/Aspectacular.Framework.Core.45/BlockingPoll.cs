@@ -41,7 +41,14 @@ namespace Aspectacular
         /// <returns></returns>
         private readonly Func<Tuple<bool, TPollRetVal>> asyncPollFunc;
 
+        /// <summary>
+        /// Maximum delay time, in milliseconds, between subsequent polling hits.
+        /// </summary>
         public readonly int MaxPollSleepDelayMillisec;
+        
+        /// <summary>
+        /// Delay time, in milliseconds, after the first polling hit that came back empty.
+        /// </summary>
         public readonly int DelayAfterFirstEmptyPollMillisec;
 
         private readonly WaitHandle[] abortSignals;
@@ -95,14 +102,22 @@ namespace Aspectacular
         ///     Payload processing callback may start its own thread(s) to process messages asynchronously and quickly return
         ///     control to the polling thread.
         /// </remarks>
+#if NET40
+        public Task Subscribe(Action<TPollRetVal> payloadProcessCallback = null)
+#else
         public async void Subscribe(Action<TPollRetVal> payloadProcessCallback = null)
+#endif
         {
             if(!this.IsStopped)
                 throw new InvalidOperationException("Polling loop is already running. Call Stop() before calling this method.");
 
             SynchronizationContext syncContext = SynchronizationContext.Current;
             Task task = Task.Factory.StartNew(() => this.RunPollLoop(syncContext, payloadProcessCallback ?? this.Process));
+#if NET40
+            return task;
+#else
             await task;
+#endif
         }
 
         /// <summary>
