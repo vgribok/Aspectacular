@@ -93,6 +93,9 @@
     <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\PredicateBuilder.cs">
       <Link>PredicateBuilder.cs</Link>
     </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\Properties\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\QueryableExtensions.cs">
       <Link>QueryableExtensions.cs</Link>
     </Compile>

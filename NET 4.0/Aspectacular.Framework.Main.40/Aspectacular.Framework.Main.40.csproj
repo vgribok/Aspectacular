@@ -69,6 +69,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\Properties\AssemblyInfo.cs">
+      <Link>AssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Main.45\AspectInjector.cs">
       <Link>AspectInjector.cs</Link>
     </Compile>
