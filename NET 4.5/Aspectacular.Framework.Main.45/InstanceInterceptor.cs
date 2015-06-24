@@ -14,9 +14,18 @@ using System.Linq.Expressions;
 
 namespace Aspectacular
 {
+    /// <summary>
+    /// AOP proxy for invoking non-static (instance) methods.
+    /// </summary>
+    /// <typeparam name="TInstance"></typeparam>
     public class InstanceProxy<TInstance> : Proxy
         where TInstance : class
     {
+        /// <summary>
+        ///     Instance of an object whose methods are intercepted.
+        ///     Null when static methods are intercepted.
+        ///     Can be an derived from IAspect of object wants to be its own
+        /// </summary>
         public new TInstance AugmentedClassInstance
         {
             get { return (TInstance)base.AugmentedClassInstance; }
@@ -411,7 +420,7 @@ namespace Aspectacular
     /// <summary>
     ///     Extensions and static convenience methods for intercepted method calls.
     /// </summary>
-// ReSharper disable once InconsistentNaming
+    // ReSharper disable once InconsistentNaming
     public static partial class AOP
     {
         /// <summary>

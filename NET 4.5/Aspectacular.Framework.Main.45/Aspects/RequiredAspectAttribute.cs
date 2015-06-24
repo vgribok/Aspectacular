@@ -30,6 +30,11 @@ namespace Aspectacular
         InstantiateAndAddFirst,
     }
 
+    /// <summary>
+    /// Use on methods or classes that require an aspect.
+    /// Proxy will throw an exception if the method decorated with this attribute is not called with the specified aspect.
+    /// This attribute has no effect on calls made without AOP.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = true)]
     public class RequiredAspectAttribute : Attribute
     {
