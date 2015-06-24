@@ -76,7 +76,7 @@ namespace Aspectacular
                 else if(obj is StringWithConstraints)
                     other = obj.ToString();
                 else
-                    throw new Exception("Cannot compare ModifiedString to \"{0}\".".SmartFormat(obj.GetType().FormatCSharp()));
+                    throw new Exception("Cannot compare ModifiedString to \"{0}\".".SmartFormat(obj.GetType().FullName));
             }
 
             if(this.String == null)

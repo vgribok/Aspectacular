@@ -103,7 +103,8 @@ namespace Aspectacular
                 Type underlyingType = type.GetGenericArguments()[0];
                 return string.Format("{0}?", TypeToCSharpString(underlyingType));
             }
-            string baseName = typeName.Substring(0, typeName.IndexOf("`", StringComparison.InvariantCulture));
+            // ReSharper disable once StringIndexOfIsCultureSpecific.1
+            string baseName = typeName.Substring(0, typeName.IndexOf("`"));
             string generic = string.Join(", ", type.GetGenericArguments().Select(paramType => TypeToCSharpString(paramType, fullyQualified)));
             string fullName = string.Format("{0}<{1}>", baseName, generic);
             return fullName;

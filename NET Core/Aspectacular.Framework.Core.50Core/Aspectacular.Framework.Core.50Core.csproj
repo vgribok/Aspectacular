@@ -24,7 +24,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -32,7 +32,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -52,7 +52,23 @@
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Collections">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Data.Common">
+      <HintPath>..\packages\System.Data.Common.4.0.0-beta-22816\lib\portable-wpa81+wp80+win80+net45+aspnetcore50\System.Data.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Globalization">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.IO">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Linq">
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Linq.Expressions">
       <Private>True</Private>
     </Reference>
     <Reference Include="System.Reflection">
@@ -76,6 +92,9 @@
       <Private>True</Private>
       <HintPath>..\packages\System.Text.Encoding.4.0.10-beta-22816\lib\portable-wpa81+wp80+win80+net45+aspnetcore50\System.Text.Encoding.dll</HintPath>
     </Reference>
+    <Reference Include="System.Text.RegularExpressions">
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Threading.Tasks">
       <Private>True</Private>
       <HintPath>..\packages\System.Threading.Tasks.4.0.10-beta-22816\lib\portable-wpa81+wp80+win80+net45+aspnetcore50\System.Threading.Tasks.dll</HintPath>
@@ -85,9 +104,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\ModifiedString.cs">
+      <Link>ModifiedString.cs</Link>
+    </Compile>
     <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\Properties\AssemblyInfo.cs">
       <Link>AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\StringExtensions.cs">
+      <Link>StringExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Core50Shims.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

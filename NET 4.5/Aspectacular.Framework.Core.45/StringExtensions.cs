@@ -44,7 +44,7 @@ namespace Aspectacular
         /// <returns></returns>
         public static string SmartFormat(this string format, params object[] args)
         {
-            if(format == null || args.IsNullOrEmpty())
+            if(format == null || args == null || args.Length == 0)
                 return format;
 
             return string.Format(format, args);
@@ -318,7 +318,11 @@ namespace Aspectacular
             if(str == null)
                 return null;
 
+#if !CORE
             str = str.ToLower(optionalCultureInfo ?? CultureInfo.InstalledUICulture);
+#else
+            str = str.ToLower();
+#endif
 
             return str;
         }
@@ -338,14 +342,24 @@ namespace Aspectacular
         ///     handles null properly. Uses user's UI culture if optional culture is not specified.
         /// </summary>
         /// <param name="str"></param>
+#if !CORE
         /// <param name="optionalCultureInfo">Optional CultureInfo. Users user's UI culture if not specified.</param>
+#endif
         /// <returns></returns>
-        public static string ToUpperEx(this string str, CultureInfo optionalCultureInfo = null)
+        public static string ToUpperEx(this string str
+#if !CORE
+            , CultureInfo optionalCultureInfo = null
+#endif
+            )
         {
             if(str == null)
                 return null;
 
+#if CORE
+            str = str.ToUpper();
+#else
             str = str.ToUpper(optionalCultureInfo ?? CultureInfo.InstalledUICulture);
+#endif
 
             return str;
         }
@@ -357,7 +371,11 @@ namespace Aspectacular
         /// <returns></returns>
         public static string ToUpperInvariantEx(this string str)
         {
+#if CORE
+            return str.ToUpperEx();
+#else
             return str.ToUpperEx(CultureInfo.InvariantCulture);
+#endif
         }
 
         #endregion Improved upper/lower case conversion methods
@@ -434,7 +452,8 @@ namespace Aspectacular
             if(string.IsNullOrEmpty(str))
                 return null;
 
-            int sepIndex = str.IndexOf(separator, StringComparison.InvariantCulture);
+            // ReSharper disable once StringIndexOfIsCultureSpecific.1
+            int sepIndex = str.IndexOf(separator);
             if(sepIndex < 0)
                 return null;
 
@@ -455,7 +474,8 @@ namespace Aspectacular
             if(string.IsNullOrEmpty(str))
                 return null;
 
-            int sepIndex = str.LastIndexOf(separator, StringComparison.InvariantCulture);
+            // ReSharper disable once StringLastIndexOfIsCultureSpecific.1
+            int sepIndex = str.LastIndexOf(separator);
             if(sepIndex < 0)
                 return null;
 
