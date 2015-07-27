@@ -32,8 +32,9 @@ namespace Aspectacular
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="aspects"></param>
-        public DbContextSingleCallProxy(TDbContext dbContext, IEnumerable<Aspect> aspects)
-            : base(dbContext, aspects)
+        /// <param name="autoDispose">If true, Dispose() will be called after the end of the intercepted call.</param>
+        public DbContextSingleCallProxy(TDbContext dbContext, IEnumerable<Aspect> aspects, bool autoDispose = false)
+            : base(dbContext, aspects, autoDispose)
         {
         }
 
@@ -152,11 +153,12 @@ namespace Aspectacular
         /// <typeparam name="TDbContext"></typeparam>
         /// <param name="dbExistingContext"></param>
         /// <param name="aspects"></param>
+        /// <param name="autoDispose">If true, Dispose() will be called after the end of the intercepted call.</param>
         /// <returns></returns>
-        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(this TDbContext dbExistingContext, IEnumerable<Aspect> aspects = null)
+        public static DbContextSingleCallProxy<TDbContext> GetDbProxy<TDbContext>(this TDbContext dbExistingContext, IEnumerable<Aspect> aspects = null, bool autoDispose = false)
             where TDbContext : DbContext, new()
         {
-            var proxy = new DbContextSingleCallProxy<TDbContext>(dbExistingContext, aspects);
+            var proxy = new DbContextSingleCallProxy<TDbContext>(dbExistingContext, aspects, autoDispose);
             return proxy;
         }
 

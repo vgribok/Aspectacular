@@ -28,8 +28,9 @@ namespace Aspectacular
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="aspects"></param>
-        protected DbEngineProxy(TDbEngine dbContext, IEnumerable<Aspect> aspects)
-            : base(dbContext, aspects)
+        /// <param name="autoDispose">If true, Dispose() will be called after the end of the intercepted call.</param>
+        protected DbEngineProxy(TDbEngine dbContext, IEnumerable<Aspect> aspects, bool autoDispose = false)
+            : base(dbContext, aspects, autoDispose)
         {
         }
 

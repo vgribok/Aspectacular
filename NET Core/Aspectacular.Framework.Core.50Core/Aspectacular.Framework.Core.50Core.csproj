@@ -104,6 +104,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\CollectionExtensions.cs">
+      <Link>CollectionExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\NET 4.5\Aspectacular.Framework.Core.45\ModifiedString.cs">
       <Link>ModifiedString.cs</Link>
     </Compile>

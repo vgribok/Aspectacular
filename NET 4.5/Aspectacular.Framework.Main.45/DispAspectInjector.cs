@@ -13,8 +13,8 @@ namespace Aspectacular
     public class RunDisposeProxy<TDispClass> : InstanceProxy<TDispClass>
         where TDispClass : class, IDisposable
     {
-        protected internal RunDisposeProxy(TDispClass instance, IEnumerable<Aspect> aspects)
-            : base(instance, aspects)
+        protected internal RunDisposeProxy(TDispClass instance, IEnumerable<Aspect> aspects, bool autoDispose = false)
+            : base(() => instance, autoDispose ? Cleanup : (Action<TDispClass>)null, aspects)
         {
         }
 
@@ -39,8 +39,9 @@ namespace Aspectacular
         /// </summary>
         /// <param name="instance"></param>
         /// <param name="aspects"></param>
-        public AllocateRunDisposeProxy(TDispClass instance, IEnumerable<Aspect> aspects)
-            : base(instance, aspects)
+        /// <param name="autoDispose">If true, Dispose() will be called after the end of the intercepted call.</param>
+        public AllocateRunDisposeProxy(TDispClass instance, IEnumerable<Aspect> aspects, bool autoDispose = false)
+            : base(instance, aspects, autoDispose)
         {
         }
 
