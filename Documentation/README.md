@@ -13,7 +13,7 @@ This documentation provides a complete analysis of the **Aspectacular AOP (Aspec
 
 ## 🚨 Technical Debt Alert
 
-**IMPORTANT:** This codebase contains significant technical debt that requires attention. Please review the comprehensive technical debt analysis:
+> **IMPORTANT:** This codebase contains significant technical debt that requires attention. Please review the comprehensive technical debt analysis:
 
 ➡️ **[TECHNICAL DEBT REPORT](technical-debt-report.md)** ⬅️
 
